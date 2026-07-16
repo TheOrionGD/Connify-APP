@@ -1,0 +1,752 @@
+[
+  {
+    "folderName": "accept_verify",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify Safety - Accept &amp; Verify",
+    "icons": [
+      "arrow_back",
+      "location_on",
+      "description",
+      "gpp_maybe",
+      "home",
+      "history",
+      "settings"
+    ],
+    "buttons": [
+      "arrow_back",
+      "EMERGENCY",
+      "ARRIVED AT SCENE",
+      "Contact Sarah"
+    ],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 9
+  },
+  {
+    "folderName": "accept_verify_handshake",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Identity Verification | Connify",
+    "icons": [],
+    "buttons": [
+      "emergency",
+      "Success",
+      "Error",
+      "ISSUE TRUST CAPSULE"
+    ],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 6
+  },
+  {
+    "folderName": "active_episode_helper",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify Safety - Active Episode",
+    "icons": [
+      "arrow_back",
+      "call",
+      "chat",
+      "near_me",
+      "verified_user",
+      "home",
+      "history",
+      "settings"
+    ],
+    "buttons": [
+      "arrow_back",
+      "EMERGENCY",
+      "call",
+      "chat",
+      "Complete Episode"
+    ],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 12
+  },
+  {
+    "folderName": "active_episode_you",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify Safety - Active Episode",
+    "icons": [
+      "arrow_back",
+      "history",
+      "chat",
+      "call",
+      "verified_user",
+      "share_location"
+    ],
+    "buttons": [
+      "arrow_back",
+      "EMERGENCY",
+      "chat\nCHAT",
+      "call\nCALL",
+      "Complete Episode",
+      "Report Issue"
+    ],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 8
+  },
+  {
+    "folderName": "connify_mobile_home",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify | Safety Coordinated by Those Nearby",
+    "icons": [
+      "emergency",
+      "record_voice_over",
+      "volunteer_activism",
+      "verified_user",
+      "location_off",
+      "history_toggle_off",
+      "lock",
+      "stars",
+      "notification_important",
+      "history",
+      "settings"
+    ],
+    "buttons": [
+      "Get Started",
+      "Learn More",
+      "Start My Safety Profile"
+    ],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 15
+  },
+  {
+    "folderName": "connify_mobile_web",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify | Urgent Serenity",
+    "icons": [],
+    "buttons": [
+      "Get Started",
+      "security\nSTART SESSION",
+      "location_on\nLIVE MAP",
+      "sos",
+      "apps\n\nDownload on the\nApp Store",
+      "play_books\n\nGet it on\nGoogle Play",
+      "shield"
+    ],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 16
+  },
+  {
+    "folderName": "connify_safety_coordination_protocol",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify | Safety Coordinated by those Nearby",
+    "icons": [
+      "add_location_alt",
+      "verified_user",
+      "handshake",
+      "arrow_forward",
+      "touch_app",
+      "radio_button_checked"
+    ],
+    "buttons": [
+      "Get Started",
+      "Get Started",
+      "Join as Helper",
+      "View Local Alerts arrow_forward",
+      "Download Now"
+    ],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 9
+  },
+  {
+    "folderName": "connify_splash_screen_desktop",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify | Initializing Safety Network",
+    "icons": [
+      "verified_user",
+      "gpp_maybe",
+      "satellite_alt"
+    ],
+    "buttons": [],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 5
+  },
+  {
+    "folderName": "connify_splash_screen_mobile",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify | Secure Entry",
+    "icons": [],
+    "buttons": [],
+    "inputs": [],
+    "colors": {
+      "on-tertiary": "#ffffff",
+      "surface-bright": "#f9f9f9",
+      "background": "#f9f9f9",
+      "surface-dim": "#dadada",
+      "surface-container-high": "#e8e8e8",
+      "on-tertiary-container": "#f8f7ff",
+      "on-primary-fixed-variant": "#930100",
+      "primary": "#b60100",
+      "on-primary-fixed": "#410000",
+      "tertiary-fixed": "#dae2ff",
+      "surface-container-highest": "#e2e2e2",
+      "on-error-container": "#93000a",
+      "on-secondary-container": "#636451",
+      "surface-container": "#eeeeee",
+      "tertiary": "#0051c6",
+      "tertiary-container": "#0068f8",
+      "secondary-fixed": "#e4e4cc",
+      "on-secondary": "#ffffff",
+      "surface-tint": "#c00000",
+      "on-background": "#1b1b1b",
+      "tertiary-fixed-dim": "#b1c5ff",
+      "on-secondary-fixed-variant": "#474836",
+      "primary-container": "#e50000",
+      "error-container": "#ffdad6",
+      "inverse-surface": "#303030",
+      "on-surface": "#1b1b1b",
+      "primary-fixed-dim": "#ffb4a8",
+      "on-surface-variant": "#5f3f3a",
+      "on-primary-container": "#fff6f4",
+      "inverse-on-surface": "#f1f1f1",
+      "primary-fixed": "#ffdad4",
+      "on-error": "#ffffff",
+      "error": "#ba1a1a",
+      "outline": "#946e68",
+      "secondary-container": "#e1e1c9",
+      "outline-variant": "#e9bcb5",
+      "on-secondary-fixed": "#1b1d0e",
+      "surface-variant": "#e2e2e2",
+      "surface": "#f9f9f9",
+      "on-primary": "#ffffff",
+      "surface-container-low": "#f3f3f3",
+      "on-tertiary-fixed": "#001847",
+      "on-tertiary-fixed-variant": "#0040a0",
+      "inverse-primary": "#ffb4a8",
+      "secondary": "#5e604d",
+      "secondary-fixed-dim": "#c8c8b0",
+      "surface-container-lowest": "#ffffff"
+    },
+    "iconCount": 2
+  },
+  {
+    "folderName": "connify_trusted_safety_coordination",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify | Urgent Serenity in Every Step",
+    "icons": [
+      "menu",
+      "verified_user",
+      "location_on",
+      "emergency",
+      "send_to_mobile",
+      "verified",
+      "handshake",
+      "check_circle",
+      "check_circle",
+      "check_circle",
+      "check_circle",
+      "check_circle",
+      "check_circle",
+      "shield_person"
+    ],
+    "buttons": [
+      "Get Started",
+      "menu",
+      "Get Started",
+      "Join as Helper",
+      "Learn More",
+      "Start a Request",
+      "Become a Helper",
+      "Download App",
+      "Request a Demo"
+    ],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 15
+  },
+  {
+    "folderName": "connify_trustworthy_safety_protocol",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify | Urgent Serenity Safety Protocol",
+    "icons": [
+      "verified_user",
+      "arrow_forward",
+      "menu",
+      "account_circle",
+      "my_location",
+      "add_alert",
+      "fact_check",
+      "radar",
+      "qr_code_scanner",
+      "qr_code_2"
+    ],
+    "buttons": [
+      "Get Started",
+      "Start Safe Session arrow_forward",
+      "View Safety Network",
+      "SOS",
+      "Apply as Verified Helper",
+      "Download Connify",
+      "Partner with Us"
+    ],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 11
+  },
+  {
+    "folderName": "dashboard",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify Safety Dashboard",
+    "icons": [],
+    "buttons": [
+      "EMERGENCY",
+      "I NEED HELP",
+      "I CAN HELP",
+      "check_circle I'M SAFE",
+      "add +5 MIN",
+      "sos\nHOLD TO TRIGGER"
+    ],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 15
+  },
+  {
+    "folderName": "emergency_mode",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify Safety | Emergency Mode",
+    "icons": [
+      "distance",
+      "call",
+      "mic",
+      "home",
+      "history",
+      "settings"
+    ],
+    "buttons": [
+      "arrow_back",
+      "EMERGENCY",
+      "emergency_share\nEMERGENCY BROADCAST",
+      "call\n                CALL EMERGENCY SERVICES",
+      "mic\n                START AUDIO RECORDING"
+    ],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 13
+  },
+  {
+    "folderName": "episode_history",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify Safety - Episode History",
+    "icons": [
+      "arrow_back",
+      "location_on",
+      "verified_user",
+      "check_circle",
+      "star",
+      "lock_open",
+      "home",
+      "emergency_share",
+      "history",
+      "settings"
+    ],
+    "buttons": [
+      "arrow_back",
+      "EMERGENCY",
+      "PROVIDE FEEDBACK",
+      "YES",
+      "NO",
+      "SUBMIT EVALUATION"
+    ],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 16
+  },
+  {
+    "folderName": "features_governance_connify_safety",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify | Safety Protocol &amp; Features",
+    "icons": [
+      "emergency_share",
+      "do_not_disturb_on",
+      "key_visualizer",
+      "check_circle",
+      "check_circle",
+      "check_circle",
+      "gavel"
+    ],
+    "buttons": [
+      "Get Started",
+      "Initialize Protocol",
+      "View Case Studies"
+    ],
+    "inputs": [],
+    "colors": {
+      "on-surface-variant": "#5f3f3a",
+      "error": "#ba1a1a",
+      "on-tertiary": "#ffffff",
+      "secondary": "#5e604d",
+      "on-tertiary-container": "#f8f7ff",
+      "on-primary-container": "#fff6f4",
+      "on-background": "#1b1b1b",
+      "tertiary": "#0051c6",
+      "surface-container-high": "#e8e8e8",
+      "outline": "#946e68",
+      "secondary-fixed-dim": "#c8c8b0",
+      "on-primary-fixed": "#410000",
+      "tertiary-fixed-dim": "#b1c5ff",
+      "on-surface": "#1b1b1b",
+      "surface-container-highest": "#e2e2e2",
+      "surface-tint": "#c00000",
+      "on-tertiary-fixed-variant": "#0040a0",
+      "background": "#f9f9f9",
+      "surface-bright": "#f9f9f9",
+      "inverse-surface": "#303030",
+      "on-secondary-fixed": "#1b1d0e",
+      "on-secondary-container": "#636451",
+      "surface-container": "#eeeeee",
+      "surface-dim": "#dadada",
+      "primary-fixed-dim": "#ffb4a8",
+      "on-error-container": "#93000a",
+      "tertiary-fixed": "#dae2ff",
+      "primary": "#b60100",
+      "surface-container-low": "#f3f3f3",
+      "on-secondary-fixed-variant": "#474836",
+      "primary-container": "#e50000",
+      "outline-variant": "#e9bcb5",
+      "error-container": "#ffdad6",
+      "on-secondary": "#ffffff",
+      "on-primary-fixed-variant": "#930100",
+      "surface-variant": "#e2e2e2",
+      "tertiary-container": "#0068f8",
+      "secondary-container": "#e1e1c9",
+      "primary-fixed": "#ffdad4",
+      "inverse-primary": "#ffb4a8",
+      "surface-container-lowest": "#ffffff",
+      "on-primary": "#ffffff",
+      "surface": "#f9f9f9",
+      "on-tertiary-fixed": "#001847",
+      "inverse-on-surface": "#f1f1f1",
+      "on-error": "#ffffff",
+      "secondary-fixed": "#e4e4cc"
+    },
+    "iconCount": 9
+  },
+  {
+    "folderName": "how_it_works_connify_protocol",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify | How It Works &amp; Protocol",
+    "icons": [
+      "menu",
+      "key",
+      "timer",
+      "shield_person",
+      "notifications_paused",
+      "check_circle",
+      "check_circle",
+      "check_circle",
+      "shield"
+    ],
+    "buttons": [
+      "Get Started",
+      "menu",
+      "Explore Protocol",
+      "Download App",
+      "Get Started Free",
+      "View Whitepaper"
+    ],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 11
+  },
+  {
+    "folderName": "nearby_requests",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify Nearby Requests",
+    "icons": [
+      "arrow_back",
+      "refresh",
+      "location_on",
+      "directions_walk",
+      "location_on",
+      "shield",
+      "location_on",
+      "medical_services",
+      "location_on",
+      "home",
+      "history",
+      "settings"
+    ],
+    "buttons": [
+      "EMERGENCY",
+      "refresh",
+      "Respond Now",
+      "View Details",
+      "Offer Support",
+      "Respond Now",
+      "Scan Wider Range (2km+)"
+    ],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 16
+  },
+  {
+    "folderName": "new_help_request",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify | Create Help Request",
+    "icons": [],
+    "buttons": [
+      "arrow_back",
+      "EMERGENCY",
+      "medical_services\nMedical",
+      "security\nSecurity",
+      "local_taxi\nTransport",
+      "more_horiz\nOther",
+      "rss_feed\n                BROADCAST REQUEST"
+    ],
+    "inputs": [
+      {
+        "type": "range",
+        "placeholder": ""
+      }
+    ],
+    "colors": {},
+    "iconCount": 14
+  },
+  {
+    "folderName": "privacy_governance_connify",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Privacy &amp; Governance | Connify",
+    "icons": [
+      "fingerprint_off",
+      "stay_primary_portrait",
+      "history_toggle_off"
+    ],
+    "buttons": [
+      "Get Started",
+      "REVIEW DATA CONTROLS",
+      "DOWNLOAD THE APP",
+      "VISIT TRUST CENTER"
+    ],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 5
+  },
+  {
+    "folderName": "protocol_features_connify_safety",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify | Features & Governance",
+    "icons": [
+      "fingerprint",
+      "arrow_forward",
+      "qr_code_2",
+      "arrow_forward",
+      "timer",
+      "check_circle",
+      "shield",
+      "settings_suggest",
+      "sync_alt",
+      "admin_panel_settings"
+    ],
+    "buttons": [
+      "Get Started",
+      "Review Security Settings",
+      "Download for iOS",
+      "Android App"
+    ],
+    "inputs": [],
+    "colors": {
+      "on-secondary-container": "#636451",
+      "on-background": "#1b1b1b",
+      "primary-fixed": "#ffdad4",
+      "surface-dim": "#dadada",
+      "surface-container-high": "#e8e8e8",
+      "secondary-fixed": "#e4e4cc",
+      "on-primary": "#ffffff",
+      "surface-container-low": "#f3f3f3",
+      "surface-container": "#eeeeee",
+      "on-primary-fixed": "#410000",
+      "on-tertiary-fixed": "#001847",
+      "on-secondary-fixed-variant": "#474836",
+      "on-error": "#ffffff",
+      "secondary-container": "#e1e1c9",
+      "on-primary-container": "#fff6f4",
+      "error-container": "#ffdad6",
+      "surface-container-highest": "#e2e2e2",
+      "primary-fixed-dim": "#ffb4a8",
+      "surface-tint": "#c00000",
+      "on-tertiary": "#ffffff",
+      "outline": "#946e68",
+      "secondary-fixed-dim": "#c8c8b0",
+      "outline-variant": "#e9bcb5",
+      "primary-container": "#e50000",
+      "on-tertiary-fixed-variant": "#0040a0",
+      "surface-container-lowest": "#ffffff",
+      "surface": "#f9f9f9",
+      "surface-bright": "#f9f9f9",
+      "on-surface": "#1b1b1b",
+      "tertiary-fixed": "#dae2ff",
+      "secondary": "#5e604d",
+      "on-primary-fixed-variant": "#930100",
+      "tertiary-fixed-dim": "#b1c5ff",
+      "primary": "#b60100",
+      "on-surface-variant": "#5f3f3a",
+      "inverse-primary": "#ffb4a8",
+      "error": "#ba1a1a",
+      "tertiary-container": "#0068f8",
+      "on-secondary-fixed": "#1b1d0e",
+      "tertiary": "#0051c6",
+      "surface-variant": "#e2e2e2",
+      "on-error-container": "#93000a",
+      "inverse-surface": "#303030",
+      "inverse-on-surface": "#f1f1f1",
+      "on-secondary": "#ffffff",
+      "on-tertiary-container": "#f8f7ff",
+      "background": "#f9f9f9"
+    },
+    "iconCount": 14
+  },
+  {
+    "folderName": "protocol_feedback",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify - Post-Episode Feedback",
+    "icons": [
+      "shield",
+      "sentiment_satisfied",
+      "sentiment_dissatisfied"
+    ],
+    "buttons": [
+      "sentiment_satisfied\nYES",
+      "sentiment_dissatisfied\nNO",
+      "SUBMIT &amp; CLOSE EPISODE"
+    ],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 6
+  },
+  {
+    "folderName": "refined_splash_screen_desktop",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify | Initializing Safety Network",
+    "icons": [
+      "verified_user",
+      "gpp_maybe",
+      "satellite_alt"
+    ],
+    "buttons": [],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 5
+  },
+  {
+    "folderName": "safety_core",
+    "hasHtml": false,
+    "hasPng": false,
+    "title": "",
+    "icons": [],
+    "buttons": [],
+    "inputs": [],
+    "colors": {}
+  },
+  {
+    "folderName": "searching_for_help",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify Safety - Waiting for Match",
+    "icons": [],
+    "buttons": [
+      "arrow_back",
+      "EMERGENCY",
+      "Cancel Request"
+    ],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 8
+  },
+  {
+    "folderName": "settings_governance",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify Safety | Settings &amp; Governance",
+    "icons": [],
+    "buttons": [
+      "arrow_back",
+      "EMERGENCY",
+      "+ Manage"
+    ],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 27
+  },
+  {
+    "folderName": "verify_identity",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify Safety - Request Verification",
+    "icons": [
+      "arrow_back",
+      "signal_cellular_alt",
+      "location_on",
+      "battery_charging_full",
+      "home",
+      "history",
+      "settings"
+    ],
+    "buttons": [
+      "EMERGENCY",
+      "",
+      "MANUAL VERIFICATION"
+    ],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 9
+  },
+  {
+    "folderName": "welcome_to_connify",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify | Welcome",
+    "icons": [
+      "emergency_share",
+      "group",
+      "share_location",
+      "location_on",
+      "notifications_active",
+      "arrow_forward",
+      "sync",
+      "arrow_forward"
+    ],
+    "buttons": [
+      "GET STARTED\n            arrow_forward"
+    ],
+    "inputs": [
+      {
+        "type": "checkbox",
+        "placeholder": ""
+      },
+      {
+        "type": "checkbox",
+        "placeholder": ""
+      }
+    ],
+    "colors": {},
+    "iconCount": 10
+  }
+]

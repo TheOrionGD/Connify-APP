@@ -1,0 +1,268 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Connify | Safety Coordinated by Those Nearby</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700&amp;family=Space+Grotesk:wght@500;700&amp;family=Work+Sans:wght@400;500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-surface-variant": "#5f3f3a",
+                    "error": "#ba1a1a",
+                    "on-tertiary": "#ffffff",
+                    "secondary": "#5e604d",
+                    "on-tertiary-container": "#f8f7ff",
+                    "on-primary-container": "#fff6f4",
+                    "on-background": "#1b1b1b",
+                    "tertiary": "#0051c6",
+                    "surface-container-high": "#e8e8e8",
+                    "outline": "#946e68",
+                    "secondary-fixed-dim": "#c8c8b0",
+                    "on-primary-fixed": "#410000",
+                    "tertiary-fixed-dim": "#b1c5ff",
+                    "on-surface": "#1b1b1b",
+                    "surface-container-highest": "#e2e2e2",
+                    "surface-tint": "#c00000",
+                    "on-tertiary-fixed-variant": "#0040a0",
+                    "background": "#f9f9f9",
+                    "surface-bright": "#f9f9f9",
+                    "inverse-surface": "#303030",
+                    "on-secondary-fixed": "#1b1d0e",
+                    "on-secondary-container": "#636451",
+                    "surface-container": "#eeeeee",
+                    "surface-dim": "#dadada",
+                    "primary-fixed-dim": "#ffb4a8",
+                    "on-error-container": "#93000a",
+                    "tertiary-fixed": "#dae2ff",
+                    "primary": "#b60100",
+                    "surface-container-low": "#f3f3f3",
+                    "on-secondary-fixed-variant": "#474836",
+                    "primary-container": "#e50000",
+                    "outline-variant": "#e9bcb5",
+                    "error-container": "#ffdad6",
+                    "on-secondary": "#ffffff",
+                    "on-primary-fixed-variant": "#930100",
+                    "surface-variant": "#e2e2e2",
+                    "tertiary-container": "#0068f8",
+                    "secondary-container": "#e1e1c9",
+                    "primary-fixed": "#ffdad4",
+                    "inverse-primary": "#ffb4a8",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "surface": "#f9f9f9",
+                    "on-tertiary-fixed": "#001847",
+                    "inverse-on-surface": "#f1f1f1",
+                    "on-error": "#ffffff",
+                    "secondary-fixed": "#e4e4cc"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "border-width-heavy": "2px",
+                    "inline-gap": "12px",
+                    "container-padding": "20px",
+                    "border-width-light": "1px",
+                    "base": "8px",
+                    "stack-gap": "16px"
+            },
+            "fontFamily": {
+                    "headline-sm": ["Plus Jakarta Sans"],
+                    "headline-lg-mobile": ["Plus Jakarta Sans"],
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "label-md": ["Space Grotesk"],
+                    "body-md": ["Work Sans"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "body-lg": ["Work Sans"]
+            },
+            "fontSize": {
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #f9f9f9;
+            color: #1b1b1b;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .sos-button-glow {
+            animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+            100% { transform: scale(0.95); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen max-w-[480px] mx-auto overflow-x-hidden">
+<!-- Top Navigation Anchor -->
+<nav class="flex justify-between items-center px-container-padding py-base w-full sticky top-0 bg-background z-50 border-b border-outline-variant">
+<div class="font-headline-md text-headline-md font-bold text-primary">Connify</div>
+<div class="flex gap-4 items-center">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">shield</span>
+<span class="material-symbols-outlined text-primary">emergency</span>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-grow flex flex-col gap-12 pb-32">
+<!-- Hero Section -->
+<section class="px-container-padding pt-12 flex flex-col gap-6 items-start relative overflow-hidden">
+<div class="absolute -right-20 -top-10 w-64 h-64 bg-primary opacity-5 rounded-full blur-3xl"></div>
+<div class="z-10 flex flex-col gap-4">
+<span class="inline-block px-3 py-1 bg-primary text-on-primary rounded-full font-label-md text-label-md uppercase tracking-widest">Live Safety Network</span>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-on-background">
+                    Safety coordinated by <span class="text-primary underline decoration-2 underline-offset-4">those nearby</span>.
+                </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">
+                    Connify bridges the gap between emergency services and community support. Instant alerts, verified responders, real-time coordination.
+                </p>
+</div>
+<div class="w-full flex flex-col gap-base">
+<button class="w-full py-4 bg-primary text-on-primary font-headline-sm text-headline-sm rounded-xl active:scale-95 transition-transform border-2 border-primary">
+                    Get Started
+                </button>
+<button class="w-full py-4 bg-transparent text-primary font-headline-sm text-headline-sm rounded-xl border-2 border-primary active:scale-95 transition-transform">
+                    Learn More
+                </button>
+</div>
+<!-- Urgent Feature Card -->
+<div class="w-full bg-surface-container-lowest border-width-heavy border-primary p-container-padding rounded-xl flex items-center gap-4 mt-4 shadow-sm">
+<div class="relative">
+<div class="absolute inset-0 bg-primary opacity-20 rounded-full sos-button-glow"></div>
+<span class="material-symbols-outlined text-primary text-4xl relative z-10" style="font-variation-settings: 'FILL' 1;">notifications_active</span>
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm">Active Network</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">1,204 helpers currently nearby.</p>
+</div>
+</div>
+</section>
+<!-- Feature Summary Bento -->
+<section class="px-container-padding flex flex-col gap-stack-gap">
+<h2 class="font-headline-md text-headline-md text-center">How it works</h2>
+<!-- Requester Flow Card -->
+<div class="group bg-surface-container-lowest border border-on-background p-6 rounded-xl flex flex-col gap-4 transition-all hover:bg-surface-container">
+<div class="flex justify-between items-start">
+<span class="font-label-md text-label-md uppercase text-on-surface-variant tracking-widest">For Requesters</span>
+<span class="material-symbols-outlined text-primary text-3xl">record_voice_over</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm">Request Help Instantly</h3>
+<p class="font-body-md text-body-md">One tap triggers a location-aware alert to verified community members and emergency contacts.</p>
+<div class="h-32 w-full rounded-lg overflow-hidden border border-outline-variant bg-surface-dim">
+<img class="w-full h-full object-cover" data-alt="A clean mobile app interface showing a large red circular SOS button in the center of a soft beige screen. The UI is minimalist with high-contrast black labels and a subtle map background in the distance. The lighting is bright and professional, suggesting a secure and authoritative safety application." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZA9iVZBOxQkHazRDlUrPiM_ild7u1vaplkHj9vUBpG8j9xFomDmMeGNIczAhb9GPWFEldPfth9x57sOsSULoHNCm203kXV_jc_ocnkrJb6UDJyfiM_TQYovEywvanJ0JxCSUaOe-ZNsUCxktm5NDutTqdeJ7Cx1WLVRK5j4cCeKKrX-Qh459fwAfqmz2na_uw5LRAF3gMhQC4Co4AYd1WlWYufkrSxeJJWpAUU6sXSjAn2J7Lq4hg">
+</div>
+</div>
+<!-- Helper Flow Card -->
+<div class="group bg-surface-container-lowest border border-on-background p-6 rounded-xl flex flex-col gap-4 transition-all hover:bg-surface-container">
+<div class="flex justify-between items-start">
+<span class="font-label-md text-label-md uppercase text-on-surface-variant tracking-widest">For Helpers</span>
+<span class="material-symbols-outlined text-primary text-3xl">volunteer_activism</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm">Be a Local Guardian</h3>
+<p class="font-body-md text-body-md">Get notified when someone nearby needs assistance. Coordinate with others to provide a safety presence.</p>
+<div class="h-32 w-full rounded-lg overflow-hidden border border-outline-variant bg-surface-dim">
+<img class="w-full h-full object-cover" data-alt="A birds-eye view of a modern city map at night with glowing red nodes indicating community helpers. The aesthetic is tech-focused and grounded, using a palette of soft beige and vivid red accents. The image conveys a sense of rapid coordination and reliable local security." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBOCTH_TkFeN8yGIrVk2INJEzNHhnLH72kp_nniBPaqTEAxF_b6fC02yTXdQJjMGEruUWCUjNNwMdgJVuAzNH73XHMTn-sifQityBg93ceXMy0Vyen_WsnwA8ExWMOxXh0W7y_0y63UjnsUVDh5hBbnYkdGwJmlU7edeCJhYnoV66iNWLC175y0Vd34gbpS__DT4ew24ZoOVukYatWaUq4S7k0XeGmr48xBBISueuU0sEPyY3JvV-N2">
+</div>
+</div>
+</section>
+<!-- Trust & Security -->
+<section class="px-container-padding py-12 bg-surface-container flex flex-col gap-8">
+<div class="text-center">
+<h2 class="font-headline-md text-headline-md">Safety Built on Trust</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">We prioritize your privacy and security above all else.</p>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="p-4 bg-background border border-on-background rounded-lg flex flex-col gap-2">
+<span class="material-symbols-outlined text-primary">verified_user</span>
+<h4 class="font-label-md text-label-md font-bold">Verified Profiles</h4>
+</div>
+<div class="p-4 bg-background border border-on-background rounded-lg flex flex-col gap-2">
+<span class="material-symbols-outlined text-primary">location_off</span>
+<h4 class="font-label-md text-label-md font-bold">Private Location</h4>
+</div>
+<div class="p-4 bg-background border border-on-background rounded-lg flex flex-col gap-2">
+<span class="material-symbols-outlined text-primary">history_toggle_off</span>
+<h4 class="font-label-md text-label-md font-bold">Incognito Mode</h4>
+</div>
+<div class="p-4 bg-background border border-on-background rounded-lg flex flex-col gap-2">
+<span class="material-symbols-outlined text-primary">lock</span>
+<h4 class="font-label-md text-label-md font-bold">End-to-End Encryption</h4>
+</div>
+</div>
+</section>
+<!-- Final CTA -->
+<section class="px-container-padding py-16 flex flex-col gap-6 items-center text-center">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile">Join the network today.</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Thousands are already making their communities safer with Connify.</p>
+<button class="w-full py-5 bg-on-background text-background font-headline-sm text-headline-sm rounded-full active:scale-95 transition-transform">
+                Start My Safety Profile
+            </button>
+<div class="flex gap-2 items-center text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">stars</span>
+<span class="font-label-md text-label-md">Trusted by 50,000+ users</span>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Shell -->
+<!-- The user is in a focused landing flow, so the BottomNavBar might be suppressed per "Task-Focused" logic, 
+         but for a Landing Page "Home" is usually visible as the primary entry point. -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-2 bg-surface-container-lowest border-t-2 border-primary max-w-[480px] left-1/2 -translate-x-1/2">
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-xl p-2 active:scale-95 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-label-md text-label-md">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary p-2 active:scale-95 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">notification_important</span>
+<span class="font-label-md text-label-md">Requests</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary p-2 active:scale-95 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="font-label-md text-label-md">History</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary p-2 active:scale-95 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</nav>
+<!-- Micro-interaction Script -->
+<script>
+        document.querySelectorAll('button, a').forEach(el => {
+            el.addEventListener('click', (e) => {
+                const ripple = document.createElement('div');
+                ripple.className = 'absolute bg-white/20 rounded-full w-2 h-2 pointer-events-none transform -translate-x-1/2 -translate-y-1/2';
+                ripple.style.left = `${e.clientX - el.getBoundingClientRect().left}px`;
+                ripple.style.top = `${e.clientY - el.getBoundingClientRect().top}px`;
+                el.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+
+        // Simple parallax on scroll for hero background
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const bg = document.querySelector('.blur-3xl');
+            if(bg) bg.style.transform = `translateY(${scrolled * 0.3}px)`;
+        });
+    </script>
+</body></html>

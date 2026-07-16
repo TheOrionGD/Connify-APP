@@ -1,0 +1,255 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Connify Safety | Emergency Mode</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Work+Sans:wght@400;500&amp;family=Space+Grotesk:wght@500;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-fixed": "#e4e4cc",
+                        "on-surface": "#1b1b1b",
+                        "surface": "#f9f9f9",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-fixed": "#001847",
+                        "outline": "#946e68",
+                        "background": "#f9f9f9",
+                        "surface-tint": "#c00000",
+                        "inverse-on-surface": "#f1f1f1",
+                        "on-secondary": "#ffffff",
+                        "inverse-surface": "#303030",
+                        "surface-container-high": "#e8e8e8",
+                        "on-secondary-container": "#636451",
+                        "tertiary-fixed-dim": "#b1c5ff",
+                        "surface-dim": "#dadada",
+                        "primary-fixed": "#ffdad4",
+                        "surface-variant": "#e2e2e2",
+                        "error": "#ba1a1a",
+                        "on-background": "#1b1b1b",
+                        "on-tertiary": "#ffffff",
+                        "on-surface-variant": "#5f3f3a",
+                        "on-error": "#ffffff",
+                        "on-primary-fixed": "#410000",
+                        "primary-fixed-dim": "#ffb4a8",
+                        "secondary-fixed-dim": "#c8c8b0",
+                        "on-tertiary-fixed-variant": "#0040a0",
+                        "secondary": "#5e604d",
+                        "on-error-container": "#93000a",
+                        "secondary-container": "#e1e1c9",
+                        "tertiary-container": "#0068f8",
+                        "tertiary-fixed": "#dae2ff",
+                        "surface-container-highest": "#e2e2e2",
+                        "surface-container-low": "#f3f3f3",
+                        "outline-variant": "#e9bcb5",
+                        "surface-bright": "#f9f9f9",
+                        "on-secondary-fixed": "#1b1d0e",
+                        "on-primary-fixed-variant": "#930100",
+                        "on-primary-container": "#fff6f4",
+                        "tertiary": "#0051c6",
+                        "on-tertiary-container": "#f8f7ff",
+                        "surface-container": "#eeeeee",
+                        "primary-container": "#e50000",
+                        "primary": "#b60100",
+                        "on-secondary-fixed-variant": "#474836",
+                        "inverse-primary": "#ffb4a8",
+                        "error-container": "#ffdad6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-gap": "16px",
+                        "border-width-heavy": "2px",
+                        "border-width-light": "1px",
+                        "container-padding": "20px",
+                        "inline-gap": "12px",
+                        "base": "8px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Work Sans"],
+                        "headline-sm": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "body-md": ["Work Sans"],
+                        "label-md": ["Space Grotesk"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #f9f9f9; /* Soft Beige from guide */
+            -webkit-tap-highlight-color: transparent;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .emergency-glow {
+            animation: pulse-red 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse-red {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(182, 1, 0, 0.4); }
+            50% { box-shadow: 0 0 0 20px rgba(182, 1, 0, 0); }
+        }
+        .vignette-danger {
+            background: radial-gradient(circle, transparent 60%, rgba(182, 1, 0, 0.15) 100%);
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="font-body-md text-on-surface">
+<!-- Emergency Overlay Vignette -->
+<div class="fixed inset-0 z-[60] vignette-danger"></div>
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-container-padding h-16 bg-primary dark:bg-primary-container text-on-primary transition-colors duration-200">
+<div class="flex items-center gap-base">
+<button class="material-symbols-outlined text-on-primary active:scale-95 transition-transform">arrow_back</button>
+<h1 class="font-headline-sm text-headline-sm font-bold uppercase tracking-wider">Connify Safety</h1>
+</div>
+<div class="flex items-center gap-4">
+<span class="font-label-md text-label-md bg-white text-primary px-3 py-1 rounded-full font-bold animate-pulse">ACTIVE ALERT</span>
+<button class="font-headline-sm text-headline-sm font-extrabold text-on-primary active:scale-95">EMERGENCY</button>
+</div>
+</header>
+<main class="pt-24 pb-32 px-container-padding max-w-[480px] mx-auto min-h-screen relative overflow-hidden">
+<!-- Status Card: High Stakes Emphasis -->
+<section class="mb-stack-gap">
+<div class="bg-surface-container-lowest border-width-heavy border-primary rounded-xl p-6 relative overflow-hidden">
+<div class="flex justify-between items-start mb-4">
+<div>
+<p class="font-label-md text-label-md text-primary uppercase mb-1">Status</p>
+<h2 class="font-headline-md text-headline-md text-on-surface leading-tight">Priority matching active</h2>
+</div>
+<div class="flex items-center justify-center w-12 h-12 rounded-full border-width-heavy border-primary text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">security</span>
+</div>
+</div>
+<p class="font-body-md text-on-surface-variant mb-6">Dispatching nearest Trust Circle members and Professional Responders to your exact coordinates.</p>
+<div class="flex items-center gap-base p-3 bg-primary/5 border border-primary/20 rounded-lg">
+<span class="material-symbols-outlined text-primary">distance</span>
+<p class="font-label-md text-label-md font-bold text-on-surface">Nearest help: <span class="text-primary">1.2 miles / 4 mins</span></p>
+</div>
+</div>
+</section>
+<!-- SOS Component -->
+<section class="flex flex-col items-center justify-center py-8">
+<div class="relative flex items-center justify-center w-64 h-64">
+<!-- SOS Rings -->
+<div class="absolute inset-0 rounded-full border-[4px] border-primary opacity-20 animate-[ping_3s_linear_infinite]"></div>
+<div class="absolute inset-4 rounded-full border-[2px] border-primary opacity-40 animate-[ping_2s_linear_infinite]"></div>
+<!-- Main Button -->
+<button class="emergency-glow relative z-10 w-48 h-48 rounded-full bg-primary flex flex-col items-center justify-center text-on-primary border-[4px] border-white active:scale-90 transition-transform group" id="sos-broadcast">
+<span class="material-symbols-outlined text-5xl mb-2" style="font-variation-settings: 'FILL' 1;">emergency_share</span>
+<span class="font-label-md text-label-md font-extrabold uppercase tracking-widest text-center px-4">EMERGENCY BROADCAST</span>
+</button>
+</div>
+<p class="mt-8 font-label-md text-label-md text-on-surface-variant text-center px-8">HOLD TO CANCEL (5s)</p>
+</section>
+<!-- Trust Circle Bento Grid -->
+<section class="grid grid-cols-2 gap-4 mt-stack-gap">
+<div class="col-span-2 bg-surface-container-lowest border-width-light border-on-surface rounded-xl p-4">
+<p class="font-label-md text-label-md text-on-surface-variant uppercase mb-4">Real-time Location</p>
+<div class="aspect-video w-full rounded-lg overflow-hidden border border-outline-variant relative">
+<div class="w-full h-full bg-cover bg-center" data-alt="A dark, high-contrast digital map interface showing a pulsating red location dot in a dense urban environment. The map uses a minimalist noir aesthetic with sharp white street lines and deep charcoal backgrounds, emphasizing the bright red emergency marker." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAiV8m0W35d-dmz7fTWS-q5_G1QnShdZ70DMG1T6oFrHa-PJ7xrapx0GElncGZtuYUczqDUruPhJTX1EpkjqBlF3Pw-PjA-tbfzO5gv0GO8u8SABsEQLKT-O7MYs1pIvR5c4oU6PKni-zKtQjOJJKYJwdBrgp-SFjMc6QoV4e5eAcGmqjPietG_nHRY1VppIuIhf3BkGn7GU9hjsoU_qv-jYEcI6jGDNtfhchXs35RHKg9kK6EoAcRO')"></div>
+<div class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full border border-primary flex items-center gap-2">
+<div class="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+<span class="font-label-md text-[10px] font-bold text-primary">GPS LIVE TRACKING</span>
+</div>
+</div>
+</div>
+<!-- Responder Cards -->
+<div class="bg-surface-container-lowest border-width-light border-on-surface rounded-xl p-4 flex flex-col items-center">
+<div class="w-12 h-12 rounded-full overflow-hidden mb-3 border-2 border-primary">
+<img class="w-full h-full object-cover" data-alt="A professional security responder headshot, medium close up, neutral serious expression, wearing a navy blue tactical vest. Bright, professional lighting, clean white studio background, maintaining the Connify high-contrast safety brand aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBwES-cUj-ae7eC0pleNHiRNIiSEoyWdNYeyIRNjuV55wfNR95osmk9Jg-RF3_GEJxZH97WbeJBWCwqcGRwQ4PtJXJMckGYAfILcF7_uDdNef920EB3M-IVtR4jHqcyqUQfPpd18vGv-D7PA8OvbrY537lhLFMVlWjiTrj7Rv_KBIimh-bBSS4726rZjMjlsdbXebBFjmjKbM935UfIbaPgwNRU7pF2gTyrUdmULmp-SkeORZCwpHcS">
+</div>
+<p class="font-label-md text-label-md font-bold text-on-surface">Officer Kim</p>
+<p class="text-[10px] text-primary font-bold uppercase">En Route</p>
+</div>
+<div class="bg-surface-container-lowest border-width-light border-on-surface rounded-xl p-4 flex flex-col items-center">
+<div class="w-12 h-12 rounded-full overflow-hidden mb-3 border-2 border-primary">
+<img class="w-full h-full object-cover" data-alt="A warm, reassuring portrait of an elderly man with kind eyes and grey hair, medium shot, soft natural lighting. He is a 'Trust Circle' member, appearing reliable and calm. High-quality portrait photography style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5BL6wIModO9HjXccERPUm7VGWEW8DerQZp04WUwVdu0dP53I5Q2HjWQb5D7fWV5g8kTSWMnG2ySvOh7bFHO8V9uo1t_L3RtKK-yQm55xWFOldp_DtcRPm5ug0QN_cgwTE30RNT-N1H7tE_ju1d72kcLBkhuKOt63Uk_o5qGkZLljCEEPYHkokC28kcewCcMgMksVD9TMWrvzmXqW1BGFtB9RY2ZktGE7BX6GYF8ribjBXZFoacI2t">
+</div>
+<p class="font-label-md text-label-md font-bold text-on-surface">David (Dad)</p>
+<p class="text-[10px] text-on-surface-variant font-bold uppercase">Notified</p>
+</div>
+</section>
+<!-- Rapid Actions -->
+<section class="mt-stack-gap space-y-3">
+<button class="w-full py-4 bg-on-surface text-on-primary rounded-xl font-headline-sm flex items-center justify-center gap-inline-gap active:scale-[0.98] transition-transform">
+<span class="material-symbols-outlined">call</span>
+                CALL EMERGENCY SERVICES
+            </button>
+<button class="w-full py-4 bg-transparent border-width-heavy border-primary text-primary rounded-xl font-headline-sm flex items-center justify-center gap-inline-gap active:scale-[0.98] transition-transform">
+<span class="material-symbols-outlined">mic</span>
+                START AUDIO RECORDING
+            </button>
+</section>
+</main>
+<!-- BottomNavBar (Hidden in Emergency for Focus, but kept structure for hierarchy) -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-container-padding py-base bg-surface border-t border-outline transition-all duration-300 translate-y-full md:translate-y-0 opacity-0 md:opacity-100">
+<div class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-md text-label-md">Home</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-primary text-on-primary rounded-xl px-4 py-1">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">emergency_share</span>
+<span class="font-label-md text-label-md">Requests</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1">
+<span class="material-symbols-outlined">history</span>
+<span class="font-label-md text-label-md">History</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</div>
+</nav>
+<script>
+        const sosButton = document.getElementById('sos-broadcast');
+        let pressTimer;
+
+        sosButton.addEventListener('mousedown', startPress);
+        sosButton.addEventListener('touchstart', startPress);
+        sosButton.addEventListener('mouseup', endPress);
+        sosButton.addEventListener('touchend', endPress);
+
+        function startPress() {
+            this.classList.add('scale-90');
+            this.querySelector('.material-symbols-outlined').style.fontVariationSettings = "'FILL' 1";
+            pressTimer = setTimeout(() => {
+                alert("Emergency Broadcast Transmitted to Responders.");
+            }, 3000);
+        }
+
+        function endPress() {
+            this.classList.remove('scale-90');
+            this.querySelector('.material-symbols-outlined').style.fontVariationSettings = "'FILL' 0";
+            clearTimeout(pressTimer);
+        }
+
+        // Auto-scroll prevention for high-stakes focus
+        window.addEventListener('load', () => {
+            window.scrollTo(0, 0);
+        });
+    </script>
+</body></html>

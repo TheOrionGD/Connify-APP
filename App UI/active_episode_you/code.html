@@ -1,0 +1,236 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Connify Safety - Active Episode</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Work+Sans:wght@400;500&amp;family=Space+Grotesk:wght@500;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary-fixed": "#e4e4cc",
+                    "on-surface": "#1b1b1b",
+                    "surface": "#f9f9f9",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "on-tertiary-fixed": "#001847",
+                    "outline": "#946e68",
+                    "background": "#f9f9f9",
+                    "surface-tint": "#c00000",
+                    "inverse-on-surface": "#f1f1f1",
+                    "on-secondary": "#ffffff",
+                    "inverse-surface": "#303030",
+                    "surface-container-high": "#e8e8e8",
+                    "on-secondary-container": "#636451",
+                    "tertiary-fixed-dim": "#b1c5ff",
+                    "surface-dim": "#dadada",
+                    "primary-fixed": "#ffdad4",
+                    "surface-variant": "#e2e2e2",
+                    "error": "#ba1a1a",
+                    "on-background": "#1b1b1b",
+                    "on-tertiary": "#ffffff",
+                    "on-surface-variant": "#5f3f3a",
+                    "on-error": "#ffffff",
+                    "on-primary-fixed": "#410000",
+                    "primary-fixed-dim": "#ffb4a8",
+                    "secondary-fixed-dim": "#c8c8b0",
+                    "on-tertiary-fixed-variant": "#0040a0",
+                    "secondary": "#5e604d",
+                    "on-error-container": "#93000a",
+                    "secondary-container": "#e1e1c9",
+                    "tertiary-container": "#0068f8",
+                    "tertiary-fixed": "#dae2ff",
+                    "surface-container-highest": "#e2e2e2",
+                    "surface-container-low": "#f3f3f3",
+                    "outline-variant": "#e9bcb5",
+                    "surface-bright": "#f9f9f9",
+                    "on-secondary-fixed": "#1b1d0e",
+                    "on-primary-fixed-variant": "#930100",
+                    "on-primary-container": "#fff6f4",
+                    "tertiary": "#0051c6",
+                    "on-tertiary-container": "#f8f7ff",
+                    "surface-container": "#eeeeee",
+                    "primary-container": "#e50000",
+                    "primary": "#b60100",
+                    "on-secondary-fixed-variant": "#474836",
+                    "inverse-primary": "#ffb4a8",
+                    "error-container": "#ffdad6"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "stack-gap": "16px",
+                    "border-width-heavy": "2px",
+                    "border-width-light": "1px",
+                    "container-padding": "20px",
+                    "inline-gap": "12px",
+                    "base": "8px"
+            },
+            "fontFamily": {
+                    "body-lg": ["Work Sans"],
+                    "headline-sm": ["Plus Jakarta Sans"],
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "body-md": ["Work Sans"],
+                    "label-md": ["Space Grotesk"],
+                    "headline-lg-mobile": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .animate-pulse-slow {
+            animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .7; }
+        }
+        .map-gradient {
+            background: linear-gradient(to top, rgba(249, 249, 249, 1) 0%, rgba(249, 249, 249, 0) 20%);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md overflow-x-hidden">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-container-padding h-16 bg-surface dark:bg-surface-dim border-b border-outline dark:border-outline-variant shadow-none">
+<div class="flex items-center gap-base">
+<button class="transition-colors duration-200 active:scale-95 text-primary">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h1 class="font-headline-sm text-headline-sm text-primary dark:text-primary-fixed">Connify Safety</h1>
+</div>
+<button class="px-4 py-1 rounded-full bg-primary text-on-primary font-label-md text-label-md transition-colors duration-200 active:scale-95">
+            EMERGENCY
+        </button>
+</header>
+<main class="pt-20 pb-32 min-h-screen px-container-padding flex flex-col items-center">
+<!-- Countdown Section -->
+<div class="w-full max-w-[480px] text-center mt-4">
+<div class="inline-flex items-center gap-2 bg-primary px-3 py-1 rounded-full text-on-primary mb-4 animate-pulse-slow">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">emergency</span>
+<span class="font-label-md text-label-md">ACTIVE EPISODE</span>
+</div>
+<div class="font-headline-lg-mobile text-[64px] leading-none text-primary font-extrabold tracking-tighter transition-all duration-500" id="countdown">
+                14:59
+            </div>
+<div class="mt-2 inline-flex items-center gap-1 border-border-width-light border-on-surface px-3 py-1 rounded-full">
+<span class="material-symbols-outlined text-[18px]">history</span>
+<span class="font-label-md text-label-md">CAPSULE EXPIRY</span>
+</div>
+</div>
+<!-- Helper Tracker Map Card -->
+<div class="w-full max-w-[480px] mt-stack-gap relative overflow-hidden rounded-xl border-border-width-heavy border-primary bg-surface-container-lowest h-64">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="A clean, minimalist high-contrast digital map interface showing a neighborhood grid in light beige and white tones. A vibrant red route line indicates movement, with a pulsating red marker representing a live person's location. The style is professional and clear, optimized for safety monitoring with bold outlines and minimal clutter." data-location="San Francisco" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB_BVJrzjroEbyKy8AIGxG6HTb8F13RhRiv1CnMqh8zACXgRbKSeqLoYrThtzvAoA-DB3dNSsGtea1xxXZ99BCieLOlxnB-reN28M4K9xTB_GQA3Ir_3I5x5H0ITNrP3-iNu_bHWZd_LhcuXTC7VVPBrQhSrAR2WAEIAhGYOeS7V03e5l2ZeAbl6c0uaKEnwg1pI1Kx73OzWQaWS5QoTg9u14TITRd0bIHb1dYPPBdWq4cUCE3XwcTR')"></div>
+<div class="absolute inset-0 map-gradient pointer-events-none"></div>
+<!-- Live Location Indicator -->
+<div class="absolute bottom-4 left-4 bg-surface-container-lowest border border-on-surface p-3 rounded-lg flex items-center gap-3">
+<div class="w-10 h-10 rounded-full border border-primary overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a friendly security assistant, high-key studio lighting, clear focus on features, minimalist background, warm and reliable aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZtUsJoJLGMocagtw_JuMD2dd0kz_ZvDW3q7qpLKK9_IN4Sz8_yzJxADBj7ZRbDXjUNNaFOoDyB31oO4JivBWf_b4mrfKPpVkoj22yBiAZrdSgx7J-emIHTnHi0I9whnGKJ-dVHoAyYsi1ks24rLtYoux8rjmI6mWYsywZpIqIvD35uUdMiPszWu9RNvubcBBS9lxIq7BWVwi4WNJZSg-uOXjpqw6kb1WgTD_o7Sk3cosV5N9kEO__">
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface leading-none">Marcus (Helper)</p>
+<p class="text-[12px] text-on-surface-variant font-body-md">200m away • Active</p>
+</div>
+</div>
+</div>
+<!-- Quick Actions Grid -->
+<div class="w-full max-w-[480px] grid grid-cols-2 gap-inline-gap mt-stack-gap">
+<button class="flex flex-col items-center justify-center p-base border-border-width-light border-on-surface bg-surface-container-lowest rounded-xl transition-all duration-200 active:scale-95 hover:bg-surface-variant">
+<span class="material-symbols-outlined text-primary mb-1">chat</span>
+<span class="font-label-md text-label-md">CHAT</span>
+</button>
+<button class="flex flex-col items-center justify-center p-base border-border-width-light border-on-surface bg-surface-container-lowest rounded-xl transition-all duration-200 active:scale-95 hover:bg-surface-variant">
+<span class="material-symbols-outlined text-primary mb-1">call</span>
+<span class="font-label-md text-label-md">CALL</span>
+</button>
+</div>
+<!-- Safety Details Card -->
+<div class="w-full max-w-[480px] mt-stack-gap p-container-padding bg-surface-container-lowest border-border-width-light border-on-surface rounded-xl">
+<h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest mb-4">Current Status</h3>
+<div class="space-y-4">
+<div class="flex items-start gap-4">
+<div class="bg-primary-fixed p-2 rounded-lg">
+<span class="material-symbols-outlined text-primary">verified_user</span>
+</div>
+<div>
+<p class="font-headline-sm text-[18px]">Trust Circle Notified</p>
+<p class="text-on-surface-variant text-[14px]">3 contacts are tracking your live location and vitals.</p>
+</div>
+</div>
+<div class="h-[1px] bg-outline-variant w-full"></div>
+<div class="flex items-start gap-4">
+<div class="bg-secondary-container p-2 rounded-lg">
+<span class="material-symbols-outlined text-secondary">share_location</span>
+</div>
+<div>
+<p class="font-headline-sm text-[18px]">Geo-Fenced Perimeter</p>
+<p class="text-on-surface-variant text-[14px]">You are within 500m of your planned route.</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Action Bar (Contextual/Task-Focused) -->
+<div class="fixed bottom-0 w-full z-50 bg-surface dark:bg-surface-dim border-t border-outline dark:border-outline-variant p-container-padding flex flex-col gap-3 shadow-[0_-4px_20px_-5px_rgba(0,0,0,0.1)]">
+<button class="w-full py-4 bg-primary text-on-primary font-headline-sm rounded-xl transition-all duration-200 active:scale-95 hover:brightness-110">
+            Complete Episode
+        </button>
+<button class="w-full py-2 border-border-width-heavy border-on-surface text-on-surface font-label-md rounded-xl transition-all duration-200 active:scale-95 hover:bg-surface-variant">
+            Report Issue
+        </button>
+</div>
+<!-- Micro-interactions Script -->
+<script>
+        // Simple countdown logic
+        let timeLeft = 14 * 60 + 59;
+        const countdownEl = document.getElementById('countdown');
+
+        const timer = setInterval(() => {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            
+            countdownEl.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                countdownEl.classList.remove('text-primary');
+                countdownEl.classList.add('text-error');
+            } else {
+                timeLeft--;
+            }
+        }, 1000);
+
+        // Visual feedback for interactions
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('touchstart', () => {
+                btn.style.transform = 'scale(0.95)';
+            });
+            btn.addEventListener('touchend', () => {
+                btn.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+</body></html>

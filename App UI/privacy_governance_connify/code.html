@@ -1,0 +1,247 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Privacy &amp; Governance | Connify</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Space+Grotesk:wght@400;500;700&amp;family=Work+Sans:wght@400;500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind Theme Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface": "#f9f9f9",
+                    "secondary-container": "#e1e1c9",
+                    "surface-variant": "#e2e2e2",
+                    "primary-fixed-dim": "#ffb4a8",
+                    "on-surface-variant": "#5f3f3a",
+                    "background": "#f9f9f9",
+                    "tertiary-container": "#0068f8",
+                    "secondary": "#5e604d",
+                    "on-error-container": "#93000a",
+                    "surface-tint": "#c00000",
+                    "on-surface": "#1b1b1b",
+                    "surface-container-highest": "#e2e2e2",
+                    "outline": "#946e68",
+                    "primary-fixed": "#ffdad4",
+                    "error-container": "#ffdad6",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary-fixed": "#e4e4cc",
+                    "surface-container-low": "#f3f3f3",
+                    "on-tertiary-container": "#f8f7ff",
+                    "on-primary-fixed-variant": "#930100",
+                    "on-tertiary-fixed": "#001847",
+                    "on-primary-container": "#fff6f4",
+                    "secondary-fixed-dim": "#c8c8b0",
+                    "primary": "#b60100",
+                    "outline-variant": "#e9bcb5",
+                    "surface-bright": "#f9f9f9",
+                    "surface-container": "#eeeeee",
+                    "on-secondary-fixed": "#1b1d0e",
+                    "tertiary-fixed-dim": "#b1c5ff",
+                    "inverse-primary": "#ffb4a8",
+                    "on-tertiary": "#ffffff",
+                    "inverse-surface": "#303030",
+                    "on-secondary": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "on-background": "#1b1b1b",
+                    "surface-dim": "#dadada",
+                    "primary-container": "#e50000",
+                    "surface-container-high": "#e8e8e8",
+                    "tertiary-fixed": "#dae2ff",
+                    "inverse-on-surface": "#f1f1f1",
+                    "error": "#ba1a1a",
+                    "on-primary-fixed": "#410000",
+                    "on-tertiary-fixed-variant": "#0040a0",
+                    "on-secondary-fixed-variant": "#474836",
+                    "on-secondary-container": "#636451",
+                    "tertiary": "#0051c6",
+                    "on-error": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "border-width-light": "1px",
+                    "stack-gap": "16px",
+                    "container-padding": "20px",
+                    "inline-gap": "12px",
+                    "border-width-heavy": "2px",
+                    "base": "8px"
+            },
+            "fontFamily": {
+                    "label-md": ["Space Grotesk"],
+                    "body-lg": ["Work Sans"],
+                    "headline-lg-mobile": ["Plus Jakarta Sans"],
+                    "headline-sm": ["Plus Jakarta Sans"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "body-md": ["Work Sans"]
+            },
+            "fontSize": {
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #f9f9f9;
+            color: #1b1b1b;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .red-accent-border {
+            border: 2px solid #b60100;
+        }
+        .black-accent-border {
+            border: 1px solid #1b1b1b;
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md bg-background">
+<!-- TopNavBar -->
+<nav class="sticky top-0 w-full bg-surface dark:bg-surface-dim border-b border-outline dark:border-outline-variant z-50">
+<div class="flex justify-between items-center px-container-padding py-4 max-w-[480px] md:max-w-7xl mx-auto transition-all duration-200 ease-in-out">
+<div class="text-headline-md font-headline-md text-primary dark:text-primary-fixed-dim tracking-tight">Connify</div>
+<div class="hidden md:flex gap-8 items-center">
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors" href="#">How it Works</a>
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors" href="#">Features</a>
+<a class="font-label-md text-label-md text-primary dark:text-primary-fixed-dim font-bold border-b-2 border-primary transition-colors" href="#">Privacy</a>
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors" href="#">About</a>
+</div>
+<button class="bg-primary text-on-primary font-label-md text-label-md px-6 py-2 rounded-full font-bold hover:bg-on-primary-fixed transition-colors">
+                Get Started
+            </button>
+</div>
+</nav>
+<main class="max-w-[480px] md:max-w-4xl mx-auto px-container-padding py-12 md:py-24 space-y-24">
+<!-- Hero Section -->
+<header class="space-y-6">
+<div class="inline-flex items-center gap-2 bg-primary text-on-primary px-4 py-1 rounded-full font-label-md text-label-md">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">security</span>
+                SECURE BY DEFAULT
+            </div>
+<h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-background">
+                Privacy is not a feature. <br>
+<span class="text-primary">It's our foundation.</span>
+</h1>
+<p class="font-body-lg text-body-lg text-on-secondary-container max-w-2xl">
+                Connify is engineered to ensure urgent safety without compromising your digital anonymity. We’ve stripped away the identity trail so you can stay safe without being tracked.
+            </p>
+</header>
+<!-- Bento Grid: Governance Pillars -->
+<section class="grid grid-cols-1 md:grid-cols-12 gap-stack-gap">
+<!-- Anonymity Card -->
+<div class="md:col-span-8 bg-surface-container-lowest border-width-heavy red-accent-border p-8 space-y-4">
+<span class="material-symbols-outlined text-primary text-4xl">fingerprint_off</span>
+<h3 class="font-headline-sm text-headline-sm uppercase tracking-wider">Zero-Identity Trail</h3>
+<p class="text-on-surface-variant">We do not link your safety sessions to a persistent identity. No email required to start a check-in. Your device generates a unique, temporary token that self-destructs the moment your session ends safely.</p>
+</div>
+<!-- Device Level Card -->
+<div class="md:col-span-4 bg-surface-container-lowest border-width-light black-accent-border p-8 space-y-4">
+<span class="material-symbols-outlined text-on-surface text-4xl">stay_primary_portrait</span>
+<h3 class="font-label-md text-label-md font-bold uppercase tracking-widest">Device-Level Security</h3>
+<p class="text-on-surface-variant text-sm">All sensitive location processing happens on-device. We only receive encrypted coordinates during active alerts.</p>
+</div>
+<!-- Data Logging Card -->
+<div class="md:col-span-4 bg-on-background text-surface p-8 space-y-4">
+<span class="material-symbols-outlined text-surface-variant text-4xl">history_toggle_off</span>
+<h3 class="font-label-md text-label-md font-bold uppercase tracking-widest">Minimal Data Logging</h3>
+<p class="text-surface-variant text-sm">Logs are ephemeral. We store nothing beyond the 24-hour window required for active safety coordination.</p>
+</div>
+<!-- Control Card -->
+<div class="md:col-span-8 bg-surface-container-lowest border-width-light black-accent-border p-8 flex flex-col md:flex-row gap-8 items-center">
+<div class="space-y-4">
+<h3 class="font-headline-sm text-headline-sm uppercase tracking-wider">You Hold The Keys</h3>
+<p class="text-on-surface-variant">Revoke access instantly. Clear all local cache with a single tap. Our governance model ensures you remain the sole owner of your movement data.</p>
+<button class="border-width-heavy red-accent-border text-primary px-6 py-2 font-label-md text-label-md font-bold hover:bg-primary hover:text-on-primary transition-all">
+                        REVIEW DATA CONTROLS
+                    </button>
+</div>
+<div class="w-full md:w-1/2 aspect-square rounded-full flex items-center justify-center bg-surface-container overflow-hidden">
+<img class="w-2/3 h-2/3 object-contain" data-alt="A minimalist high-contrast digital illustration of a metallic vault door being locked, styled with pristine white backgrounds, sharp black lines, and vivid red light accents. The aesthetic is clean, professional, and communicates extreme digital security and privacy." src="https://lh3.googleusercontent.com/aida-public/AB6AXuASFiRZ2xtHmPKfCjP7qnqdvwH4yYchpnQjbsQOa2SNBncF8zDwoI5yari5eRy0F7ZZgRtGHnsxdgDpRlD0QYAxAzgxD0KoDbega89QedIE13qjKEcKGx8CCiWrG2LsvUYD4TflBPAV8llsrGsNV4Smnopi3iepDv97d5ZgD6V37Ttii9WQlz-fpWi99MLPNjGkKXdx70iyyFJkr-zbmpzeIffCsyGuqE1F5_hW91DBCsRCZQUz_s2A">
+</div>
+</div>
+</section>
+<!-- Detailed Policy Section -->
+<section class="space-y-12">
+<div class="flex flex-col md:flex-row justify-between items-end gap-4 border-b border-outline pb-4">
+<h2 class="font-headline-md text-headline-md">Our Privacy Standards</h2>
+<div class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Version 2.4.0</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-16">
+<div class="space-y-4">
+<h4 class="font-label-md text-label-md font-bold text-primary uppercase">I. Movement Privacy</h4>
+<p class="text-on-surface-variant">Connify utilizes "Privacy Zones" around your home and work. Within these zones, tracking is strictly restricted to your local device unless a Critical SOS is triggered. We never build a heat-map of your daily routine.</p>
+</div>
+<div class="space-y-4">
+<h4 class="font-label-md text-label-md font-bold text-primary uppercase">II. Third-Party Policy</h4>
+<p class="text-on-surface-variant">We have zero data-sharing agreements with advertisers or data brokers. Your information is never "for sale." We only interface with verified emergency responders during active safety events.</p>
+</div>
+<div class="space-y-4">
+<h4 class="font-label-md text-label-md font-bold text-primary uppercase">III. Encryption Protocols</h4>
+<p class="text-on-surface-variant">All communications use TLS 1.3 encryption. Safety session data is salted and hashed with device-specific identifiers that prevent reverse-engineering of user paths by server administrators.</p>
+</div>
+<div class="space-y-4">
+<h4 class="font-label-md text-label-md font-bold text-primary uppercase">IV. Transparency Audits</h4>
+<p class="text-on-surface-variant">Our core privacy logic is audited quarterly by independent security firms. We publish summarized results to our Trust Center to maintain absolute clarity on our data handling practices.</p>
+</div>
+</div>
+</section>
+<!-- CTA Section -->
+<section class="bg-secondary-container p-12 text-center space-y-8 rounded-xl border-width-light black-accent-border">
+<h2 class="font-headline-md text-headline-md">Ready for Urgent Serenity?</h2>
+<p class="font-body-lg text-body-lg max-w-xl mx-auto">Join thousands of users who prioritize their safety without sacrificing their digital sovereignty.</p>
+<div class="flex flex-col md:flex-row justify-center gap-4">
+<button class="bg-primary text-on-primary px-8 py-4 font-label-md text-label-md font-bold uppercase tracking-widest hover:bg-on-primary-fixed transition-colors">
+                    DOWNLOAD THE APP
+                </button>
+<button class="bg-transparent border-width-heavy red-accent-border text-primary px-8 py-4 font-label-md text-label-md font-bold uppercase tracking-widest hover:bg-primary hover:text-on-primary transition-colors">
+                    VISIT TRUST CENTER
+                </button>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container dark:bg-surface-container-high border-t border-outline dark:border-outline-variant w-full">
+<div class="flex flex-col md:flex-row justify-between items-center px-container-padding py-8 gap-stack-gap max-w-[480px] md:max-w-7xl mx-auto opacity-90 hover:opacity-100 transition-opacity">
+<div class="font-headline-sm text-headline-sm text-on-surface dark:text-on-background">Connify</div>
+<div class="flex flex-wrap justify-center gap-6">
+<a class="font-body-md text-body-md text-on-secondary-container dark:text-on-secondary-fixed-variant hover:text-primary dark:hover:text-inverse-primary underline" href="#">Terms of Service</a>
+<a class="font-body-md text-body-md text-primary dark:text-primary-fixed-dim underline" href="#">Privacy Policy</a>
+<a class="font-body-md text-body-md text-on-secondary-container dark:text-on-secondary-fixed-variant hover:text-primary dark:hover:text-inverse-primary underline" href="#">Contact Support</a>
+<a class="font-body-md text-body-md text-on-secondary-container dark:text-on-secondary-fixed-variant hover:text-primary dark:hover:text-inverse-primary underline" href="#">Trust Center</a>
+</div>
+<div class="font-body-md text-body-md text-on-secondary-container dark:text-on-secondary-fixed-variant">
+                © 2024 Connify. Urgent Serenity in Every Step.
+            </div>
+</div>
+</footer>
+<script>
+        // Simple Micro-interaction for hover effects on bento cards
+        document.querySelectorAll('.border-width-heavy, .border-width-light').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-4px)';
+                card.style.transition = 'transform 0.2s ease-out';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+</body></html>

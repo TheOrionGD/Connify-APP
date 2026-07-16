@@ -1,0 +1,217 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Connify - Post-Episode Feedback</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&amp;family=Work+Sans:wght@400;500&amp;family=Space+Grotesk:wght@500;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-fixed": "#dae2ff",
+                    "on-tertiary-fixed": "#001847",
+                    "surface-container-high": "#e8e8e8",
+                    "on-tertiary-container": "#f8f7ff",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-highest": "#e2e2e2",
+                    "on-background": "#1b1b1b",
+                    "on-secondary-fixed": "#1b1d0e",
+                    "on-surface-variant": "#5f3f3a",
+                    "on-surface": "#1b1b1b",
+                    "surface-tint": "#c00000",
+                    "outline": "#946e68",
+                    "surface": "#f9f9f9",
+                    "outline-variant": "#e9bcb5",
+                    "inverse-on-surface": "#f1f1f1",
+                    "error-container": "#ffdad6",
+                    "on-secondary-container": "#636451",
+                    "on-primary-fixed": "#410000",
+                    "on-primary-fixed-variant": "#930100",
+                    "tertiary": "#0051c6",
+                    "primary-fixed": "#ffdad4",
+                    "secondary-container": "#e1e1c9",
+                    "on-secondary": "#ffffff",
+                    "on-primary-container": "#fff6f4",
+                    "tertiary-container": "#0068f8",
+                    "surface-variant": "#e2e2e2",
+                    "secondary-fixed": "#e4e4cc",
+                    "primary-fixed-dim": "#ffb4a8",
+                    "on-tertiary": "#ffffff",
+                    "error": "#ba1a1a",
+                    "primary": "#b60100",
+                    "on-primary": "#ffffff",
+                    "surface-dim": "#dadada",
+                    "background": "#f9f9f9",
+                    "on-tertiary-fixed-variant": "#0040a0",
+                    "on-error": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "tertiary-fixed-dim": "#b1c5ff",
+                    "inverse-primary": "#ffb4a8",
+                    "surface-container-low": "#f3f3f3",
+                    "primary-container": "#e50000",
+                    "secondary": "#5e604d",
+                    "surface-container": "#eeeeee",
+                    "surface-bright": "#f9f9f9",
+                    "inverse-surface": "#303030",
+                    "secondary-fixed-dim": "#c8c8b0",
+                    "on-secondary-fixed-variant": "#474836"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "inline-gap": "12px",
+                    "container-padding": "20px",
+                    "border-width-light": "1px",
+                    "base": "8px",
+                    "border-width-heavy": "2px",
+                    "stack-gap": "16px"
+            },
+            "fontFamily": {
+                    "headline-sm": ["Plus Jakarta Sans"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "body-lg": ["Work Sans"],
+                    "headline-lg-mobile": ["Plus Jakarta Sans"],
+                    "body-md": ["Work Sans"],
+                    "label-md": ["Space Grotesk"]
+            },
+            "fontSize": {
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #f9f9f9; /* Soft Beige */
+            color: #1b1b1b;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .custom-shadow-heavy {
+            box-shadow: 4px 4px 0px 0px #1b1b1b;
+        }
+        .vivid-red-border {
+            border: 2px solid #b60100;
+        }
+        .black-border {
+            border: 1px solid #1b1b1b;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+<!-- Top Navigation Anchor (As requested in JSON but suppressed for Transactional focus) -->
+<!-- Suppressing Shared Components for "Transactional/Focus" state as per UX Goal rules -->
+<main class="flex-grow flex flex-col items-center justify-center px-container-padding py-stack-gap max-w-[480px] mx-auto w-full">
+<!-- Header Section -->
+<header class="w-full text-center mb-10">
+<div class="flex justify-center mb-4">
+<div class="p-4 rounded-full bg-primary-fixed border-width-heavy border-primary">
+<span class="material-symbols-outlined text-primary text-[40px]">shield</span>
+</div>
+</div>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-primary uppercase tracking-tight">Episode Complete</h1>
+<p class="font-label-md text-label-md text-on-surface-variant mt-2">Evening Accompaniment</p>
+</header>
+<!-- Status Card -->
+<div class="w-full bg-surface-container-lowest border-width-heavy border-on-background p-6 mb-stack-gap">
+<div class="flex justify-between items-center mb-4">
+<span class="font-label-md text-label-md uppercase tracking-widest text-on-surface">Protocol Level</span>
+<div class="flex items-center gap-2 bg-on-background text-surface px-3 py-1 rounded-full">
+<span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+<span class="font-label-md text-[12px] font-bold">RISK LEVEL: LOW</span>
+</div>
+</div>
+<div class="h-2 w-full bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-primary w-1/4"></div>
+</div>
+<p class="font-body-md text-body-md mt-4 text-on-surface-variant">Your journey data has been summarized and indexed for safety verification.</p>
+</div>
+<!-- Binary Choice Feedback -->
+<section class="w-full space-y-6">
+<h2 class="font-headline-sm text-headline-sm text-primary text-center">Did you feel safe?</h2>
+<div class="grid grid-cols-2 gap-inline-gap">
+<button class="group flex flex-col items-center justify-center p-6 bg-surface-container-lowest border-2 border-primary transition-all active:scale-95" onclick="selectChoice(this)">
+<span class="material-symbols-outlined text-primary text-3xl mb-2 group-hover:scale-110 transition-transform">sentiment_satisfied</span>
+<span class="font-label-md text-label-md text-primary font-bold">YES</span>
+</button>
+<button class="group flex flex-col items-center justify-center p-6 bg-surface-container-lowest border-2 border-primary transition-all active:scale-95" onclick="selectChoice(this)">
+<span class="material-symbols-outlined text-primary text-3xl mb-2 group-hover:scale-110 transition-transform">sentiment_dissatisfied</span>
+<span class="font-label-md text-label-md text-primary font-bold">NO</span>
+</button>
+</div>
+</section>
+<!-- Map Snippet (Contextual Relevance) -->
+<div class="w-full mt-stack-gap rounded-xl overflow-hidden border border-on-surface-variant opacity-60 grayscale">
+<div class="w-full h-32 bg-cover bg-center" data-alt="A minimalist architectural line-art map of an urban neighborhood at night. The style is high-contrast with soft beige backgrounds and deep black strokes. A single red path trace indicates a safe walking route through the city blocks. The aesthetic is clean, professional, and slightly technical, reflecting a secure protocol log." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAXL8fkhdankBeMdK4WdZ0pCM-KvmcxMDFeE442otmXRL1MJ40xjxFTfniVvCIO9yraAxnszmmCs69oTobP94QtcGOjD_m4rct95iL07yeMCddS9Mj5ncCgBDytJ65ni7GAvAKDnEEF3HO6IXbAqS656Cim4cCLDD3I5LBsK1t5smRnptkJKC1QJwzlf80rnYjbwxgaloa3bJEvC5-Fqv4tvgy_JTOZR06NXntQE-LsHc7sIelK0Vjp')"></div>
+</div>
+<!-- Protocol Disclaimer -->
+<div class="w-full mt-10 text-center">
+<p class="font-body-md text-[13px] text-on-surface leading-relaxed max-w-[320px] mx-auto italic">
+                Note: No personal commentary or metadata is stored in our protocol logs.
+            </p>
+</div>
+<!-- Primary Action -->
+<div class="w-full mt-auto pt-10">
+<button class="w-full bg-primary text-on-primary font-label-md text-label-md py-5 tracking-[0.1em] border-2 border-on-background shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-1 active:translate-y-1 active:shadow-none transition-all">
+                SUBMIT &amp; CLOSE EPISODE
+            </button>
+</div>
+</main>
+<!-- Footer Space -->
+<div class="h-8"></div>
+<script>
+        function selectChoice(element) {
+            // Remove selection from all
+            document.querySelectorAll('button').forEach(btn => {
+                if (btn.classList.contains('bg-primary')) {
+                    btn.classList.remove('bg-primary', 'text-on-primary');
+                    btn.classList.add('bg-surface-container-lowest', 'text-primary');
+                    const icon = btn.querySelector('.material-symbols-outlined');
+                    if (icon) icon.classList.replace('text-on-primary', 'text-primary');
+                }
+            });
+
+            // Add selection to clicked
+            element.classList.remove('bg-surface-container-lowest', 'text-primary');
+            element.classList.add('bg-primary', 'text-on-primary');
+            const icon = element.querySelector('.material-symbols-outlined');
+            if (icon) icon.classList.replace('text-primary', 'text-on-primary');
+            
+            // Micro-interaction
+            element.style.transform = "scale(0.98)";
+            setTimeout(() => {
+                element.style.transform = "scale(1)";
+            }, 100);
+        }
+
+        // Lightweight entrance animation
+        document.addEventListener('DOMContentLoaded', () => {
+            const main = document.querySelector('main');
+            main.style.opacity = '0';
+            main.style.transform = 'translateY(20px)';
+            main.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
+            
+            setTimeout(() => {
+                main.style.opacity = '1';
+                main.style.transform = 'translateY(0)';
+            }, 100);
+        });
+    </script>
+</body></html>

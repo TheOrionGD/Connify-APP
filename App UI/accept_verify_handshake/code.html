@@ -1,0 +1,260 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Identity Verification | Connify</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&amp;family=Work+Sans:wght@400;500&amp;family=Space+Grotesk:wght@500;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@100..900&amp;family=Space+Grotesk:wght@100..900&amp;family=Work+Sans:wght@100..900&amp;display=swap" rel="stylesheet">
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "tertiary-fixed": "#dae2ff",
+                "on-tertiary-fixed": "#001847",
+                "surface-container-high": "#e8e8e8",
+                "on-tertiary-container": "#f8f7ff",
+                "surface-container-lowest": "#ffffff",
+                "surface-container-highest": "#e2e2e2",
+                "on-background": "#1b1b1b",
+                "on-secondary-fixed": "#1b1d0e",
+                "on-surface-variant": "#5f3f3a",
+                "on-surface": "#1b1b1b",
+                "surface-tint": "#c00000",
+                "outline": "#946e68",
+                "surface": "#f9f9f9",
+                "outline-variant": "#e9bcb5",
+                "inverse-on-surface": "#f1f1f1",
+                "error-container": "#ffdad6",
+                "on-secondary-container": "#636451",
+                "on-primary-fixed": "#410000",
+                "on-primary-fixed-variant": "#930100",
+                "tertiary": "#0051c6",
+                "primary-fixed": "#ffdad4",
+                "secondary-container": "#e1e1c9",
+                "on-secondary": "#ffffff",
+                "on-primary-container": "#fff6f4",
+                "tertiary-container": "#0068f8",
+                "surface-variant": "#e2e2e2",
+                "secondary-fixed": "#e4e4cc",
+                "primary-fixed-dim": "#ffb4a8",
+                "on-tertiary": "#ffffff",
+                "error": "#ba1a1a",
+                "primary": "#b60100",
+                "on-primary": "#ffffff",
+                "surface-dim": "#dadada",
+                "background": "#f9f9f9",
+                "on-tertiary-fixed-variant": "#0040a0",
+                "on-error": "#ffffff",
+                "on-error-container": "#93000a",
+                "tertiary-fixed-dim": "#b1c5ff",
+                "inverse-primary": "#ffb4a8",
+                "surface-container-low": "#f3f3f3",
+                "primary-container": "#e50000",
+                "secondary": "#5e604d",
+                "surface-container": "#eeeeee",
+                "surface-bright": "#f9f9f9",
+                "inverse-surface": "#303030",
+                "secondary-fixed-dim": "#c8c8b0",
+                "on-secondary-fixed-variant": "#474836"
+            },
+            "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+            },
+            "spacing": {
+                "inline-gap": "12px",
+                "container-padding": "20px",
+                "border-width-light": "1px",
+                "base": "8px",
+                "border-width-heavy": "2px",
+                "stack-gap": "16px"
+            },
+            "fontFamily": {
+                "headline-sm": ["Plus Jakarta Sans"],
+                "headline-md": ["Plus Jakarta Sans"],
+                "headline-lg": ["Plus Jakarta Sans"],
+                "body-lg": ["Work Sans"],
+                "headline-lg-mobile": ["Plus Jakarta Sans"],
+                "body-md": ["Work Sans"],
+                "label-md": ["Space Grotesk"]
+            },
+            "fontSize": {
+                "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .scanner-bracket {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-color: #b60100;
+        }
+        .scanner-bracket-tl { top: 0; left: 0; border-top-width: 4px; border-left-width: 4px; }
+        .scanner-bracket-tr { top: 0; right: 0; border-top-width: 4px; border-right-width: 4px; }
+        .scanner-bracket-bl { bottom: 0; left: 0; border-bottom-width: 4px; border-left-width: 4px; }
+        .scanner-bracket-br { bottom: 0; right: 0; border-bottom-width: 4px; border-right-width: 4px; }
+        
+        @keyframes scan {
+            0% { top: 0; }
+            100% { top: 100%; }
+        }
+        .scan-line {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #b60100, transparent);
+            position: absolute;
+            width: 100%;
+            animation: scan 2s linear infinite;
+        }
+        
+        /* Hide scrollbar */
+        body::-webkit-scrollbar { display: none; }
+        body { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-body-md overflow-x-hidden">
+<!-- Top AppBar (from JSON guidance) -->
+<header class="w-full top-0 left-0 bg-background border-b border-outline-variant flex justify-between items-center px-container-padding py-base w-full max-w-[480px] mx-auto z-50">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="shield">shield</span>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">Identity Verification</h1>
+</div>
+<button class="active:scale-95 transition-transform p-2 rounded-full hover:bg-surface-container-high">
+<span class="material-symbols-outlined text-primary" data-icon="emergency">emergency</span>
+</button>
+</header>
+<main class="flex-1 w-full max-w-[480px] mx-auto px-container-padding pt-6 pb-32 flex flex-col gap-stack-gap">
+<!-- Camera Viewfinder Section -->
+<div class="relative w-full aspect-square rounded-xl overflow-hidden border-border-width-heavy border-on-background bg-surface-container-highest">
+<div class="absolute inset-0 z-0">
+<img class="w-full h-full object-cover grayscale-[0.2]" data-alt="A POV shot from a smartphone camera perspective looking at a blurred urban street at dusk. The focus is soft, prioritizing the digital UI overlays. The lighting is warm and cinematic, reflecting the Connify brand aesthetic of urgent serenity and high-contrast bold safety elements." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAUbscmeBSyWs1jXnAheqyOxybA2h7F0qS-hj43Uh0Og4sJn5To4Uta_Fb9OHIFn3WrkJAhCjOad8WyMcRwuEamy4pyVJh0a2nYsV8_LFR7s2jAHlrP35Nqcbsk_JPibv-p3gd9mmh5-T88dJ6OpDxr6BDYu0enlohcO1NMhUdBjSr_HGi92v7bnkjeMet4OB8l9bIE9sOTweC0Gc50IIavqsHJzWgcxo5yf-OcC31skIunOSLtJ4JM">
+</div>
+<!-- Red Corner Brackets -->
+<div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+<div class="relative w-3/4 h-3/4">
+<div class="scanner-bracket scanner-bracket-tl"></div>
+<div class="scanner-bracket scanner-bracket-tr"></div>
+<div class="scanner-bracket scanner-bracket-bl"></div>
+<div class="scanner-bracket scanner-bracket-br"></div>
+<div class="scan-line"></div>
+</div>
+</div>
+<!-- Overlay Label -->
+<div class="absolute top-4 left-1/2 -translate-x-1/2 bg-on-background px-4 py-1 rounded-full">
+<span class="text-surface font-label-md text-label-md tracking-widest uppercase">Align QR Code</span>
+</div>
+</div>
+<!-- Proximity & Handshake Status Card -->
+<div class="bg-surface-container-lowest border-border-width-light border-on-background p-4 rounded-xl flex flex-col gap-3">
+<div class="flex justify-between items-center">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase opacity-70">Proximity</span>
+<span class="font-headline-sm text-headline-sm text-on-background">2m (Excellent)</span>
+</div>
+<div class="w-12 h-12 rounded-full bg-primary-fixed flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="distance">distance</span>
+</div>
+</div>
+<div class="h-[1px] bg-outline-variant"></div>
+<div class="flex justify-between items-center">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase opacity-70">Handshake</span>
+<span class="font-headline-sm text-headline-sm text-on-background" id="handshake-status">Pending</span>
+</div>
+<div class="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" id="handshake-loader"></div>
+</div>
+</div>
+<!-- States Toggle / Debug Section (As requested) -->
+<div class="flex flex-col gap-base">
+<p class="font-label-md text-label-md text-on-surface-variant text-center">SIMULATION CONTROLS</p>
+<div class="grid grid-cols-2 gap-inline-gap">
+<button class="bg-surface-container border border-on-background py-2 font-label-md text-label-md rounded-lg active:bg-surface-container-high transition-colors" onclick="toggleState('success')">Success</button>
+<button class="bg-surface-container border border-on-background py-2 font-label-md text-label-md rounded-lg active:bg-surface-container-high transition-colors" onclick="toggleState('error')">Error</button>
+</div>
+</div>
+<!-- Dynamic State Cards -->
+<div class="hidden" id="state-container">
+<!-- Success State -->
+<div class="hidden bg-surface-container-lowest border-border-width-heavy border-primary p-4 rounded-xl flex items-center gap-4" id="state-success">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-primary">Handshake Success</h3>
+<p class="font-body-md text-body-md text-on-surface">Identity confirmed via secure protocol.</p>
+</div>
+</div>
+<!-- Error State -->
+<div class="hidden bg-error-container border-border-width-heavy border-error p-4 rounded-xl flex items-center gap-4" id="state-error">
+<div class="w-10 h-10 rounded-full bg-error flex items-center justify-center">
+<span class="material-symbols-outlined text-on-error" data-icon="warning" style="font-variation-settings: 'FILL' 1;">warning</span>
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-error">Verification Error</h3>
+<p class="font-body-md text-body-md text-on-error-container font-bold uppercase tracking-tight">ID Mismatch - Secure perimeter breached</p>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Actions Container -->
+<div class="fixed bottom-0 w-full max-w-[480px] left-1/2 -translate-x-1/2 p-container-padding bg-background/80 backdrop-blur-md z-40">
+<button class="w-full bg-primary py-5 rounded-xl text-on-primary font-headline-sm text-headline-sm uppercase tracking-widest active:scale-95 transition-all shadow-lg" id="issue-button">
+            ISSUE TRUST CAPSULE
+        </button>
+</div>
+<!-- Hidden Nav Shell (Mandatory Structure but suppressed contextually for task focus) -->
+<nav aria-hidden="true" class="hidden"></nav>
+<script>
+        function toggleState(type) {
+            const container = document.getElementById('state-container');
+            const success = document.getElementById('state-success');
+            const error = document.getElementById('state-error');
+            const handshakeLabel = document.getElementById('handshake-status');
+            const handshakeLoader = document.getElementById('handshake-loader');
+            const issueBtn = document.getElementById('issue-button');
+
+            container.classList.remove('hidden');
+            
+            if (type === 'success') {
+                success.classList.remove('hidden');
+                error.classList.add('hidden');
+                handshakeLabel.innerText = 'Authenticated';
+                handshakeLabel.classList.add('text-primary');
+                handshakeLoader.classList.add('hidden');
+                issueBtn.innerText = 'DEPLOY TRUST';
+                issueBtn.classList.replace('bg-primary', 'bg-on-background');
+            } else {
+                error.classList.remove('hidden');
+                success.classList.add('hidden');
+                handshakeLabel.innerText = 'Failed';
+                handshakeLabel.classList.add('text-error');
+                handshakeLoader.classList.add('hidden');
+                issueBtn.innerText = 'ABORT SESSION';
+                issueBtn.classList.replace('bg-primary', 'bg-error');
+            }
+        }
+
+        // Micro-interaction: button pulse
+        document.getElementById('issue-button').addEventListener('click', function() {
+            this.classList.add('scale-95');
+            setTimeout(() => this.classList.remove('scale-95'), 100);
+        });
+    </script>
+</body></html>

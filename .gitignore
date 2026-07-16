@@ -1,0 +1,221 @@
+# ==============================================================================
+# Connify Monorepo Root .gitignore
+# Covers: React Native (Connify), Next.js (admin-portal), Node/TS (backend), 
+#         Prisma, Firebase, IDEs, and OS-specific files.
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. Dependency Directories & Package Managers (Global)
+# ------------------------------------------------------------------------------
+node_modules/
+jspm_packages/
+web_modules/
+.npm/
+.eslintcache
+.stylelintcache
+.prettiercache
+package-lock.json.log
+yarn-error.log*
+yarn-debug.log*
+npm-debug.log*
+.pnpm-debug.log*
+
+# Yarn Zero-Installs
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
+
+# ------------------------------------------------------------------------------
+# 2. Environment Variables & Secret Files
+# ------------------------------------------------------------------------------
+# Ignore all environment variable files in any directory
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.backup
+.env.sample
+*.env
+*.env.*
+.envrc
+.env.dec
+
+# Firebase & Google Cloud Platform credentials/keys
+*firebase*.json
+*service-account*.json
+*adminsdk*.json
+connify-2026-firebase-adminsdk-fbsvc-0ac0df4f28.json
+
+# Private keys and certificates
+*.pem
+*.key
+*.pub
+*.cert
+*.pfx
+*.p12
+*.keystore
+!**/android/app/debug.keystore
+
+# ------------------------------------------------------------------------------
+# 3. Build Outputs and Caches (Global / Next.js / Backend)
+# ------------------------------------------------------------------------------
+# Next.js build output and caches
+.next/
+out/
+
+# General build/transpilation outputs
+dist/
+build/
+target/
+bin/
+obj/
+
+# Bundler & compiler caches
+.tscache/
+.tsbuildinfo
+*.tsbuildinfo
+.babel-cache/
+.parcel-cache/
+.eslintcache
+.node-xml
+.rxt/
+.vercel
+
+# ------------------------------------------------------------------------------
+# 4. React Native / Expo / Metro Bundler
+# ------------------------------------------------------------------------------
+.metro-health-check*
+*.jsbundle
+.expo/
+.expo-shared/
+
+# iOS (Xcode)
+**/ios/Pods/
+**/ios/build/
+**/ios/DerivedData/
+**/ios/IPAs/
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+**/ios/xcuserdata/
+*.xccheckout
+*.moved-aside
+*.ipa
+*.xcuserstate
+**/.xcode.env.local
+
+# Android (Gradle)
+**/android/.gradle/
+**/android/build/
+**/android/app/build/
+**/android/local.properties
+**/android/*.iml
+**/android/.cxx/
+**/android/.kotlin/
+*.hprof
+
+# Ruby / CocoaPods (iOS dependency management)
+**/vendor/bundle/
+.bundle/
+
+# Fastlane
+**/fastlane/report.xml
+**/fastlane/Preview.html
+**/fastlane/screenshots/
+**/fastlane/test_output/
+
+# ------------------------------------------------------------------------------
+# 5. Database, Cache, and Prisma
+# ------------------------------------------------------------------------------
+# Prisma generated files
+**/generated/prisma/
+**/prisma/client/
+
+# Databases & local state
+*.db
+*.sqlite
+*.sqlite-journal
+*.sqlite3
+*.sqlite3-journal
+*.rdb
+*.aof
+*.pid
+
+# ------------------------------------------------------------------------------
+# 6. Testing & Coverage
+# ------------------------------------------------------------------------------
+coverage/
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+.jest/
+
+# ------------------------------------------------------------------------------
+# 7. IDEs, Text Editors & OS Files
+# ------------------------------------------------------------------------------
+# System Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# VS Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# JetBrains (WebStorm, IntelliJ, PyCharm, etc.)
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Visual Studio / MSBuild
+_ReSharper*/
+[Db]b/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.ntvs*
+*.njsproj
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# ------------------------------------------------------------------------------
+# 8. Python & Miscellaneous compatibility
+# ------------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+env/
+

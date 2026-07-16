@@ -1,0 +1,263 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Connify Safety - Active Episode</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&amp;family=Work+Sans:wght@400;500&amp;family=Space+Grotesk:wght@500;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@100..900&amp;family=Space+Grotesk:wght@100..900&amp;family=Work+Sans:wght@100..900&amp;display=swap" rel="stylesheet">
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .fill-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+        /* Custom scrollbar for minimalist feel */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f9f9f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #e9bcb5;
+            border-radius: 10px;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-fixed": "#e4e4cc",
+                        "on-surface": "#1b1b1b",
+                        "surface": "#f9f9f9",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-fixed": "#001847",
+                        "outline": "#946e68",
+                        "background": "#f9f9f9",
+                        "surface-tint": "#c00000",
+                        "inverse-on-surface": "#f1f1f1",
+                        "on-secondary": "#ffffff",
+                        "inverse-surface": "#303030",
+                        "surface-container-high": "#e8e8e8",
+                        "on-secondary-container": "#636451",
+                        "tertiary-fixed-dim": "#b1c5ff",
+                        "surface-dim": "#dadada",
+                        "primary-fixed": "#ffdad4",
+                        "surface-variant": "#e2e2e2",
+                        "error": "#ba1a1a",
+                        "on-background": "#1b1b1b",
+                        "on-tertiary": "#ffffff",
+                        "on-surface-variant": "#5f3f3a",
+                        "on-error": "#ffffff",
+                        "on-primary-fixed": "#410000",
+                        "primary-fixed-dim": "#ffb4a8",
+                        "secondary-fixed-dim": "#c8c8b0",
+                        "on-tertiary-fixed-variant": "#0040a0",
+                        "secondary": "#5e604d",
+                        "on-error-container": "#93000a",
+                        "secondary-container": "#e1e1c9",
+                        "tertiary-container": "#0068f8",
+                        "tertiary-fixed": "#dae2ff",
+                        "surface-container-highest": "#e2e2e2",
+                        "surface-container-low": "#f3f3f3",
+                        "outline-variant": "#e9bcb5",
+                        "surface-bright": "#f9f9f9",
+                        "on-secondary-fixed": "#1b1d0e",
+                        "on-primary-fixed-variant": "#930100",
+                        "on-primary-container": "#fff6f4",
+                        "tertiary": "#0051c6",
+                        "on-tertiary-container": "#f8f7ff",
+                        "surface-container": "#eeeeee",
+                        "primary-container": "#e50000",
+                        "primary": "#b60100",
+                        "on-secondary-fixed-variant": "#474836",
+                        "inverse-primary": "#ffb4a8",
+                        "error-container": "#ffdad6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-gap": "16px",
+                        "border-width-heavy": "2px",
+                        "border-width-light": "1px",
+                        "container-padding": "20px",
+                        "inline-gap": "12px",
+                        "base": "8px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Work Sans"],
+                        "headline-sm": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "body-md": ["Work Sans"],
+                        "label-md": ["Space Grotesk"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-surface text-on-surface font-body-md min-h-screen pb-24">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-container-padding h-16 bg-surface dark:bg-surface-dim border-b border-outline dark:border-outline-variant">
+<div class="flex items-center gap-base">
+<button class="transition-colors duration-200 active:scale-95 text-primary dark:text-primary-fixed">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h1 class="font-headline-sm text-headline-sm text-primary dark:text-primary-fixed">Connify Safety</h1>
+</div>
+<button class="transition-colors duration-200 active:scale-95 px-4 py-2 bg-primary-container text-on-primary-container rounded-lg font-label-md text-label-md font-bold tracking-wider">
+            EMERGENCY
+        </button>
+</header>
+<main class="pt-20 px-container-padding max-w-[480px] mx-auto flex flex-col gap-stack-gap">
+<!-- Timer Section: Urgent Serenity Branding -->
+<section class="flex flex-col items-center justify-center py-6">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest mb-2">Safe Time Remaining</span>
+<div class="font-headline-lg-mobile text-[64px] text-primary font-bold leading-none tracking-tighter transition-all duration-500" id="countdown">4:26</div>
+<div class="w-full h-1.5 bg-on-surface-variant/20 mt-6 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[75%] transition-all duration-1000"></div>
+</div>
+</section>
+<!-- Requester Info Card -->
+<div class="bg-surface-container-lowest border border-on-surface p-4 rounded-xl flex items-center justify-between">
+<div class="flex items-center gap-inline-gap">
+<div class="w-12 h-12 rounded-full overflow-hidden border border-primary">
+<img class="w-full h-full object-cover" data-alt="A professional studio portrait of a friendly woman in her 30s with a warm expression, high-key lighting, soft beige background, matching the Connify brand's aesthetic of calm professionalism and reliability." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAm64Lx53Vih6xOC6tPak4TZvMrjVaXxAHQfmKrHVh6fAqb1FK8PbIAJmwi4XXV7U3fsZUeEwq-fDVq18szyQzQqcGh3DsDqyoZVVtgmXq7yXBqIorObbbvQf3hSeA-oQLMWq-Gjs1ufYCxfmsz3llVvYTch5zgI0VZBXi_MjWl7HLa1xfVh5A2CKPqZUAW0Sh1ZT9926zhGfwng3xP_f5p_sPn7F7EACpMzXPaiNXTV3NcKBTmokDT">
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Elena Vance</h3>
+<p class="font-body-md text-label-md text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-primary fill-icon" style="font-variation-settings: 'FILL' 1;">verified</span> 
+                        Verified Requester
+                    </p>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="w-10 h-10 flex items-center justify-center border-2 border-primary text-primary rounded-full active:scale-90 transition-transform">
+<span class="material-symbols-outlined">call</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center border-2 border-primary text-primary rounded-full active:scale-90 transition-transform">
+<span class="material-symbols-outlined">chat</span>
+</button>
+</div>
+</div>
+<!-- Map View: Asymmetric / Functional Layout -->
+<div class="relative w-full h-[320px] rounded-2xl overflow-hidden border-2 border-primary group">
+<!-- Map Background Placeholder -->
+<div class="w-full h-full bg-cover bg-center" data-alt="A high-contrast minimalist satellite map view of a city grid with a soft beige and grey color palette. A prominent glowing vivid red circle represents a safety perimeter, with a central white dot and a primary red ring pulsing to indicate a live location." data-location="San Francisco Downtown" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBueXj0Su27533nPcFkTbM1fakoK2_tW-noASuFcJWkW-7yO2Wou4tTkpJIKF8gwPgr44EmmKOFcBTNv_jwfXDLd3JiQ0QhXCEqupgLH6NLBFYwWQcbPFSqwNKILBr_O7Hz76ce9d6Z_U3CG_AfCRUV8A5eGVoXAsQ4hunQmuIdzFM9kHGfB0hb3tOTgHDJAqUKl4YVLOA2NCwzJBbTC3vSsxlCaovERSA-w94UvS0lZ22MnUO0GVW6')">
+<!-- Map Overlay Elements -->
+<div class="absolute inset-0 bg-primary/5 pointer-events-none"></div>
+<!-- Live Pin -->
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+<div class="relative flex items-center justify-center">
+<div class="absolute w-24 h-24 bg-primary/20 rounded-full animate-ping"></div>
+<div class="absolute w-48 h-48 border border-primary/30 rounded-full"></div>
+<div class="z-10 bg-surface-container-lowest border-2 border-primary w-10 h-10 rounded-full flex items-center justify-center shadow-lg">
+<span class="material-symbols-outlined text-primary fill-icon" style="font-variation-settings: 'FILL' 1;">person_pin_circle</span>
+</div>
+</div>
+</div>
+<!-- Distance Badge -->
+<div class="absolute bottom-4 left-4 bg-surface-container-lowest border border-on-surface px-3 py-1.5 rounded-lg flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[18px]">near_me</span>
+<span class="font-label-md text-label-md font-bold">280m away</span>
+</div>
+<!-- Live Tag -->
+<div class="absolute top-4 right-4 bg-primary text-on-primary px-3 py-1 rounded-full flex items-center gap-2 animate-pulse">
+<div class="w-2 h-2 bg-white rounded-full"></div>
+<span class="font-label-md text-[12px] font-bold uppercase tracking-wider">Live</span>
+</div>
+</div>
+</div>
+<!-- Status Summary -->
+<div class="bg-surface-container-low border-b border-on-surface/10 p-4 rounded-xl">
+<h4 class="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant mb-3">Episode Details</h4>
+<ul class="space-y-stack-gap">
+<li class="flex justify-between items-center">
+<span class="text-on-surface-variant">Request Type</span>
+<span class="font-bold text-on-surface">Evening Accompaniment</span>
+</li>
+<li class="flex justify-between items-center">
+<span class="text-on-surface-variant">Trust Level</span>
+<span class="flex items-center gap-1 font-bold text-on-surface">
+<span class="material-symbols-outlined text-primary text-[18px]">verified_user</span> 
+                        Circle Member
+                    </span>
+</li>
+</ul>
+</div>
+<!-- Primary Action -->
+<button class="w-full bg-primary text-on-primary py-5 rounded-2xl font-headline-sm text-headline-sm font-bold shadow-xl active:scale-95 transition-all hover:bg-on-primary-fixed-variant">
+            Complete Episode
+        </button>
+</main>
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-container-padding py-base bg-surface dark:bg-surface-dim border-t border-outline dark:border-outline-variant">
+<div class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 transition-all duration-200 active:scale-90">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-md text-label-md">Home</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-primary text-on-primary rounded-xl px-4 py-1 transition-all duration-200 active:scale-90">
+<span class="material-symbols-outlined fill-icon" style="font-variation-settings: 'FILL' 1;">emergency_share</span>
+<span class="font-label-md text-label-md">Requests</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 transition-all duration-200 active:scale-90">
+<span class="material-symbols-outlined">history</span>
+<span class="font-label-md text-label-md">History</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 transition-all duration-200 active:scale-90">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</div>
+</nav>
+<script>
+        // Micro-interaction for Countdown
+        let seconds = 14 * 60 + 59;
+        const countdownEl = document.getElementById('countdown');
+        
+        setInterval(() => {
+            if (seconds > 0) {
+                seconds--;
+                const mins = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                countdownEl.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+                
+                // Critical state at 2 minutes
+                if (seconds < 120) {
+                    countdownEl.classList.add('animate-pulse');
+                    countdownEl.classList.remove('text-primary');
+                    countdownEl.classList.add('text-error');
+                }
+            }
+        }, 1000);
+
+        // Simulated haptic feedback on buttons
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (window.navigator.vibrate) {
+                    window.navigator.vibrate(10);
+                }
+            });
+        });
+    </script>
+</body></html>
