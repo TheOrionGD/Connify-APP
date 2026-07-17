@@ -180,8 +180,8 @@ export class BCH157 {
       return received;
     }
 
-    let l1 = 0;
-    let l2 = 0;
+    let l1: number;
+    let l2: number;
     const det = gfAdd(gfMul(s[1], s[3]), gfMul(s[2], s[2]));
 
     if (det !== 0) {

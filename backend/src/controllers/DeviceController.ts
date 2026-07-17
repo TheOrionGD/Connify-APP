@@ -48,15 +48,6 @@ export const DeviceController = {
         },
       });
 
-      // Issue a session token scoped to this device UUID
-      const token = await signToken(
-        {
-          type: 'device_session',
-          fingerprint: device.deviceFingerprintHash,
-        },
-        '30d'
-      );
-
       // Override the `sub` claim with the device UUID (signToken uses setIssuedAt,
       // so we pass sub in the payload directly)
       const sessionToken = await signToken(

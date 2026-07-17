@@ -16,15 +16,18 @@ export interface EpisodeResponse {
   success: boolean;
   data: {
     id: string;
-    requesterDeviceId: string;
+    requesterDeviceId?: string;
     category: string;
     urgency: number;
     status: string;
-    latitude: number;
-    longitude: number;
+    latitude?: number;
+    longitude?: number;
     radiusMeters: number;
     createdAt: string;
     expiresAt: string;
+    bchSyndromes?: string;
+    helperStringY?: string;
+    gridCellsJson?: string;
   };
 }
 

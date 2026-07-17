@@ -60,7 +60,9 @@ apiClient.interceptors.response.use(
 
     // 1. Session Expiry Handling
     if (error.response?.status === 401) {
-      console.warn('Unauthorized request detected. Clearing auth store session.');
+      if (process.env.NODE_ENV !== 'test') {
+        console.warn('Unauthorized request detected. Clearing auth store session.');
+      }
       await useAuthStore.getState().signOut();
       return Promise.reject(error);
     }
@@ -77,9 +79,11 @@ apiClient.interceptors.response.use(
         config._retryCount += 1;
         const delay = RETRY_DELAY_BASE_MS * Math.pow(2, config._retryCount - 1);
 
-        console.log(
-          `API request failed: ${error.message}. Retrying request (${config._retryCount}/${MAX_RETRIES}) in ${delay}ms...`
-        );
+        if (process.env.NODE_ENV !== 'test') {
+          console.log(
+            `API request failed: ${error.message}. Retrying request (${config._retryCount}/${MAX_RETRIES}) in ${delay}ms...`
+          );
+        }
 
         // Wait for the backoff duration
         await new Promise<void>((resolve) => setTimeout(() => resolve(), delay));

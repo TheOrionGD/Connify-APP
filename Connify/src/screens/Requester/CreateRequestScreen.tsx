@@ -4,10 +4,11 @@ import {
   Text,
   View,
   ScrollView,
-  SafeAreaView,
   TouchableOpacity,
   TextInput,
+  Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { theme } from '../../theme';
 import { StandardButton } from '../../components/buttons/StandardButton';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -82,11 +83,11 @@ export default function CreateRequestScreen({ navigation }: any) {
         
         navigation.replace('Searching');
       } else {
-        alert('Failed to broadcast request');
+        Alert.alert('Error', 'Failed to broadcast request');
       }
     } catch (err: any) {
       console.error(err);
-      alert('Failed to broadcast request: ' + (err.response?.data?.error?.message || err.message));
+      Alert.alert('Error', 'Failed to broadcast request: ' + (err.response?.data?.error?.message || err.message));
     } finally {
       setLoading(false);
     }

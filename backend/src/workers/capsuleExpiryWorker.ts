@@ -45,8 +45,6 @@ export function initCapsuleExpiryWorker(): Worker {
           return;
         }
 
-        const now = new Date();
-
         await prisma.$transaction(async (tx) => {
           // 1. Mark capsule as expired
           await tx.capsule.update({

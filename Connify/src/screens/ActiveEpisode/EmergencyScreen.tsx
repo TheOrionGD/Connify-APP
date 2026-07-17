@@ -1,5 +1,6 @@
 import React from 'react';
-import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { theme } from '../../theme';
 import { StandardButton } from '../../components/buttons/StandardButton';
 import Icon from 'react-native-vector-icons/MaterialIcons';

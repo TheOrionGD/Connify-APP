@@ -1,26 +1,534 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@theme {
+  /* Design System Palette from safety_core/DESIGN.md */
+  --color-surface: #f9f9f9;
+  --color-surface-dim: #dadada;
+  --color-surface-bright: #f9f9f9;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f3f3f3;
+  --color-surface-container: #eeeeee;
+  --color-surface-container-high: #e8e8e8;
+  --color-surface-container-highest: #e2e2e2;
+  --color-on-surface: #1b1b1b;
+  --color-on-surface-variant: #5f3f3a;
+  --color-inverse-surface: #303030;
+  --color-inverse-on-surface: #f1f1f1;
+  --color-outline: #946e68;
+  --color-outline-variant: #e9bcb5;
+  --color-surface-tint: #c00000;
+  
+  --color-primary: #b60100;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #e50000;
+  --color-on-primary-container: #fff6f4;
+  --color-inverse-primary: #ffb4a8;
+  
+  --color-secondary: #5e604d;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #e1e1c9;
+  --color-on-secondary-container: #636451;
+  
+  --color-tertiary: #0051c6;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #0068f8;
+  --color-on-tertiary-container: #f8f7ff;
+  
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
+  
+  --color-primary-fixed: #ffdad4;
+  --color-primary-fixed-dim: #ffb4a8;
+  --color-on-primary-fixed: #410000;
+  --color-on-primary-fixed-variant: #930100;
+  
+  --color-secondary-fixed: #e4e4cc;
+  --color-secondary-fixed-dim: #c8c8b0;
+  --color-on-secondary-fixed: #1b1d0e;
+  --color-on-secondary-fixed-variant: #474836;
+  
+  --color-tertiary-fixed: #dae2ff;
+  --color-tertiary-fixed-dim: #b1c5ff;
+  --color-on-tertiary-fixed: #001847;
+  --color-on-tertiary-fixed-variant: #0040a0;
+  
+  --color-background: #f9f9f9;
+  --color-on-background: #1b1b1b;
+  --color-surface-variant: #e2e2e2;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  /* Light Theme Admin color variables (from DESIGN.md) */
+  --color-bg-light: #f9f9f9;
+  --color-card-light: #ffffff;
+  --color-card-border-light: #1b1b1b;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Typography fonts */
+  --font-sans: var(--font-work-sans);
+  --font-jakarta: var(--font-plus-jakarta);
+  --font-mono: var(--font-space-grotesk);
+
+  /* Spacing & Borders */
+  --spacing-container-padding: 20px;
+  --spacing-inline-gap: 12px;
+  --spacing-stack-gap: 16px;
+  --spacing-base: 8px;
+  --spacing-border-width-light: 1px;
+  --spacing-border-width-heavy: 2px;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-work-sans), sans-serif;
+  background-color: var(--color-surface);
+  color: var(--color-on-surface);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.font-jakarta {
+  font-family: var(--font-plus-jakarta), sans-serif;
+}
+
+.font-space {
+  font-family: var(--font-space-grotesk), monospace;
+}
+
+/* Red alerts pulses */
+.sos-glow {
+  box-shadow: 0 0 0 0 rgba(182, 1, 0, 0.4);
+  animation: pulse-red 2s infinite;
+}
+
+@keyframes pulse-red {
+  0% { transform: scale(0.96); box-shadow: 0 0 0 0 rgba(182, 1, 0, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 15px rgba(182, 1, 0, 0); }
+  100% { transform: scale(0.96); box-shadow: 0 0 0 0 rgba(182, 1, 0, 0); }
+}
+
+/* Background tactical grids */
+.grid-bg-dots {
+  background-image: radial-gradient(rgba(182, 1, 0, 0.1) 1.5px, transparent 1.5px);
+  background-size: 20px 20px;
+}
+
+.grid-bg-dots-dark {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.04) 1.5px, transparent 1.5px);
+  background-size: 20px 20px;
+}
+
+/* Scrollbar hide */
+.custom-scroll-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.custom-scroll-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Glow indicators */
+.led-glow-red {
+  box-shadow: 0 0 8px #b60100;
+}
+
+.led-glow-green {
+  box-shadow: 0 0 8px #10b981;
+}
+
+/* ==========================================================================
+/* ==========================================================================
+   MULTI-MORPHISM DESIGN SYSTEM — LIGHT THEME (From safety_core/DESIGN.md)
+   Base: #f9f9f9 Soft Beige | Cards: #ffffff Level 1 / #b60100 Level 2 | Text: #1b1b1b
+   ========================================================================== */
+
+/* 1. GLASSMORPHISM (Frosted White Glass & Crisp Translucency) */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(27, 27, 27, 0.18);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.08);
+  color: #1b1b1b;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid #1b1b1b;
+  box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.06);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  color: #1b1b1b;
+}
+
+.glass-card:hover {
+  background: #ffffff;
+  border-color: #b60100;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px 0 rgba(0, 0, 0, 0.12), 0 0 12px rgba(182, 1, 0, 0.12);
+}
+
+.glass-pill {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(27, 27, 27, 0.25);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+  color: #1b1b1b;
+}
+
+.glass-pill:hover {
+  background: #ffffff;
+  border-color: #b60100;
+  color: #b60100;
+}
+
+/* 2. CLAYMORPHISM (3D Tactile Soft Clay Light Elevation) */
+.clay-card {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 6px 6px 16px rgba(180, 180, 180, 0.45),
+              inset -3px -3px 6px rgba(218, 218, 218, 0.8),
+              inset 3px 3px 6px rgba(255, 255, 255, 1);
+  border: 1px solid #1b1b1b;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  color: #1b1b1b;
+}
+
+.clay-card:hover {
+  transform: translateY(-3px) scale(1.01);
+  box-shadow: 10px 10px 24px rgba(180, 180, 180, 0.6),
+              inset -3px -3px 6px rgba(218, 218, 218, 0.8),
+              inset 3px 3px 8px rgba(255, 255, 255, 1);
+  border-color: #b60100;
+}
+
+.clay-box {
+  background: #f3f3f3;
+  border-radius: 12px;
+  box-shadow: 4px 4px 10px rgba(180, 180, 180, 0.4),
+              inset -2px -2px 4px rgba(218, 218, 218, 0.7),
+              inset 2px 2px 4px rgba(255, 255, 255, 1);
+  border: 1px solid rgba(27, 27, 27, 0.15);
+  color: #1b1b1b;
+}
+
+.clay-btn {
+  background: #b60100;
+  color: #ffffff;
+  border-radius: 8px;
+  font-weight: 700;
+  box-shadow: 4px 4px 10px rgba(182, 1, 0, 0.3),
+              inset -2px -2px 4px rgba(140, 0, 0, 0.8),
+              inset 2px 2px 4px rgba(255, 180, 180, 0.5);
+  transition: all 0.15s ease-in-out;
+  cursor: pointer;
+  border: 1px solid #8c0000;
+}
+
+.clay-btn:hover {
+  background: #cc0100;
+  transform: translateY(-2px);
+  box-shadow: 6px 6px 14px rgba(182, 1, 0, 0.4),
+              inset -2px -2px 4px rgba(140, 0, 0, 0.8),
+              inset 2px 2px 6px rgba(255, 200, 200, 0.6);
+}
+
+.clay-btn:active {
+  transform: translateY(2px) scale(0.98);
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2),
+              inset -2px -2px 4px rgba(255, 150, 150, 0.2),
+              inset 2px 2px 4px rgba(100, 0, 0, 0.9);
+}
+
+.clay-badge {
+  background: #eeeeee;
+  border-radius: 100px;
+  border: 1px solid #1b1b1b;
+  box-shadow: 2px 2px 6px rgba(180, 180, 180, 0.4),
+              inset -1px -1px 2px rgba(218, 218, 218, 0.6),
+              inset 1px 1px 2px rgba(255, 255, 255, 1);
+  color: #1b1b1b;
+}
+
+/* 3. NEOMORPHISM / NEUMORPHISM (Soft UI Light Extrusion & Debossing) */
+.neuo-outset {
+  background: #f9f9f9;
+  box-shadow: 6px 6px 14px #e0e0e0, -6px -6px 14px #ffffff;
+  border: 1px solid #1b1b1b;
+  color: #1b1b1b;
+}
+
+.neuo-inset {
+  background: #eeeeee;
+  box-shadow: inset 4px 4px 8px #d8d8d8, inset -4px -4px 8px #ffffff;
+  border: 1px solid rgba(27, 27, 27, 0.15);
+  color: #1b1b1b;
+}
+
+.neuo-card {
+  background: #f9f9f9;
+  box-shadow: 6px 6px 14px #e0e0e0, -6px -6px 14px #ffffff;
+  border-radius: 16px;
+  border: 1px solid #1b1b1b;
+  color: #1b1b1b;
+}
+
+.neuo-btn {
+  background: #f9f9f9;
+  box-shadow: 4px 4px 8px #e0e0e0, -4px -4px 8px #ffffff;
+  transition: all 0.2s ease-in-out;
+  border: 1px solid #1b1b1b;
+  color: #1b1b1b;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.neuo-btn:hover {
+  box-shadow: 2px 2px 4px #e0e0e0, -2px -2px 4px #ffffff;
+  transform: translateY(-1px);
+  color: #b60100;
+  border-color: #b60100;
+}
+
+.neuo-btn:active {
+  box-shadow: inset 3px 3px 6px #e0e0e0, inset -3px -3px 6px #ffffff;
+  transform: translateY(1px);
+}
+
+.neuo-red-btn {
+  background: #b60100;
+  box-shadow: 4px 4px 10px rgba(182, 1, 0, 0.35), -4px -4px 10px #ffdad4;
+  color: #ffffff;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+  border: 1px solid #8c0000;
+  border-radius: 8px;
+}
+
+.neuo-red-btn:hover {
+  background: #cc0100;
+  box-shadow: 2px 2px 6px rgba(182, 1, 0, 0.4), -2px -2px 6px #ffdad4;
+  transform: translateY(-1px);
+}
+
+.neuo-red-btn:active {
+  box-shadow: inset 3px 3px 6px #8a0100, inset -3px -3px 6px #e20100;
+  transform: translateY(1px);
+}
+
+.neuo-input {
+  background: #f3f3f3;
+  box-shadow: inset 3px 3px 6px #dadada, inset -3px -3px 6px #ffffff;
+  border: 1px solid #1b1b1b;
+  outline: none;
+  color: #1b1b1b;
+  transition: all 0.2s ease;
+  border-radius: 8px;
+}
+
+.neuo-input:focus {
+  box-shadow: inset 2px 2px 4px #dadada, inset -2px -2px 4px #ffffff, 0 0 0 2px #b60100;
+  border-color: #b60100;
+}
+
+/* Light Theme overrides for Neumorphism */
+@media (prefers-color-scheme: light) {
+  .neuo-outset {
+    background: #f9f9f9;
+    box-shadow: 8px 8px 16px #e3e3e3, -8px -8px 16px #ffffff;
+  }
+  .neuo-inset {
+    background: #f3f3f3;
+    box-shadow: inset 6px 6px 12px #e3e3e3, inset -6px -6px 12px #ffffff;
+  }
+  .neuo-card {
+    background: #f9f9f9;
+    box-shadow: 8px 8px 16px #e3e3e3, -8px -8px 16px #ffffff;
+  }
+  .neuo-btn {
+    background: #f9f9f9;
+    box-shadow: 5px 5px 10px #e3e3e3, -5px -5px 10px #ffffff;
+    color: #1b1b1b;
+  }
+  .neuo-btn:hover {
+    box-shadow: 2px 2px 5px #e3e3e3, -2px -2px 5px #ffffff;
+  }
+  .neuo-input {
+    background: #f3f3f3;
+    box-shadow: inset 4px 4px 8px #e3e3e3, inset -4px -4px 8px #ffffff;
+    color: #1b1b1b;
+  }
+}
+
+/* 4. AURORAMORPHISM (Ambient Fluid Light Gradients) */
+.aurora-bg {
+  background: radial-gradient(circle at 10% 20%, rgba(182, 1, 0, 0.08) 0%, transparent 40%),
+              radial-gradient(circle at 90% 80%, rgba(0, 81, 198, 0.08) 0%, transparent 40%),
+              radial-gradient(circle at 50% 50%, rgba(94, 96, 77, 0.06) 0%, transparent 50%), #f9f9f9;
+}
+
+.aurora-card {
+  position: relative;
+  background: #ffffff;
+  border-radius: 16px;
+  z-index: 1;
+  overflow: hidden;
+  border: 1px solid #1b1b1b;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  color: #1b1b1b;
+}
+
+.aurora-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #b60100, #0051c6, #5e604d, #b60100);
+  background-size: 300% 100%;
+  animation: aurora-shift 6s linear infinite;
+  z-index: 2;
+}
+
+@keyframes aurora-shift {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 300% 0%; }
+}
+
+/* 5. HOLOMORPHISM (Technical Light HUD & Proximity Scanning) */
+.holo-card {
+  position: relative;
+  background: #ffffff;
+  border: 1px solid #0051c6;
+  box-shadow: 0 0 12px rgba(0, 81, 198, 0.1), inset 0 0 16px rgba(0, 81, 198, 0.02);
+  border-radius: 12px;
+  color: #1b1b1b;
+}
+
+.holo-card-red {
+  position: relative;
+  background: #ffffff;
+  border: 2px solid #b60100;
+  box-shadow: 0 0 16px rgba(182, 1, 0, 0.15), inset 0 0 16px rgba(182, 1, 0, 0.03);
+  border-radius: 12px;
+  color: #1b1b1b;
+}
+
+/* Corner crosshair bracket markers */
+.holo-corner::before,
+.holo-corner::after {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-color: #0051c6;
+  border-style: solid;
+  pointer-events: none;
+}
+
+.holo-corner::before {
+  top: 3px;
+  left: 3px;
+  border-width: 2px 0 0 2px;
+}
+
+.holo-corner::after {
+  bottom: 3px;
+  right: 3px;
+  border-width: 0 2px 2px 0;
+}
+
+.holo-badge {
+  background: linear-gradient(135deg, rgba(0, 81, 198, 0.1), rgba(182, 1, 0, 0.1));
+  border: 1px solid #0051c6;
+  color: #0051c6;
+  font-weight: 700;
+}
+
+.holo-btn {
+  position: relative;
+  background: #f9f9f9;
+  border: 1px solid #0051c6;
+  color: #0051c6;
+  transition: all 0.25s ease;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.holo-btn:hover {
+  background: rgba(0, 81, 198, 0.1);
+  border-color: #0051c6;
+  box-shadow: 0 0 12px rgba(0, 81, 198, 0.25);
+  color: #0051c6;
+}
+
+/* 6. SKEUOMORPHISM (Physical Tactical Hardware & Metallic Light Controls) */
+.skeuo-panel {
+  background: linear-gradient(180deg, #ffffff 0%, #f3f3f3 50%, #e8e8e8 100%);
+  border-top: 1px solid #ffffff;
+  border-bottom: 2px solid #dadada;
+  border-left: 1px solid #eeeeee;
+  border-right: 1px solid #eeeeee;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 1);
+  border-radius: 16px;
+  border: 1px solid #1b1b1b;
+  color: #1b1b1b;
+}
+
+.skeuo-screw {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #dadada 0%, #b0b0b0 100%);
+  border: 1px solid #5f3f3a;
+  position: relative;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.8), 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.skeuo-screw::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 15%;
+  right: 15%;
+  height: 1.5px;
+  background: #5f3f3a;
+  transform: translateY(-50%) rotate(-30deg);
+}
+
+.skeuo-switch {
+  appearance: none;
+  width: 44px;
+  height: 24px;
+  background: #dadada;
+  border-radius: 12px;
+  position: relative;
+  cursor: pointer;
+  box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.2), inset -1px -1px 2px rgba(255, 255, 255, 0.8);
+  border: 1px solid #1b1b1b;
+  transition: all 0.3s ease;
+}
+
+.skeuo-switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #ffffff 0%, #e2e2e2 100%);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 1);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.skeuo-switch:checked {
+  background: #b60100;
+  box-shadow: inset 2px 2px 5px rgba(100, 0, 0, 0.8);
+}
+
+.skeuo-switch:checked::after {
+  transform: translateX(20px);
+  background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 100%);
 }

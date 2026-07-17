@@ -53,7 +53,6 @@ export const EpisodeController = {
           requesterDeviceId: deviceId,
           category: input.category,
           urgency: input.urgency,
-          context: input.context ?? null,
           latitude: input.latitude,
           longitude: input.longitude,
           radiusMeters: input.radiusMeters,
