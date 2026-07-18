@@ -12,14 +12,19 @@ import { SOSButton } from '../../components/buttons/SOSButton';
 import { SafetyCard } from '../../components/cards/SafetyCard';
 import { StandardCard } from '../../components/cards/StandardCard';
 import { DialogueModal } from '../../components/common/DialogueModal';
+import { ProfileSetupModal } from '../../components/common/ProfileSetupModal';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useEpisodeStore } from '../../stores/episodeStore';
+import { useAuthStore } from '../../stores/authStore';
 
 export default function DashboardScreen({ navigation }: any) {
   const [activeMode, setActiveMode] = useState<'need-help' | 'can-help'>('need-help');
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertTitle, setAlertTitle] = useState('');
   const [alertMessage, setAlertMessage] = useState('');
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  
+  const { hasCompletedProfile } = useAuthStore();
 
   const {
     currentState,
@@ -61,9 +66,13 @@ export default function DashboardScreen({ navigation }: any) {
 
   const handleImSafe = () => {
     completeEpisode();
-    setAlertTitle('Session Terminated');
-    setAlertMessage('You have successfully marked yourself as safe. Broadcast closed.');
-    setAlertVisible(true);
+    if (!hasCompletedProfile) {
+      setShowProfileModal(true);
+    } else {
+      setAlertTitle('Session Terminated');
+      setAlertMessage('You have successfully marked yourself as safe. Broadcast closed.');
+      setAlertVisible(true);
+    }
   };
 
   // Convert timeLeft (seconds) to MM:SS
@@ -311,6 +320,16 @@ export default function DashboardScreen({ navigation }: any) {
         message={alertMessage}
         onClose={() => setAlertVisible(false)}
         confirmText="Acknowledge"
+      />
+
+      <ProfileSetupModal
+        visible={showProfileModal}
+        onComplete={() => {
+          setShowProfileModal(false);
+          setAlertTitle('Profile Saved');
+          setAlertMessage('Thank you for completing your profile! You have successfully marked yourself as safe. Broadcast closed.');
+          setAlertVisible(true);
+        }}
       />
     </SafeAreaView>
   );

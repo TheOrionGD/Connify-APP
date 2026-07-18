@@ -8,7 +8,7 @@ const getBaseUrl = (): string => {
   if (API_BASE_URL) {
     return API_BASE_URL;
   }
-  return Platform.OS === 'android' ? 'http://10.0.2.2:5000' : 'http://localhost:5000';
+  return 'https://connify-backend.onrender.com';
 };
 
 // Extend Axios request configuration types to support retry tracking metadata
@@ -21,7 +21,7 @@ const RETRY_DELAY_BASE_MS = 1000;
 
 export const apiClient: AxiosInstance = axios.create({
   baseURL: getBaseUrl(),
-  timeout: 10000, // 10 seconds timeout rule
+  timeout: 60000, // Increased to 60 seconds for Render spin-up
   headers: {
     'Content-Type': 'application/json',
     Accept: 'application/json',

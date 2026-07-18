@@ -62,6 +62,7 @@ interface AuthState {
   isAuthenticated: boolean;
   loading: boolean;
   error: string | null;
+  hasCompletedProfile: boolean;
   deviceId: string | null;
   /** Connify Ed25519 device session JWT — used by apiClient for all protected routes. */
   sessionToken: string | null;
@@ -70,6 +71,7 @@ interface AuthState {
 
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signUpWithEmail: (email: string, password: string, displayName: string) => Promise<void>;
+  signInAnonymously: () => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   signInWithGithub: () => Promise<void>;
   /**
@@ -80,6 +82,7 @@ interface AuthState {
   registerDevice: (fingerprint: string, publicKey: string, phoneHash?: string) => Promise<void>;
   signOut: () => Promise<void>;
   clearError: () => void;
+  setProfileCompleted: () => void;
 }
 
 // ---------------------------------------------------------------------------
@@ -91,11 +94,14 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       user: null,
       isAuthenticated: false,
+      hasCompletedProfile: false,
       loading: false,
       error: null,
       deviceId: null,
       sessionToken: null,
       firebaseIdToken: null,
+
+      setProfileCompleted: () => set({ hasCompletedProfile: true }),
 
       signInWithEmail: async (email, password) => {
         set({ loading: true, error: null });
@@ -138,6 +144,55 @@ export const useAuthStore = create<AuthState>()(
             error: null,
           });
         } catch (e: any) {
+          console.error('Firebase Email sign-in failed:', e);
+          set({ error: e.message, loading: false });
+        }
+      },
+
+      signInAnonymously: async () => {
+        set({ loading: true, error: null });
+        try {
+          // 1. Authenticate with Firebase Anonymously
+          const userCredential = await auth().signInAnonymously();
+          const user = userCredential.user;
+          if (!user) throw new Error('No user returned from Firebase');
+
+          // 2. Obtain Firebase ID token
+          const firebaseToken = await user.getIdToken();
+          const firebaseUser: FirebaseUser = {
+            uid: user.uid,
+            email: user.email,
+            displayName: user.displayName,
+            photoURL: user.photoURL,
+            phoneNumber: user.phoneNumber,
+          };
+
+          // 3. Derive deterministic device credentials from hardware device ID
+          const { fingerprint, publicKeyHex } = await deriveDeviceCredentials();
+
+          // 4. Temporarily set sessionToken = Firebase token
+          set({ firebaseIdToken: firebaseToken, sessionToken: firebaseToken });
+
+          console.log("Firebase token:", firebaseToken.substring(0,30));
+          console.log("Registering device...");
+
+          // 5. Register / upsert device
+          const regRes = await deviceApi.registerDevice(fingerprint, publicKeyHex);
+          if (!regRes.success) throw new Error('Device registration response was not successful');
+
+          // 6. Replace the Firebase token with the long-lived device session JWT.
+          set({
+            user: firebaseUser,
+            sessionToken: regRes.data.token,
+            deviceId: regRes.data.deviceId,
+            isAuthenticated: true,
+            loading: false,
+            error: null,
+          });
+        } catch (e: any) {
+          console.log(e.response?.status);
+          console.log(e.response?.data);
+          console.log(e.message);
           set({
             error: e.message || 'Failed to sign in',
             loading: false,

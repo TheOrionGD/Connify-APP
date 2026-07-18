@@ -21,6 +21,8 @@
 		4F16B3932FD940009007B34F /* WorkSans-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6E08EE7E92EF4F34A4A363FD /* WorkSans-Bold.ttf */; };
 		C171AADAABE44141887E4F1D /* WorkSans-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DBCE96D179E24902B2F69D2C /* WorkSans-Medium.ttf */; };
 		3F606CF8AE6F4E8A8B869DC0 /* WorkSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F58E09E8FF7445F686569E1D /* WorkSans-Regular.ttf */; };
+		D542BFD91EF14358B6973D58 /* BootSplash.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7C041E36D75D4A6AA324CB49 /* BootSplash.storyboard */; };
+		73E4BE827AC541EE8EF459FB /* Colors.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 119F0C5A1C564C56A580E310 /* Colors.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -44,6 +46,8 @@
 		6E08EE7E92EF4F34A4A363FD /* WorkSans-Bold.ttf */ = {isa = PBXFileReference; name = "WorkSans-Bold.ttf"; path = "../src/assets/fonts/WorkSans-Bold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		DBCE96D179E24902B2F69D2C /* WorkSans-Medium.ttf */ = {isa = PBXFileReference; name = "WorkSans-Medium.ttf"; path = "../src/assets/fonts/WorkSans-Medium.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		F58E09E8FF7445F686569E1D /* WorkSans-Regular.ttf */ = {isa = PBXFileReference; name = "WorkSans-Regular.ttf"; path = "../src/assets/fonts/WorkSans-Regular.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		7C041E36D75D4A6AA324CB49 /* BootSplash.storyboard */ = {isa = PBXFileReference; name = "BootSplash.storyboard"; path = "Connify/BootSplash.storyboard"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		119F0C5A1C564C56A580E310 /* Colors.xcassets */ = {isa = PBXFileReference; name = "Colors.xcassets"; path = "Connify/Colors.xcassets"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = folder.assetcatalog; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,6 +70,8 @@
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */,
+				7C041E36D75D4A6AA324CB49 /* BootSplash.storyboard */,
+				119F0C5A1C564C56A580E310 /* Colors.xcassets */,
 			);
 			name = Connify;
 			sourceTree = "<group>";
@@ -208,6 +214,8 @@
 				4F16B3932FD940009007B34F /* WorkSans-Bold.ttf in Resources */,
 				C171AADAABE44141887E4F1D /* WorkSans-Medium.ttf in Resources */,
 				3F606CF8AE6F4E8A8B869DC0 /* WorkSans-Regular.ttf in Resources */,
+				D542BFD91EF14358B6973D58 /* BootSplash.storyboard in Resources */,
+				73E4BE827AC541EE8EF459FB /* Colors.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

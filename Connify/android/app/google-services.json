@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "268788625625-7r7qjkllhf9l7pnlahckn12mn8nuk15o.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.connify",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
           "client_id": "268788625625-vh6gf0l25q396jedmmchvs699g6p09e7.apps.googleusercontent.com",
           "client_type": 3
         }

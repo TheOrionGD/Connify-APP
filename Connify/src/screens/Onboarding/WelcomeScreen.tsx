@@ -17,12 +17,19 @@ import { deviceApi } from '../../services/api/deviceApi';
 
 
 export default function WelcomeScreen({ navigation }: any) {
-  const { isAuthenticated, signInWithEmail } = useAuthStore();
+  const { isAuthenticated, signInAnonymously } = useAuthStore();
   const [locationGranted, setLocationGranted] = useState(true);
   const [notificationsGranted, setNotificationsGranted] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    // 1. Send an initialization signal to wake up the Render backend in the background
+    //    so it's ready by the time the user clicks "GET STARTED".
+    fetch('https://connify-backend.onrender.com/')
+      .then(() => console.log('Backend wake-up signal sent successfully'))
+      .catch((err) => console.log('Backend wake-up signal failed/timeout (expected if sleeping):', err));
+
+    // 2. Check auth status
     if (isAuthenticated) {
       navigation.replace('Main');
     }
@@ -31,13 +38,13 @@ export default function WelcomeScreen({ navigation }: any) {
   const handleGetStarted = async () => {
     setLoading(true);
     try {
-      // 1. Sign in with Firebase + automatically register device.
-      //    authStore.signInWithEmail handles the full flow:
+      // 1. Sign in with Firebase (Anonymously) + automatically register device.
+      //    authStore.signInAnonymously handles the full flow:
       //      a) Firebase auth → Firebase ID token
       //      b) Derives device fingerprint + Ed25519 keypair from hardware ID
       //      c) Calls POST /api/devices/register with Firebase token
       //      d) Replaces sessionToken with the returned Ed25519 device JWT (30d)
-      await signInWithEmail('guest.user@connify.app', 'firebaseSecurePass123');
+      await signInAnonymously();
 
       // Verify sign-in succeeded (registerDevice may fail silently on network error)
       const { sessionToken, error } = useAuthStore.getState();

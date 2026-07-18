@@ -9,6 +9,7 @@ import { episodeRoutes } from './routes/episodes';
 import { capsuleRoutes } from './routes/capsules';
 import { outcomeRoutes } from './routes/outcomes';
 import { adminRoutes } from './routes/admin';
+import { profileRoutes } from './routes/profileRoutes';
 
 export function buildApp(): FastifyInstance {
   const app = Fastify({
@@ -59,6 +60,7 @@ export function buildApp(): FastifyInstance {
   app.register(capsuleRoutes, { prefix: '/api/capsules' });
   app.register(outcomeRoutes, { prefix: '/api/outcomes' });
   app.register(adminRoutes, { prefix: '/api/admin' });
+  app.register(profileRoutes, { prefix: '/api/profile' });
 
   return app;
 }
