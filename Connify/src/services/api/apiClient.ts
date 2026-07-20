@@ -3,12 +3,12 @@ import { Platform } from 'react-native';
 import { API_BASE_URL } from '@env';
 import { useAuthStore } from '../../stores/authStore';
 
-// Determine base API URL with robust fallback for Android emulators vs general localhost
+// Determine base API URL from environment variables
 const getBaseUrl = (): string => {
-  if (API_BASE_URL) {
-    return API_BASE_URL;
+  if (!API_BASE_URL) {
+    console.warn('API_BASE_URL is not set in environment variables');
   }
-  return 'https://connify-backend.onrender.com';
+  return API_BASE_URL || 'https://connify-backend.onrender.com';
 };
 
 // Extend Axios request configuration types to support retry tracking metadata

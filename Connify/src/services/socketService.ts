@@ -14,8 +14,10 @@ import { API_BASE_URL } from '@env';
 import { useAuthStore } from '../stores/authStore';
 
 const getSocketUrl = (): string => {
-  if (API_BASE_URL) return API_BASE_URL;
-  return Platform.OS === 'android' ? 'http://10.0.2.2:5000' : 'http://localhost:5000';
+  if (!API_BASE_URL) {
+    console.warn('API_BASE_URL is not set in environment variables');
+  }
+  return API_BASE_URL || 'https://connify-backend.onrender.com';
 };
 
 let socket: Socket | null = null;
