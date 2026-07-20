@@ -2,6 +2,7 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import WelcomeScreen from '../screens/Onboarding/WelcomeScreen';
+import SplashScreen from '../screens/Onboarding/SplashScreen';
 import DashboardScreen from '../screens/Requester/DashboardScreen';
 import HistoryScreen from '../screens/Settings/HistoryScreen';
 import SettingsScreen from '../screens/Settings/SettingsScreen';
@@ -26,7 +27,8 @@ function MainTabs() {
 
 function AppNavigator() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Splash">
+      <Stack.Screen name="Splash" component={SplashScreen} />
       <Stack.Screen name="Welcome" component={WelcomeScreen} />
       <Stack.Screen name="Main" component={MainTabs} />
       <Stack.Screen name="CreateRequest" component={CreateRequestScreen} />

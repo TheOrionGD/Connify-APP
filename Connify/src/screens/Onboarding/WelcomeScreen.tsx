@@ -6,6 +6,8 @@ import {
   ScrollView,
   Switch,
   Alert,
+  PermissionsAndroid,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { theme } from '../../theme';
@@ -22,13 +24,14 @@ export default function WelcomeScreen({ navigation }: any) {
   const { isAuthenticated, signInAnonymously } = useAuthStore();
   const [locationGranted, setLocationGranted] = useState(false);
   const [notificationsGranted, setNotificationsGranted] = useState(false);
+  const [cameraGranted, setCameraGranted] = useState(false);
   const [loading, setLoading] = useState(false);
   const { fetchLocation } = useLocationStore();
 
   useEffect(() => {
     // 1. Send an initialization signal to wake up the Render backend in the background
     //    so it's ready by the time the user clicks "GET STARTED".
-    fetch('https://connify-backend.onrender.com/')
+    fetch('http://10.184.50.245:5000/')
       .then(() => console.log('Backend wake-up signal sent successfully'))
       .catch((err) => console.log('Backend wake-up signal failed/timeout (expected if sleeping):', err));
 
@@ -59,16 +62,8 @@ export default function WelcomeScreen({ navigation }: any) {
       if (!sessionToken) throw new Error('Authentication failed — no session token received.');
 
       // 2. (Optional) Cryptographic challenge-response device verification.
-      //    Uses the device JWT (now in sessionToken) against the authenticate middleware.
-      const publicKey = await secureKeyService.getPublicKey();
-      const challenge = 'connify-verify-challenge-' + Date.now();
-      const signature = await secureKeyService.signChallenge(challenge);
-
-      const verifyRes = await deviceApi.verifyDevice(challenge, signature);
-      if (!verifyRes.success || !verifyRes.data.verified) {
-        throw new Error(verifyRes.data.message || 'Device verification failed');
-      }
-
+      //    Currently disabled in this phase as it requires syncing the deterministic key.
+      
       navigation.replace('Main');
     } catch (err: any) {
       console.error('Auth setup failed:', err);
@@ -87,6 +82,58 @@ export default function WelcomeScreen({ navigation }: any) {
       }
     } else {
       setLocationGranted(false);
+    }
+  };
+
+  const handleCameraToggle = async (value: boolean) => {
+    if (value) {
+      if (Platform.OS === 'android') {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.CAMERA,
+          {
+            title: 'Camera Permission',
+            message: 'Connify needs access to your camera for scanning devices and QR codes.',
+            buttonNeutral: 'Ask Me Later',
+            buttonNegative: 'Cancel',
+            buttonPositive: 'OK',
+          }
+        );
+        const isGranted = granted === PermissionsAndroid.RESULTS.GRANTED;
+        setCameraGranted(isGranted);
+        if (!isGranted) {
+          Alert.alert('Permission Denied', 'Camera permission is required for scanning features.');
+        }
+      } else {
+        setCameraGranted(true);
+      }
+    } else {
+      setCameraGranted(false);
+    }
+  };
+
+  const handleNotificationToggle = async (value: boolean) => {
+    if (value) {
+      if (Platform.OS === 'android' && Platform.Version >= 33) {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+          {
+            title: 'Notification Permission',
+            message: 'Connify needs access to send you critical safety alerts.',
+            buttonNeutral: 'Ask Me Later',
+            buttonNegative: 'Cancel',
+            buttonPositive: 'OK',
+          }
+        );
+        const isGranted = granted === PermissionsAndroid.RESULTS.GRANTED;
+        setNotificationsGranted(isGranted);
+        if (!isGranted) {
+          Alert.alert('Permission Denied', 'Notifications are highly recommended for safety updates.');
+        }
+      } else {
+        setNotificationsGranted(true);
+      }
+    } else {
+      setNotificationsGranted(false);
     }
   };
 
@@ -123,7 +170,7 @@ export default function WelcomeScreen({ navigation }: any) {
                 Signal for help instantly when you feel unsafe.
               </Text>
             </View>
-            
+
             {/* Right Bento Cards Column */}
             <View style={styles.bentoRightColumn}>
               {/* Secondary Accent Card */}
@@ -144,7 +191,7 @@ export default function WelcomeScreen({ navigation }: any) {
         {/* Required Permissions */}
         <View style={styles.permissionsSection}>
           <Text style={styles.sectionLabel}>REQUIRED PERMISSIONS</Text>
-          
+
           {/* Location permission card */}
           <View style={styles.permissionCard}>
             <View style={styles.permissionInfo}>
@@ -177,7 +224,26 @@ export default function WelcomeScreen({ navigation }: any) {
             </View>
             <Switch
               value={notificationsGranted}
-              onValueChange={setNotificationsGranted}
+              onValueChange={handleNotificationToggle}
+              trackColor={{ false: theme.colors.surfaceVariant, true: theme.colors.primary }}
+              thumbColor="#ffffff"
+            />
+          </View>
+
+          {/* Camera permission card */}
+          <View style={styles.permissionCard}>
+            <View style={styles.permissionInfo}>
+              <View style={styles.permissionIconWrapper}>
+                <Icon name="camera-alt" size={22} color={theme.colors.onSecondaryFixed} />
+              </View>
+              <View style={styles.permissionTextWrapper}>
+                <Text style={styles.permissionTitle}>Camera Access</Text>
+                <Text style={styles.permissionSub}>To scan devices and verify responders.</Text>
+              </View>
+            </View>
+            <Switch
+              value={cameraGranted}
+              onValueChange={handleCameraToggle}
               trackColor={{ false: theme.colors.surfaceVariant, true: theme.colors.primary }}
               thumbColor="#ffffff"
             />
