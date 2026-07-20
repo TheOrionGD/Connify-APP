@@ -12,6 +12,7 @@ import { Shield, Lock, Radio, Github, Bell, Compass, Activity, Award, HelpCircle
 import { motion, AnimatePresence } from 'motion/react';
 
 export default function App() {
+  const [isBackendReady, setIsBackendReady] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<ConnifyPage>(ConnifyPage.PROTOCOL_FEATURES);
   const isScrollingRef = useRef<boolean>(false);
 
@@ -39,6 +40,21 @@ export default function App() {
       isScrollingRef.current = false;
     }, 800);
   };
+
+  // Wake up backend and handle splash screen
+  useEffect(() => {
+    const wakeUpBackend = async () => {
+      try {
+        await fetch('https://connify-backend.onrender.com/');
+      } catch (e) {
+        console.error("Backend wake-up error (continuing anyway):", e);
+      } finally {
+        setIsBackendReady(true);
+      }
+    };
+    
+    wakeUpBackend();
+  }, []);
 
   // Scroll spy to automatically update active navbar state during scrolling
   useEffect(() => {
@@ -94,6 +110,33 @@ export default function App() {
       }
     }, 800);
   };
+
+  if (!isBackendReady) {
+    return (
+      <div className="min-h-screen bg-brand-surface text-brand-black flex flex-col items-center justify-center font-sans selection:bg-brand-red/15">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="flex flex-col items-center space-y-8"
+        >
+          <div className="relative">
+            <div className="absolute inset-0 bg-brand-red/30 rounded-xl animate-ping blur-md"></div>
+            <div className="relative p-5 bg-brand-red/10 rounded-xl border-2 border-brand-red shadow-[6px_6px_0px_#1b1b1b]">
+              <Shield className="h-16 w-16 text-brand-red" />
+            </div>
+          </div>
+          
+          <div className="space-y-3 text-center">
+            <h1 className="font-display font-extrabold text-4xl tracking-tight text-brand-black uppercase">Connify Protocol</h1>
+            <p className="font-mono text-xs font-bold text-brand-muted uppercase tracking-widest flex items-center justify-center space-x-2">
+              <span className="inline-block w-2.5 h-2.5 bg-brand-red rounded-full animate-pulse"></span>
+              <span>Initiating secure backend...</span>
+            </p>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-brand-beige text-brand-black flex flex-col justify-between selection:bg-brand-red/15 selection:text-brand-red font-sans">
