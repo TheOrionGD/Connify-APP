@@ -19,7 +19,7 @@ interface EpisodeState {
   helperStringY: string | null;
   sessionKey: string | null;
 
-  startRequest: (category: CategoryType, urgency: number, description: string) => void;
+  startRequest: (category: CategoryType, urgency: number, description: string, latitude: number, longitude: number) => void;
   cancelRequest: () => void;
   activateEpisode: (socketChannelId: string, durationMinutes: number) => void;
   extendTime: (minutes: number) => void;
@@ -47,17 +47,13 @@ export const useEpisodeStore = create<EpisodeState>()(
       helperStringY: null,
       sessionKey: null,
 
-      startRequest: (category, urgency, description) => {
-        // Blinded KRCT coordinates (Tiruchirappalli)
-        const mockLat = 10.7905;
-        const mockLng = 78.7047;
-
+      startRequest: (category, urgency, description, latitude, longitude) => {
         set({
           currentState: 'searching',
           category,
           urgency,
           description,
-          coordinates: { latitude: mockLat, longitude: mockLng },
+          coordinates: { latitude, longitude },
           socketChannelId: null,
           timeLeft: 0,
         });

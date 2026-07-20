@@ -14,13 +14,16 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useAuthStore } from '../../stores/authStore';
 import { secureKeyService } from '../../services/secureKeyService';
 import { deviceApi } from '../../services/api/deviceApi';
+import { useLocationStore } from '../../stores/locationStore';
+import { locationService } from '../../services/locationService';
 
 
 export default function WelcomeScreen({ navigation }: any) {
   const { isAuthenticated, signInAnonymously } = useAuthStore();
-  const [locationGranted, setLocationGranted] = useState(true);
+  const [locationGranted, setLocationGranted] = useState(false);
   const [notificationsGranted, setNotificationsGranted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { fetchLocation } = useLocationStore();
 
   useEffect(() => {
     // 1. Send an initialization signal to wake up the Render backend in the background
@@ -38,6 +41,10 @@ export default function WelcomeScreen({ navigation }: any) {
   const handleGetStarted = async () => {
     setLoading(true);
     try {
+      if (locationGranted) {
+        await fetchLocation();
+      }
+
       // 1. Sign in with Firebase (Anonymously) + automatically register device.
       //    authStore.signInAnonymously handles the full flow:
       //      a) Firebase auth → Firebase ID token
@@ -68,6 +75,18 @@ export default function WelcomeScreen({ navigation }: any) {
       Alert.alert('Authentication Error', err.message || 'Verification failed. Please try again.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleLocationToggle = async (value: boolean) => {
+    if (value) {
+      const granted = await locationService.requestLocationPermission();
+      setLocationGranted(granted);
+      if (!granted) {
+        Alert.alert('Permission Denied', 'Location permission is required for core app features.');
+      }
+    } else {
+      setLocationGranted(false);
     }
   };
 
@@ -139,7 +158,7 @@ export default function WelcomeScreen({ navigation }: any) {
             </View>
             <Switch
               value={locationGranted}
-              onValueChange={setLocationGranted}
+              onValueChange={handleLocationToggle}
               trackColor={{ false: theme.colors.surfaceVariant, true: theme.colors.primary }}
               thumbColor="#ffffff"
             />

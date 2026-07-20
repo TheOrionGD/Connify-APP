@@ -17,6 +17,7 @@ import { useAuthStore } from '../../stores/authStore';
 import { useEpisodeStore } from '../../stores/episodeStore';
 import { BloomFilter, SHARPHelper } from '../../utils/sharp';
 import { Alert, ActivityIndicator } from 'react-native';
+import { useLocationStore } from '../../stores/locationStore';
 
 interface HelpRequest {
   id: string;
@@ -29,46 +30,22 @@ interface HelpRequest {
 }
 
 export default function NearbyRequestsScreen({ navigation }: any) {
+  const { latitude, longitude } = useLocationStore();
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<HelpRequest | null>(null);
   const [requests, setRequests] = useState<HelpRequest[]>([]);
   const [loadingFeed, setLoadingFeed] = useState(false);
   const [handshakeLoading, setHandshakeLoading] = useState(false);
 
-  const mockRequests: HelpRequest[] = [
-    {
-      id: '1',
-      category: 'Medical Services',
-      icon: 'medical-services',
-      distance: '~350m',
-      urgency: 4,
-      timeAgo: '2 min ago',
-      details: 'Requester reports minor sprain and requires emergency transport coordinates.',
-    },
-    {
-      id: '2',
-      category: 'Security Alert',
-      icon: 'security',
-      distance: '~800m',
-      urgency: 5,
-      timeAgo: 'Just now',
-      details: 'Active alarm trigger. Requires physical witness checking near Central Square.',
-    },
-    {
-      id: '3',
-      category: 'Transport Escort',
-      icon: 'local-taxi',
-      distance: '~1.2km',
-      urgency: 3,
-      timeAgo: '5 min ago',
-      details: 'Safe passage escort request for walking through unlit path route.',
-    },
-  ];
-
   const fetchFeed = async () => {
+    if (latitude === null || longitude === null) {
+      Alert.alert('Location Required', 'Enable location services to see nearby requests.');
+      return;
+    }
+    
     setLoadingFeed(true);
     try {
-      const res = await episodeApi.getNearbyEpisodes(10.7905, 78.7047, 5000);
+      const res = await episodeApi.getNearbyEpisodes(latitude, longitude, 5000);
       if (res.success && res.data.length > 0) {
         const apiRequests: HelpRequest[] = res.data.map((ep: any) => ({
           id: ep.id,
@@ -81,11 +58,11 @@ export default function NearbyRequestsScreen({ navigation }: any) {
         }));
         setRequests(apiRequests);
       } else {
-        setRequests(mockRequests);
+        setRequests([]);
       }
     } catch (err) {
       console.warn('⚠️ Failed to fetch nearby requests:', err);
-      setRequests(mockRequests);
+      setRequests([]);
     } finally {
       setLoadingFeed(false);
     }
@@ -93,7 +70,7 @@ export default function NearbyRequestsScreen({ navigation }: any) {
 
   React.useEffect(() => {
     fetchFeed();
-  }, []);
+  }, [latitude, longitude]);
 
   const handleRespond = (req: HelpRequest) => {
     setSelectedRequest(req);
@@ -122,8 +99,15 @@ export default function NearbyRequestsScreen({ navigation }: any) {
 
       const K = helperStringY;
 
-      const cellX = Math.floor(10.7905 * 100);
-      const cellY = Math.floor(78.7047 * 100);
+      // Ensure we have location
+      if (latitude === null || longitude === null) {
+         Alert.alert('Location Required', 'Cannot perform SHARP handshake without active location.');
+         setHandshakeLoading(false);
+         return;
+      }
+
+      const cellX = Math.floor(latitude * 100);
+      const cellY = Math.floor(longitude * 100);
       const cellStr = `grid_${cellX}_${cellY}`;
       const blindedGridCell = SHARPHelper.blindGridCell(K, cellStr, "Bob");
 
@@ -196,6 +180,12 @@ export default function NearbyRequestsScreen({ navigation }: any) {
         <View style={styles.listContainer}>
           {loadingFeed ? (
             <ActivityIndicator size="large" color={theme.colors.primary} style={{ marginTop: 20 }} />
+          ) : requests.length === 0 ? (
+            <View style={styles.emptyState}>
+              <Icon name="location-off" size={48} color={theme.colors.surfaceVariant} />
+              <Text style={styles.emptyStateTitle}>No Active Requests</Text>
+              <Text style={styles.emptyStateText}>There are no emergency requests reported in your immediate vicinity right now.</Text>
+            </View>
           ) : (
             requests.map((req) => {
               const isHighUrgency = req.urgency >= 4;
@@ -420,5 +410,23 @@ const styles = StyleSheet.create({
     color: theme.colors.primary,
     fontFamily: theme.fontFamilies.technical.bold,
     fontSize: 13,
+  },
+  emptyState: {
+    paddingVertical: 40,
+    alignItems: 'center',
+    gap: 8,
+  },
+  emptyStateTitle: {
+    fontFamily: theme.fontFamilies.primary.bold,
+    fontSize: 18,
+    color: theme.colors.onBackground,
+    marginTop: 8,
+  },
+  emptyStateText: {
+    fontFamily: theme.fontFamilies.secondary.regular,
+    fontSize: 14,
+    color: theme.colors.onSurfaceVariant,
+    textAlign: 'center',
+    paddingHorizontal: 20,
   },
 });

@@ -15,11 +15,13 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useEpisodeStore } from '../../stores/episodeStore';
 import { episodeApi } from '../../services/api/episodeApi';
 import { BloomFilter, SHARPHelper } from '../../utils/sharp';
+import { useLocationStore } from '../../stores/locationStore';
 
 type CategoryType = 'Medical' | 'Security' | 'Transport' | 'Other';
 
 export default function CreateRequestScreen({ navigation }: any) {
   const startRequest = useEpisodeStore((state) => state.startRequest);
+  const { latitude, longitude } = useLocationStore();
   const [selectedCategory, setSelectedCategory] = useState<CategoryType | null>(null);
   const [urgency, setUrgency] = useState<number>(3);
   const [context, setContext] = useState('');
@@ -46,8 +48,14 @@ export default function CreateRequestScreen({ navigation }: any) {
       };
       const apiCategory = categoryMapping[selectedCategory];
 
-      const lat = 10.7905;
-      const lng = 78.7047;
+      if (latitude === null || longitude === null) {
+        Alert.alert('Location Required', 'Cannot broadcast request without device location. Please enable location permissions.');
+        setLoading(false);
+        return;
+      }
+
+      const lat = latitude;
+      const lng = longitude;
 
       const signals = ["AP_KRCT_01", "AP_KRCT_02", "AP_KRCT_03", "Cell_LTE_404_45_01"];
       const bloom = new BloomFilter(1024, 4);
@@ -77,7 +85,7 @@ export default function CreateRequestScreen({ navigation }: any) {
         const setSHARPParams = useEpisodeStore.getState().setSHARPParams;
         const setEpisodeId = useEpisodeStore.getState().setEpisodeId;
         
-        startRequest(selectedCategory, urgency, context);
+        startRequest(selectedCategory, urgency, context, lat, lng);
         setEpisodeId(res.data.id);
         setSHARPParams(syndromes, sessionKey, sessionKey);
         

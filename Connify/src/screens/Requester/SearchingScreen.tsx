@@ -5,6 +5,7 @@ import {
   View,
   ActivityIndicator,
   Animated,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { theme } from '../../theme';
@@ -65,6 +66,16 @@ export default function SearchingScreen({ navigation }: any) {
       if (pollInterval) clearInterval(pollInterval);
     };
   }, [episodeId, activateEpisode, cancelRequest]);
+
+  // Terminate if no helper found within 2 minutes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      cancelRequest();
+      Alert.alert('Timeout', 'No verified helpers were found in your area within 2 minutes. Please try again or seek alternative help.');
+    }, 120000); // 2 minutes
+
+    return () => clearTimeout(timer);
+  }, [cancelRequest]);
 
   const handleCancel = () => {
     cancelRequest();
