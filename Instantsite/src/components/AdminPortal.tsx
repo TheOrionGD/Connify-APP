@@ -30,8 +30,6 @@ try {
   if (defaultFirebaseConfig.apiKey) {
     app = getApps().length === 0 ? initializeApp(defaultFirebaseConfig) : getApp();
     auth = getAuth(app);
-  } else {
-    console.warn("Firebase Auth config is empty. Admin Portal will run in simulated fallback mode.");
   }
 } catch (error) {
   console.warn("Firebase Auth lazy initialization deferred:", error);
