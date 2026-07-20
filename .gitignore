@@ -28,7 +28,7 @@ npm-debug.log*
 !.yarn/sdks
 !.yarn/versions
 .pnp.*
-App UI/
+App_UI
 
 # ------------------------------------------------------------------------------
 # 2. Environment Variables & Secret Files
