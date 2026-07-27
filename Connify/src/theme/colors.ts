@@ -1,76 +1,78 @@
 /**
- * Material 3 Brand & UI Colors for Connify
- * Spec sourced from App UI/safety_core/DESIGN.md
+ * Warm Beige, Crisp Black & Vivid Crimson Red Design System for Connify
+ * Global palette applied across the entire app.
  */
 
 export const colors = {
-  // Core Surface & Background
-  background: '#f9f9f9',
-  onBackground: '#1b1b1b',
+  // Core Surface & Background (Warm Beige Aesthetic)
+  background: '#F5F0EA',
+  onBackground: '#121212',
   
-  surface: '#f9f9f9',
-  onSurface: '#1b1b1b',
-  onSurfaceVariant: '#5f3f3a',
+  surface: '#F5F0EA',
+  onSurface: '#121212',
+  onSurfaceVariant: '#4A4A4A',
   
-  surfaceDim: '#dadada',
-  surfaceBright: '#f9f9f9',
-  surfaceVariant: '#e2e2e2',
-  surfaceTint: '#c00000',
+  surfaceDim: '#E8E3DB',
+  surfaceBright: '#FAF8F5',
+  surfaceVariant: '#EFEBE4',
+  surfaceTint: '#DC2626',
   
-  inverseSurface: '#303030',
-  inverseOnSurface: '#f1f1f1',
+  inverseSurface: '#121212',
+  inverseOnSurface: '#F5F0EA',
   
-  // Surface Containers (Material 3 depth hierarchy)
-  surfaceContainerLowest: '#ffffff',
-  surfaceContainerLow: '#f3f3f3',
-  surfaceContainer: '#eeeeee',
-  surfaceContainerHigh: '#e8e8e8',
-  surfaceContainerHighest: '#e2e2e2',
+  // Surface Containers (Beige & White Depth Hierarchy)
+  surfaceContainerLowest: '#FFFFFF',
+  surfaceContainerLow: '#FAF8F5',
+  surfaceContainer: '#F5F0EA',
+  surfaceContainerHigh: '#EFEBE4',
+  surfaceContainerHighest: '#E5E0D8',
   
-  // Outlines & Borders
-  outline: '#946e68',
-  outlineVariant: '#e9bcb5',
+  // Outlines & Borders (Crisp Black & Red Accent Borders)
+  outline: '#121212',
+  outlineVariant: '#333333',
+  borderDark: '#121212',
+  borderRed: '#DC2626',
   
   // Brand Primary (Vivid Crimson Red)
-  primary: '#b60100',
-  onPrimary: '#ffffff',
-  primaryContainer: '#e50000',
-  onPrimaryContainer: '#fff6f4',
-  inversePrimary: '#ffb4a8',
+  primary: '#DC2626',
+  onPrimary: '#FFFFFF',
+  primaryContainer: '#FEF2F2',
+  onPrimaryContainer: '#991B1B',
+  inversePrimary: '#FCA5A5',
   
-  // Brand Secondary (Olive Accent)
-  secondary: '#5e604d',
-  onSecondary: '#ffffff',
-  secondaryContainer: '#e1e1c9',
-  onSecondaryContainer: '#636451',
+  // Brand Secondary (Crisp Black)
+  secondary: '#121212',
+  onSecondary: '#FFFFFF',
+  secondaryContainer: '#E5E0D8',
+  onSecondaryContainer: '#121212',
   
-  // Brand Tertiary (Cobalt Blue Accent)
-  tertiary: '#0051c6',
-  onTertiary: '#ffffff',
-  tertiaryContainer: '#0068f8',
-  onTertiaryContainer: '#f8f7ff',
+  // Brand Tertiary (Dark Charcoal Accent)
+  tertiary: '#1E1E1E',
+  onTertiary: '#FFFFFF',
+  tertiaryContainer: '#F5F0EA',
+  onTertiaryContainer: '#121212',
   
-  // Error States
-  error: '#ba1a1a',
-  onError: '#ffffff',
-  errorContainer: '#ffdad6',
-  onErrorContainer: '#93000a',
+  // Error / Urgent Alert States
+  error: '#DC2626',
+  onError: '#FFFFFF',
+  errorContainer: '#FEE2E2',
+  onErrorContainer: '#7F1D1D',
   
   // Fixed Tonal Colors
-  primaryFixed: '#ffdad4',
-  primaryFixedDim: '#ffb4a8',
-  onPrimaryFixed: '#410000',
-  onPrimaryFixedVariant: '#930100',
+  primaryFixed: '#FEE2E2',
+  primaryFixedDim: '#FCA5A5',
+  onPrimaryFixed: '#7F1D1D',
+  onPrimaryFixedVariant: '#991B1B',
   
-  secondaryFixed: '#e4e4cc',
-  secondaryFixedDim: '#c8c8b0',
-  onSecondaryFixed: '#1b1d0e',
-  onSecondaryFixedVariant: '#474836',
+  secondaryFixed: '#E5E0D8',
+  secondaryFixedDim: '#D5CF00',
+  onSecondaryFixed: '#121212',
+  onSecondaryFixedVariant: '#333333',
   
-  tertiaryFixed: '#dae2ff',
-  tertiaryFixedDim: '#b1c5ff',
-  onTertiaryFixed: '#001847',
-  onTertiaryFixedVariant: '#0040a0',
+  tertiaryFixed: '#E8E3DB',
+  tertiaryFixedDim: '#D8D3CB',
+  onTertiaryFixed: '#121212',
+  onTertiaryFixedVariant: '#1E1E1E',
 } as const;
 
 export type ColorsType = typeof colors;

@@ -12,7 +12,7 @@ import { theme } from '../../theme';
 interface StandardButtonProps {
   title: string;
   onPress: () => void;
-  variant?: 'primary' | 'secondary';
+  variant?: 'primary' | 'secondary' | 'dark' | 'outline';
   disabled?: boolean;
   loading?: boolean;
   style?: ViewStyle;
@@ -30,7 +30,33 @@ export const StandardButton: React.FC<StandardButtonProps> = ({
   textStyle,
   icon,
 }) => {
-  const isPrimary = variant === 'primary';
+  const getButtonStyle = () => {
+    switch (variant) {
+      case 'secondary':
+        return styles.secondaryButton;
+      case 'dark':
+        return styles.darkButton;
+      case 'outline':
+        return styles.outlineButton;
+      case 'primary':
+      default:
+        return styles.primaryButton;
+    }
+  };
+
+  const getTextStyle = () => {
+    switch (variant) {
+      case 'secondary':
+        return styles.secondaryText;
+      case 'dark':
+        return styles.darkText;
+      case 'outline':
+        return styles.outlineText;
+      case 'primary':
+      default:
+        return styles.primaryText;
+    }
+  };
 
   return (
     <TouchableOpacity
@@ -39,14 +65,14 @@ export const StandardButton: React.FC<StandardButtonProps> = ({
       activeOpacity={0.8}
       style={[
         styles.button,
-        isPrimary ? styles.primaryButton : styles.secondaryButton,
+        getButtonStyle(),
         disabled && styles.disabledButton,
         style,
       ]}
     >
       {loading ? (
         <ActivityIndicator
-          color={isPrimary ? theme.colors.onPrimary : theme.colors.primary}
+          color={variant === 'outline' ? theme.colors.primary : '#FFFFFF'}
           size="small"
         />
       ) : (
@@ -55,7 +81,7 @@ export const StandardButton: React.FC<StandardButtonProps> = ({
           <Text
             style={[
               styles.text,
-              isPrimary ? styles.primaryText : styles.secondaryText,
+              getTextStyle(),
               disabled && styles.disabledText,
               icon ? styles.textWithIcon : null,
               textStyle,
@@ -71,40 +97,56 @@ export const StandardButton: React.FC<StandardButtonProps> = ({
 
 const styles = StyleSheet.create({
   button: {
-    height: 56,
-    borderRadius: theme.spacing.radiusFull,
+    height: 52,
+    borderRadius: theme.spacing.radiusDefault,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: theme.spacing.containerPadding,
     borderWidth: theme.spacing.borderWidthHeavy,
-    borderColor: 'transparent',
+    borderColor: theme.colors.outline,
   },
   primaryButton: {
     backgroundColor: theme.colors.primary,
+    borderColor: theme.colors.outline,
   },
   secondaryButton: {
+    backgroundColor: theme.colors.surfaceContainerLowest,
+    borderColor: theme.colors.outline,
+  },
+  darkButton: {
+    backgroundColor: theme.colors.onBackground,
+    borderColor: theme.colors.outline,
+  },
+  outlineButton: {
     backgroundColor: 'transparent',
-    borderColor: theme.colors.primary,
+    borderColor: theme.colors.outline,
   },
   disabledButton: {
-    backgroundColor: theme.colors.surfaceVariant,
-    borderColor: 'transparent',
+    backgroundColor: theme.colors.surfaceContainerHigh,
+    borderColor: theme.colors.outlineVariant,
     opacity: 0.6,
   },
   text: {
     fontFamily: theme.fontFamilies.primary.bold,
-    fontSize: 18,
-    lineHeight: 28,
+    fontSize: 16,
+    fontWeight: '700',
+    letterSpacing: 0.5,
   },
   primaryText: {
-    color: theme.colors.onPrimary,
+    color: '#FFFFFF',
   },
   secondaryText: {
-    color: theme.colors.primary,
+    color: theme.colors.onBackground,
+  },
+  darkText: {
+    color: '#FFFFFF',
+  },
+  outlineText: {
+    color: theme.colors.onBackground,
   },
   disabledText: {
-    color: theme.colors.secondary,
+    color: theme.colors.onSurfaceVariant,
   },
   textWithIcon: {
     marginLeft: theme.spacing.base,

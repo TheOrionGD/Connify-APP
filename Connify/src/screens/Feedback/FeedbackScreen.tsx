@@ -33,31 +33,25 @@ export default function FeedbackScreen({ navigation }: any) {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      {/* Centered AppBar */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Protocol Evaluation</Text>
+        <Text style={styles.headerTitle}>PROTOCOL EVALUATION</Text>
       </View>
 
       <View style={styles.container}>
         <View style={styles.contentWrapper}>
-          {/* Hero Explainer Icon */}
-          <View style={styles.iconContainer}>
-            <View style={styles.iconCircle}>
-              <Icon name="volunteer-activism" size={44} color={theme.colors.primary} />
-            </View>
+          <View style={styles.iconCircle}>
+            <Icon name="verified" size={44} color={theme.colors.primary} />
           </View>
 
           <Text style={styles.title}>Post-Episode Feedback</Text>
           <Text style={styles.subtitle}>
-            Connify runs on zero-trust parameters. Submitting this feedback purges all ephemeral local coordinates, tracking traces, and active tokens from your device storage.
+            Connify runs on zero-trust parameters. Submitting this feedback purges all ephemeral local coordinates, tracking traces, and active tokens.
           </Text>
 
-          {/* Binary Choice Card */}
           <StandardCard style={styles.feedbackCard}>
-            <Text style={styles.questionText}>Was help resolved successfully?</Text>
+            <Text style={styles.questionText}>Was assistance resolved successfully?</Text>
             
             <View style={styles.optionsContainer}>
-              {/* YES Option */}
               <TouchableOpacity
                 style={[
                   styles.optionButton,
@@ -67,8 +61,8 @@ export default function FeedbackScreen({ navigation }: any) {
               >
                 <Icon
                   name="check-circle"
-                  size={24}
-                  color={resolved === true ? '#ffffff' : theme.colors.secondary}
+                  size={22}
+                  color={resolved === true ? '#FFFFFF' : theme.colors.onBackground}
                 />
                 <Text
                   style={[
@@ -80,7 +74,6 @@ export default function FeedbackScreen({ navigation }: any) {
                 </Text>
               </TouchableOpacity>
 
-              {/* NO Option */}
               <TouchableOpacity
                 style={[
                   styles.optionButton,
@@ -90,8 +83,8 @@ export default function FeedbackScreen({ navigation }: any) {
               >
                 <Icon
                   name="cancel"
-                  size={24}
-                  color={resolved === false ? '#ffffff' : theme.colors.secondary}
+                  size={22}
+                  color={resolved === false ? '#FFFFFF' : theme.colors.onBackground}
                 />
                 <Text
                   style={[
@@ -106,20 +99,18 @@ export default function FeedbackScreen({ navigation }: any) {
           </StandardCard>
         </View>
 
-        {/* Submit & Purge CTA */}
         <StandardButton
           title="SUBMIT & CLOSE EPISODE"
           onPress={handleSubmit}
           disabled={resolved === null}
-          icon={<Icon name="lock" size={20} color={theme.colors.onPrimary} />}
+          icon={<Icon name="lock" size={20} color="#FFFFFF" />}
           style={styles.submitButton}
         />
       </View>
 
-      {/* Confirmation purge modal */}
       <DialogueModal
         visible={modalVisible}
-        title="Logs Purged Successfully"
+        title="Session Purged Successfully"
         message="All ephemeral tracking data, WebSocket sessions, and Trust Capsule credentials have been wiped from device local storage."
         onClose={handleFinish}
         confirmText="Done"
@@ -135,103 +126,106 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background,
   },
   header: {
-    height: 64,
+    height: 56,
     borderBottomWidth: theme.spacing.borderWidthLight,
-    borderBottomColor: theme.colors.outlineVariant,
+    borderBottomColor: theme.colors.outline,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: theme.colors.background,
   },
   headerTitle: {
-    fontFamily: theme.fontFamilies.primary.bold,
-    fontSize: 18,
-    color: theme.colors.primary,
-    fontWeight: '800',
-    letterSpacing: 0.5,
+    fontFamily: theme.fontFamilies.technical.bold,
+    fontSize: 14,
+    color: theme.colors.onBackground,
+    letterSpacing: 1.2,
+    fontWeight: '700',
   },
   container: {
     flex: 1,
     padding: theme.spacing.containerPadding,
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 32,
+    paddingVertical: 24,
   },
   contentWrapper: {
     alignItems: 'center',
     width: '100%',
     gap: 16,
   },
-  iconContainer: {
-    marginTop: 20,
-    marginBottom: 8,
-  },
   iconCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: theme.colors.primaryFixed,
+    width: 76,
+    height: 76,
+    borderRadius: 38,
+    backgroundColor: theme.colors.surfaceContainerLowest,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: theme.spacing.borderWidthLight,
-    borderColor: theme.colors.outlineVariant,
+    borderWidth: theme.spacing.borderWidthHeavy,
+    borderColor: theme.colors.outline,
+    marginTop: 10,
   },
   title: {
     fontFamily: theme.fontFamilies.primary.bold,
-    fontSize: 24,
+    fontSize: 22,
     color: theme.colors.onBackground,
     textAlign: 'center',
   },
   subtitle: {
     fontFamily: theme.fontFamilies.secondary.regular,
-    fontSize: 14,
-    lineHeight: 22,
+    fontSize: 13,
+    lineHeight: 20,
     color: theme.colors.onSurfaceVariant,
     textAlign: 'center',
     paddingHorizontal: 12,
   },
   feedbackCard: {
     width: '100%',
-    marginTop: 16,
+    marginTop: 8,
     gap: 16,
     alignItems: 'center',
+    backgroundColor: theme.colors.surfaceContainerLowest,
+    borderWidth: theme.spacing.borderWidthLight,
+    borderColor: theme.colors.outline,
+    borderRadius: theme.spacing.radiusDefault,
+    padding: 18,
   },
   questionText: {
     fontFamily: theme.fontFamilies.primary.bold,
-    fontSize: 16,
+    fontSize: 15,
     color: theme.colors.onBackground,
     textAlign: 'center',
   },
   optionsContainer: {
     flexDirection: 'row',
-    gap: 16,
+    gap: 14,
     width: '100%',
   },
   optionButton: {
     flex: 1,
-    height: 52,
+    height: 48,
     borderWidth: theme.spacing.borderWidthLight,
-    borderColor: theme.colors.onBackground,
+    borderColor: theme.colors.outline,
     borderRadius: theme.spacing.radiusDefault,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     gap: 8,
+    backgroundColor: theme.colors.surfaceContainerLowest,
   },
   optionButtonActiveYes: {
-    backgroundColor: '#388e3c', // Green confirmation
-    borderColor: '#388e3c',
+    backgroundColor: '#059669',
+    borderColor: theme.colors.outline,
   },
   optionButtonActiveNo: {
-    backgroundColor: theme.colors.primary, // Red cancellation
-    borderColor: theme.colors.primary,
+    backgroundColor: theme.colors.primary,
+    borderColor: theme.colors.outline,
   },
   optionText: {
     fontFamily: theme.fontFamilies.technical.bold,
-    fontSize: 14,
-    color: theme.colors.secondary,
+    fontSize: 13,
+    color: theme.colors.onBackground,
   },
   optionTextActive: {
-    color: '#ffffff',
+    color: '#FFFFFF',
   },
   submitButton: {
     width: '100%',

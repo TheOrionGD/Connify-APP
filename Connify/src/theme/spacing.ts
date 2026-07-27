@@ -1,6 +1,5 @@
 /**
  * Spacing, Border, and Border Radius Metrics for Connify
- * Spec sourced from App UI/safety_core/DESIGN.md
  */
 
 export const spacing = {
@@ -10,17 +9,16 @@ export const spacing = {
   stackGap: 16,
   inlineGap: 12,
   
-  // Borders
-  borderWidthHeavy: 2,
-  borderWidthLight: 1,
+  // Sharp Black Borders
+  borderWidthHeavy: 2.5,
+  borderWidthLight: 1.5,
   
-  // Border Radius (rounded tokens)
-  // Assuming base rem = 16px
-  radiusSm: 4,      // 0.25rem
-  radiusDefault: 8, // 0.5rem
-  radiusMd: 12,     // 0.75rem
-  radiusLg: 16,     // 1rem
-  radiusXl: 24,     // 1.5rem
+  // Border Radius (Clean Crisp Tokens)
+  radiusSm: 6,
+  radiusDefault: 10,
+  radiusMd: 14,
+  radiusLg: 18,
+  radiusXl: 24,
   radiusFull: 9999,
 } as const;
 

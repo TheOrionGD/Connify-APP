@@ -11,7 +11,7 @@ import {
 import { theme } from '../../theme';
 
 interface TextFieldProps extends TextInputProps {
-  label: string;
+  label?: string;
   containerStyle?: ViewStyle;
   inputStyle?: TextStyle;
   error?: string;
@@ -22,17 +22,16 @@ export const TextField: React.FC<TextFieldProps> = ({
   containerStyle,
   inputStyle,
   error,
-  placeholderTextColor = '#a0a0a0',
+  placeholderTextColor = '#777777',
   ...props
 }) => {
   return (
     <View style={[styles.container, containerStyle]}>
-      {/* Label in Space Grotesk and All-Caps */}
-      <Text style={styles.label}>{label.toUpperCase()}</Text>
+      {label ? <Text style={styles.label}>{label.toUpperCase()}</Text> : null}
       
-      <View style={styles.inputWrapper}>
+      <View style={[styles.inputWrapper, error ? styles.inputWrapperError : null]}>
         <TextInput
-          style={[styles.input, error ? styles.inputError : null, inputStyle]}
+          style={[styles.input, inputStyle]}
           placeholderTextColor={placeholderTextColor}
           {...props}
         />
@@ -52,28 +51,31 @@ const styles = StyleSheet.create({
     fontFamily: theme.fontFamilies.technical.bold,
     fontSize: 12,
     color: theme.colors.onBackground,
-    marginBottom: theme.spacing.base,
-    letterSpacing: 0.8,
+    marginBottom: 6,
+    letterSpacing: 1,
+    fontWeight: '700',
   },
   inputWrapper: {
-    backgroundColor: theme.colors.surfaceContainerLow, // slightly darker soft beige
-    borderBottomWidth: theme.spacing.borderWidthLight,
-    borderBottomColor: theme.colors.onBackground, // 1px black bottom-border only
+    backgroundColor: '#FFFFFF',
+    borderWidth: theme.spacing.borderWidthLight,
+    borderColor: theme.colors.outline,
+    borderRadius: theme.spacing.radiusDefault,
+  },
+  inputWrapperError: {
+    borderColor: theme.colors.error,
   },
   input: {
-    height: 52,
-    paddingHorizontal: theme.spacing.inlineGap,
+    height: 50,
+    paddingHorizontal: 14,
     color: theme.colors.onBackground,
     fontFamily: theme.fontFamilies.secondary.regular,
-    fontSize: 16,
-  },
-  inputError: {
-    borderBottomColor: theme.colors.error,
+    fontSize: 15,
   },
   errorText: {
     color: theme.colors.error,
     fontSize: 12,
     fontFamily: theme.fontFamilies.secondary.regular,
     marginTop: 4,
+    fontWeight: '600',
   },
 });

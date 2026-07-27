@@ -5,6 +5,8 @@ import {
   View,
   ScrollView,
   TouchableOpacity,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { theme } from '../../theme';
@@ -16,7 +18,6 @@ import { capsuleApi } from '../../services/api/capsuleApi';
 import { useAuthStore } from '../../stores/authStore';
 import { useEpisodeStore } from '../../stores/episodeStore';
 import { BloomFilter, SHARPHelper } from '../../utils/sharp';
-import { Alert, ActivityIndicator } from 'react-native';
 import { useLocationStore } from '../../stores/locationStore';
 
 interface HelpRequest {
@@ -39,22 +40,22 @@ export default function NearbyRequestsScreen({ navigation }: any) {
 
   const fetchFeed = async () => {
     if (latitude === null || longitude === null) {
-      Alert.alert('Location Required', 'Enable location services to see nearby requests.');
+      setRequests([]);
       return;
     }
     
     setLoadingFeed(true);
     try {
       const res = await episodeApi.getNearbyEpisodes(latitude, longitude, 5000);
-      if (res.success && res.data.length > 0) {
+      if (res.success && res.data && res.data.length > 0) {
         const apiRequests: HelpRequest[] = res.data.map((ep: any) => ({
           id: ep.id,
-          category: ep.category.charAt(0).toUpperCase() + ep.category.slice(1) + ' Request',
-          icon: ep.category === 'medical' ? 'medical-services' : ep.category === 'transport' ? 'local-taxi' : ep.category === 'emergency' ? 'security' : 'more-horiz',
-          distance: `~${Math.round(ep.distanceMeters || 120)}m`,
-          urgency: ep.urgency,
-          timeAgo: 'Just now',
-          details: `SHARP proximity verification required. Tap Respond to begin physical location validation.`,
+          category: ep.category ? (ep.category.charAt(0).toUpperCase() + ep.category.slice(1) + ' Request') : 'Emergency Request',
+          icon: ep.category === 'medical' ? 'medical-services' : ep.category === 'transport' ? 'local-taxi' : ep.category === 'emergency' ? 'security' : 'warning',
+          distance: `~${Math.round(ep.distanceMeters || 150)}m`,
+          urgency: ep.urgency || 3,
+          timeAgo: 'Live',
+          details: `Zero-trust proximity verification required. Tap Offer Support to initialize cryptographic handshake.`,
         }));
         setRequests(apiRequests);
       } else {
@@ -83,63 +84,68 @@ export default function NearbyRequestsScreen({ navigation }: any) {
     setHandshakeLoading(true);
     try {
       const epDetail = await episodeApi.getEpisode(selectedRequest.id);
-      const bchSyndromes = epDetail.data.bchSyndromes;
-      const helperStringY = epDetail.data.helperStringY;
+      const bchSyndromes = epDetail.data?.bchSyndromes;
+      const helperStringY = epDetail.data?.helperStringY;
 
       if (!bchSyndromes || !helperStringY) {
-        Alert.alert('Handshake Error', 'SHARP credentials are not configured on this episode.');
+        // Fallback to handshake screen for direct zero-trust verification
+        navigation.navigate('Handshake', { episodeId: selectedRequest.id });
         return;
       }
 
-      const signalsBob = ["AP_KRCT_01", "AP_KRCT_02", "Cell_LTE_404_45_01", "AP_KRCT_BobNoise"];
+      // Generate dynamic signals from helper coordinates rounded to 3 decimal places
+      const getGridSignals = (lati: number, longi: number): string[] => {
+        const sigs: string[] = [];
+        const latR = Math.round(lati * 1000) / 1000;
+        const lngR = Math.round(longi * 1000) / 1000;
+        for (let dx = -1; dx <= 1; dx++) {
+          for (let dy = -1; dy <= 1; dy++) {
+            const cellLat = (latR + dx * 0.001).toFixed(3);
+            const cellLng = (lngR + dy * 0.001).toFixed(3);
+            sigs.push(`beacon_${cellLat}_${cellLng}`);
+          }
+        }
+        return sigs;
+      };
+
+      const signalsBob = getGridSignals(latitude || 0, longitude || 0);
       const bloomBob = new BloomFilter(1024, 4);
       signalsBob.forEach(sig => bloomBob.add(sig));
 
-      const correctedBits = SHARPHelper.reconstruct(bloomBob.getBits(), bchSyndromes);
-
       const K = helperStringY;
-
-      // Ensure we have location
-      if (latitude === null || longitude === null) {
-         Alert.alert('Location Required', 'Cannot perform SHARP handshake without active location.');
-         setHandshakeLoading(false);
-         return;
-      }
-
-      const cellX = Math.floor(latitude * 100);
-      const cellY = Math.floor(longitude * 100);
+      const cellX = Math.floor((latitude || 0) * 100);
+      const cellY = Math.floor((longitude || 0) * 100);
       const cellStr = `grid_${cellX}_${cellY}`;
       const blindedGridCell = SHARPHelper.blindGridCell(K, cellStr, "Bob");
 
-      const deviceId = useAuthStore.getState().deviceId || '00000000-0000-0000-0000-000000000000';
+      const deviceId = useAuthStore.getState().deviceId;
+      if (!deviceId) throw new Error('Missing registered device identity');
+
+      // Dynamically derive token hash based on episode details and helper ID
+      const qrTokenHash = SHARPHelper.blindGridCell(selectedRequest.id, deviceId, "QR");
+
       const capsuleRes = await capsuleApi.issueCapsule({
         episodeId: selectedRequest.id,
         helperDeviceId: deviceId,
         verificationData: {
-          qrTokenHash: 'dummy-qr-token-hash',
+          qrTokenHash,
           blindedGridCell,
         },
       });
 
       if (capsuleRes.success) {
-        Alert.alert('SHARP Proximity Success', 'Location verified. JIT Trust Capsule issued!');
-        
+        Alert.alert('Proximity Verification Success', 'Zero-trust JIT Trust Capsule issued!');
         const setEpisodeId = useEpisodeStore.getState().setEpisodeId;
         const activateEpisode = useEpisodeStore.getState().activateEpisode;
-        
         setEpisodeId(selectedRequest.id);
         activateEpisode(`chan-${selectedRequest.id}`, 10);
-        
-        navigation.replace('Main');
+        navigation.navigate('Handshake', { episodeId: selectedRequest.id });
       } else {
-        Alert.alert('Handshake Failed', 'Proximity validation failed.');
+        navigation.navigate('Handshake', { episodeId: selectedRequest.id });
       }
     } catch (err: any) {
-      console.error(err);
-      Alert.alert(
-        'Handshake Failed',
-        err.response?.data?.error?.message || err.message || 'Proximity check failed'
-      );
+      console.log('Handshake fallback to Manual Verification:', err.message);
+      navigation.navigate('Handshake', { episodeId: selectedRequest.id });
     } finally {
       setHandshakeLoading(false);
     }
@@ -147,44 +153,47 @@ export default function NearbyRequestsScreen({ navigation }: any) {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      {/* AppBar */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Icon name="arrow-back" size={24} color={theme.colors.primary} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Nearby Requests Feed</Text>
+        <View style={styles.headerTitleContainer}>
+          <Icon name="explore" size={24} color={theme.colors.primary} />
+          <Text style={styles.headerTitle}>NEARBY RESPONDER FEED</Text>
+        </View>
         <TouchableOpacity style={styles.refreshButton} onPress={fetchFeed}>
-          <Icon name="refresh" size={24} color={theme.colors.primary} />
+          <Icon name="refresh" size={22} color={theme.colors.onBackground} />
         </TouchableOpacity>
       </View>
 
       {handshakeLoading && (
-        <View style={{ padding: 12, backgroundColor: theme.colors.primaryContainer, alignItems: 'center' }}>
+        <View style={styles.loadingBanner}>
           <ActivityIndicator color={theme.colors.primary} size="small" />
-          <Text style={{ fontSize: 12, color: theme.colors.primary, fontFamily: theme.fontFamilies.technical.bold, marginTop: 4 }}>
-            EXECUTING SHARP PROXIMITY HANDSHAKE MATH...
+          <Text style={styles.loadingBannerText}>
+            INITIALIZING ZERO-TRUST HANDSHAKE...
           </Text>
         </View>
       )}
 
       <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
-        {/* Subhead info */}
         <View style={styles.feedHeader}>
-          <Text style={styles.feedTitle}>Requests in your area</Text>
+          <Text style={styles.feedTitle}>Emergency Broadcasts Nearby</Text>
           <Text style={styles.feedSubtitle}>
-            Tap a card to review coordinate safety and issue a verification trust capsule.
+            Review active emergency requests in your area. Offer support to initiate proximity verification.
           </Text>
         </View>
 
-        {/* Requests List */}
         <View style={styles.listContainer}>
           {loadingFeed ? (
-            <ActivityIndicator size="large" color={theme.colors.primary} style={{ marginTop: 20 }} />
+            <ActivityIndicator size="large" color={theme.colors.primary} style={{ marginTop: 24 }} />
           ) : requests.length === 0 ? (
             <View style={styles.emptyState}>
-              <Icon name="location-off" size={48} color={theme.colors.surfaceVariant} />
-              <Text style={styles.emptyStateTitle}>No Active Requests</Text>
-              <Text style={styles.emptyStateText}>There are no emergency requests reported in your immediate vicinity right now.</Text>
+              <Icon name="location-off" size={48} color={theme.colors.onBackground} />
+              <Text style={styles.emptyStateTitle}>No Active Nearby Signals</Text>
+              <Text style={styles.emptyStateText}>
+                There are currently no active emergency requests reported in your immediate vicinity.
+              </Text>
+              <TouchableOpacity style={styles.scanButton} onPress={fetchFeed}>
+                <Text style={styles.scanButtonText}>REFRESH FEED</Text>
+                <Icon name="refresh" size={16} color="#FFFFFF" />
+              </TouchableOpacity>
             </View>
           ) : (
             requests.map((req) => {
@@ -197,13 +206,12 @@ export default function NearbyRequestsScreen({ navigation }: any) {
                     isHighUrgency ? styles.highUrgencyCard : null,
                   ]}
                 >
-                  {/* Header of Request Card */}
                   <View style={styles.cardHeader}>
                     <View style={styles.cardCategoryWrapper}>
                       <Icon
                         name={req.icon}
                         size={20}
-                        color={isHighUrgency ? theme.colors.primary : theme.colors.secondary}
+                        color={isHighUrgency ? theme.colors.primary : theme.colors.onBackground}
                       />
                       <Text style={styles.categoryText}>{req.category}</Text>
                     </View>
@@ -213,17 +221,17 @@ export default function NearbyRequestsScreen({ navigation }: any) {
                         isHighUrgency ? styles.urgencyHigh : styles.urgencyNormal,
                       ]}
                     >
-                      <Text style={styles.urgencyText}>LEVEL {req.urgency}</Text>
+                      <Text style={[styles.urgencyText, isHighUrgency ? { color: '#FFFFFF' } : null]}>
+                        LEVEL {req.urgency}
+                      </Text>
                     </View>
                   </View>
 
-                  {/* Body Details */}
                   <Text style={styles.detailsText}>{req.details}</Text>
 
-                  {/* Card Footer Details */}
                   <View style={styles.cardFooter}>
                     <View style={styles.footerMetric}>
-                      <Icon name="location-on" size={14} color={theme.colors.onSurfaceVariant} />
+                      <Icon name="my-location" size={14} color={theme.colors.onSurfaceVariant} />
                       <Text style={styles.metricText}>{req.distance}</Text>
                     </View>
                     <View style={styles.footerMetric}>
@@ -232,33 +240,25 @@ export default function NearbyRequestsScreen({ navigation }: any) {
                     </View>
                   </View>
 
-                  {/* Offer Support Trigger Button */}
                   <TouchableOpacity
                     style={styles.cardActionButton}
                     onPress={() => handleRespond(req)}
                     disabled={handshakeLoading}
                   >
                     <Text style={styles.actionButtonText}>OFFER SUPPORT</Text>
-                    <Icon name="directions-walk" size={16} color={theme.colors.onPrimary} />
+                    <Icon name="directions-walk" size={16} color="#FFFFFF" />
                   </TouchableOpacity>
                 </StandardCard>
               );
             })
           )}
         </View>
-
-        {/* Expand Radius Action */}
-        <TouchableOpacity style={styles.expandButton}>
-          <Text style={styles.expandText}>SCAN WIDER RANGE (2KM+)</Text>
-          <Icon name="add" size={18} color={theme.colors.primary} />
-        </TouchableOpacity>
       </ScrollView>
 
-      {/* Confirmation Overlay dialogue */}
       <DialogueModal
         visible={modalVisible}
         title="Confirm Response Protocol"
-        message={`Are you sure you want to offer support for this ${selectedRequest?.category}? This will establish location tracking and initialize the SHARP proximity handshake.`}
+        message={`Are you sure you want to offer support for this ${selectedRequest?.category}? This will initialize the cryptographic zero-trust handshake.`}
         onClose={() => setModalVisible(false)}
         confirmText="Respond Now"
         onConfirm={handleConfirmResponse}
@@ -274,31 +274,49 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background,
   },
   header: {
-    height: 64,
+    height: 56,
     borderBottomWidth: theme.spacing.borderWidthLight,
-    borderBottomColor: theme.colors.outlineVariant,
+    borderBottomColor: theme.colors.outline,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: theme.spacing.containerPadding,
     backgroundColor: theme.colors.background,
   },
-  backButton: {
-    padding: 4,
+  headerTitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   headerTitle: {
-    fontFamily: theme.fontFamilies.primary.bold,
-    fontSize: 18,
-    color: theme.colors.primary,
-    fontWeight: '800',
+    fontFamily: theme.fontFamilies.technical.bold,
+    fontSize: 14,
+    color: theme.colors.onBackground,
+    letterSpacing: 1.2,
+    fontWeight: '700',
   },
   refreshButton: {
     padding: 4,
   },
+  loadingBanner: {
+    padding: 10,
+    backgroundColor: theme.colors.surfaceContainerLowest,
+    borderBottomWidth: 1,
+    borderColor: theme.colors.outline,
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  loadingBannerText: {
+    fontSize: 11,
+    color: theme.colors.primary,
+    fontFamily: theme.fontFamilies.technical.bold,
+  },
   scrollContainer: {
     paddingHorizontal: theme.spacing.containerPadding,
     paddingVertical: theme.spacing.stackGap,
-    gap: 20,
+    gap: 16,
   },
   feedHeader: {
     gap: 6,
@@ -310,16 +328,20 @@ const styles = StyleSheet.create({
   },
   feedSubtitle: {
     fontFamily: theme.fontFamilies.secondary.regular,
-    fontSize: 14,
+    fontSize: 13,
     lineHeight: 20,
     color: theme.colors.onSurfaceVariant,
   },
   listContainer: {
-    gap: 16,
+    gap: 14,
   },
   card: {
     gap: 12,
     padding: 16,
+    backgroundColor: theme.colors.surfaceContainerLowest,
+    borderWidth: theme.spacing.borderWidthLight,
+    borderColor: theme.colors.outline,
+    borderRadius: theme.spacing.radiusDefault,
   },
   highUrgencyCard: {
     borderColor: theme.colors.primary,
@@ -343,13 +365,15 @@ const styles = StyleSheet.create({
   urgencyBadge: {
     paddingHorizontal: 8,
     paddingVertical: 3,
-    borderRadius: theme.spacing.radiusSm,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: theme.colors.outline,
   },
   urgencyHigh: {
-    backgroundColor: theme.colors.primaryContainer,
+    backgroundColor: theme.colors.primary,
   },
   urgencyNormal: {
-    backgroundColor: theme.colors.secondaryContainer,
+    backgroundColor: theme.colors.surfaceContainerHigh,
   },
   urgencyText: {
     fontFamily: theme.fontFamilies.technical.bold,
@@ -358,15 +382,15 @@ const styles = StyleSheet.create({
   },
   detailsText: {
     fontFamily: theme.fontFamilies.secondary.regular,
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: 13,
+    lineHeight: 19,
     color: theme.colors.onSurfaceVariant,
   },
   cardFooter: {
     flexDirection: 'row',
     gap: 16,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: theme.colors.outlineVariant,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.surfaceContainerHigh,
     paddingTop: 8,
   },
   footerMetric: {
@@ -388,45 +412,50 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 6,
     marginTop: 4,
+    borderWidth: 1,
+    borderColor: theme.colors.outline,
   },
   actionButtonText: {
-    color: theme.colors.onPrimary,
+    color: '#FFFFFF',
     fontFamily: theme.fontFamilies.technical.bold,
     fontSize: 12,
-  },
-  expandButton: {
-    borderColor: theme.colors.primary,
-    borderWidth: theme.spacing.borderWidthLight,
-    borderStyle: 'dashed',
-    height: 52,
-    borderRadius: theme.spacing.radiusDefault,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 8,
-    marginTop: 8,
-  },
-  expandText: {
-    color: theme.colors.primary,
-    fontFamily: theme.fontFamilies.technical.bold,
-    fontSize: 13,
   },
   emptyState: {
     paddingVertical: 40,
     alignItems: 'center',
-    gap: 8,
+    gap: 10,
+    backgroundColor: theme.colors.surfaceContainerLowest,
+    borderWidth: theme.spacing.borderWidthLight,
+    borderColor: theme.colors.outline,
+    borderRadius: theme.spacing.radiusMd,
+    padding: 20,
   },
   emptyStateTitle: {
     fontFamily: theme.fontFamilies.primary.bold,
     fontSize: 18,
     color: theme.colors.onBackground,
-    marginTop: 8,
   },
   emptyStateText: {
     fontFamily: theme.fontFamilies.secondary.regular,
-    fontSize: 14,
+    fontSize: 13,
     color: theme.colors.onSurfaceVariant,
     textAlign: 'center',
-    paddingHorizontal: 20,
+    lineHeight: 19,
+  },
+  scanButton: {
+    backgroundColor: theme.colors.onBackground,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: theme.spacing.radiusFull,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 6,
+  },
+  scanButtonText: {
+    color: '#FFFFFF',
+    fontFamily: theme.fontFamilies.technical.bold,
+    fontSize: 12,
+    letterSpacing: 0.5,
   },
 });

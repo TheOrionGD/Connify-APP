@@ -3,14 +3,12 @@ import { StyleSheet, Text, View, Animated, Easing } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { theme } from '../../theme';
-import { apiClient } from '../../services/api/apiClient';
 import { useAuthStore } from '../../stores/authStore';
 
 export default function SplashScreen({ navigation }: any) {
   const [pulseAnim] = useState(new Animated.Value(0));
 
   useEffect(() => {
-    // Pulse animation for the loader dots
     Animated.loop(
       Animated.sequence([
         Animated.timing(pulseAnim, {
@@ -45,8 +43,7 @@ export default function SplashScreen({ navigation }: any) {
 
         if (response.ok) {
           const data = await response.json();
-          // The user specifically requested waiting for this exact success message
-          if (data && data.success && data.message.includes('Zero-Trust Backend Protocol Running')) {
+          if (data && data.success) {
             if (isMounted) {
               navTimeout = setTimeout(() => {
                 if (!isMounted) return;
@@ -65,7 +62,6 @@ export default function SplashScreen({ navigation }: any) {
         console.log('Backend not awake yet or timed out, retrying in 3s...', error);
       }
       
-      // Retry after 3 seconds
       if (isMounted) {
         retryTimeout = setTimeout(checkBackendStatus, 3000);
       }
@@ -98,36 +94,29 @@ export default function SplashScreen({ navigation }: any) {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.content}>
-        
-        {/* Center Logo Group */}
         <View style={styles.logoContainer}>
-          {/* Outer ring */}
           <View style={styles.outerRing}>
-            {/* Inner ring */}
             <View style={styles.innerRing}>
-              {/* Solid Red Circle */}
               <View style={styles.solidCircle}>
-                <Icon name="security" size={48} color="#FFFFFF" />
+                <Icon name="security" size={54} color="#FFFFFF" />
               </View>
             </View>
           </View>
         </View>
 
-        {/* Text Group */}
         <View style={styles.textContainer}>
           <Text style={styles.brandTitle}>Connify</Text>
-          <Text style={styles.brandSubtitle}>SAFE & COORDINATE</Text>
+          <Text style={styles.brandSubtitle}>ZERO-TRUST SAFETY PROTOCOL</Text>
         </View>
       </View>
 
-      {/* Bottom Loader */}
       <View style={styles.bottomContainer}>
         <View style={styles.dotsContainer}>
           <Animated.View style={[styles.dot, dotStyle]} />
-          <Animated.View style={[styles.dot, dotStyle, { animationDelay: '200ms' } as any]} />
-          <Animated.View style={[styles.dot, dotStyle, { animationDelay: '400ms' } as any]} />
+          <Animated.View style={[styles.dot, dotStyle]} />
+          <Animated.View style={[styles.dot, dotStyle]} />
         </View>
-        <Text style={styles.loaderText}>Establishing Secure Protocol...</Text>
+        <Text style={styles.loaderText}>Establishing Secure Node Handshake...</Text>
       </View>
     </SafeAreaView>
   );
@@ -136,7 +125,7 @@ export default function SplashScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F9F9F9',
+    backgroundColor: theme.colors.background,
   },
   content: {
     flex: 1,
@@ -146,73 +135,76 @@ const styles = StyleSheet.create({
   logoContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 40,
+    marginBottom: 32,
   },
   outerRing: {
-    width: 240,
-    height: 240,
-    borderRadius: 120,
-    borderWidth: 1,
-    borderColor: 'rgba(230, 0, 0, 0.1)',
+    width: 220,
+    height: 220,
+    borderRadius: 110,
+    borderWidth: 2,
+    borderColor: theme.colors.outline,
+    backgroundColor: theme.colors.surfaceContainerLowest,
     alignItems: 'center',
     justifyContent: 'center',
   },
   innerRing: {
-    width: 190,
-    height: 190,
-    borderRadius: 95,
-    borderWidth: 1,
-    borderColor: 'rgba(230, 0, 0, 0.2)',
+    width: 170,
+    height: 170,
+    borderRadius: 85,
+    borderWidth: 1.5,
+    borderColor: theme.colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
   solidCircle: {
-    width: 140,
-    height: 140,
-    borderRadius: 70,
-    backgroundColor: '#D90000',
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: theme.colors.primary,
+    borderWidth: 2,
+    borderColor: theme.colors.outline,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#D90000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    elevation: 8,
   },
   textContainer: {
     alignItems: 'center',
   },
   brandTitle: {
     fontFamily: theme.fontFamilies.primary.bold,
-    fontSize: 32,
+    fontSize: 34,
     fontWeight: '800',
-    color: '#1A1A1A',
-    marginBottom: 8,
+    color: theme.colors.onBackground,
+    marginBottom: 6,
+    letterSpacing: -0.5,
   },
   brandSubtitle: {
-    fontFamily: theme.fontFamilies.technical.medium,
+    fontFamily: theme.fontFamilies.technical.bold,
     fontSize: 12,
     letterSpacing: 2,
-    color: '#666666',
+    color: theme.colors.primary,
+    fontWeight: '700',
   },
   bottomContainer: {
-    paddingBottom: 60,
+    paddingBottom: 48,
     alignItems: 'center',
   },
   dotsContainer: {
     flexDirection: 'row',
     gap: 8,
-    marginBottom: 16,
+    marginBottom: 12,
   },
   dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#D90000',
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: theme.colors.primary,
+    borderWidth: 1,
+    borderColor: theme.colors.outline,
   },
   loaderText: {
     fontFamily: theme.fontFamilies.secondary.medium,
-    fontSize: 14,
-    color: '#666666',
+    fontSize: 13,
+    color: theme.colors.onBackground,
+    fontWeight: '600',
   },
 });

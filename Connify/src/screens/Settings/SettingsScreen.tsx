@@ -1,138 +1,272 @@
-import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
-import { theme } from '../../theme';
-import { useThemeStore } from '../../stores/themeStore';
-import { useAuthStore } from '../../stores/authStore';
+import React, { useState } from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  ScrollView,
+  TouchableOpacity,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { theme } from '../../theme';
+import { useAuthStore } from '../../stores/authStore';
 import { StandardButton } from '../../components/buttons/StandardButton';
+import { ProfileSetupModal } from '../../components/common/ProfileSetupModal';
 
-function SettingsScreen() {
-  const { themeMode, toggleTheme } = useThemeStore();
-  const { user, signOut } = useAuthStore();
+export default function SettingsScreen({ navigation }: any) {
+  const { user, deviceId, signOut } = useAuthStore();
+  const [showProfileModal, setShowProfileModal] = useState(false);
 
   return (
-    <View style={[styles.container, themeMode === 'dark' ? styles.containerDark : null]}>
-      <Text style={[styles.title, themeMode === 'dark' ? styles.textDark : null]}>Settings & Governance</Text>
-      
-      {/* Profile Section */}
-      {user && (
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, themeMode === 'dark' ? styles.textDark : null]}>Logged In As</Text>
-          <View style={[styles.card, themeMode === 'dark' ? styles.cardDark : null]}>
-            <Icon name="account-circle" size={40} color={theme.colors.primary} />
-            <View style={styles.userInfo}>
-              <Text style={[styles.userName, themeMode === 'dark' ? styles.textDark : null]}>
-                {user.displayName || 'Guest User'}
-              </Text>
-              <Text style={styles.userEmail}>{user.email}</Text>
-            </View>
-          </View>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.header}>
+        <View style={styles.headerTitleContainer}>
+          <Icon name="person" size={24} color={theme.colors.primary} />
+          <Text style={styles.headerTitle}>PROFILE & IDENTITY</Text>
         </View>
-      )}
-
-      {/* Theme Section */}
-      <View style={styles.section}>
-        <Text style={[styles.sectionTitle, themeMode === 'dark' ? styles.textDark : null]}>Theme Preference</Text>
-        <TouchableOpacity 
-          style={[styles.themeToggle, themeMode === 'dark' ? styles.cardDark : null]} 
-          onPress={toggleTheme}
-        >
-          <Icon 
-            name={themeMode === 'light' ? 'light-mode' : 'dark-mode'} 
-            size={24} 
-            color={theme.colors.primary} 
-          />
-          <Text style={[styles.themeToggleText, themeMode === 'dark' ? styles.textDark : null]}>
-            Active: {themeMode.toUpperCase()} MODE
-          </Text>
-        </TouchableOpacity>
+        <Icon
+          name="gavel"
+          size={22}
+          color={theme.colors.onBackground}
+          onPress={() => navigation.navigate('Governance')}
+        />
       </View>
 
-      {/* Sign Out Button */}
-      {user && (
-        <StandardButton 
-          title="SIGN OUT" 
-          variant="secondary" 
+      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+        {/* Profile Card */}
+        <View style={styles.profileCard}>
+          <View style={styles.profileHeader}>
+            <View style={styles.avatarCircle}>
+              <Icon name="account-circle" size={44} color={theme.colors.primary} />
+            </View>
+            <View style={styles.profileTextGroup}>
+              <Text style={styles.profileName}>
+                {user?.displayName || 'Anonymous Safety Node'}
+              </Text>
+              <Text style={styles.profileSub}>
+                {user?.email || 'Anonymous Firebase Credential'}
+              </Text>
+            </View>
+          </View>
+
+          <TouchableOpacity
+            style={styles.editProfilePill}
+            onPress={() => setShowProfileModal(true)}
+          >
+            <Icon name="edit" size={16} color={theme.colors.onBackground} />
+            <Text style={styles.editProfileText}>EDIT PROFILE DETAILS</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Device Identity Lock Card */}
+        <View style={styles.sectionCard}>
+          <Text style={styles.sectionTitle}>DEVICE IDENTITY & CRYPTOGRAPHY</Text>
+          <View style={styles.infoRow}>
+            <Text style={styles.infoLabel}>DEVICE HARDWARE ID:</Text>
+            <Text style={styles.infoValue} numberOfLines={1}>
+              {deviceId || 'REGISTERED ON BOOT'}
+            </Text>
+          </View>
+          <View style={styles.infoRow}>
+            <Text style={styles.infoLabel}>FIREBASE UID:</Text>
+            <Text style={styles.infoValue} numberOfLines={1}>
+              {user?.uid || 'NOT SIGNED IN'}
+            </Text>
+          </View>
+        </View>
+
+        {/* Navigation Actions */}
+        <View style={styles.sectionCard}>
+          <Text style={styles.sectionTitle}>GOVERNANCE & PROTOCOL</Text>
+          
+          <TouchableOpacity
+            style={styles.navRow}
+            onPress={() => navigation.navigate('Governance')}
+          >
+            <View style={styles.navRowLeft}>
+              <Icon name="gavel" size={20} color={theme.colors.primary} />
+              <Text style={styles.navRowText}>Zero-Trust Governance</Text>
+            </View>
+            <Icon name="chevron-right" size={20} color={theme.colors.onBackground} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.navRow}
+            onPress={() => navigation.navigate('ProtocolExplainer')}
+          >
+            <View style={styles.navRowLeft}>
+              <Icon name="menu-book" size={20} color={theme.colors.primary} />
+              <Text style={styles.navRowText}>How Connify Works</Text>
+            </View>
+            <Icon name="chevron-right" size={20} color={theme.colors.onBackground} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.navRow}
+            onPress={() => navigation.navigate('Feedback')}
+          >
+            <View style={styles.navRowLeft}>
+              <Icon name="rate-review" size={20} color={theme.colors.primary} />
+              <Text style={styles.navRowText}>Protocol Feedback & Rating</Text>
+            </View>
+            <Icon name="chevron-right" size={20} color={theme.colors.onBackground} />
+          </TouchableOpacity>
+        </View>
+
+        <StandardButton
+          title="SIGN OUT / RESET DEVICE SESSION"
           onPress={signOut}
-          style={styles.signOutButton} 
+          variant="dark"
+          style={styles.signOutButton}
         />
-      )}
-    </View>
+      </ScrollView>
+
+      <ProfileSetupModal
+        visible={showProfileModal}
+        onComplete={() => setShowProfileModal(false)}
+      />
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
-    padding: theme.spacing.containerPadding,
     backgroundColor: theme.colors.background,
-    justifyContent: 'flex-start',
-    alignItems: 'stretch',
-    paddingTop: 50,
   },
-  containerDark: {
-    backgroundColor: '#121212',
+  header: {
+    height: 56,
+    borderBottomWidth: theme.spacing.borderWidthLight,
+    borderBottomColor: theme.colors.outline,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: theme.spacing.containerPadding,
+    backgroundColor: theme.colors.background,
   },
-  title: {
-    ...theme.typography.headlineMd,
-    color: theme.colors.primary,
-    marginBottom: 30,
-    fontWeight: 'bold',
+  headerTitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
-  textDark: {
-    color: '#ffffff',
+  headerTitle: {
+    fontFamily: theme.fontFamilies.technical.bold,
+    fontSize: 14,
+    color: theme.colors.onBackground,
+    letterSpacing: 1.2,
+    fontWeight: '700',
   },
-  section: {
-    marginBottom: 24,
+  container: {
+    padding: theme.spacing.containerPadding,
+    gap: 16,
+  },
+  profileCard: {
+    backgroundColor: theme.colors.surfaceContainerLowest,
+    borderWidth: theme.spacing.borderWidthHeavy,
+    borderColor: theme.colors.outline,
+    borderRadius: theme.spacing.radiusMd,
+    padding: 18,
+    gap: 14,
+  },
+  profileHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+  },
+  avatarCircle: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: theme.colors.surfaceContainerHigh,
+    borderWidth: 1.5,
+    borderColor: theme.colors.outline,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  profileTextGroup: {
+    flex: 1,
+  },
+  profileName: {
+    fontFamily: theme.fontFamilies.primary.bold,
+    fontSize: 18,
+    color: theme.colors.onBackground,
+  },
+  profileSub: {
+    fontFamily: theme.fontFamilies.secondary.regular,
+    fontSize: 12,
+    color: theme.colors.onSurfaceVariant,
+    marginTop: 2,
+  },
+  editProfilePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: theme.colors.surfaceContainerHigh,
+    borderWidth: 1,
+    borderColor: theme.colors.outline,
+    paddingVertical: 10,
+    borderRadius: theme.spacing.radiusDefault,
+  },
+  editProfileText: {
+    fontFamily: theme.fontFamilies.technical.bold,
+    fontSize: 11,
+    color: theme.colors.onBackground,
+    letterSpacing: 0.8,
+  },
+  sectionCard: {
+    backgroundColor: theme.colors.surfaceContainerLowest,
+    borderWidth: theme.spacing.borderWidthLight,
+    borderColor: theme.colors.outline,
+    borderRadius: theme.spacing.radiusDefault,
+    padding: 16,
+    gap: 12,
   },
   sectionTitle: {
-    ...theme.typography.labelMd,
+    fontFamily: theme.fontFamilies.technical.bold,
+    fontSize: 11,
     color: theme.colors.onBackground,
-    opacity: 0.6,
-    marginBottom: 8,
-    letterSpacing: 1,
-    textTransform: 'uppercase',
+    letterSpacing: 1.2,
+    marginBottom: 2,
   },
-  card: {
+  infoRow: {
+    gap: 4,
+    padding: 10,
+    backgroundColor: theme.colors.surfaceContainerHigh,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: theme.colors.outline,
+  },
+  infoLabel: {
+    fontFamily: theme.fontFamilies.technical.bold,
+    fontSize: 10,
+    color: theme.colors.onBackground,
+    letterSpacing: 0.8,
+  },
+  infoValue: {
+    fontFamily: theme.fontFamilies.technical.medium,
+    fontSize: 12,
+    color: theme.colors.primary,
+  },
+  navRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
-    borderRadius: theme.spacing.radiusMd,
-    backgroundColor: theme.colors.surfaceContainerLow,
-    gap: 12,
+    justifyContent: 'space-between',
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.surfaceContainerHigh,
   },
-  cardDark: {
-    backgroundColor: '#1f1f1f',
-  },
-  userInfo: {
-    flex: 1,
-  },
-  userName: {
-    ...theme.typography.bodyMd,
-    fontWeight: 'bold',
-    color: theme.colors.onBackground,
-  },
-  userEmail: {
-    ...theme.typography.labelMd,
-    color: theme.colors.onSurfaceVariant,
-  },
-  themeToggle: {
+  navRowLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
-    borderRadius: theme.spacing.radiusMd,
-    backgroundColor: theme.colors.surfaceContainerLow,
-    gap: 12,
+    gap: 10,
   },
-  themeToggleText: {
-    ...theme.typography.bodyMd,
+  navRowText: {
+    fontFamily: theme.fontFamilies.primary.bold,
+    fontSize: 14,
     color: theme.colors.onBackground,
-    fontWeight: '500',
   },
   signOutButton: {
-    marginTop: 'auto',
-    marginBottom: 20,
+    marginTop: 12,
   },
 });
-
-export default SettingsScreen;

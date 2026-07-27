@@ -1,141 +1,108 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   StyleSheet,
   Text,
   View,
-  ActivityIndicator,
   Animated,
-  Alert,
+  Easing,
+  TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { theme } from '../../theme';
-import { StandardButton } from '../../components/buttons/StandardButton';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { theme } from '../../theme';
 import { useEpisodeStore } from '../../stores/episodeStore';
-import { episodeApi } from '../../services/api/episodeApi';
+import { StandardButton } from '../../components/buttons/StandardButton';
 
 export default function SearchingScreen({ navigation }: any) {
-  const radarAnim = useRef(new Animated.Value(0)).current;
-  const { currentState, episodeId, activateEpisode, cancelRequest } = useEpisodeStore();
+  const [pulseAnim] = useState(new Animated.Value(0));
+  const { currentState, cancelRequest, category, urgency } = useEpisodeStore();
 
-  // Redirect if state changes to active or idle (canceled) externally
   useEffect(() => {
-    if (currentState === 'active' || currentState === 'idle') {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 1200,
+          easing: Easing.out(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 0,
+          duration: 0,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, [pulseAnim]);
+
+  useEffect(() => {
+    if (currentState === 'idle') {
       navigation.replace('Main');
     }
   }, [currentState, navigation]);
 
-  // Radar pulse animation
-  useEffect(() => {
-    const animation = Animated.loop(
-      Animated.timing(radarAnim, {
-        toValue: 1,
-        duration: 2000,
-        useNativeDriver: false,
-      })
-    );
-    animation.start();
-
-    return () => {
-      animation.stop();
-    };
-  }, [radarAnim]);
-
-  // Poll backend for episode status changes (handshake completions)
-  useEffect(() => {
-    let pollInterval: any;
-
-    if (episodeId) {
-      pollInterval = setInterval(async () => {
-        try {
-          const res = await episodeApi.getEpisode(episodeId);
-          if (res.success) {
-            if (res.data.status === 'active' || res.data.status === 'completed') {
-              activateEpisode(`chan-${episodeId}`, 10);
-            } else if (res.data.status === 'cancelled') {
-              cancelRequest();
-            }
-          }
-        } catch (err) {
-          console.warn('⚠️ Polling error:', err);
-        }
-      }, 3000);
-    }
-
-    return () => {
-      if (pollInterval) clearInterval(pollInterval);
-    };
-  }, [episodeId, activateEpisode, cancelRequest]);
-
-  // Terminate if no helper found within 2 minutes
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      cancelRequest();
-      Alert.alert('Timeout', 'No verified helpers were found in your area within 2 minutes. Please try again or seek alternative help.');
-    }, 120000); // 2 minutes
-
-    return () => clearTimeout(timer);
-  }, [cancelRequest]);
-
   const handleCancel = () => {
     cancelRequest();
+    navigation.replace('Main');
   };
 
-  const radarScale = radarAnim.interpolate({
+  const pulseScale = pulseAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [0.8, 1.8],
+    outputRange: [1, 2.2],
   });
 
-  const radarOpacity = radarAnim.interpolate({
+  const pulseOpacity = pulseAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [0.5, 0],
+    outputRange: [0.6, 0],
   });
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      {/* Centered AppBar */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Broadcasting Safe-Signal</Text>
+        <Text style={styles.headerTitle}>SEARCHING FOR RESPONDERS</Text>
       </View>
 
-      <View style={styles.container}>
-        {/* Animated Radar Visual */}
-        <View style={styles.radarWrapper}>
+      <View style={styles.content}>
+        {/* Animated Radar Circle */}
+        <View style={styles.radarContainer}>
           <Animated.View
             style={[
-              styles.radarRing,
+              styles.pulseCircle,
               {
-                transform: [{ scale: radarScale }],
-                opacity: radarOpacity,
+                transform: [{ scale: pulseScale }],
+                opacity: pulseOpacity,
               },
             ]}
           />
-          <View style={styles.radarCenter}>
-            <Icon name="wifi-tethering" size={48} color="#ffffff" />
+          <View style={styles.centerIconBox}>
+            <Icon name="radar" size={54} color="#FFFFFF" />
           </View>
         </View>
 
-        {/* Searching Status Indicator */}
-        <View style={styles.statusWrapper}>
-          <ActivityIndicator size="large" color={theme.colors.primary} />
-          <Text style={styles.statusTitle}>Searching for verified helpers...</Text>
-          <Text style={styles.statusDescription}>
-            Syncing local coordinates and establishing zero-trust capsules with peers within 2km.
+        <View style={styles.statusGroup}>
+          <Text style={styles.statusTitle}>Broadcasting Emergency Signal</Text>
+          <Text style={styles.statusSub}>
+            Transmitting anonymized location grid cell to nearby volunteer responders...
           </Text>
         </View>
 
-        {/* Proximity Handshake QR Code Simulation */}
-        <View style={styles.qrContainer}>
-          <Text style={styles.qrLabel}>SHARP PROXIMITY VERIFICATION QR DATA</Text>
-          <Text style={styles.qrValue} selectable>{`connify-sharp:${episodeId}:${useEpisodeStore.getState().bchSyndromes}:${useEpisodeStore.getState().helperStringY}`}</Text>
-          <Text style={styles.qrHelp}>A helper must scan this code or simulate the proximity handshake to recover the JIT capsule.</Text>
+        <View style={styles.detailCard}>
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>CATEGORY:</Text>
+            <Text style={styles.detailValue}>{(category || 'GENERAL').toUpperCase()}</Text>
+          </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>URGENCY LEVEL:</Text>
+            <Text style={styles.detailValue}>LEVEL {urgency || 3}</Text>
+          </View>
         </View>
+      </View>
 
-        {/* Cancel CTA */}
+      <View style={styles.bottomBar}>
         <StandardButton
-          title="CANCEL REQUEST"
-          variant="secondary"
+          title="CANCEL EMERGENCY BROADCAST"
           onPress={handleCancel}
+          variant="secondary"
           style={styles.cancelButton}
         />
       </View>
@@ -149,110 +116,105 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background,
   },
   header: {
-    height: 64,
+    height: 56,
     borderBottomWidth: theme.spacing.borderWidthLight,
-    borderBottomColor: theme.colors.outlineVariant,
-    justifyContent: 'center',
+    borderBottomColor: theme.colors.outline,
     alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: theme.colors.background,
   },
   headerTitle: {
-    fontFamily: theme.fontFamilies.primary.bold,
-    fontSize: 18,
-    color: theme.colors.primary,
-    fontWeight: '800',
-    letterSpacing: 0.5,
+    fontFamily: theme.fontFamilies.technical.bold,
+    fontSize: 14,
+    color: theme.colors.onBackground,
+    letterSpacing: 1.5,
+    fontWeight: '700',
   },
-  container: {
+  content: {
     flex: 1,
-    justifyContent: 'space-between',
     alignItems: 'center',
-    padding: theme.spacing.containerPadding,
-    paddingVertical: 50,
-  },
-  radarWrapper: {
-    width: 200,
-    height: 200,
     justifyContent: 'center',
+    paddingHorizontal: theme.spacing.containerPadding,
+    gap: 28,
+  },
+  radarContainer: {
+    width: 140,
+    height: 140,
     alignItems: 'center',
+    justifyContent: 'center',
     position: 'relative',
-    marginTop: 40,
   },
-  radarRing: {
+  pulseCircle: {
     position: 'absolute',
-    width: 160,
-    height: 160,
-    borderRadius: 80,
-    borderWidth: 4,
-    borderColor: theme.colors.primary,
-    backgroundColor: 'rgba(182, 1, 0, 0.1)',
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: theme.colors.primary,
   },
-  qrContainer: {
-    backgroundColor: theme.colors.surfaceContainerLowest,
-    borderWidth: theme.spacing.borderWidthLight,
-    borderColor: theme.colors.outlineVariant,
-    borderRadius: theme.spacing.radiusDefault,
-    padding: 16,
-    width: '100%',
+  centerIconBox: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: theme.colors.primary,
+    borderWidth: theme.spacing.borderWidthHeavy,
+    borderColor: theme.colors.outline,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  statusGroup: {
     alignItems: 'center',
     gap: 8,
-    marginVertical: 10,
-  },
-  qrLabel: {
-    fontFamily: theme.fontFamilies.technical.bold,
-    fontSize: 11,
-    color: theme.colors.primary,
-    letterSpacing: 1,
-    fontWeight: 'bold',
-  },
-  qrValue: {
-    fontFamily: theme.fontFamilies.technical.regular,
-    fontSize: 11,
-    textAlign: 'center',
-    backgroundColor: '#1E1E1E',
-    color: '#00FF00',
-    padding: 8,
-    borderRadius: 4,
-    width: '100%',
-  },
-  qrHelp: {
-    fontFamily: theme.fontFamilies.secondary.regular,
-    fontSize: 11,
-    color: theme.colors.onSurfaceVariant,
-    textAlign: 'center',
-  },
-  radarCenter: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    backgroundColor: theme.colors.primary,
-    borderWidth: 3,
-    borderColor: '#ffffff',
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 6,
-  },
-  statusWrapper: {
-    alignItems: 'center',
-    gap: 16,
-    paddingHorizontal: 20,
   },
   statusTitle: {
     fontFamily: theme.fontFamilies.primary.bold,
-    fontSize: 20,
+    fontSize: 22,
     color: theme.colors.onBackground,
     textAlign: 'center',
-    marginTop: 8,
   },
-  statusDescription: {
+  statusSub: {
     fontFamily: theme.fontFamilies.secondary.regular,
     fontSize: 14,
-    lineHeight: 22,
+    lineHeight: 21,
     color: theme.colors.onSurfaceVariant,
     textAlign: 'center',
+    maxWidth: 320,
+  },
+  detailCard: {
+    width: '100%',
+    maxWidth: 360,
+    backgroundColor: theme.colors.surfaceContainerLowest,
+    borderWidth: theme.spacing.borderWidthLight,
+    borderColor: theme.colors.outline,
+    borderRadius: theme.spacing.radiusDefault,
+    padding: 16,
+    gap: 10,
+  },
+  detailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  detailLabel: {
+    fontFamily: theme.fontFamilies.technical.bold,
+    fontSize: 11,
+    color: theme.colors.onSurfaceVariant,
+    letterSpacing: 1,
+  },
+  detailValue: {
+    fontFamily: theme.fontFamilies.technical.bold,
+    fontSize: 13,
+    color: theme.colors.primary,
+  },
+  bottomBar: {
+    paddingVertical: 16,
+    paddingHorizontal: theme.spacing.containerPadding,
+    borderTopWidth: theme.spacing.borderWidthHeavy,
+    borderTopColor: theme.colors.outline,
+    backgroundColor: theme.colors.background,
+    alignItems: 'center',
   },
   cancelButton: {
     width: '100%',
-    maxWidth: 320,
+    maxWidth: 440,
   },
 });
