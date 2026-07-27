@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { 
   Shield, Play, AlertOctagon, Heart, Smartphone, MapPin, 
   Clock, Flame, HelpCircle, Volume2, VolumeX, Eye, ArrowLeft,
-  ChevronRight, RefreshCw, UserCheck, PhoneCall, Smile, MessageSquareQuote
+  ChevronRight, RefreshCw, UserCheck, PhoneCall, Smile, MessageSquareQuote, Radio, Activity
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -14,9 +14,9 @@ export default function UrgentSerenity() {
   const [breathingPhase, setBreathingPhase] = useState<'in' | 'hold' | 'out'>('in');
   const [breathingTimer, setBreathingTimer] = useState<number>(4);
   const [responderStatus, setResponderStatus] = useState<any[]>([
-    { id: 1, name: 'Guardian David (Active Responder)', distance: 180, eta: '45s', progress: 10, status: 'dispatched' },
-    { id: 2, name: 'Guardian Sofia (Community Volunteer)', distance: 320, eta: '1m 20s', progress: 5, status: 'dispatched' },
-    { id: 3, name: 'Safe Spot #84 (Vetted Coffee Shop)', distance: 450, eta: 'Walking direction', progress: 0, status: 'notified' }
+    { id: 1, name: 'Guardian David (Vetted Resident)', distance: 180, eta: '45s', progress: 10, status: 'dispatched' },
+    { id: 2, name: 'Guardian Sofia (Community Escort)', distance: 320, eta: '1m 20s', progress: 5, status: 'dispatched' },
+    { id: 3, name: 'Safe Spot #84 (Horizon Coffee)', distance: 450, eta: '2m walk', progress: 0, status: 'notified' }
   ]);
   const [groundingScript, setGroundingScript] = useState<string>(
     "Keep your shoulders back and maintain standard walking strides. Look around at fixed objects—the corner street light, the brick pattern of the nearest wall. You are connected to a live mesh safety network. Speak aloud: 'I am currently broadcasting on a monitored security grid.'"
@@ -28,7 +28,7 @@ export default function UrgentSerenity() {
   const countdownIntervalRef = useRef<any>(null);
   const breathingIntervalRef = useRef<any>(null);
 
-  // Sound Engine for SOS Siren (Tactical Alarm Pulse)
+  // Web Audio Synthesizer for SOS Siren Alert
   const startSiren = () => {
     if (isMuted) return;
     try {
@@ -40,21 +40,19 @@ export default function UrgentSerenity() {
         ctx.resume();
       }
 
-      // Create Oscillator
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
 
       osc.type = 'sine';
       osc.frequency.setValueAtTime(440, ctx.currentTime);
       
-      // Siren FM Modulator
       let toggle = false;
       const sirenInterval = setInterval(() => {
         if (osc) {
-          osc.frequency.setValueAtTime(toggle ? 600 : 400, ctx.currentTime);
+          osc.frequency.setValueAtTime(toggle ? 680 : 420, ctx.currentTime);
           toggle = !toggle;
         }
-      }, 500);
+      }, 400);
 
       osc.connect(gain);
       gain.connect(ctx.destination);
@@ -62,11 +60,9 @@ export default function UrgentSerenity() {
 
       oscillatorRef.current = osc;
       gainNodeRef.current = gain;
-
-      // Keep reference to clear interval when stopping
       (osc as any).sirenInterval = sirenInterval;
     } catch (e) {
-      console.error('Audio synthesizer failed to initialize', e);
+      console.error('Audio synthesizer error', e);
     }
   };
 
@@ -81,7 +77,7 @@ export default function UrgentSerenity() {
     }
   };
 
-  // Manage Countdown timer
+  // Countdown timer
   useEffect(() => {
     if (sessionState === 'active') {
       countdownIntervalRef.current = setInterval(() => {
@@ -101,7 +97,7 @@ export default function UrgentSerenity() {
     };
   }, [sessionState]);
 
-  // Manage Breathing Cycle for Calming Companion
+  // Breathing Box Timer
   useEffect(() => {
     if (sessionState === 'breathing') {
       breathingIntervalRef.current = setInterval(() => {
@@ -112,493 +108,323 @@ export default function UrgentSerenity() {
               if (currentPhase === 'hold') return 'out';
               return 'in';
             });
-            return 4; // 4 seconds per phase (box breathing)
+            return 4;
           }
           return prev - 1;
         });
       }, 1000);
     } else {
       if (breathingIntervalRef.current) clearInterval(breathingIntervalRef.current);
-      setBreathingTimer(4);
-      setBreathingPhase('in');
     }
     return () => {
       if (breathingIntervalRef.current) clearInterval(breathingIntervalRef.current);
     };
   }, [sessionState]);
 
-  // Real-time animation for responders in SOS state
-  useEffect(() => {
-    let responderInterval: any;
-    if (sessionState === 'sos') {
-      startSiren();
-      responderInterval = setInterval(() => {
-        setResponderStatus((prev) =>
-          prev.map((r) => {
-            if (r.distance > 10) {
-              const reduction = Math.floor(Math.random() * 20) + 10;
-              const newDist = Math.max(0, r.distance - reduction);
-              return {
-                ...r,
-                distance: newDist,
-                progress: Math.min(100, r.progress + 8),
-                eta: newDist === 0 ? 'Arrived' : `${Math.ceil(newDist / 4)}s`,
-                status: newDist === 0 ? 'arrived' : 'responding'
-              };
-            }
-            return r;
-          })
-        );
-      }, 2500);
-    } else {
-      stopSiren();
-      setResponderStatus([
-        { id: 1, name: 'Guardian David (Active Responder)', distance: 180, eta: '45s', progress: 10, status: 'dispatched' },
-        { id: 2, name: 'Guardian Sofia (Community Volunteer)', distance: 320, eta: '1m 20s', progress: 5, status: 'dispatched' },
-        { id: 3, name: 'Safe Spot #84 (Vetted Coffee Shop)', distance: 450, eta: 'Walking direction', progress: 0, status: 'notified' }
-      ]);
-    }
-    return () => {
-      stopSiren();
-      clearInterval(responderInterval);
-    };
-  }, [sessionState, isMuted]);
-
-  const handleStartSession = () => {
-    setCountdown(300);
+  const handleStartWalk = () => {
     setSessionState('active');
+    setCountdown(300);
   };
 
   const handleTriggerSOS = () => {
     setSessionState('sos');
+    startSiren();
   };
 
-  const handleMuteToggle = () => {
-    const nextMuted = !isMuted;
-    setIsMuted(nextMuted);
-    if (sessionState === 'sos') {
-      if (nextMuted) {
-        stopSiren();
-      } else {
-        startSiren();
-      }
-    }
+  const handleCancelSession = () => {
+    setSessionState('idle');
+    stopSiren();
   };
 
-  const formatTime = (secs: number) => {
-    const mins = Math.floor(secs / 60);
-    const remaining = secs % 60;
-    return `${mins.toString().padStart(2, '0')}:${remaining.toString().padStart(2, '0')}`;
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
   return (
-    <div id="urgent-serenity-container" className="grid lg:grid-cols-12 gap-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
+    <section id="urgent-serenity" className="space-y-12 py-10">
       
-      {/* Intro and Info Column */}
-      <div className="lg:col-span-5 space-y-8 flex flex-col justify-center">
-        <div className="space-y-4">
-          <div className="inline-flex items-center space-x-2 px-3 py-1 bg-brand-red/10 rounded border border-brand-red/20">
-            <Flame className="h-4 w-4 text-brand-red animate-pulse" />
-            <span className="font-mono text-xs font-bold text-brand-red uppercase tracking-widest">Active Companion</span>
-          </div>
-
-          <h1 className="font-display font-extrabold text-4xl sm:text-5xl text-brand-black tracking-tight leading-none">
-            Urgent Serenity in <span className="text-brand-red">Every Step</span>
-          </h1>
-
-          <p className="font-sans text-brand-muted text-base leading-relaxed">
-            The active escort companion runs locally on your phone. If you feel uneasy, set your check-in timer. Devastatingly fast response times, peer-verification safeguards, and grounding calming modules help you hold absolute tranquility.
-          </p>
+      {/* Section Header */}
+      <div className="text-center max-w-3xl mx-auto space-y-4">
+        <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 bg-rose-500/10 rounded-full border border-rose-500/30">
+          <Activity className="h-4 w-4 text-rose-500" />
+          <span className="font-mono text-xs font-bold text-rose-400 uppercase tracking-widest">
+            SMARTPHONE ESCORT COMPANION SIMULATOR
+          </span>
         </div>
-
-        {/* Feature List */}
-        <div className="space-y-4 font-sans text-sm">
-          <div className="flex items-start space-x-3.5">
-            <div className="p-2 bg-brand-red/10 rounded border border-brand-red/20 text-brand-red mt-0.5">
-              <Clock className="h-4 w-4" />
-            </div>
-            <div>
-              <span className="font-bold text-brand-black block">Dead-Man Checkpoint System</span>
-              <span className="text-brand-muted">Timer automatically notifies verified guardians if you fail to check in. No central data storage.</span>
-            </div>
-          </div>
-
-          <div className="flex items-start space-x-3.5">
-            <div className="p-2 bg-brand-red/10 rounded border border-brand-red/20 text-brand-red mt-0.5">
-              <Heart className="h-4 w-4" />
-            </div>
-            <div>
-              <span className="font-bold text-brand-black block">Integrative Grounding Exercises</span>
-              <span className="text-brand-muted">Box breathing companion and psychological scripts to immediately curb high-stress reactions.</span>
-            </div>
-          </div>
-
-          <div className="flex items-start space-x-3.5">
-            <div className="p-2 bg-brand-red/10 rounded border border-brand-red/20 text-brand-red mt-0.5">
-              <AlertOctagon className="h-4 w-4" />
-            </div>
-            <div>
-              <span className="font-bold text-brand-black block">Immediate P2P Alarm Routing</span>
-              <span className="text-brand-muted">Flashing high-luminance strobe screen & high-pitch alert dispatches nearest vetted responders.</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Tactical Note */}
-        <div className="p-5 bg-brand-surface rounded border-2 border-brand-black shadow-[3px_3px_0px_rgba(27,27,27,1)] font-sans text-xs text-brand-black leading-relaxed">
-          <strong>Tactical Note:</strong> This sandbox fully simulates the Connify mobile client. Interact with the phone UI on the right to test check-ins, activate the breathing module, or trigger a full SOS mock response.
-        </div>
+        <h2 className="font-display font-extrabold text-3xl sm:text-5xl text-white tracking-tight">
+          Urgent Serenity <span className="text-rose-500">Companion</span>
+        </h2>
+        <p className="font-sans text-slate-300 text-base sm:text-lg">
+          Experience the client-side escort companion interface. Test live walk routes, anxiety-relief breathing exercises, or trigger a simulated SOS emergency siren.
+        </p>
       </div>
 
-      {/* Smartphone Simulator Column */}
-      <div className="lg:col-span-7 flex justify-center items-center w-full">
-        <div className="relative w-full max-w-[340px] h-[620px] sm:h-[680px] bg-brand-beige rounded-[40px] border-[10px] border-brand-black p-3 shadow-[8px_8px_0px_rgba(27,27,27,1)] overflow-hidden flex flex-col justify-between">
-          
-          {/* Phone Speaker Notch */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 h-5 w-28 bg-brand-black rounded-b-2xl z-40 flex items-center justify-center">
-            <div className="w-10 h-1 bg-brand-muted rounded-full mb-1"></div>
-          </div>
-
-          {/* Phone Header / Status Bar */}
-          <div className="flex items-center justify-between text-[11px] font-mono text-brand-muted px-4 pt-4 z-30 select-none">
-            <span className="font-bold text-brand-black">CONNIFY MESH</span>
-            <div className="flex items-center space-x-1.5">
-              <span className="w-2 h-2 rounded-full bg-brand-red animate-pulse"></span>
-              <span className="text-[10px] text-brand-red font-semibold uppercase">SECURE</span>
+      <div className="grid lg:grid-cols-12 gap-10 items-center max-w-6xl mx-auto">
+        
+        {/* Left Column: Interactive Smartphone Mockup Device Frame */}
+        <div className="lg:col-span-6 flex justify-center">
+          <div className="w-full max-w-[360px] bg-[#090a0f] rounded-[42px] border-4 border-slate-800 p-4 shadow-[0_0_50px_rgba(0,0,0,0.8)] relative overflow-hidden">
+            
+            {/* Phone Notch & Status Bar */}
+            <div className="flex justify-between items-center px-4 py-2 text-[11px] font-mono text-slate-400 border-b border-white/10">
+              <span className="font-bold text-white">22:42</span>
+              <div className="w-20 h-4 bg-slate-900 rounded-full mx-auto"></div>
+              <div className="flex items-center space-x-1.5">
+                <Radio className="h-3 w-3 text-emerald-400 animate-pulse" />
+                <span className="text-[10px] text-emerald-400 font-bold">5G P2P</span>
+              </div>
             </div>
-          </div>
 
-          {/* PHONE INTERACTIVE BODY AREA */}
-          <div className="flex-1 my-4 flex flex-col justify-between overflow-y-auto px-2 relative z-20">
-            <AnimatePresence mode="wait">
+            {/* Smartphone Display Screen Content */}
+            <div className="bg-[#12141d] rounded-[32px] p-5 my-2 min-h-[500px] flex flex-col justify-between relative overflow-hidden border border-white/10">
               
-              {/* STATE 1: IDLE / SETUP */}
+              {/* Screen Header */}
+              <div className="flex justify-between items-center">
+                <div className="flex items-center space-x-2">
+                  <Shield className="h-5 w-5 text-rose-500" />
+                  <span className="font-tech text-xs text-white font-bold uppercase tracking-wider">CONNIFY SERENITY</span>
+                </div>
+                <span className="font-mono text-[9px] bg-rose-500/20 text-rose-400 px-2 py-0.5 rounded font-bold border border-rose-500/30">
+                  {sessionState === 'sos' ? 'SOS ACTIVE' : sessionState === 'active' ? 'MONITORED' : 'STANDBY'}
+                </span>
+              </div>
+
+              {/* Dynamic State Views */}
               {sessionState === 'idle' && (
-                <motion.div 
-                  key="idle-view"
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -15 }}
-                  className="h-full flex flex-col justify-between py-2 space-y-6"
-                >
-                  <div className="text-center space-y-2 mt-4">
-                    <div className="mx-auto w-12 h-12 rounded bg-brand-red/10 border-2 border-brand-red flex items-center justify-center text-brand-red">
-                      <Shield className="h-6 w-6" />
+                <div className="space-y-6 my-auto text-center">
+                  <div className="relative w-24 h-24 mx-auto flex items-center justify-center">
+                    <div className="absolute inset-0 bg-rose-500/20 rounded-full animate-ping"></div>
+                    <div className="relative p-5 bg-rose-500/10 rounded-full border border-rose-500/40">
+                      <Smartphone className="h-10 w-10 text-rose-400" />
                     </div>
-                    <span className="block font-display font-extrabold text-xl text-brand-black">Escort Mode</span>
-                    <span className="block font-sans text-xs text-brand-muted px-4">Choose your walk condition below to arms the silent deadline checkpoint timer.</span>
                   </div>
 
-                  {/* Walk Options Selector */}
-                  <div className="space-y-2 px-2">
-                    <button
-                      onClick={() => setWalkType('night_walk')}
-                      className={`w-full p-3.5 rounded border text-left font-sans transition-all duration-200 cursor-pointer flex justify-between items-center ${
-                        walkType === 'night_walk'
-                          ? 'bg-brand-red/5 border-2 border-brand-black shadow-[2px_2px_0px_#1b1b1b]'
-                          : 'bg-white border border-brand-black/20 hover:border-brand-black'
-                      }`}
-                    >
-                      <div>
-                        <span className="text-sm font-bold text-brand-black block">Walking Alone at Night</span>
-                        <span className="text-[10px] text-brand-muted block">Checkpoint interval: 5m, GPS deviation active</span>
-                      </div>
-                      <div className={`w-2.5 h-2.5 rounded-full ${walkType === 'night_walk' ? 'bg-brand-red animate-pulse' : 'bg-brand-beige border border-brand-black/30'}`} />
-                    </button>
-
-                    <button
-                      onClick={() => setWalkType('taxi_ride')}
-                      className={`w-full p-3.5 rounded border text-left font-sans transition-all duration-200 cursor-pointer flex justify-between items-center ${
-                        walkType === 'taxi_ride'
-                          ? 'bg-brand-red/5 border-2 border-brand-black shadow-[2px_2px_0px_#1b1b1b]'
-                          : 'bg-white border border-brand-black/20 hover:border-brand-black'
-                      }`}
-                    >
-                      <div>
-                        <span className="text-sm font-bold text-brand-black block">Rideshare / Taxi Escort</span>
-                        <span className="text-[10px] text-brand-muted block">Speed drift check, timer check-in: 10m</span>
-                      </div>
-                      <div className={`w-2.5 h-2.5 rounded-full ${walkType === 'taxi_ride' ? 'bg-brand-red animate-pulse' : 'bg-brand-beige border border-brand-black/30'}`} />
-                    </button>
+                  <div className="space-y-2">
+                    <h3 className="font-display font-bold text-lg text-white">Select Escort Mode</h3>
+                    <p className="font-sans text-xs text-slate-400">
+                      Configures auto-checkins and acoustic panic triggers for your journey.
+                    </p>
                   </div>
 
-                  {/* CTA */}
+                  <div className="space-y-2">
+                    {[
+                      { id: 'night_walk', label: 'Late Night Walk (5m timer)' },
+                      { id: 'commute', label: 'Transit Commute (15m timer)' },
+                      { id: 'silent_watch', label: 'Silent Geofence Watch' }
+                    ].map((mode) => (
+                      <button
+                        key={mode.id}
+                        onClick={() => setWalkType(mode.id)}
+                        className={`w-full py-2.5 px-3 rounded-xl border text-xs font-mono font-bold transition-all text-left flex justify-between items-center ${
+                          walkType === mode.id 
+                            ? 'bg-rose-600/30 text-white border-rose-500' 
+                            : 'bg-white/5 text-slate-400 border-white/10 hover:bg-white/10'
+                        }`}
+                      >
+                        <span>{mode.label}</span>
+                        {walkType === mode.id && <Shield className="h-3.5 w-3.5 text-rose-400" />}
+                      </button>
+                    ))}
+                  </div>
+
                   <button
-                    onClick={handleStartSession}
-                    className="w-full py-4 bg-brand-red hover:bg-brand-red-hover text-white font-sans font-extrabold text-sm rounded border-2 border-brand-black shadow-[3px_3px_0px_rgba(27,27,27,1)] hover:shadow-[1px_1px_0px_rgba(27,27,27,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all cursor-pointer flex items-center justify-center space-x-2"
+                    onClick={handleStartWalk}
+                    className="w-full py-3.5 bg-rose-600 hover:bg-rose-500 text-white font-sans font-bold text-xs rounded-xl shadow-[0_0_20px_rgba(225,29,72,0.4)] transition-all cursor-pointer uppercase tracking-wider"
                   >
-                    <Play className="h-4 w-4 fill-white" />
-                    <span>START WALK SESSION</span>
+                    START ESCORT SESSION
                   </button>
-                </motion.div>
+                </div>
               )}
 
-              {/* STATE 2: ACTIVE SESSION */}
               {sessionState === 'active' && (
-                <motion.div 
-                  key="active-view"
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="h-full flex flex-col justify-between py-2 space-y-6"
-                >
-                  <div className="space-y-4">
-                    {/* Active Route Header */}
-                    <div className="p-3 bg-brand-red/5 border border-brand-red/20 rounded flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <span className="w-2 h-2 bg-brand-red rounded-full animate-ping"></span>
-                        <span className="font-mono text-[10px] text-brand-red font-bold uppercase tracking-wider">ACTIVE MESH ON-DUTY</span>
-                      </div>
-                      <span className="font-mono text-[9px] text-brand-muted">P2P: DIRECT</span>
+                <div className="space-y-5 my-auto">
+                  <div className="bg-[#090a0f] p-4 rounded-2xl border border-white/10 text-center space-y-2">
+                    <span className="font-mono text-[10px] text-slate-400 uppercase tracking-widest">SAFETY CHECK-IN COUNTDOWN</span>
+                    <div className="font-tech text-4xl text-rose-400 font-extrabold tracking-wider">
+                      {formatTime(countdown)}
+                    </div>
+                    <p className="font-sans text-[11px] text-slate-400">
+                      Tap below if safe, or SOS triggers automatically upon expiry.
+                    </p>
+                  </div>
+
+                  {/* Simulated Route Map Canvas */}
+                  <div className="h-32 bg-[#090a0f] rounded-2xl border border-white/10 relative overflow-hidden p-3 flex flex-col justify-between">
+                    <div className="absolute inset-0 grid-pattern-bg opacity-30"></div>
+                    <div className="relative z-10 flex justify-between items-center text-[10px] font-mono text-slate-400">
+                      <span className="flex items-center gap-1 text-emerald-400 font-bold">
+                        <MapPin className="h-3 w-3" /> Live GPS Match
+                      </span>
+                      <span>3 Guardian Pings Nearby</span>
                     </div>
 
-                    {/* Big Countdown */}
-                    <div className="text-center py-6 bg-white border-2 border-brand-black rounded shadow-[3px_3px_0px_rgba(27,27,27,1)] space-y-1">
-                      <span className="font-mono text-[10px] text-brand-muted tracking-wider block font-bold uppercase">AUTO-SOS CHECK-IN IN:</span>
-                      <span className="font-mono text-4xl font-extrabold text-brand-red tracking-widest block">{formatTime(countdown)}</span>
-                      <span className="block text-[10px] text-brand-muted font-sans">Slide or press SOS to immediately notify responders.</span>
+                    <div className="relative z-10 flex items-center justify-center space-x-2">
+                      <div className="w-2.5 h-2.5 bg-rose-500 rounded-full animate-ping"></div>
+                      <span className="font-mono text-xs text-white font-bold">En Route to Sanctuary #42</span>
                     </div>
                   </div>
 
-                  {/* Calming, Check-in buttons */}
-                  <div className="space-y-2.5">
+                  <div className="space-y-2">
                     <button
                       onClick={() => setSessionState('breathing')}
-                      className="w-full py-3.5 bg-brand-muted/15 hover:bg-brand-muted/25 border-2 border-brand-black text-brand-black font-sans font-extrabold text-xs rounded shadow-[2px_2px_0px_#1b1b1b] transition-all cursor-pointer flex items-center justify-center space-x-2"
+                      className="w-full py-2.5 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 font-mono text-xs font-bold rounded-xl border border-cyan-500/40 transition-all cursor-pointer flex items-center justify-center space-x-2"
                     >
-                      <Heart className="h-4 w-4 text-brand-red fill-brand-red/10" />
-                      <span>OPEN CALMING COMPANION</span>
+                      <Smile className="h-4 w-4 text-cyan-400" />
+                      <span>BOX BREATHING GUIDANCE</span>
                     </button>
 
-                    <button
-                      onClick={() => setSessionState('idle')}
-                      className="w-full py-3 bg-white hover:bg-brand-beige border border-brand-black text-brand-muted hover:text-brand-black font-sans text-xs font-bold rounded transition-all cursor-pointer flex items-center justify-center space-x-1"
-                    >
-                      <UserCheck className="h-4 w-4" />
-                      <span>I AM SAFE - CLOSE SESSION</span>
-                    </button>
-                  </div>
-
-                  {/* Giant SOS Panic Button */}
-                  <div className="pt-2 text-center">
                     <button
                       id="sos-button-triggered"
                       onClick={handleTriggerSOS}
-                      className="mx-auto w-24 h-24 rounded-full bg-brand-red hover:bg-brand-red-hover text-white font-display font-black text-xl flex flex-col items-center justify-center border-4 border-brand-black shadow-[4px_4px_0px_#1b1b1b] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0px_#1b1b1b] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_#1b1b1b] transition-all cursor-pointer"
+                      className="w-full py-3.5 bg-rose-600 hover:bg-rose-500 text-white font-sans font-bold text-xs rounded-xl shadow-[0_0_20px_rgba(225,29,72,0.5)] transition-all cursor-pointer uppercase tracking-wider flex items-center justify-center space-x-2"
                     >
-                      <span>SOS</span>
-                      <span className="text-[8px] font-sans font-extrabold tracking-widest mt-1">TAP NOW</span>
+                      <AlertOctagon className="h-4 w-4 animate-bounce text-white" />
+                      <span>TRIGGER EMERGENCY SOS</span>
                     </button>
                   </div>
-                </motion.div>
+                </div>
               )}
 
-              {/* STATE 3: BREATHING COMPANION */}
               {sessionState === 'breathing' && (
-                <motion.div 
-                  key="breathing-view"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="h-full flex flex-col justify-between py-2"
-                >
-                  <div className="flex items-center justify-between pb-2 border-b border-brand-black/10">
-                    <button 
-                      onClick={() => setSessionState('active')}
-                      className="text-brand-muted hover:text-brand-black flex items-center text-xs font-sans font-bold cursor-pointer"
-                    >
-                      <ArrowLeft className="h-4 w-4 mr-1" />
-                      Back
-                    </button>
-                    <span className="font-mono text-[10px] text-brand-red uppercase font-bold">Calming Circle</span>
-                    <span className="w-4 h-4"></span> {/* spacer */}
+                <div className="space-y-6 my-auto text-center">
+                  <span className="font-mono text-xs font-bold text-cyan-400 uppercase tracking-wider">
+                    ANXIETY-RELIEF BOX BREATHING
+                  </span>
+
+                  <div className="relative w-32 h-32 mx-auto flex items-center justify-center">
+                    <motion.div 
+                      animate={{ 
+                        scale: breathingPhase === 'in' ? 1.3 : breathingPhase === 'hold' ? 1.3 : 0.9,
+                        borderColor: breathingPhase === 'in' ? '#06b6d4' : breathingPhase === 'hold' ? '#10b981' : '#e11d48'
+                      }}
+                      transition={{ duration: 4, ease: "easeInOut" }}
+                      className="absolute inset-0 rounded-full border-4 border-cyan-400 bg-cyan-500/10"
+                    />
+                    <div className="relative font-tech text-3xl font-extrabold text-white">
+                      {breathingTimer}s
+                    </div>
                   </div>
 
-                  {/* Breathing animation guide */}
-                  <div className="flex-1 flex flex-col justify-center items-center space-y-10 my-4">
-                    <div className="relative flex items-center justify-center w-48 h-48">
-                      {/* Interactive breathing circle */}
-                      <motion.div
-                        animate={{
-                          scale: breathingPhase === 'in' ? 1.4 : breathingPhase === 'hold' ? 1.4 : 0.8,
-                        }}
-                        transition={{
-                          duration: 4,
-                          ease: 'easeInOut',
-                        }}
-                        className={`absolute w-32 h-32 rounded-full flex items-center justify-center border transition-colors ${
-                          breathingPhase === 'in' 
-                            ? 'bg-brand-red/5 border-brand-red/30' 
-                            : breathingPhase === 'hold' 
-                            ? 'bg-brand-red/10 border-2 border-brand-black shadow-[3px_3px_0px_rgba(182,1,0,0.1)]'
-                            : 'bg-brand-muted/5 border-brand-muted/30'
-                        }`}
-                      />
-                      
-                      <div className="text-center z-10 space-y-0.5 select-none">
-                        <span className="font-display font-extrabold text-2xl text-brand-black tracking-wide uppercase block">
-                          {breathingPhase === 'in' && 'Breathe In'}
-                          {breathingPhase === 'hold' && 'Hold'}
-                          {breathingPhase === 'out' && 'Breathe Out'}
-                        </span>
-                        <span className="font-mono text-[11px] text-brand-red font-bold block">
-                          {breathingTimer}s remaining
-                        </span>
-                      </div>
-                    </div>
-
-                    <p className="font-sans text-xs text-brand-muted text-center max-w-[240px] leading-relaxed select-none">
-                      Focus entirely on the expansion. Sync your breath with the visual cadence. Slow your heart rate.
+                  <div className="space-y-1">
+                    <h4 className="font-display font-bold text-base text-white uppercase">
+                      {breathingPhase === 'in' ? 'Breathe In Deeply' : breathingPhase === 'hold' ? 'Hold Breath' : 'Exhale Slowly'}
+                    </h4>
+                    <p className="font-sans text-xs text-slate-400">
+                      Focus on the expanding ring to stabilize pulse rate.
                     </p>
                   </div>
 
                   <button
                     onClick={() => setSessionState('active')}
-                    className="w-full py-3 bg-brand-surface hover:bg-brand-beige text-brand-black font-sans text-xs font-bold rounded border-2 border-brand-black shadow-[2px_2px_0px_rgba(27,27,27,1)] cursor-pointer"
+                    className="py-2 px-4 bg-white/10 hover:bg-white/20 text-white font-mono text-xs font-bold rounded-xl border border-white/20 transition-all cursor-pointer"
                   >
-                    Close & Return to Escort
+                    RETURN TO WALK COMPANION
                   </button>
-                </motion.div>
+                </div>
               )}
 
-              {/* STATE 4: SOS TRIGGERED */}
               {sessionState === 'sos' && (
-                <motion.div 
-                  key="sos-view"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="h-full flex flex-col justify-between py-2 space-y-4"
-                >
-                  {/* Flashing SOS Header */}
-                  <div className="p-3.5 bg-brand-red border-2 border-brand-black rounded flex items-center justify-between text-white shadow-[3px_3px_0px_#1b1b1b] animate-pulse">
-                    <div className="flex items-center space-x-2">
-                      <AlertOctagon className="h-5 w-5 text-white" />
-                      <span className="font-display font-extrabold text-sm uppercase tracking-widest">SOS ACTIVE</span>
-                    </div>
-                    <span className="font-mono text-[9px] font-bold text-brand-red bg-white px-1.5 py-0.5 rounded">DISPATCHED</span>
+                <div className="space-y-5 my-auto text-center">
+                  <div className="p-4 bg-rose-600/30 rounded-2xl border border-rose-500 animate-pulse space-y-2">
+                    <AlertOctagon className="h-10 w-10 text-rose-500 mx-auto animate-spin" />
+                    <h3 className="font-display font-extrabold text-lg text-white uppercase">EMERGENCY SOS DISPATCHED</h3>
+                    <p className="font-mono text-xs text-rose-300">
+                      Broadcasting encrypted beacon to nearest community guardians.
+                    </p>
                   </div>
 
-                  {/* Responders ETA List */}
-                  <div className="flex-1 space-y-2.5 overflow-y-auto pr-1">
-                    <span className="font-mono text-[9px] text-brand-muted tracking-wider font-bold uppercase block">Nearby responders active:</span>
-                    
-                    <div className="space-y-2">
-                      {responderStatus.map((r) => (
-                        <div key={r.id} className="p-3 bg-white border-2 border-brand-black rounded shadow-[2px_2px_0px_#1b1b1b] space-y-1.5">
-                          <div className="flex justify-between items-center text-xs">
-                            <span className="font-bold text-brand-black truncate max-w-[150px]">{r.name}</span>
-                            <span className="font-mono text-brand-red font-bold text-[11px]">{r.distance === 0 ? 'Arrived' : `${r.distance}m`}</span>
-                          </div>
-                          
-                          {/* Progress bar */}
-                          <div className="w-full bg-brand-beige h-1.5 rounded overflow-hidden border border-brand-black/10">
-                            <div 
-                              className={`h-full transition-all duration-1000 bg-brand-red`}
-                              style={{ width: `${r.progress}%` }}
-                            />
-                          </div>
-                          
-                          <div className="flex justify-between text-[10px] text-brand-muted">
-                            <span>ETA: {r.eta}</span>
-                            <span className="font-mono text-[9px] uppercase tracking-wider font-semibold">{r.status}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                  <div className="space-y-2 text-left bg-[#090a0f] p-3 rounded-xl border border-white/10 font-mono text-[11px]">
+                    <div className="text-slate-400 font-bold uppercase mb-1">Active Responders Dispatching:</div>
+                    {responderStatus.map(resp => (
+                      <div key={resp.id} className="flex justify-between items-center text-slate-300">
+                        <span className="truncate max-w-[170px]">{resp.name}</span>
+                        <span className="text-emerald-400 font-bold">{resp.eta}</span>
+                      </div>
+                    ))}
                   </div>
 
-                  {/* Audio alarm controller */}
-                  <div className="flex items-center justify-between px-2 text-xs">
-                    <span className="text-brand-muted font-mono text-[10px] uppercase font-bold">Audio Siren:</span>
-                    <button
-                      onClick={handleMuteToggle}
-                      className={`p-2 rounded border transition-all flex items-center space-x-1.5 cursor-pointer ${
-                        isMuted 
-                          ? 'bg-brand-surface text-brand-muted border-brand-black/20' 
-                          : 'bg-brand-red text-white border-brand-black shadow-[2px_2px_0px_#1b1b1b]'
-                      }`}
-                    >
-                      {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4 animate-bounce" />}
-                      <span className="font-mono text-[10px] font-bold">{isMuted ? 'UNMUTE ALARM' : 'MUTED'}</span>
-                    </button>
-                  </div>
-
-                  {/* Cancel Button */}
                   <button
-                    onClick={() => setSessionState('idle')}
-                    className="w-full py-3.5 bg-white hover:bg-brand-beige text-brand-muted hover:text-brand-red font-sans text-xs font-bold rounded border-2 border-brand-black shadow-[2px_2px_0px_#1b1b1b] transition-all cursor-pointer"
+                    onClick={handleCancelSession}
+                    className="w-full py-3 bg-slate-800 hover:bg-slate-700 text-white font-mono text-xs font-bold rounded-xl border border-white/20 transition-all cursor-pointer uppercase"
                   >
-                    False Alarm - Cancel SOS
+                    CANCEL ALARM & SAFE CHECK-IN
                   </button>
-                </motion.div>
+                </div>
               )}
-            </AnimatePresence>
-          </div>
 
-          {/* Simulated Home Indicator Bar */}
-          <div className="w-24 h-1 bg-brand-black/20 rounded-full mx-auto mb-1 select-none pointer-events-none" />
-        </div>
-      </div>
+              {/* Bottom Phone Action Bar */}
+              <div className="pt-3 border-t border-white/10 flex justify-between items-center">
+                <button 
+                  onClick={handleCancelSession}
+                  className="text-[10px] font-mono text-slate-400 hover:text-white uppercase"
+                >
+                  Reset Demo
+                </button>
+                <div className="w-16 h-1 bg-slate-700 rounded-full"></div>
+                <span className="text-[10px] font-mono text-rose-400 font-bold">P2P ON</span>
+              </div>
 
-      {/* Grounding & Interactive Comfort section */}
-      <div className="lg:col-span-12 mt-4 bg-brand-surface border-2 border-brand-black rounded-xl p-8 sm:p-10 shadow-[6px_6px_0px_rgba(27,27,27,1)] space-y-6 relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-80 h-80 bg-brand-red/5 rounded-full blur-[90px] pointer-events-none" />
-        
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-brand-black/10 pb-6">
-          <div className="space-y-1.5">
-            <div className="flex items-center space-x-2">
-              <Heart className="h-5 w-5 text-brand-red fill-brand-red/10 animate-pulse" />
-              <span className="font-display font-extrabold text-xl text-brand-black">Active Calm Grounding Assist</span>
             </div>
-            <p className="font-sans text-xs text-brand-muted">
-              Emergency scripts and psychological anchoring tactics during moments of elevated distress.
+
+          </div>
+        </div>
+
+        {/* Right Column: Escort Companion Details & Grounding Reader */}
+        <div className="lg:col-span-6 space-y-6">
+          
+          <div className="glass-card-glow rounded-2xl p-6 border border-white/10 space-y-4">
+            <div className="flex items-center space-x-3">
+              <div className="p-3 bg-rose-500/10 rounded-xl border border-rose-500/30">
+                <MessageSquareQuote className="h-6 w-6 text-rose-400" />
+              </div>
+              <div>
+                <h3 className="font-display font-bold text-lg text-white">Voice Grounding Script Reader</h3>
+                <span className="font-mono text-xs text-rose-400">Psychological Serenity System</span>
+              </div>
+            </div>
+
+            <p className="font-sans text-slate-300 text-sm leading-relaxed bg-[#090a0f] p-4 rounded-xl border border-white/10 italic">
+              "{groundingScript}"
             </p>
+
+            <div className="flex justify-between items-center text-xs font-mono text-slate-400 pt-2">
+              <span>Auto-generated by Connify Grounding Engine</span>
+              <button 
+                onClick={() => setGroundingScript("Focus on your breathing. Keep walking at a steady pace towards the illuminated coffee shop on your map. 2 vetted civilian guardians are actively monitoring your progress.")}
+                className="text-rose-400 hover:underline font-bold cursor-pointer"
+              >
+                Refresh Script
+              </button>
+            </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => {
-                const scripts = [
-                  "Stand comfortably with weight balanced evenly. Anchor your focus on the cold air touching your face. Listen closely to nearby mechanical sounds: a distant generator, a ventilation fan. Affirm: 'I have full situational control right now.'",
-                  "If someone approaches, establish immediate strong boundaries. Extend one palm out slightly and say firmly: 'Keep back. This route is logged on an encrypted, neighborhood safety beacon.' Check your surrounding coordinates in the phone widget.",
-                  "Release the physical tension. Drop your shoulders away from your ears, open your clenched fists, and take a 4-second deep box breath. Your coordinates are secure. Local verified guardians have active eyes on your grid node."
-                ];
-                const nextScript = scripts[Math.floor(Math.random() * scripts.length)];
-                setGroundingScript(nextScript);
-              }}
-              className="px-4 py-2 bg-brand-surface hover:bg-brand-beige border-2 border-brand-black text-brand-black hover:text-brand-red font-mono text-[11px] font-bold rounded shadow-[2px_2px_0px_rgba(27,27,27,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_rgba(27,27,27,1)] transition-all cursor-pointer flex items-center space-x-1"
-            >
-              <RefreshCw className="h-3 w-3" />
-              <span>CYCLE TACTIC</span>
-            </button>
-          </div>
-        </div>
+          <div className="glass-card-glow rounded-2xl p-6 border border-white/10 space-y-4">
+            <h3 className="font-display font-bold text-base text-white flex items-center space-x-2">
+              <UserCheck className="h-5 w-5 text-emerald-400" />
+              <span>Real-Time Peer Responder Network</span>
+            </h3>
 
-        <div className="p-6 bg-brand-beige border-2 border-brand-black rounded space-y-4 shadow-inner">
-          <span className="font-mono text-[10px] text-brand-red font-bold uppercase tracking-wider block">RECOMMENDED INTERNAL DISCOURSE:</span>
-          <p className="font-sans text-base text-brand-black italic font-medium leading-relaxed">
-            "{groundingScript}"
-          </p>
-        </div>
+            <div className="space-y-3 font-mono text-xs">
+              {responderStatus.map((resp) => (
+                <div key={resp.id} className="bg-[#090a0f] p-3.5 rounded-xl border border-white/10 flex justify-between items-center">
+                  <div className="space-y-0.5">
+                    <span className="text-white font-bold block">{resp.name}</span>
+                    <span className="text-slate-400 text-[11px]">{resp.distance}m away • Status: {resp.status}</span>
+                  </div>
+                  <span className="px-2.5 py-1 bg-emerald-500/20 text-emerald-400 font-bold rounded border border-emerald-500/30">
+                    ETA: {resp.eta}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
 
-        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 text-xs font-sans">
-          <div className="p-4 bg-white border-2 border-brand-black rounded shadow-[3px_3px_0px_#1b1b1b] space-y-1">
-            <span className="font-bold text-brand-black block">Auditory Calming Node</span>
-            <span className="text-brand-muted">Enable soft audio heartbeat pulses or grounding scripts on-demand.</span>
-          </div>
-          <div className="p-4 bg-white border-2 border-brand-black rounded shadow-[3px_3px_0px_#1b1b1b] space-y-1">
-            <span className="font-bold text-brand-black block">Silent Warning Vibe</span>
-            <span className="text-brand-muted">Emits custom Morse patterns on your wrist to confirm helper progress secretly.</span>
-          </div>
-          <div className="p-4 bg-white border-2 border-brand-black rounded shadow-[3px_3px_0px_#1b1b1b] space-y-1 sm:col-span-2 md:col-span-1">
-            <span className="font-bold text-brand-black block">Rapid Safe Haven Pinpoint</span>
-            <span className="text-brand-muted">Identifies the nearest verified illuminated storefront with an emergency guard link.</span>
-          </div>
         </div>
 
       </div>
 
-    </div>
+    </section>
   );
 }

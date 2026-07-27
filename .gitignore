@@ -19,7 +19,7 @@ yarn-error.log*
 yarn-debug.log*
 npm-debug.log*
 .pnpm-debug.log*
-
+ui-ux-pro-max-skill
 # Yarn Zero-Installs
 .yarn/*
 !.yarn/patches
