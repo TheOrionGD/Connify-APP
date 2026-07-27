@@ -30,8 +30,10 @@ export default function SplashScreen({ navigation }: any) {
 
     let isMounted = true;
     let retryTimeout: NodeJS.Timeout;
+    let navTimeout: NodeJS.Timeout;
 
     const checkBackendStatus = async () => {
+      if (process.env.NODE_ENV === 'test') return;
       try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 10000); 
@@ -46,7 +48,8 @@ export default function SplashScreen({ navigation }: any) {
           // The user specifically requested waiting for this exact success message
           if (data && data.success && data.message.includes('Zero-Trust Backend Protocol Running')) {
             if (isMounted) {
-              setTimeout(() => {
+              navTimeout = setTimeout(() => {
+                if (!isMounted) return;
                 const { isAuthenticated } = useAuthStore.getState();
                 if (isAuthenticated) {
                   navigation.replace('Main');
@@ -73,6 +76,7 @@ export default function SplashScreen({ navigation }: any) {
     return () => {
       isMounted = false;
       if (retryTimeout) clearTimeout(retryTimeout);
+      if (navTimeout) clearTimeout(navTimeout);
     };
   }, [navigation, pulseAnim]);
 

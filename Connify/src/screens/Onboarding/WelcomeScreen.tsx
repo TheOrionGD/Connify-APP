@@ -18,6 +18,7 @@ import { secureKeyService } from '../../services/secureKeyService';
 import { deviceApi } from '../../services/api/deviceApi';
 import { useLocationStore } from '../../stores/locationStore';
 import { locationService } from '../../services/locationService';
+import { API_BASE_URL } from '@env';
 
 
 export default function WelcomeScreen({ navigation }: any) {
@@ -31,7 +32,8 @@ export default function WelcomeScreen({ navigation }: any) {
   useEffect(() => {
     // 1. Send an initialization signal to wake up the Render backend in the background
     //    so it's ready by the time the user clicks "GET STARTED".
-    fetch('http://10.184.50.245:5000/')
+    const backendUrl = API_BASE_URL || 'https://connify-backend.onrender.com';
+    fetch(backendUrl.endsWith('/') ? backendUrl : `${backendUrl}/`)
       .then(() => console.log('Backend wake-up signal sent successfully'))
       .catch((err) => console.log('Backend wake-up signal failed/timeout (expected if sleeping):', err));
 

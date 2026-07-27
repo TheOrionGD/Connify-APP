@@ -12,7 +12,6 @@
  */
 import type { FastifyReply } from 'fastify';
 import { prisma } from '../utils/prisma';
-import { scheduleMatchTimeout } from '../utils/queues';
 
 interface CreateInput {
   category: string;
@@ -76,12 +75,6 @@ export const EpisodeController = {
       // Write cryptographic audit log
       writeAuditLog('EPISODE_CREATED', episode.id).catch((err) =>
         console.warn('⚠️ Failed to write audit log:', err.message)
-      );
-
-      // Schedule a BullMQ job to cancel the episode if unmatched after 5 min.
-      // Non-fatal — server starts normally even if Redis is down.
-      scheduleMatchTimeout(episode.id, MATCH_TIMEOUT_MS).catch((err: Error) =>
-        console.warn('⚠️  Failed to schedule match timeout:', err.message)
       );
 
       reply.status(201).send({

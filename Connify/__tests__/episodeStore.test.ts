@@ -1,4 +1,5 @@
 import { useEpisodeStore } from '../src/stores/episodeStore';
+import { locationService } from '../src/services/locationService';
 
 describe('episodeStore', () => {
   beforeEach(() => {
@@ -17,15 +18,18 @@ describe('episodeStore', () => {
     expect(state.timeLeft).toBe(0);
   });
 
-  test('2. startRequest changes state to searching and sets location/metadata', () => {
-    useEpisodeStore.getState().startRequest('Medical', 3, 'Shortness of breath');
-    
+  test('2. startRequest changes state to searching and sets location/metadata', async () => {
+    const loc = await locationService.getCurrentLocation();
+    const { latitude, longitude } = loc.coords;
+
+    useEpisodeStore.getState().startRequest('Medical', 3, 'Shortness of breath', latitude, longitude);
+
     const state = useEpisodeStore.getState();
     expect(state.currentState).toBe('searching');
     expect(state.category).toBe('Medical');
     expect(state.urgency).toBe(3);
     expect(state.description).toBe('Shortness of breath');
-    expect(state.coordinates).toEqual({ latitude: 10.7905, longitude: 78.7047 });
+    expect(state.coordinates).toEqual({ latitude, longitude });
     expect(state.socketChannelId).toBeNull();
   });
 
@@ -42,11 +46,14 @@ describe('episodeStore', () => {
     expect(state.sessionKey).toBe('session-key-123');
   });
 
-  test('5. cancelRequest resets the store to idle defaults', () => {
-    useEpisodeStore.getState().startRequest('Security', 5, 'Threat detected');
+  test('5. cancelRequest resets the store to idle defaults', async () => {
+    const loc = await locationService.getCurrentLocation();
+    const { latitude, longitude } = loc.coords;
+
+    useEpisodeStore.getState().startRequest('Security', 5, 'Threat detected', latitude, longitude);
     useEpisodeStore.getState().setEpisodeId('ep-999');
     useEpisodeStore.getState().setSHARPParams('s-1', 'h-1', 'sk-1');
-    
+
     useEpisodeStore.getState().cancelRequest();
 
     const state = useEpisodeStore.getState();
@@ -58,7 +65,7 @@ describe('episodeStore', () => {
 
   test('6. activateEpisode changes state to active and sets countdown duration', () => {
     useEpisodeStore.getState().activateEpisode('channel-ch-1', 15); // 15 minutes
-    
+
     const state = useEpisodeStore.getState();
     expect(state.currentState).toBe('active');
     expect(state.socketChannelId).toBe('channel-ch-1');
@@ -68,7 +75,7 @@ describe('episodeStore', () => {
   test('7. extendTime increases the remaining duration', () => {
     useEpisodeStore.getState().activateEpisode('channel-ch-1', 5); // 300 seconds
     useEpisodeStore.getState().extendTime(2); // +120 seconds
-    
+
     expect(useEpisodeStore.getState().timeLeft).toBe(420);
   });
 
@@ -80,7 +87,7 @@ describe('episodeStore', () => {
     // Force timeLeft to 1 second remaining
     useEpisodeStore.setState({ timeLeft: 1 });
     useEpisodeStore.getState().tickCountdown();
-    
+
     const state = useEpisodeStore.getState();
     expect(state.timeLeft).toBe(0);
     expect(state.currentState).toBe('feedback');
@@ -91,17 +98,20 @@ describe('episodeStore', () => {
     expect(useEpisodeStore.getState().currentState).toBe('feedback');
   });
 
-  test('10. submitFeedback resets the episode state', () => {
-    useEpisodeStore.getState().startRequest('Transport', 2, 'Flat tire');
+  test('10. submitFeedback resets the episode state', async () => {
+    const loc = await locationService.getCurrentLocation();
+    const { latitude, longitude } = loc.coords;
+
+    useEpisodeStore.getState().startRequest('Transport', 2, 'Flat tire', latitude, longitude);
     useEpisodeStore.getState().setEpisodeId('ep-abc');
-    
-    const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+
+    const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
     useEpisodeStore.getState().submitFeedback(true);
 
     expect(consoleSpy).toHaveBeenCalled();
     expect(useEpisodeStore.getState().currentState).toBe('idle');
     expect(useEpisodeStore.getState().episodeId).toBeNull();
-    
+
     consoleSpy.mockRestore();
   });
 });

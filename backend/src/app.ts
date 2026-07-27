@@ -1,7 +1,6 @@
 import Fastify, { type FastifyInstance } from 'fastify';
 import cors from '@fastify/cors';
 import rateLimit from '@fastify/rate-limit';
-import { getRedisClient } from './services/RedisService';
 import { errorHandler } from './middleware/errorHandler';
 import { healthRoutes } from './routes/health';
 import { deviceRoutes } from './routes/devices';
@@ -41,7 +40,6 @@ export function buildApp(): FastifyInstance {
     global: true,
     max: 100,
     timeWindow: '1 minute',
-    redis: getRedisClient() as any, // Cast due to minor typings mismatch if any
   });
 
   // Root welcome route

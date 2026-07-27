@@ -144,7 +144,9 @@ export const useAuthStore = create<AuthState>()(
             error: null,
           });
         } catch (e: any) {
-          console.error('Firebase Email sign-in failed:', e);
+          if (process.env.NODE_ENV !== 'test') {
+            console.error('Firebase Email sign-in failed:', e);
+          }
           set({ error: e.message, loading: false });
         }
       },

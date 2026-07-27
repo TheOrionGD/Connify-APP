@@ -14,7 +14,6 @@ import { initKeys } from './services/KeyService';
 import { initFirebase } from './config/firebase';
 import { buildApp } from './app';
 import { initSockets } from './sockets';
-import { startWorkers } from './workers';
 
 const start = async () => {
   try {
@@ -33,10 +32,7 @@ const start = async () => {
     // 4. Initialise Socket.IO attaching to the underlying HTTP server
     await initSockets(appInstance.server);
 
-    // 5. Start background workers
-    startWorkers();
-
-    // 6. Listen
+    // 5. Listen
     const address = await appInstance.listen({
       port: env.PORT,
       host: '0.0.0.0',

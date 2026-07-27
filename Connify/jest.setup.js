@@ -39,3 +39,31 @@ jest.mock('@react-native-firebase/auth', () => {
     currentUser: null,
   });
 });
+
+// Mock react-native-bootsplash
+jest.mock('react-native-bootsplash', () => ({
+  hide: jest.fn().mockResolvedValue(true),
+  isVisible: jest.fn().mockResolvedValue(false),
+  useHideAnimation: jest.fn(),
+}));
+
+// Mock react-native-geolocation-service
+jest.mock('react-native-geolocation-service', () => ({
+  getCurrentPosition: jest.fn((success) =>
+    success({
+      coords: {
+        latitude: 12.9716,
+        longitude: 77.5946,
+        altitude: 920,
+        accuracy: 5,
+        altitudeAccuracy: 1,
+        heading: 0,
+        speed: 0,
+      },
+      timestamp: Date.now(),
+    })
+  ),
+  watchPosition: jest.fn(),
+  clearWatch: jest.fn(),
+  requestAuthorization: jest.fn().mockResolvedValue('granted'),
+}));

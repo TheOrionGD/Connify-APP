@@ -15,9 +15,6 @@ const envSchema = z.object({
   // Database (Prisma Postgres or standard PostgreSQL URL)
   DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
 
-  // Redis (Render Key Value or local Docker Redis)
-  REDIS_URL: z.string().default('redis://localhost:6379'),
-
   // Ed25519 signing keys (PEM, newlines escaped as \n)
   // Leave unset on first run — KeyService will generate and print them.
   JWT_PRIVATE_KEY: z

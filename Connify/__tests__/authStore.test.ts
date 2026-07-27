@@ -95,6 +95,7 @@ describe('authStore', () => {
   });
 
   test('3. signInWithEmail failure handles errors', async () => {
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     mockAuthInstance.signInWithEmailAndPassword.mockRejectedValue(new Error('Firebase auth failed'));
 
     await useAuthStore.getState().signInWithEmail('test@example.com', 'password123');
@@ -104,6 +105,7 @@ describe('authStore', () => {
     expect(state.isAuthenticated).toBe(false);
     expect(state.error).toBe('Firebase auth failed');
     expect(state.loading).toBe(false);
+    consoleSpy.mockRestore();
   });
 
   test('4. signUpWithEmail success flow', async () => {

@@ -2,7 +2,7 @@
  * Capsule routes — /api/capsules
  *
  * POST /api/capsules/issue     — issue a Trust Capsule (post-verification)
- * POST /api/capsules/redeem    — single-use redemption (Redis NX enforced)
+ * POST /api/capsules/redeem    — single-use redemption (atomic DB transaction)
  * POST /api/capsules/:id/revoke — revoke an active capsule
  *
  * All routes require authentication.

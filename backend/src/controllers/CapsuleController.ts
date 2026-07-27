@@ -14,11 +14,6 @@ import { createHash } from 'node:crypto';
 import { prisma } from '../utils/prisma';
 import { writeAuditLog } from '../utils/audit';
 import { signToken, verifyToken } from '../services/KeyService';
-import {
-  setCapsuleLock,
-  deleteCapsuleLock,
-} from '../services/RedisService';
-import { scheduleCapsuleExpiry } from '../utils/queues';
 
 interface IssueInput {
   episodeId: string;
@@ -121,11 +116,6 @@ export const CapsuleController = {
         console.warn('⚠️ Failed to write audit log:', err.message)
       );
 
-      // Schedule the BullMQ expiry sweep
-      scheduleCapsuleExpiry(capsule.id, CAPSULE_TTL_MS).catch((err: Error) =>
-        console.warn('⚠️  Failed to schedule capsule expiry:', err.message)
-      );
-
       reply.status(201).send({
         success: true,
         data: {
@@ -188,16 +178,7 @@ export const CapsuleController = {
         });
       }
 
-      // 4. Atomic single-use lock — prevents double-spend
-      const locked = await setCapsuleLock(capsule.id, CAPSULE_TTL_SECS);
-      if (!locked) {
-        return reply.status(409).send({
-          success: false,
-          error: { code: 'ALREADY_REDEEMED', message: 'This capsule has already been redeemed' },
-        });
-      }
-
-      // 5. Persist redemption + activate episode
+      // 4. Persist redemption + activate episode
       const now = new Date();
       await prisma.$transaction([
         prisma.capsule.update({
@@ -262,9 +243,6 @@ export const CapsuleController = {
       writeAuditLog('CAPSULE_REVOKED', capsule.episodeId).catch((err) =>
         console.warn('⚠️ Failed to write audit log:', err.message)
       );
-
-      // Best-effort: remove any Redis lock (may not exist yet)
-      deleteCapsuleLock(capsuleId).catch(() => {});
 
       reply.status(200).send({
         success: true,

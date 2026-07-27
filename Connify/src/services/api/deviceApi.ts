@@ -27,7 +27,7 @@ export const deviceApi = {
     publicKey: string,
     phoneHash?: string
   ): Promise<DeviceRegisterResponse> {
-    console.log("Calling API at Base URL:", apiClient.defaults.baseURL);
+    console.log("Calling API at Base URL:", apiClient.defaults?.baseURL);
     const response = await apiClient.post<DeviceRegisterResponse>('/api/devices/register', {
       deviceFingerprintHash,
       publicKey,

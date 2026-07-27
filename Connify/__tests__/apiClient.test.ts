@@ -158,7 +158,7 @@ describe('Axios Client Interceptors and Configuration Verification', () => {
   });
 
   test('5. Enforces client timeout setting', () => {
-    // Assert: Check that default timeout matches the 10000ms architecture specification
-    expect(originalTimeout).toBe(10000);
+    // Assert: Check that default timeout matches the 60000ms architecture specification for Render
+    expect(originalTimeout).toBe(60000);
   });
 });

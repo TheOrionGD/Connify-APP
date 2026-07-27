@@ -8,7 +8,7 @@ const getBaseUrl = (): string => {
   if (!API_BASE_URL) {
     console.warn('API_BASE_URL is not set in environment variables');
   }
-  return API_BASE_URL && API_BASE_URL.includes('10.184.50.245') ? API_BASE_URL : 'http://10.184.50.245:5000';
+  return API_BASE_URL || 'https://connify-backend.onrender.com';
 };
 
 // Extend Axios request configuration types to support retry tracking metadata

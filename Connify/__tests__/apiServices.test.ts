@@ -2,12 +2,14 @@ import { deviceApi } from '../src/services/api/deviceApi';
 import { episodeApi } from '../src/services/api/episodeApi';
 import { capsuleApi } from '../src/services/api/capsuleApi';
 import { apiClient } from '../src/services/api/apiClient';
+import { locationService } from '../src/services/locationService';
 
 jest.mock('../src/services/api/apiClient', () => ({
   apiClient: {
     get: jest.fn(),
     post: jest.fn(),
     patch: jest.fn(),
+    defaults: { baseURL: 'https://connify-backend.onrender.com' },
   },
 }));
 
@@ -73,12 +75,13 @@ describe('API Services Layer Tests', () => {
       };
       (apiClient.post as jest.Mock).mockResolvedValue(mockResponse);
 
+      const loc = await locationService.getCurrentLocation();
       const input = {
         category: 'medical' as const,
         urgency: 5,
         context: 'Need assistance',
-        latitude: 10.7905,
-        longitude: 78.7047,
+        latitude: loc.coords.latitude,
+        longitude: loc.coords.longitude,
         bchSyndromes: 'syndromes-abc',
         helperStringY: 'y-string',
         gridCellsJson: '[]',
@@ -113,12 +116,13 @@ describe('API Services Layer Tests', () => {
       };
       (apiClient.get as jest.Mock).mockResolvedValue(mockResponse);
 
-      const result = await episodeApi.getNearbyEpisodes(10.7905, 78.7047, 600);
+      const loc = await locationService.getCurrentLocation();
+      const result = await episodeApi.getNearbyEpisodes(loc.coords.latitude, loc.coords.longitude, 600);
 
       expect(apiClient.get).toHaveBeenCalledWith('/api/episodes/nearby', {
         params: {
-          latitude: 10.7905,
-          longitude: 78.7047,
+          latitude: loc.coords.latitude,
+          longitude: loc.coords.longitude,
           radiusMeters: 600,
         },
       });
