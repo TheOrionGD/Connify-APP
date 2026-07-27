@@ -51,6 +51,11 @@ export function buildApp(): FastifyInstance {
     };
   });
 
+  // Favicon route (prevents 404 route not found error logs)
+  app.get('/favicon.ico', async (request, reply) => {
+    return reply.status(204).send();
+  });
+
   // Register Routes
   app.register(healthRoutes);
   app.register(deviceRoutes, { prefix: '/api/devices' });
