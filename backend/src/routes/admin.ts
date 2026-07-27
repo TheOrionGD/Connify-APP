@@ -1,20 +1,18 @@
 import type { FastifyInstance } from 'fastify';
-import { prisma } from '../utils/prisma';
 import { createHash } from 'node:crypto';
+import { Device, Episode, Capsule, Outcome, AuditLog, Profile } from '../models';
 import { writeAuditLog } from '../utils/audit';
 
 async function verifyAuditChain() {
-  const logs = await prisma.auditLog.findMany({
-    orderBy: { id: 'asc' },
-  });
+  const logs = await AuditLog.find().sort({ createdAt: 1 });
 
   let prevHash = '0';
   let isChainValid = true;
   const validations: any[] = [];
 
   for (const log of logs) {
-    // Recompute entry hash: SHA-256(prevHash + ":" + eventType + ":" + episodeId)
-    const content = `${log.prevHash}:${log.eventType}:${log.episodeId ?? ''}`;
+    const episodeIdStr = log.episodeId ? log.episodeId.toString() : '';
+    const content = `${log.prevHash}:${log.eventType}:${episodeIdStr}`;
     const calculatedHash = createHash('sha256').update(content).digest('hex');
 
     const matchesPrev = log.prevHash === prevHash;
@@ -26,9 +24,9 @@ async function verifyAuditChain() {
     }
 
     validations.push({
-      id: log.id.toString(),
+      id: log._id.toString(),
       eventType: log.eventType,
-      episodeId: log.episodeId,
+      episodeId: episodeIdStr,
       prevHash: log.prevHash,
       storedHash: log.entryHash,
       calculatedHash,
@@ -56,28 +54,19 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
         completedCount,
         outcomes,
       ] = await Promise.all([
-        prisma.episode.count(),
-        prisma.episode.count({ where: { status: 'pending' } }),
-        prisma.episode.count({ where: { status: 'matched' } }),
-        prisma.episode.count({ where: { status: 'active' } }),
-        prisma.episode.count({ where: { status: 'completed' } }),
-        prisma.outcome.findMany(),
+        Episode.countDocuments(),
+        Episode.countDocuments({ status: 'pending' }),
+        Episode.countDocuments({ status: 'matched' }),
+        Episode.countDocuments({ status: 'active' }),
+        Episode.countDocuments({ status: 'completed' }),
+        Outcome.find(),
       ]);
 
       const totalOutcomes = outcomes.length;
       const successCount = outcomes.filter((o) => o.result === 'success').length;
       const successRate = totalOutcomes > 0 ? (successCount / totalOutcomes) * 100 : 100;
 
-      // Fetch active episodes metadata
-      const activeEpisodes = await prisma.episode.findMany({
-        where: { status: 'active' },
-        select: {
-          id: true,
-          category: true,
-          urgency: true,
-          createdAt: true,
-        },
-      });
+      const activeEpisodes = await Episode.find({ status: 'active' }).select('category urgency createdAt');
 
       return reply.send({
         success: true,
@@ -90,7 +79,12 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
             completed: completedCount,
           },
           successRate: Math.round(successRate * 10) / 10,
-          activeEpisodes,
+          activeEpisodes: activeEpisodes.map((ep) => ({
+            id: ep._id.toString(),
+            category: ep.category,
+            urgency: ep.urgency,
+            createdAt: ep.createdAt,
+          })),
         },
       });
     } catch (error: any) {
@@ -120,12 +114,17 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
   // GET /api/admin/devices
   app.get('/devices', async (req, reply) => {
     try {
-      const devices = await prisma.device.findMany({
-        orderBy: { createdAt: 'desc' },
-      });
+      const devices = await Device.find().sort({ createdAt: -1 });
       return reply.send({
         success: true,
-        data: devices,
+        data: devices.map((d) => ({
+          id: d._id.toString(),
+          deviceFingerprintHash: d.deviceFingerprintHash,
+          publicKey: d.publicKey,
+          phoneHash: d.phoneHash,
+          createdAt: d.createdAt,
+          lastSeenAt: d.lastSeenAt,
+        })),
       });
     } catch (error: any) {
       return reply.status(500).send({
@@ -138,12 +137,20 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
   // GET /api/admin/capsules
   app.get('/capsules', async (req, reply) => {
     try {
-      const capsules = await prisma.capsule.findMany({
-        orderBy: { issuedAt: 'desc' },
-      });
+      const capsules = await Capsule.find().sort({ issuedAt: -1 });
       return reply.send({
         success: true,
-        data: capsules,
+        data: capsules.map((c) => ({
+          id: c._id.toString(),
+          episodeId: c.episodeId.toString(),
+          helperDeviceId: c.helperDeviceId.toString(),
+          signedTokenHash: c.signedTokenHash,
+          status: c.status,
+          blindedGridCell: c.blindedGridCell,
+          issuedAt: c.issuedAt,
+          expiresAt: c.expiresAt,
+          redeemedAt: c.redeemedAt,
+        })),
       });
     } catch (error: any) {
       return reply.status(500).send({
@@ -156,12 +163,18 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
   // GET /api/admin/outcomes
   app.get('/outcomes', async (req, reply) => {
     try {
-      const outcomes = await prisma.outcome.findMany({
-        orderBy: { createdAt: 'desc' },
-      });
+      const outcomes = await Outcome.find().sort({ createdAt: -1 });
       return reply.send({
         success: true,
-        data: outcomes,
+        data: outcomes.map((o) => ({
+          id: o._id.toString(),
+          episodeId: o.episodeId.toString(),
+          result: o.result,
+          category: o.category,
+          riskLevel: o.riskLevel,
+          completedInWindow: o.completedInWindow,
+          createdAt: o.createdAt,
+        })),
       });
     } catch (error: any) {
       return reply.status(500).send({
@@ -174,12 +187,21 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
   // GET /api/admin/episodes
   app.get('/episodes', async (req, reply) => {
     try {
-      const episodes = await prisma.episode.findMany({
-        orderBy: { createdAt: 'desc' },
-      });
+      const episodes = await Episode.find().sort({ createdAt: -1 });
       return reply.send({
         success: true,
-        data: episodes,
+        data: episodes.map((ep) => ({
+          id: ep._id.toString(),
+          requesterDeviceId: ep.requesterDeviceId.toString(),
+          category: ep.category,
+          urgency: ep.urgency,
+          status: ep.status,
+          latitude: ep.latitude,
+          longitude: ep.longitude,
+          radiusMeters: ep.radiusMeters,
+          createdAt: ep.createdAt,
+          expiresAt: ep.expiresAt,
+        })),
       });
     } catch (error: any) {
       return reply.status(500).send({
@@ -192,59 +214,47 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
   // POST /api/admin/simulate/episode
   app.post('/simulate/episode', async (req, reply) => {
     try {
-      // 1. Ensure a mock device exists
-      let device = await prisma.device.findFirst({
-        where: { deviceFingerprintHash: 'simulated-fingerprint-xyz' },
-      });
+      let device = await Device.findOne({ deviceFingerprintHash: 'simulated-fingerprint-xyz' });
       if (!device) {
-        device = await prisma.device.create({
-          data: {
-            deviceFingerprintHash: 'simulated-fingerprint-xyz',
-            publicKey: 'simulated-public-key-xyz',
-            phoneHash: 'simulated-phone-hash-xyz',
-          },
+        device = await Device.create({
+          deviceFingerprintHash: 'simulated-fingerprint-xyz',
+          publicKey: 'simulated-public-key-xyz',
+          phoneHash: 'simulated-phone-hash-xyz',
         });
       }
 
-      // 2. Create the simulated episode
-      const expiresAt = new Date(Date.now() + 30 * 60 * 1000); // 30 min window
+      const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
       const body = (req.body || {}) as any;
       const category = body.category || 'emergency';
       const urgency = Number(body.urgency) || 4;
       const latitude = Number(body.latitude) || 40.6976;
       const longitude = Number(body.longitude) || -73.9876;
 
-      const episode = await prisma.episode.create({
-        data: {
-          requesterDeviceId: device.id,
-          category,
-          urgency,
-          latitude,
-          longitude,
-          radiusMeters: 500,
-          bchSyndromes: 'simulated-bch-syndromes',
-          helperStringY: 'simulated-helper-string-y',
-          gridCellsJson: JSON.stringify(['cell-a', 'cell-b']),
-          expiresAt,
-          status: 'active',
-        },
+      const episode = await Episode.create({
+        requesterDeviceId: device._id,
+        category,
+        urgency,
+        latitude,
+        longitude,
+        radiusMeters: 500,
+        bchSyndromes: 'simulated-bch-syndromes',
+        helperStringY: 'simulated-helper-string-y',
+        gridCellsJson: JSON.stringify(['cell-a', 'cell-b']),
+        expiresAt,
+        status: 'active',
       });
 
-      // Update location using PostGIS raw query (catch if fails)
-      await prisma.$executeRaw`
-        UPDATE episodes
-        SET location = ST_SetSRID(ST_MakePoint(${longitude}, ${latitude}), 4326)::geography
-        WHERE id = ${episode.id}::uuid
-      `.catch((err) =>
-        console.warn('⚠️ Proximity simulation failed ST_MakePoint:', err.message)
-      );
-
-      // Write cryptographic audit log
-      await writeAuditLog('EPISODE_CREATED', episode.id);
+      const episodeIdStr = episode._id.toString();
+      await writeAuditLog('EPISODE_CREATED', episodeIdStr);
 
       return reply.status(201).send({
         success: true,
-        data: episode,
+        data: {
+          id: episodeIdStr,
+          category: episode.category,
+          urgency: episode.urgency,
+          status: episode.status,
+        },
       });
     } catch (error: any) {
       return reply.status(500).send({
@@ -262,14 +272,9 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
 
       let episode;
       if (episodeId) {
-        episode = await prisma.episode.findUnique({
-          where: { id: episodeId },
-        });
+        episode = await Episode.findById(episodeId);
       } else {
-        episode = await prisma.episode.findFirst({
-          where: { status: 'active' },
-          orderBy: { createdAt: 'desc' },
-        });
+        episode = await Episode.findOne({ status: 'active' }).sort({ createdAt: -1 });
       }
 
       if (!episode) {
@@ -279,29 +284,23 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
         });
       }
 
-      // Complete episode + outcome inside transaction
-      await prisma.$transaction([
-        prisma.outcome.create({
-          data: {
-            episodeId: episode.id,
-            result: 'success',
-            category: episode.category,
-            riskLevel: 2,
-            completedInWindow: true,
-          },
-        }),
-        prisma.episode.update({
-          where: { id: episode.id },
-          data: { status: 'completed' },
-        }),
-      ]);
+      await Outcome.create({
+        episodeId: episode._id,
+        result: 'success',
+        category: episode.category,
+        riskLevel: 2,
+        completedInWindow: true,
+      });
 
-      // Write cryptographic audit log
-      await writeAuditLog('EPISODE_COMPLETED', episode.id);
+      episode.status = 'completed';
+      await episode.save();
+
+      const episodeIdStr = episode._id.toString();
+      await writeAuditLog('EPISODE_COMPLETED', episodeIdStr);
 
       return reply.send({
         success: true,
-        data: { episodeId: episode.id, status: 'completed' },
+        data: { episodeId: episodeIdStr, status: 'completed' },
       });
     } catch (error: any) {
       return reply.status(500).send({
@@ -314,9 +313,7 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
   // POST /api/admin/simulate/corrupt
   app.post('/simulate/corrupt', async (req, reply) => {
     try {
-      const latestLog = await prisma.auditLog.findFirst({
-        orderBy: { id: 'desc' },
-      });
+      const latestLog = await AuditLog.findOne().sort({ createdAt: -1 });
 
       if (!latestLog) {
         return reply.status(400).send({
@@ -325,19 +322,16 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
         });
       }
 
-      // Corrupt the hash by replacing last chars with "beef"
       const originalHash = latestLog.entryHash;
       const corruptedHash = originalHash.substring(0, originalHash.length - 4) + 'beef';
 
-      await prisma.auditLog.update({
-        where: { id: latestLog.id },
-        data: { entryHash: corruptedHash },
-      });
+      latestLog.entryHash = corruptedHash;
+      await latestLog.save();
 
       return reply.send({
         success: true,
         data: {
-          corruptedLogId: latestLog.id.toString(),
+          corruptedLogId: latestLog._id.toString(),
           originalHash,
           corruptedHash,
         },
@@ -353,26 +347,20 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
   // POST /api/admin/simulate/reset
   app.post('/simulate/reset', async (req, reply) => {
     try {
-      // Heal the chain by recomputing hashes sequentially
-      const logs = await prisma.auditLog.findMany({
-        orderBy: { id: 'asc' },
-      });
+      const logs = await AuditLog.find().sort({ createdAt: 1 });
 
       let prevHash = '0';
       let healedCount = 0;
 
       for (const log of logs) {
-        const content = `${prevHash}:${log.eventType}:${log.episodeId ?? ''}`;
+        const episodeIdStr = log.episodeId ? log.episodeId.toString() : '';
+        const content = `${prevHash}:${log.eventType}:${episodeIdStr}`;
         const calculatedHash = createHash('sha256').update(content).digest('hex');
 
         if (log.entryHash !== calculatedHash || log.prevHash !== prevHash) {
-          await prisma.auditLog.update({
-            where: { id: log.id },
-            data: {
-              prevHash,
-              entryHash: calculatedHash,
-            },
-          });
+          log.prevHash = prevHash;
+          log.entryHash = calculatedHash;
+          await log.save();
           healedCount++;
         }
         prevHash = calculatedHash;
@@ -386,6 +374,29 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
       return reply.status(500).send({
         success: false,
         error: { code: 'SIMULATE_RESET_FAILED', message: error.message },
+      });
+    }
+  });
+
+  // POST /api/admin/wipe-database
+  app.post('/wipe-database', async (req, reply) => {
+    try {
+      await Promise.all([
+        Outcome.deleteMany(),
+        Capsule.deleteMany(),
+        AuditLog.deleteMany(),
+        Episode.deleteMany(),
+        Profile.deleteMany(),
+        Device.deleteMany(),
+      ]);
+      return reply.send({
+        success: true,
+        message: 'All database collections wiped successfully.',
+      });
+    } catch (error: any) {
+      return reply.status(500).send({
+        success: false,
+        error: { code: 'WIPE_FAILED', message: error.message },
       });
     }
   });

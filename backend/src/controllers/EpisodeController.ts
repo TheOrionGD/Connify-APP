@@ -1,17 +1,9 @@
 /**
- * EpisodeController — lifecycle management for help request episodes.
- *
- * Implements the episode state machine:
- *   pending → matched → active → completed
- *             ↓
- *          expired / cancelled
- *
- * Location is stored as flat lat/lng floats for Phase 9.
- * Phase 12 will migrate to PostGIS GEOGRAPHY(Point,4326) + GIST index
- * for true radius queries using ST_DWithin.
+ * EpisodeController — lifecycle management for help request episodes using Mongoose.
  */
 import type { FastifyReply } from 'fastify';
-import { prisma } from '../utils/prisma';
+import { Episode } from '../models';
+import { writeAuditLog } from '../utils/audit';
 
 interface CreateInput {
   category: string;
@@ -33,10 +25,6 @@ interface NearbyQuery {
 
 /** Episode auto-expires after 30 minutes if not resolved. */
 const EPISODE_TTL_MS = 30 * 60 * 1000;
-/** Episode fails to match if no helper accepts within 5 minutes. */
-const MATCH_TIMEOUT_MS = 5 * 60 * 1000;
-
-import { writeAuditLog } from '../utils/audit';
 
 export const EpisodeController = {
   async create(
@@ -47,41 +35,32 @@ export const EpisodeController = {
     try {
       const expiresAt = new Date(Date.now() + EPISODE_TTL_MS);
 
-      const episode = await prisma.episode.create({
-        data: {
-          requesterDeviceId: deviceId,
-          category: input.category,
-          urgency: input.urgency,
-          latitude: input.latitude,
-          longitude: input.longitude,
-          radiusMeters: input.radiusMeters,
-          bchSyndromes: input.bchSyndromes,
-          helperStringY: input.helperStringY,
-          gridCellsJson: input.gridCellsJson,
-          expiresAt,
-          status: 'pending',
-        },
+      const episode = await Episode.create({
+        requesterDeviceId: deviceId,
+        category: input.category,
+        urgency: input.urgency,
+        latitude: input.latitude,
+        longitude: input.longitude,
+        radiusMeters: input.radiusMeters,
+        bchSyndromes: input.bchSyndromes,
+        helperStringY: input.helperStringY,
+        gridCellsJson: input.gridCellsJson,
+        expiresAt,
+        status: 'pending',
       });
 
-      // Set PostGIS location point from lat/lng
-      await prisma.$executeRaw`
-        UPDATE episodes
-        SET location = ST_SetSRID(ST_MakePoint(${input.longitude}, ${input.latitude}), 4326)::geography
-        WHERE id = ${episode.id}
-      `.catch((err) =>
-        console.warn('⚠️ Failed to update PostGIS location:', err.message)
-      );
+      const episodeIdStr = episode._id.toString();
 
       // Write cryptographic audit log
-      writeAuditLog('EPISODE_CREATED', episode.id).catch((err) =>
+      writeAuditLog('EPISODE_CREATED', episodeIdStr).catch((err) =>
         console.warn('⚠️ Failed to write audit log:', err.message)
       );
 
       reply.status(201).send({
         success: true,
         data: {
-          id: episode.id,
-          requesterDeviceId: episode.requesterDeviceId,
+          id: episodeIdStr,
+          requesterDeviceId: episode.requesterDeviceId.toString(),
           category: episode.category,
           urgency: episode.urgency,
           status: episode.status,
@@ -103,22 +82,7 @@ export const EpisodeController = {
 
   async getById(episodeId: string, reply: FastifyReply): Promise<void> {
     try {
-      const episode = await prisma.episode.findUnique({
-        where: { id: episodeId },
-        select: {
-          id: true,
-          category: true,
-          urgency: true,
-          status: true,
-          radiusMeters: true,
-          expiresAt: true,
-          createdAt: true,
-          bchSyndromes: true,
-          helperStringY: true,
-          // Selective disclosure — requesterDeviceId and exact location
-          // are intentionally excluded from this view.
-        },
-      });
+      const episode = await Episode.findById(episodeId);
 
       if (!episode) {
         return reply.status(404).send({
@@ -127,7 +91,20 @@ export const EpisodeController = {
         });
       }
 
-      reply.status(200).send({ success: true, data: episode });
+      reply.status(200).send({
+        success: true,
+        data: {
+          id: episode._id.toString(),
+          category: episode.category,
+          urgency: episode.urgency,
+          status: episode.status,
+          radiusMeters: episode.radiusMeters,
+          expiresAt: episode.expiresAt.toISOString(),
+          createdAt: episode.createdAt.toISOString(),
+          bchSyndromes: episode.bchSyndromes,
+          helperStringY: episode.helperStringY,
+        },
+      });
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Unknown error';
       reply.status(500).send({
@@ -143,7 +120,7 @@ export const EpisodeController = {
     reply: FastifyReply
   ): Promise<void> {
     try {
-      const episode = await prisma.episode.findUnique({ where: { id: episodeId } });
+      const episode = await Episode.findById(episodeId);
 
       if (!episode) {
         return reply.status(404).send({
@@ -151,7 +128,7 @@ export const EpisodeController = {
           error: { code: 'NOT_FOUND', message: 'Episode not found' },
         });
       }
-      if (episode.requesterDeviceId !== deviceId) {
+      if (episode.requesterDeviceId.toString() !== deviceId) {
         return reply.status(403).send({
           success: false,
           error: { code: 'FORBIDDEN', message: 'You are not the owner of this episode' },
@@ -167,10 +144,8 @@ export const EpisodeController = {
         });
       }
 
-      await prisma.episode.update({
-        where: { id: episodeId },
-        data: { status: 'cancelled' },
-      });
+      episode.status = 'cancelled';
+      await episode.save();
 
       // Write cryptographic audit log
       writeAuditLog('EPISODE_CANCELLED', episodeId).catch((err) =>
@@ -190,40 +165,41 @@ export const EpisodeController = {
     }
   },
 
-  /**
-   * Returns nearby pending episodes filtered by PostGIS ST_DWithin geography query.
-   * Applies selective disclosure — only category, urgency, and radius
-   * are returned. No requester identity or exact coordinates.
-   */
   async getNearby(query: NearbyQuery, reply: FastifyReply): Promise<void> {
     try {
-      const episodes = await prisma.$queryRaw<any[]>`
-        SELECT 
-          id, 
-          category, 
-          urgency, 
-          status, 
-          radius_meters AS "radiusMeters", 
-          created_at AS "createdAt",
-          ROUND(
-            ST_Distance(
-              location,
-              ST_SetSRID(ST_MakePoint(${query.longitude}, ${query.latitude}), 4326)::geography
-            )::numeric, 0
-          ) AS "distanceMeters"
-        FROM episodes
-        WHERE status = 'pending'
-          AND expires_at > NOW()
-          AND ST_DWithin(
-            location, 
-            ST_SetSRID(ST_MakePoint(${query.longitude}, ${query.latitude}), 4326)::geography, 
-            ${query.radiusMeters}
-          )
-        ORDER BY urgency DESC
-        LIMIT 20
-      `;
+      const activeEpisodes = await Episode.find({
+        status: 'pending',
+        expiresAt: { $gt: new Date() },
+      }).sort({ urgency: -1 });
 
-      reply.status(200).send({ success: true, data: episodes });
+      const nearbyEpisodes = activeEpisodes
+        .map((ep) => {
+          const R = 6371e3; // Earth radius in meters
+          const φ1 = (query.latitude * Math.PI) / 180;
+          const φ2 = (ep.latitude * Math.PI) / 180;
+          const Δφ = ((ep.latitude - query.latitude) * Math.PI) / 180;
+          const Δλ = ((ep.longitude - query.longitude) * Math.PI) / 180;
+
+          const a =
+            Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+            Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+          const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+          const distanceMeters = Math.round(R * c);
+
+          return {
+            id: ep._id.toString(),
+            category: ep.category,
+            urgency: ep.urgency,
+            status: ep.status,
+            radiusMeters: ep.radiusMeters,
+            createdAt: ep.createdAt.toISOString(),
+            distanceMeters,
+          };
+        })
+        .filter((ep) => ep.distanceMeters <= query.radiusMeters)
+        .slice(0, 20);
+
+      reply.status(200).send({ success: true, data: nearbyEpisodes });
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Unknown error';
       reply.status(500).send({

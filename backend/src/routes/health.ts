@@ -5,17 +5,11 @@
  * database. Designed for Render's health check probe and local dev use.
  */
 import type { FastifyInstance } from 'fastify';
-import { prisma } from '../utils/prisma';
+import mongoose from 'mongoose';
 
 export async function healthRoutes(app: FastifyInstance): Promise<void> {
   app.get('/health', async (_req, reply) => {
-    let dbPing = false;
-    try {
-      await prisma.$queryRaw`SELECT 1`;
-      dbPing = true;
-    } catch {
-      // DB may not be migrated yet — non-fatal for the health route
-    }
+    const dbPing = mongoose.connection.readyState === 1;
 
     const status = dbPing ? 'ok' : 'degraded';
 

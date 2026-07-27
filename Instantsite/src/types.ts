@@ -35,6 +35,22 @@ export interface SafetyRule {
   triggerValue: string;
 }
 
+export interface ToastNotification {
+  id: string;
+  type: 'success' | 'warning' | 'info' | 'error';
+  message: string;
+}
+
+export interface TelemetryPacket {
+  id: string;
+  timestamp: string;
+  nodeId: string;
+  zkProof: string;
+  hopCount: number;
+  status: 'VERIFIED' | 'RELAYING' | 'DISPATCHED' | 'ENCRYPTED';
+  type: 'PULSE' | 'DEVIATION_ALERT' | 'SOS_ACTIVE' | 'SANCTUM_HANDSHAKE';
+}
+
 export interface SafeSpot {
   id: string;
   name: string;
@@ -42,4 +58,8 @@ export interface SafeSpot {
   lat: number;
   lng: number;
   status: 'active' | 'closed';
+  address?: string;
+  phone?: string;
+  sanctumId?: string;
 }
+

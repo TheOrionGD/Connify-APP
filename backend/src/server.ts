@@ -14,9 +14,13 @@ import { initKeys } from './services/KeyService';
 import { initFirebase } from './config/firebase';
 import { buildApp } from './app';
 import { initSockets } from './sockets';
+import { connectDB } from './utils/db';
 
 const start = async () => {
   try {
+    // 0. Connect to MongoDB Atlas
+    await connectDB();
+
     // 1. Load and verify keys
     await initKeys();
 

@@ -468,36 +468,53 @@ export default function SafetyProtocolFeatures() {
               </div>
             </div>
 
-            {/* Custom Time slider */}
-            {selectedTriggers.includes('timer') && (
-              <div className="space-y-3 bg-brand-beige p-4 rounded border border-brand-black">
-                <div className="flex justify-between text-xs font-mono">
-                  <span className="text-brand-muted font-bold">INACTIVITY TIMER LIMIT:</span>
-                  <span className="text-brand-red font-bold">{customTime} MINUTES</span>
+            {/* Custom Time & Geofence Sliders */}
+            <div className="space-y-4">
+              {selectedTriggers.includes('timer') && (
+                <div className="space-y-2.5 bg-brand-beige p-4 rounded border border-brand-black">
+                  <div className="flex justify-between text-xs font-mono">
+                    <span className="text-brand-muted font-bold">INACTIVITY TIMEOUT:</span>
+                    <span className="text-brand-red font-bold font-tech">{customTime} MINUTES</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="5"
+                    max="60"
+                    value={customTime}
+                    onChange={(e) => {
+                      setCustomTime(parseInt(e.target.value));
+                      setProtocolGenerated(false);
+                    }}
+                    className="w-full h-1.5 bg-brand-surface rounded appearance-none cursor-pointer accent-brand-red border border-brand-black"
+                  />
+                  <span className="block text-[10px] text-brand-muted font-sans italic">
+                    Escalates to emergency dispatch if check-in button is not pushed within deadline.
+                  </span>
                 </div>
-                <input
-                  type="range"
-                  min="5"
-                  max="60"
-                  value={customTime}
-                  onChange={(e) => {
-                    setCustomTime(parseInt(e.target.value));
-                    setProtocolGenerated(false);
-                  }}
-                  className="w-full h-1.5 bg-brand-surface rounded appearance-none cursor-pointer accent-brand-red border border-brand-black"
-                />
-                <span className="block text-[10px] text-brand-muted font-sans italic">
-                  Escalates to SOS if check-in button is not pushed within this time frame.
-                </span>
-              </div>
-            )}
+              )}
+
+              {selectedTriggers.includes('route') && (
+                <div className="space-y-2.5 bg-brand-beige p-4 rounded border border-brand-black">
+                  <div className="flex justify-between text-xs font-mono">
+                    <span className="text-brand-muted font-bold">GEOFENCE DEVIATION RADIUS:</span>
+                    <span className="text-brand-blue font-bold font-tech">+50 METERS</span>
+                  </div>
+                  <div className="w-full bg-brand-surface h-2 rounded border border-brand-black relative overflow-hidden">
+                    <div className="bg-brand-blue h-full w-[60%]" />
+                  </div>
+                  <span className="block text-[10px] text-brand-muted font-sans italic">
+                    Triggers silent vibration alert immediately if GPS position strays off preset path.
+                  </span>
+                </div>
+              )}
+            </div>
 
             <button
               onClick={handleGenerateProtocol}
               disabled={selectedTriggers.length === 0}
-              className="w-full py-4 bg-brand-red hover:bg-brand-red-hover disabled:bg-brand-beige disabled:text-brand-muted disabled:border-brand-muted/20 text-white font-sans font-bold text-sm rounded border-2 border-brand-black shadow-[4px_4px_0px_#1b1b1b] hover:shadow-[2px_2px_0px_#1b1b1b] hover:translate-x-[2px] hover:translate-y-[2px] disabled:translate-none disabled:shadow-none transition-all cursor-pointer uppercase tracking-wider"
+              className="w-full py-4 bg-brand-red hover:bg-brand-red-hover disabled:bg-brand-beige disabled:text-brand-muted disabled:border-brand-muted/20 text-white font-sans font-extrabold text-sm rounded border-2 border-brand-black shadow-[4px_4px_0px_#1b1b1b] hover:shadow-[2px_2px_0px_#1b1b1b] hover:translate-x-[2px] hover:translate-y-[2px] disabled:translate-none disabled:shadow-none transition-all cursor-pointer uppercase tracking-wider"
             >
-              Compile & Sign Protocol Key
+              Compile & Cryptographically Sign Key
             </button>
           </div>
 
@@ -508,7 +525,7 @@ export default function SafetyProtocolFeatures() {
               
               <div className="bg-brand-surface border-2 border-brand-black rounded p-6 font-mono text-xs space-y-4 shadow-[3px_3px_0px_#1b1b1b]">
                 <div className="flex justify-between text-[10px] text-brand-muted border-b border-brand-black/10 pb-2.5">
-                  <span>METADATA</span>
+                  <span>METADATA PARAMS</span>
                   <span className="text-brand-red font-bold animate-pulse">● READY TO CONFIGURE</span>
                 </div>
                 
@@ -537,7 +554,18 @@ export default function SafetyProtocolFeatures() {
                   <div className="pt-4 border-t border-brand-black/10 space-y-3">
                     <div className="flex justify-between items-center text-[11px]">
                       <span className="text-brand-muted">SIGNATURE_HASH:</span>
-                      <span className="text-brand-red font-bold font-mono tracking-wider">{generatedHash}</span>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(generatedHash);
+                          setShowDownloadNotification(true);
+                          setTimeout(() => setShowDownloadNotification(false), 3000);
+                        }}
+                        className="text-brand-red font-bold font-mono tracking-wider hover:underline flex items-center gap-1 cursor-pointer bg-brand-red/10 px-2 py-0.5 rounded border border-brand-red/30"
+                        title="Click to copy hash"
+                      >
+                        <span>{generatedHash}</span>
+                        <span className="text-[9px] text-brand-black">📋</span>
+                      </button>
                     </div>
                     <div className="p-2.5 bg-brand-red/5 rounded border border-brand-red/20 text-[10px] text-brand-red leading-relaxed font-mono">
                       // Verified cryptographic key created. Handshake token signed. Safe-zone routing generated successfully.
@@ -555,6 +583,20 @@ export default function SafetyProtocolFeatures() {
               <div className="space-y-3">
                 <button
                   onClick={() => {
+                    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({
+                      protocol: "CONNIFY_P2P_V1.4",
+                      hash: generatedHash,
+                      triggers: selectedTriggers,
+                      timeout: customTime,
+                      timestamp: new Date().toISOString()
+                    }, null, 2));
+                    const downloadAnchor = document.createElement('a');
+                    downloadAnchor.setAttribute("href", dataStr);
+                    downloadAnchor.setAttribute("download", `connify_policy_${generatedHash}.json`);
+                    document.body.appendChild(downloadAnchor);
+                    downloadAnchor.click();
+                    downloadAnchor.remove();
+
                     setShowDownloadNotification(true);
                     setTimeout(() => setShowDownloadNotification(false), 5000);
                   }}

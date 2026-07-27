@@ -1,17 +1,9 @@
 /**
- * CapsuleController — Trust Capsule issuance, redemption, and revocation.
- *
- * Key security invariants enforced here:
- *  1. Only issue a capsule for a valid, pending/matched episode.
- *  2. The capsule JWT is signed with Ed25519 (tamper-evident).
- *  3. The token hash (not the token itself) is stored in Postgres —
- *     a DB breach cannot expose replayable tokens.
- *  4. Single-use is enforced atomically via Redis SET NX —
- *     two simultaneous redemptions cannot both succeed.
+ * CapsuleController — Trust Capsule issuance, redemption, and revocation using Mongoose.
  */
 import type { FastifyReply } from 'fastify';
 import { createHash } from 'node:crypto';
-import { prisma } from '../utils/prisma';
+import { Capsule, Episode, Device } from '../models';
 import { writeAuditLog } from '../utils/audit';
 import { signToken, verifyToken } from '../services/KeyService';
 
@@ -28,14 +20,13 @@ interface IssueInput {
 
 /** Trust Capsules are valid for 2 hours (the helper engagement window). */
 const CAPSULE_TTL_MS = 2 * 60 * 60 * 1000;
-const CAPSULE_TTL_SECS = CAPSULE_TTL_MS / 1000;
 
 export const CapsuleController = {
   async issue(input: IssueInput, reply: FastifyReply): Promise<void> {
     try {
       const [episode, helperDevice] = await Promise.all([
-        prisma.episode.findUnique({ where: { id: input.episodeId } }),
-        prisma.device.findUnique({ where: { id: input.helperDeviceId } }),
+        Episode.findById(input.episodeId),
+        Device.findById(input.helperDeviceId),
       ]);
 
       if (!episode) {
@@ -86,7 +77,7 @@ export const CapsuleController = {
           sub: input.helperDeviceId,
           episodeId: input.episodeId,
           helperDeviceId: input.helperDeviceId,
-          requesterId: episode.requesterDeviceId,
+          requesterId: episode.requesterDeviceId.toString(),
         },
         '2h'
       );
@@ -94,22 +85,19 @@ export const CapsuleController = {
       // Store only the hash — the bearer token never touches the DB
       const tokenHash = createHash('sha256').update(capsuleToken).digest('hex');
 
-      const [capsule] = await prisma.$transaction([
-        prisma.capsule.create({
-          data: {
-            episodeId: input.episodeId,
-            helperDeviceId: input.helperDeviceId,
-            signedTokenHash: tokenHash,
-            blindedGridCell: input.verificationData.blindedGridCell,
-            status: 'issued',
-            expiresAt,
-          },
-        }),
-        prisma.episode.update({
-          where: { id: input.episodeId },
-          data: { status: 'matched' },
-        }),
-      ]);
+      const capsule = await Capsule.create({
+        episodeId: input.episodeId,
+        helperDeviceId: input.helperDeviceId,
+        signedTokenHash: tokenHash,
+        blindedGridCell: input.verificationData.blindedGridCell,
+        status: 'issued',
+        expiresAt,
+      });
+
+      episode.status = 'matched';
+      await episode.save();
+
+      const capsuleIdStr = capsule._id.toString();
 
       // Write cryptographic audit log
       writeAuditLog('CAPSULE_ISSUED', input.episodeId).catch((err) =>
@@ -119,8 +107,8 @@ export const CapsuleController = {
       reply.status(201).send({
         success: true,
         data: {
-          capsuleId: capsule.id,
-          capsuleToken,   // The bearer token — client MUST keep this secret
+          capsuleId: capsuleIdStr,
+          capsuleToken,
           expiresAt: capsule.expiresAt.toISOString(),
         },
       });
@@ -159,9 +147,7 @@ export const CapsuleController = {
 
       // 2. Look up by token hash (the token itself is never stored)
       const tokenHash = createHash('sha256').update(capsuleToken).digest('hex');
-      const capsule = await prisma.capsule.findFirst({
-        where: { signedTokenHash: tokenHash, status: 'issued' },
-      });
+      const capsule = await Capsule.findOne({ signedTokenHash: tokenHash, status: 'issued' });
 
       if (!capsule) {
         return reply.status(404).send({
@@ -171,7 +157,7 @@ export const CapsuleController = {
       }
 
       // 3. Enforce capsule is addressed to the calling device
-      if (capsule.helperDeviceId !== requestingDeviceId) {
+      if (capsule.helperDeviceId.toString() !== requestingDeviceId) {
         return reply.status(403).send({
           success: false,
           error: { code: 'FORBIDDEN', message: 'This capsule was not issued to you' },
@@ -180,27 +166,25 @@ export const CapsuleController = {
 
       // 4. Persist redemption + activate episode
       const now = new Date();
-      await prisma.$transaction([
-        prisma.capsule.update({
-          where: { id: capsule.id },
-          data: { status: 'redeemed', redeemedAt: now },
-        }),
-        prisma.episode.update({
-          where: { id: capsule.episodeId },
-          data: { status: 'active' },
-        }),
-      ]);
+      capsule.status = 'redeemed';
+      capsule.redeemedAt = now;
+      await capsule.save();
+
+      await Episode.findByIdAndUpdate(capsule.episodeId, { status: 'active' });
+
+      const capsuleIdStr = capsule._id.toString();
+      const episodeIdStr = capsule.episodeId.toString();
 
       // Write cryptographic audit log
-      writeAuditLog('CAPSULE_REDEEMED', capsule.episodeId).catch((err) =>
+      writeAuditLog('CAPSULE_REDEEMED', episodeIdStr).catch((err) =>
         console.warn('⚠️ Failed to write audit log:', err.message)
       );
 
       reply.status(200).send({
         success: true,
         data: {
-          capsuleId: capsule.id,
-          episodeId: capsule.episodeId,
+          capsuleId: capsuleIdStr,
+          episodeId: episodeIdStr,
           status: 'redeemed',
           redeemedAt: now.toISOString(),
         },
@@ -216,7 +200,7 @@ export const CapsuleController = {
 
   async revoke(capsuleId: string, reply: FastifyReply): Promise<void> {
     try {
-      const capsule = await prisma.capsule.findUnique({ where: { id: capsuleId } });
+      const capsule = await Capsule.findById(capsuleId);
 
       if (!capsule) {
         return reply.status(404).send({
@@ -234,13 +218,13 @@ export const CapsuleController = {
         });
       }
 
-      await prisma.capsule.update({
-        where: { id: capsuleId },
-        data: { status: 'revoked' },
-      });
+      capsule.status = 'revoked';
+      await capsule.save();
+
+      const episodeIdStr = capsule.episodeId.toString();
 
       // Write cryptographic audit log
-      writeAuditLog('CAPSULE_REVOKED', capsule.episodeId).catch((err) =>
+      writeAuditLog('CAPSULE_REVOKED', episodeIdStr).catch((err) =>
         console.warn('⚠️ Failed to write audit log:', err.message)
       );
 

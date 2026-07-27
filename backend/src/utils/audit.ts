@@ -1,4 +1,4 @@
-import { prisma } from './prisma';
+import { AuditLog } from '../models';
 import { createHash } from 'node:crypto';
 
 /**
@@ -12,9 +12,7 @@ export async function writeAuditLog(
 ): Promise<void> {
   try {
     // 1. Get the last log entry to retrieve its hash
-    const lastLog = await prisma.auditLog.findFirst({
-      orderBy: { id: 'desc' },
-    });
+    const lastLog = await AuditLog.findOne().sort({ createdAt: -1 });
 
     const prevHash = lastLog ? lastLog.entryHash : '0';
 
@@ -23,13 +21,11 @@ export async function writeAuditLog(
     const entryHash = createHash('sha256').update(content).digest('hex');
 
     // 3. Create the log entry
-    await prisma.auditLog.create({
-      data: {
-        eventType,
-        episodeId,
-        prevHash,
-        entryHash,
-      },
+    await AuditLog.create({
+      eventType,
+      episodeId: episodeId || undefined,
+      prevHash,
+      entryHash,
     });
 
     console.log(`🔐 Cryptographic audit log written: [${eventType}] (episode: ${episodeId})`);

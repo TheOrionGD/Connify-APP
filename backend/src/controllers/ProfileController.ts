@@ -1,5 +1,5 @@
 import type { FastifyReply } from 'fastify';
-import { prisma } from '../utils/prisma';
+import { Profile } from '../models';
 
 export const ProfileController = {
   async upsertProfile(
@@ -13,22 +13,24 @@ export const ProfileController = {
     reply: FastifyReply
   ) {
     try {
-      const profile = await prisma.profile.upsert({
-        where: { deviceId },
-        update: {
-          firstName: data.firstName,
-          lastName: data.lastName,
-          phone: data.phone || null,
-          medicalNotes: data.medicalNotes || null,
-        },
-        create: {
+      let profile = await Profile.findOne({ deviceId });
+      if (profile) {
+        profile.firstName = data.firstName;
+        profile.lastName = data.lastName;
+        profile.phone = data.phone;
+        profile.medicalNotes = data.medicalNotes;
+        profile.updatedAt = new Date();
+        await profile.save();
+      } else {
+        profile = await Profile.create({
           deviceId,
           firstName: data.firstName,
           lastName: data.lastName,
-          phone: data.phone || null,
-          medicalNotes: data.medicalNotes || null,
-        },
-      });
+          phone: data.phone,
+          medicalNotes: data.medicalNotes,
+          updatedAt: new Date(),
+        });
+      }
 
       return reply.status(200).send({
         success: true,

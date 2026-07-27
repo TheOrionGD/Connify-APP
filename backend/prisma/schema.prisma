@@ -2,16 +2,17 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
-  output   = "../generated/prisma"
+  provider   = "prisma-client-js"
+  output     = "../generated/prisma"
+  engineType = "library"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
 }
 
 model Device {
-  id                    String    @id @default(uuid()) @db.Uuid
+  id                    String    @id @default(auto()) @map("_id") @db.ObjectId
   deviceFingerprintHash String    @unique @map("device_fingerprint_hash")
   publicKey             String    @map("public_key")
   phoneHash             String?   @map("phone_hash")
@@ -26,20 +27,19 @@ model Device {
 }
 
 model Episode {
-  id                String                                 @id @default(uuid()) @db.Uuid
-  requesterDeviceId String                                 @map("requester_device_id") @db.Uuid
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  requesterDeviceId String   @map("requester_device_id") @db.ObjectId
   category          String
-  urgency           Int                                    @db.SmallInt
-  status            String                                 @default("pending") // pending/matched/active/completed/expired/cancelled
+  urgency           Int
+  status            String   @default("pending") // pending/matched/active/completed/expired/cancelled
   latitude          Float
   longitude         Float
-  radiusMeters      Int                                    @default(500) @map("radius_meters")
-  location          Unsupported("geography(Point, 4326)")?
-  bchSyndromes      String?                                @map("bch_syndromes")
-  helperStringY     String?                                @map("helper_string_y")
-  gridCellsJson     String?                                @map("grid_cells_json")
-  createdAt         DateTime                               @default(now()) @map("created_at")
-  expiresAt         DateTime                               @map("expires_at")
+  radiusMeters      Int      @default(500) @map("radius_meters")
+  bchSyndromes      String?  @map("bch_syndromes")
+  helperStringY     String?  @map("helper_string_y")
+  gridCellsJson     String?  @map("grid_cells_json")
+  createdAt         DateTime @default(now()) @map("created_at")
+  expiresAt         DateTime @map("expires_at")
 
   requester Device     @relation(fields: [requesterDeviceId], references: [id])
   capsules  Capsule[]
@@ -50,9 +50,9 @@ model Episode {
 }
 
 model Capsule {
-  id              String    @id @default(uuid()) @db.Uuid
-  episodeId       String    @map("episode_id") @db.Uuid
-  helperDeviceId  String    @map("helper_device_id") @db.Uuid
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  episodeId       String    @map("episode_id") @db.ObjectId
+  helperDeviceId  String    @map("helper_device_id") @db.ObjectId
   signedTokenHash String    @map("signed_token_hash")
   status          String    @default("issued") // issued/redeemed/expired/revoked
   blindedGridCell String?   @map("blinded_grid_cell")
@@ -67,11 +67,11 @@ model Capsule {
 }
 
 model Outcome {
-  id                String   @id @default(uuid()) @db.Uuid
-  episodeId         String   @map("episode_id") @db.Uuid
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  episodeId         String   @map("episode_id") @db.ObjectId
   result            String // success/failure
   category          String
-  riskLevel         Int?     @map("risk_level") @db.SmallInt
+  riskLevel         Int?     @map("risk_level")
   completedInWindow Boolean  @map("completed_in_window")
   createdAt         DateTime @default(now()) @map("created_at")
 
@@ -81,9 +81,9 @@ model Outcome {
 }
 
 model AuditLog {
-  id        BigInt   @id @default(autoincrement())
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
   eventType String   @map("event_type")
-  episodeId String?  @map("episode_id") @db.Uuid
+  episodeId String?  @map("episode_id") @db.ObjectId
   prevHash  String   @map("prev_hash")
   entryHash String   @map("entry_hash")
   createdAt DateTime @default(now()) @map("created_at")
@@ -94,8 +94,8 @@ model AuditLog {
 }
 
 model Profile {
-  id           String   @id @default(uuid()) @db.Uuid
-  deviceId     String   @unique @map("device_id") @db.Uuid
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  deviceId     String   @unique @map("device_id") @db.ObjectId
   firstName    String   @map("first_name")
   lastName     String   @map("last_name")
   phone        String?

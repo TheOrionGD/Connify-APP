@@ -14,7 +14,17 @@ import { motion, AnimatePresence } from 'motion/react';
 export default function App() {
   const [isBackendReady, setIsBackendReady] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<ConnifyPage>(ConnifyPage.PROTOCOL_FEATURES);
+  const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
+  const [toasts, setToasts] = useState<{ id: string; message: string; type: 'info' | 'success' | 'warning' | 'error' }[]>([]);
   const isScrollingRef = useRef<boolean>(false);
+
+  const showToast = (message: string, type: 'info' | 'success' | 'warning' | 'error' = 'info') => {
+    const id = Math.random().toString(36).substring(2, 9);
+    setToasts(prev => [...prev, { id, message, type }]);
+    setTimeout(() => {
+      setToasts(prev => prev.filter(t => t.id !== id));
+    }, 4000);
+  };
 
   // Smooth scroll handler for Navbar & Footer actions
   const handlePageChange = (page: ConnifyPage) => {
@@ -93,6 +103,7 @@ export default function App() {
   const handleTriggerSOSGlobally = () => {
     setCurrentPage(ConnifyPage.URGENT_SERENITY);
     isScrollingRef.current = true;
+    showToast("⚠️ Emergency SOS Mode Triggered Globally", "error");
     
     // Smooth scroll down to the smartphone mockup section
     const el = document.getElementById('urgent-serenity');
@@ -127,7 +138,7 @@ export default function App() {
           </div>
           
           <div className="space-y-3 text-center">
-            <h1 className="font-display font-extrabold text-4xl tracking-tight text-brand-black uppercase">Connify Protocol</h1>
+            <h1 className="font-tech font-extrabold text-4xl tracking-tight text-brand-black uppercase">Connify Protocol</h1>
             <p className="font-mono text-xs font-bold text-brand-muted uppercase tracking-widest flex items-center justify-center space-x-2">
               <span className="inline-block w-2.5 h-2.5 bg-brand-red rounded-full animate-pulse"></span>
               <span>Initiating secure backend...</span>
@@ -141,10 +152,35 @@ export default function App() {
   return (
     <div className="min-h-screen bg-brand-beige text-brand-black flex flex-col justify-between selection:bg-brand-red/15 selection:text-brand-red font-sans">
       
+      {/* Toast Notification Container */}
+      <div className="fixed top-24 right-5 z-50 flex flex-col space-y-2.5 pointer-events-none">
+        <AnimatePresence>
+          {toasts.map(toast => (
+            <motion.div
+              key={toast.id}
+              initial={{ opacity: 0, x: 50, scale: 0.9 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={{ opacity: 0, x: 20, scale: 0.9 }}
+              className={`pointer-events-auto px-4 py-3 rounded-lg border-2 border-brand-black font-mono text-xs font-bold shadow-[4px_4px_0px_#1b1b1b] flex items-center space-x-2 ${
+                toast.type === 'error' ? 'bg-brand-red text-white' :
+                toast.type === 'success' ? 'bg-emerald-600 text-white' :
+                toast.type === 'warning' ? 'bg-amber-400 text-brand-black' :
+                'bg-brand-surface text-brand-black'
+              }`}
+            >
+              <span>{toast.message}</span>
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
+
       {/* Top Navbar */}
       <Navbar 
         currentPage={currentPage} 
-        setCurrentPage={handlePageChange} 
+        setCurrentPage={handlePageChange}
+        soundEnabled={soundEnabled}
+        onToggleSound={() => setSoundEnabled(prev => !prev)}
+        onShowToast={showToast}
       />
 
       {/* Main Consolidated Content Area */}

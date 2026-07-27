@@ -1,11 +1,8 @@
 /**
- * DeviceController — business logic for device registration and verification.
- *
- * Upserts device records by fingerprint hash (same device = same record),
- * issues a signed 30-day session JWT on success.
+ * DeviceController — business logic for device registration and verification using Mongoose.
  */
 import type { FastifyReply } from 'fastify';
-import { prisma } from '../utils/prisma';
+import { Device } from '../models';
 import { signToken } from '../services/KeyService';
 import nacl from 'tweetnacl';
 
@@ -35,25 +32,27 @@ export const DeviceController = {
       console.log(`Registering device for Firebase user: ${firebaseUser.uid} (${firebaseUser.email})`);
 
       // Upsert — the same device can re-register to rotate its public key.
-      const device = await prisma.device.upsert({
-        where: { deviceFingerprintHash: input.deviceFingerprintHash },
-        create: {
+      let device = await Device.findOne({ deviceFingerprintHash: input.deviceFingerprintHash });
+      if (device) {
+        device.publicKey = input.publicKey;
+        device.lastSeenAt = new Date();
+        if (input.phoneHash) device.phoneHash = input.phoneHash;
+        await device.save();
+      } else {
+        device = await Device.create({
           deviceFingerprintHash: input.deviceFingerprintHash,
           publicKey: input.publicKey,
-          phoneHash: input.phoneHash ?? null,
-        },
-        update: {
-          publicKey: input.publicKey,
+          phoneHash: input.phoneHash,
           lastSeenAt: new Date(),
-        },
-      });
+        });
+      }
 
-      // Override the `sub` claim with the device UUID (signToken uses setIssuedAt,
-      // so we pass sub in the payload directly)
+      const deviceIdStr = device._id.toString();
+
       const sessionToken = await signToken(
         {
           type: 'device_session',
-          sub: device.id,
+          sub: deviceIdStr,
           fingerprint: device.deviceFingerprintHash,
         },
         '30d'
@@ -62,7 +61,7 @@ export const DeviceController = {
       reply.status(201).send({
         success: true,
         data: {
-          deviceId: device.id,
+          deviceId: deviceIdStr,
           token: sessionToken,
           tokenType: 'Bearer',
           expiresIn: '30d',
@@ -77,10 +76,6 @@ export const DeviceController = {
     }
   },
 
-  /**
-   * Cryptographic challenge/response verification.
-   * Verifies the client signature of the challenge using the registered device public key.
-   */
   async verify(input: VerifyInput, reply: FastifyReply): Promise<void> {
     try {
       const req = reply.request;
@@ -92,9 +87,7 @@ export const DeviceController = {
         });
       }
 
-      const device = await prisma.device.findUnique({
-        where: { id: deviceId },
-      });
+      const device = await Device.findById(deviceId);
 
       if (!device) {
         return reply.status(404).send({

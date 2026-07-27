@@ -1,12 +1,8 @@
 /**
- * OutcomeController — minimal outcome logging.
- *
- * Records ONLY: result, category, risk level, and completion-in-window flag.
- * Deliberately stores no identity, location trail, or message content.
- * This operationalises the "minimal outcome logging" privacy principle (§8.1).
+ * OutcomeController — minimal outcome logging using Mongoose.
  */
 import type { FastifyReply } from 'fastify';
-import { prisma } from '../utils/prisma';
+import { Outcome, Episode } from '../models';
 import { writeAuditLog } from '../utils/audit';
 
 interface CreateInput {
@@ -20,9 +16,7 @@ interface CreateInput {
 export const OutcomeController = {
   async create(input: CreateInput, reply: FastifyReply): Promise<void> {
     try {
-      const episode = await prisma.episode.findUnique({
-        where: { id: input.episodeId },
-      });
+      const episode = await Episode.findById(input.episodeId);
 
       if (!episode) {
         return reply.status(404).send({
@@ -41,22 +35,18 @@ export const OutcomeController = {
         });
       }
 
-      // Create outcome + mark episode completed in a single transaction
-      const [outcome] = await prisma.$transaction([
-        prisma.outcome.create({
-          data: {
-            episodeId: input.episodeId,
-            result: input.result,
-            category: input.category,
-            riskLevel: input.riskLevel ?? null,
-            completedInWindow: input.completedInWindow,
-          },
-        }),
-        prisma.episode.update({
-          where: { id: input.episodeId },
-          data: { status: 'completed' },
-        }),
-      ]);
+      const outcome = await Outcome.create({
+        episodeId: input.episodeId,
+        result: input.result,
+        category: input.category,
+        riskLevel: input.riskLevel,
+        completedInWindow: input.completedInWindow,
+      });
+
+      episode.status = 'completed';
+      await episode.save();
+
+      const outcomeIdStr = outcome._id.toString();
 
       // Write cryptographic audit log
       writeAuditLog('EPISODE_COMPLETED', input.episodeId).catch((err) =>
@@ -66,8 +56,8 @@ export const OutcomeController = {
       reply.status(201).send({
         success: true,
         data: {
-          outcomeId: outcome.id,
-          episodeId: outcome.episodeId,
+          outcomeId: outcomeIdStr,
+          episodeId: outcome.episodeId.toString(),
           result: outcome.result,
           completedInWindow: outcome.completedInWindow,
         },
