@@ -1,0 +1,385 @@
+Windows PowerShell
+Copyright (C) Microsoft Corporation. All rights reserved.
+
+PS O:\PROJECTS\CONNIFY-APP\Connify\android> .\gradlew assembleRelease   
+
+> Configure project :react-native-firebase_app
+:react-native-firebase_app package.json found at O:\PROJECTS\CONNIFY-APP\Connify\node_modules\@react-native-firebase\app\package.json
+:react-native-firebase_app:firebase.bom using default value: 34.15.0
+:react-native-firebase_app:play.play-services-auth using default value: 21.5.0
+:react-native-firebase_app package.json found at O:\PROJECTS\CONNIFY-APP\Connify\node_modules\@react-native-firebase\app\package.json
+:react-native-firebase_app:version set from package.json: 25.1.0 (25,1,0 - 25001000)
+:react-native-firebase_app:android.compileSdk using custom value: 36
+:react-native-firebase_app:android.targetSdk using custom value: 36
+:react-native-firebase_app:android.minSdk using custom value: 24
+:react-native-firebase_app:reactNativeAndroidDir O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native
+
+> Configure project :react-native-firebase_auth
+:react-native-firebase_auth package.json found at O:\PROJECTS\CONNIFY-APP\Connify\node_modules\@react-native-firebase\auth\package.json
+:react-native-firebase_app package.json found at O:\PROJECTS\CONNIFY-APP\Connify\node_modules\@react-native-firebase\app\package.json
+:react-native-firebase_auth:firebase.bom using default value: 34.15.0
+:react-native-firebase_auth package.json found at O:\PROJECTS\CONNIFY-APP\Connify\node_modules\@react-native-firebase\auth\package.json
+:react-native-firebase_auth:version set from package.json: 25.1.0 (25,1,0 - 25001000)
+:react-native-firebase_auth:android.compileSdk using custom value: 36
+:react-native-firebase_auth:android.targetSdk using custom value: 36
+:react-native-firebase_auth:android.minSdk using custom value: 24
+:react-native-firebase_auth:reactNativeAndroidDir O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native
+Warning: SDK processing. This version only understands SDK XML versions up to 3 but an SDK XML file of version 4 was encountered. This can happen if you use versions of Android Studio and the command-line tools that were released at different times.
+
+> Task :react-native-worklets:buildCMakeRelWithDebInfo[arm64-v8a][worklets]
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.arm64-v8a\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-worklets\android\build\intermediates\cxx\RelWithDebInfo\1k393r2f\obj\arm64-v8a\libreactnative.so' failed. Doing a slower copy instead.
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.arm64-v8a\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-worklets\android\build\intermediates\cxx\RelWithDebInfo\1k393r2f\obj\arm64-v8a\libreactnative.so' failed. Doing a slower copy instead.
+
+> Task :react-native-worklets:buildCMakeRelWithDebInfo[armeabi-v7a][worklets]
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.armeabi-v7a\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-worklets\android\build\intermediates\cxx\RelWithDebInfo\1k393r2f\obj\armeabi-v7a\libreactnative.so' failed. Doing a slower copy instead.
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.armeabi-v7a\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-worklets\android\build\intermediates\cxx\RelWithDebInfo\1k393r2f\obj\armeabi-v7a\libreactnative.so' failed. Doing a slower copy instead.
+
+> Task :react-native-worklets:buildCMakeRelWithDebInfo[x86][worklets]
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.x86\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-worklets\android\build\intermediates\cxx\RelWithDebInfo\1k393r2f\obj\x86\libreactnative.so' failed. Doing a slower copy instead.
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.x86\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-worklets\android\build\intermediates\cxx\RelWithDebInfo\1k393r2f\obj\x86\libreactnative.so' failed. Doing a slower copy instead.
+
+> Task :react-native-worklets:buildCMakeRelWithDebInfo[x86_64][worklets]
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.x86_64\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-worklets\android\build\intermediates\cxx\RelWithDebInfo\1k393r2f\obj\x86_64\libreactnative.so' failed. Doing a slower copy instead.
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.x86_64\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-worklets\android\build\intermediates\cxx\RelWithDebInfo\1k393r2f\obj\x86_64\libreactnative.so' failed. Doing a slower copy instead.
+
+> Task :react-native-reanimated:buildCMakeRelWithDebInfo[arm64-v8a][reanimated]
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.arm64-v8a\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-reanimated\android\build\intermediates\cxx\RelWithDebInfo\133f1u13\obj\arm64-v8a\libreactnative.so' failed. Doing a slower copy instead.
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.arm64-v8a\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-reanimated\android\build\intermediates\cxx\RelWithDebInfo\133f1u13\obj\arm64-v8a\libreactnative.so' failed. Doing a slower copy instead.
+
+> Task :react-native-reanimated:buildCMakeRelWithDebInfo[armeabi-v7a][reanimated]
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.armeabi-v7a\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-reanimated\android\build\intermediates\cxx\RelWithDebInfo\133f1u13\obj\armeabi-v7a\libreactnative.so' failed. Doing a slower copy instead.
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.armeabi-v7a\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-reanimated\android\build\intermediates\cxx\RelWithDebInfo\133f1u13\obj\armeabi-v7a\libreactnative.so' failed. Doing a slower copy instead.
+
+> Task :react-native-reanimated:buildCMakeRelWithDebInfo[x86][reanimated]
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.x86\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-reanimated\android\build\intermediates\cxx\RelWithDebInfo\133f1u13\obj\x86\libreactnative.so' failed. Doing a slower copy instead.
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.x86\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-reanimated\android\build\intermediates\cxx\RelWithDebInfo\133f1u13\obj\x86\libreactnative.so' failed. Doing a slower copy instead.
+
+> Task :react-native-reanimated:buildCMakeRelWithDebInfo[x86_64][reanimated]
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.x86_64\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-reanimated\android\build\intermediates\cxx\RelWithDebInfo\133f1u13\obj\x86_64\libreactnative.so' failed. Doing a slower copy instead.
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.x86_64\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-reanimated\android\build\intermediates\cxx\RelWithDebInfo\133f1u13\obj\x86_64\libreactnative.so' failed. Doing a slower copy instead.
+
+> Task :app:buildCMakeRelWithDebInfo[arm64-v8a]
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.arm64-v8a\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\android\app\build\intermediates\cxx\RelWithDebInfo\2v1b1c39\obj\arm64-v8a\libreactnative.so' failed. Doing a slower copy instead.
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.arm64-v8a\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\android\app\build\intermediates\cxx\RelWithDebInfo\2v1b1c39\obj\arm64-v8a\libreactnative.so' failed. Doing a slower copy instead.
+
+> Task :app:buildCMakeRelWithDebInfo[armeabi-v7a]
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.armeabi-v7a\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\android\app\build\intermediates\cxx\RelWithDebInfo\2v1b1c39\obj\armeabi-v7a\libreactnative.so' failed. Doing a slower copy instead.
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.armeabi-v7a\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\android\app\build\intermediates\cxx\RelWithDebInfo\2v1b1c39\obj\armeabi-v7a\libreactnative.so' failed. Doing a slower copy instead.
+
+> Task :app:buildCMakeRelWithDebInfo[x86]
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.x86\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\android\app\build\intermediates\cxx\RelWithDebInfo\2v1b1c39\obj\x86\libreactnative.so' failed. Doing a slower copy instead.
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.x86\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\android\app\build\intermediates\cxx\RelWithDebInfo\2v1b1c39\obj\x86\libreactnative.so' failed. Doing a slower copy instead.
+
+> Task :app:buildCMakeRelWithDebInfo[x86_64]
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.x86_64\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\android\app\build\intermediates\cxx\RelWithDebInfo\2v1b1c39\obj\x86_64\libreactnative.so' failed. Doing a slower copy instead.
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.x86_64\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\android\app\build\intermediates\cxx\RelWithDebInfo\2v1b1c39\obj\x86_64\libreactnative.so' failed. Doing a slower copy instead.
+
+> Task :react-native-gesture-handler:buildCMakeRelWithDebInfo[arm64-v8a]
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.arm64-v8a\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-gesture-handler\android\build\intermediates\cxx\RelWithDebInfo\40151juf\obj\arm64-v8a\libreactnative.so' failed. Doing a slower copy instead.
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.arm64-v8a\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-gesture-handler\android\build\intermediates\cxx\RelWithDebInfo\40151juf\obj\arm64-v8a\libreactnative.so' failed. Doing a slower copy instead.
+
+> Task :react-native-gesture-handler:buildCMakeRelWithDebInfo[armeabi-v7a]
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.armeabi-v7a\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-gesture-handler\android\build\intermediates\cxx\RelWithDebInfo\40151juf\obj\armeabi-v7a\libreactnative.so' failed. Doing a slower copy instead.
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.armeabi-v7a\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-gesture-handler\android\build\intermediates\cxx\RelWithDebInfo\40151juf\obj\armeabi-v7a\libreactnative.so' failed. Doing a slower copy instead.
+
+> Task :react-native-gesture-handler:buildCMakeRelWithDebInfo[x86]
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.x86\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-gesture-handler\android\build\intermediates\cxx\RelWithDebInfo\40151juf\obj\x86\libreactnative.so' failed. Doing a slower copy instead.
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.x86\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-gesture-handler\android\build\intermediates\cxx\RelWithDebInfo\40151juf\obj\x86\libreactnative.so' failed. Doing a slower copy instead.
+
+> Task :react-native-gesture-handler:buildCMakeRelWithDebInfo[x86_64]
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.x86_64\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-gesture-handler\android\build\intermediates\cxx\RelWithDebInfo\40151juf\obj\x86_64\libreactnative.so' failed. Doing a slower copy instead.
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.x86_64\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-gesture-handler\android\build\intermediates\cxx\RelWithDebInfo\40151juf\obj\x86_64\libreactnative.so' failed. Doing a slower copy instead.
+
+> Task :react-native-screens:buildCMakeRelWithDebInfo[arm64-v8a]
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.arm64-v8a\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-screens\android\build\intermediates\cxx\RelWithDebInfo\6t393614\obj\arm64-v8a\libreactnative.so' failed. Doing a slower copy instead.
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.arm64-v8a\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-screens\android\build\intermediates\cxx\RelWithDebInfo\6t393614\obj\arm64-v8a\libreactnative.so' failed. Doing a slower copy instead.
+
+> Task :react-native-screens:buildCMakeRelWithDebInfo[armeabi-v7a]
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.armeabi-v7a\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-screens\android\build\intermediates\cxx\RelWithDebInfo\6t393614\obj\armeabi-v7a\libreactnative.so' failed. Doing a slower copy instead.
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.armeabi-v7a\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-screens\android\build\intermediates\cxx\RelWithDebInfo\6t393614\obj\armeabi-v7a\libreactnative.so' failed. Doing a slower copy instead.
+
+> Task :react-native-screens:buildCMakeRelWithDebInfo[x86]
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.x86\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-screens\android\build\intermediates\cxx\RelWithDebInfo\6t393614\obj\x86\libreactnative.so' failed. Doing a slower copy instead.
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.x86\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-screens\android\build\intermediates\cxx\RelWithDebInfo\6t393614\obj\x86\libreactnative.so' failed. Doing a slower copy instead.
+
+> Task :react-native-screens:buildCMakeRelWithDebInfo[x86_64]
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.x86_64\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-screens\android\build\intermediates\cxx\RelWithDebInfo\6t393614\obj\x86_64\libreactnative.so' failed. Doing a slower copy instead.
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.x86_64\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-screens\android\build\intermediates\cxx\RelWithDebInfo\6t393614\obj\x86_64\libreactnative.so' failed. Doing a slower copy instead.
+
+> Task :react-native-svg:compileReleaseJavaWithJavac
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+Note: Some input files use unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+
+> Task :react-native-bootsplash:compileReleaseKotlin
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-bootsplash/android/src/main/java/com/zoontek/rnbootsplash/RNBootSplashPackage.kt:3:8 'class TurboReactPackage : BaseReactPackage' is deprecated. Use BaseReactPackage instead.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-bootsplash/android/src/main/java/com/zoontek/rnbootsplash/RNBootSplashPackage.kt:9:29 'class TurboReactPackage : BaseReactPackage' is deprecated. Use BaseReactPackage instead.
+
+> Task :lottie-react-native:compileReleaseKotlin
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/lottie-react-native/android/src/main/java/com/airbnb/android/react/lottie/LottieAnimationViewManagerImpl.kt:12:8 'object MapBuilder : Any' is deprecated. Use Kotlin's built-in collections extensions.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/lottie-react-native/android/src/main/java/com/airbnb/android/react/lottie/LottieAnimationViewManagerImpl.kt:21:17 'object MapBuilder : Any' is deprecated. Use Kotlin's built-in collections extensions.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/lottie-react-native/android/src/main/java/com/airbnb/android/react/lottie/LottieAnimationViewManagerImpl.kt:35:47 'fun getEventDispatcherForReactTag(context: ReactContext, reactTag: Int): EventDispatcher?' is deprecated. reactTag is no longer needed.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/lottie-react-native/android/src/main/java/com/airbnb/android/react/lottie/LottieAnimationViewManagerImpl.kt:48:47 'fun getEventDispatcherForReactTag(context: ReactContext, reactTag: Int): EventDispatcher?' is deprecated. reactTag is no longer needed.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/lottie-react-native/android/src/main/java/com/airbnb/android/react/lottie/LottieAnimationViewManagerImpl.kt:61:47 'fun getEventDispatcherForReactTag(context: ReactContext, reactTag: Int): EventDispatcher?' is deprecated. reactTag is no longer needed.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/lottie-react-native/android/src/main/java/com/airbnb/android/react/lottie/LottieAnimationViewManagerImpl.kt:72:16 'object MapBuilder : Any' is deprecated. Use Kotlin's built-in collections extensions.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/lottie-react-native/android/src/main/java/com/airbnb/android/react/lottie/LottieAnimationViewManagerImpl.kt:74:13 'object MapBuilder : Any' is deprecated. Use Kotlin's built-in collections extensions.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/lottie-react-native/android/src/main/java/com/airbnb/android/react/lottie/LottieAnimationViewManagerImpl.kt:76:13 'object MapBuilder : Any' is deprecated. Use Kotlin's built-in collections extensions.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/lottie-react-native/android/src/main/java/com/airbnb/android/react/lottie/LottieAnimationViewManagerImpl.kt:78:13 'object MapBuilder : Any' is deprecated. Use Kotlin's built-in collections extensions.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/lottie-react-native/android/src/main/java/com/airbnb/android/react/lottie/LottieAnimationViewManagerImpl.kt:108:28 'static fun isAttachedToWindow(p0: View): Boolean' is deprecated. Deprecated in Java.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/lottie-react-native/android/src/main/java/com/airbnb/android/react/lottie/LottieAnimationViewManagerImpl.kt:138:28 'static fun isAttachedToWindow(p0: View): Boolean' is deprecated. Deprecated in Java.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/lottie-react-native/android/src/main/java/com/airbnb/android/react/lottie/LottieAnimationViewManagerImpl.kt:148:28 'static fun isAttachedToWindow(p0: View): Boolean' is deprecated. Deprecated in Java.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/lottie-react-native/android/src/main/java/com/airbnb/android/react/lottie/LottieAnimationViewManagerImpl.kt:157:28 'static fun isAttachedToWindow(p0: View): Boolean' is deprecated. Deprecated in Java.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/lottie-react-native/android/src/main/java/com/airbnb/android/react/lottie/LottieAnimationViewPropertyManager.kt:22:8 'class ReactFontManager : Any' is deprecated. This class is deprecated and will be deleted in the near future. Please use [com.facebook.react.common.assets.ReactFontManager] instead.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/lottie-react-native/android/src/main/java/com/airbnb/android/react/lottie/LottieAnimationViewPropertyManager.kt:76:24 'class ReactFontManager : Any' is deprecated. This class is deprecated and will be deleted in the near future. Please use [com.facebook.react.common.assets.ReactFontManager] instead.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/lottie-react-native/android/src/main/java/com/airbnb/android/react/lottie/LottieAnimationViewPropertyManager.kt:90:24 'class ReactFontManager : Any' is deprecated. This class is deprecated and will be deleted in the near future. Please use [com.facebook.react.common.assets.ReactFontManager] instead.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/lottie-react-native/android/src/main/java/com/airbnb/android/react/lottie/LottiePackage.kt:11:18 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/lottie-react-native/android/src/newarch/com/airbnb/android/react/lottie/LottieAnimationViewManager.kt:107:18 'fun receiveCommand(view: LottieAnimationView, commandName: String, args: ReadableArray?): Unit' is deprecated. args is not nullable, please update your method signature.
+
+> Task :react-native-permissions:compileReleaseKotlin
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-permissions/android/src/main/java/com/zoontek/rnpermissions/RNPermissionsPackage.kt:3:8 'class TurboReactPackage : BaseReactPackage' is deprecated. Use BaseReactPackage instead.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-permissions/android/src/main/java/com/zoontek/rnpermissions/RNPermissionsPackage.kt:9:30 'class TurboReactPackage : BaseReactPackage' is deprecated. Use BaseReactPackage instead.
+
+> Task :react-native-safe-area-context:compileReleaseKotlin
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-safe-area-context/android/src/main/java/com/th3rdwave/safeareacontext/SafeAreaProviderManager.kt:39:19 'fun getEventDispatcherForReactTag(context: ReactContext, reactTag: Int): EventDispatcher?' is deprecated. reactTag is no longer needed.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-safe-area-context/android/src/main/java/com/th3rdwave/safeareacontext/SafeAreaView.kt:8:8 'class UIManagerModule : ReactContextBaseJavaModule, LifecycleEventListener, UIManager' is deprecated. Deprecated in Java.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-safe-area-context/android/src/main/java/com/th3rdwave/safeareacontext/SafeAreaView.kt:45:54 'class UIManagerModule : ReactContextBaseJavaModule, LifecycleEventListener, UIManager' is deprecated. Deprecated in Java.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-safe-area-context/android/src/main/java/com/th3rdwave/safeareacontext/SafeAreaViewShadowNode.kt:9:32 'class LayoutShadowNode : ReactShadowNodeImpl' is deprecated. This class is part of Legacy Architecture and will be removed in a future release.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-safe-area-context/android/src/main/java/com/th3rdwave/safeareacontext/SafeAreaViewShadowNode.kt:110:61 'class NativeViewHierarchyOptimizer : Any' is deprecated. This class is part of Legacy Architecture and will be removed in a future release.
+
+> Task :react-native-async-storage_async-storage:compileReleaseJavaWithJavac
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+Note: O:\PROJECTS\CONNIFY-APP\Connify\node_modules\@react-native-async-storage\async-storage\android\src\javaPackage\java\com\reactnativecommunity\asyncstorage\AsyncStoragePackage.java uses unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+
+> Task :react-native-firebase_app:compileReleaseJavaWithJavac
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :react-native-firebase_auth:compileReleaseJavaWithJavac
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+Note: O:\PROJECTS\CONNIFY-APP\Connify\node_modules\@react-native-firebase\auth\android\src\main\java\io\invertase\firebase\auth\ReactNativeFirebaseAuthModule.java uses unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+
+> Task :react-native-reanimated:compileReleaseKotlin
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-reanimated/android/src/main/java/com/swmansion/reanimated/NodesManager.kt:13:8 'class UIManagerModule : ReactContextBaseJavaModule, LifecycleEventListener, UIManager' is deprecated. Deprecated in Java.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-reanimated/android/src/main/java/com/swmansion/reanimated/NodesManager.kt:58:95 'fun resolveCustomDirectEventName(eventName: String): String?' is deprecated.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-reanimated/android/src/main/java/com/swmansion/reanimated/NodesManager.kt:234:29 'fun receiveEvent(surfaceId: Int, targetTag: Int, eventName: String, canCoalesceEvent: Boolean, customCoalesceKey: Int, params: WritableMap?, category: Int): Unit' is deprecated. Use the overload with eventTimestamp parameter instead.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-reanimated/android/src/main/java/com/swmansion/reanimated/ReanimatedPackage.kt:5:8 'class ReactInstanceManager : Any' is deprecated. Deprecated in Java.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-reanimated/android/src/main/java/com/swmansion/reanimated/ReanimatedPackage.kt:60:73 'class ReactInstanceManager : Any' is deprecated. Deprecated in Java.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-reanimated/android/src/main/java/com/swmansion/reanimated/ReanimatedPackage.kt:61:63 'val reactNativeHost: ReactNativeHost' is deprecated. You should not use ReactNativeHost directly in the New Architecture. Use ReactHost instead.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-reanimated/android/src/main/java/com/swmansion/reanimated/nativeProxy/EventHandler.kt:7:8 'class UIManagerModule : ReactContextBaseJavaModule, LifecycleEventListener, UIManager' is deprecated. Deprecated in Java.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-reanimated/android/src/main/java/com/swmansion/reanimated/nativeProxy/EventHandler.kt:25:18 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-reanimated/android/src/main/java/com/swmansion/reanimated/nativeProxy/EventHandler.kt:38:18 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-reanimated/android/src/main/java/com/swmansion/reanimated/nativeProxy/EventHandler.kt:48:18 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-reanimated/android/src/main/java/com/swmansion/reanimated/nativeProxy/EventHandler.kt:57:18 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-reanimated/android/src/main/java/com/swmansion/reanimated/nativeProxy/NoopEventHandler.kt:8:18 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-reanimated/android/src/main/java/com/swmansion/reanimated/nativeProxy/NoopEventHandler.kt:20:18 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-reanimated/android/src/main/java/com/swmansion/reanimated/nativeProxy/NoopEventHandler.kt:29:18 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-reanimated/android/src/main/java/com/swmansion/reanimated/nativeProxy/NoopEventHandler.kt:37:18 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-reanimated/android/src/main/java/com/swmansion/reanimated/sensor/ReanimatedSensor.kt:28:26 'val defaultDisplay: Display!' is deprecated. Deprecated in Java.
+
+> Task :react-native-device-info:compileReleaseJavaWithJavac
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :react-native-geolocation-service:compileReleaseJavaWithJavac
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :react-native-image-picker:compileReleaseJavaWithJavac
+Note: O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-image-picker\android\src\main\java\com\imagepicker\ImagePickerPackage.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :react-native-vector-icons:compileReleaseJavaWithJavac
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :react-native-gesture-handler:compileReleaseKotlin
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-gesture-handler/android/src/main/java/com/swmansion/gesturehandler/react/Extensions.kt:8:8 'class UIManagerModule : ReactContextBaseJavaModule, LifecycleEventListener, UIManager' is deprecated. Deprecated in Java.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-gesture-handler/android/src/main/java/com/swmansion/gesturehandler/react/Extensions.kt:13:29 'class UIManagerModule : ReactContextBaseJavaModule, LifecycleEventListener, UIManager' is deprecated. Deprecated in Java.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-gesture-handler/android/src/main/java/com/swmansion/gesturehandler/react/Extensions.kt:14:32 'class UIManagerModule : ReactContextBaseJavaModule, LifecycleEventListener, UIManager' is deprecated. Deprecated in Java.
+
+> Task :app:createBundleReleaseJsAndAssets
+
+                        ▒▒▓▓▓▓▒▒
+                     ▒▓▓▓▒▒░░▒▒▓▓▓▒
+                  ▒▓▓▓▓░░░▒▒▒▒░░░▓▓▓▓▒
+                 ▓▓▒▒▒▓▓▓▓▓▓▓▓▓▓▓▓▒▒▒▓▓
+                 ▓▓░░░░░▒▓▓▓▓▓▓▒░░░░░▓▓
+                 ▓▓░░▓▓▒░░░▒▒░░░▒▓▒░░▓▓
+                 ▓▓░░▓▓▓▓▓▒▒▒▒▓▓▓▓▒░░▓▓
+                 ▓▓░░▓▓▓▓▓▓▓▓▓▓▓▓▓▒░░▓▓
+                 ▓▓▒░░▒▒▓▓▓▓▓▓▓▓▒░░░▒▓▓
+                  ▒▓▓▓▒░░░▒▓▓▒░░░▒▓▓▓▒
+                     ▒▓▓▓▒░░░░▒▓▓▓▒
+                        ▒▒▓▓▓▓▒▒
+
+
+ WARN  the transform cache was reset.
+                Welcome to Metro v0.84.4
+              Fast - Scalable - Integrated
+
+
+
+> Task :react-native-screens:compileReleaseKotlin
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/RNScreensPackage.kt:70:9 The corresponding parameter in the supertype 'BaseReactPackage' is named 'name'. This may cause problems when calling this function with named arguments.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/RNScreensPackage.kt:71:9 The corresponding parameter in the supertype 'BaseReactPackage' is named 'reactContext'. This may cause problems when calling this function with named arguments.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/RNScreensPackage.kt:83:17 'constructor(name: String, className: String, canOverrideExistingModule: Boolean, needsEagerInit: Boolean, hasConstants: Boolean, isCxxModule: Boolean, isTurboModule: Boolean): ReactModuleInfo' is deprecated. This constructor is deprecated and will be removed in the future. Use ReactModuleInfo(String, String, boolean, boolean, boolean, boolean)].
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/Screen.kt:54:77 Unchecked cast of '(CoordinatorLayout.Behavior<View!>?..CoordinatorLayout.Behavior<*>?)' to 'BottomSheetBehavior<Screen>'.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/Screen.kt:59:33 'fun getEventDispatcherForReactTag(context: ReactContext, reactTag: Int): EventDispatcher?' is deprecated. reactTag is no longer needed.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/Screen.kt:516:14 'fun getEventDispatcherForReactTag(context: ReactContext, reactTag: Int): EventDispatcher?' is deprecated. reactTag is no longer needed.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenContainer.kt:250:18 'fun getEventDispatcherForReactTag(context: ReactContext, reactTag: Int): EventDispatcher?' is deprecated. reactTag is no longer needed.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenContainer.kt:260:18 'fun getEventDispatcherForReactTag(context: ReactContext, reactTag: Int): EventDispatcher?' is deprecated. reactTag is no longer needed.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenFragment.kt:225:37 'fun getEventDispatcherForReactTag(context: ReactContext, reactTag: Int): EventDispatcher?' is deprecated. reactTag is no longer needed.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenFragment.kt:242:14 'fun getEventDispatcherForReactTag(context: ReactContext, reactTag: Int): EventDispatcher?' is deprecated. reactTag is no longer needed.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenFragment.kt:258:22 'fun getEventDispatcherForReactTag(context: ReactContext, reactTag: Int): EventDispatcher?' is deprecated. reactTag is no longer needed.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenFragment.kt:327:22 'fun getEventDispatcherForReactTag(context: ReactContext, reactTag: Int): EventDispatcher?' is deprecated. reactTag is no longer needed.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenModalFragment.kt:180:22 'fun getEventDispatcherForReactTag(context: ReactContext, reactTag: Int): EventDispatcher?' is deprecated. reactTag is no longer needed.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenStack.kt:120:14 'fun getEventDispatcherForReactTag(context: ReactContext, reactTag: Int): EventDispatcher?' is deprecated. reactTag is no longer needed.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenStackFragment.kt:173:18 'fun getEventDispatcherForReactTag(context: ReactContext, reactTag: Int): EventDispatcher?' is deprecated. reactTag is no longer needed.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenStackFragment.kt:230:31 'var targetElevation: Float' is deprecated. Deprecated in Java.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenStackFragment.kt:233:13 'fun setHasOptionsMenu(p0: Boolean): Unit' is deprecated. Deprecated in Java.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenStackFragment.kt:443:18 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenStackFragment.kt:450:22 'fun onPrepareOptionsMenu(p0: Menu): Unit' is deprecated. Deprecated in Java.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenStackFragment.kt:453:18 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenStackFragment.kt:458:22 'fun onCreateOptionsMenu(p0: Menu, p1: MenuInflater): Unit' is deprecated. Deprecated in Java.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenStackHeaderConfig.kt:199:14 'fun getEventDispatcherForReactTag(context: ReactContext, reactTag: Int): EventDispatcher?' is deprecated. reactTag is no longer needed.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenStackHeaderConfig.kt:209:14 'fun getEventDispatcherForReactTag(context: ReactContext, reactTag: Int): EventDispatcher?' is deprecated. reactTag is no longer needed.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenWindowTraits.kt:48:42 'fun replaceSystemWindowInsets(p0: Int, p1: Int, p2: Int, p3: Int): @NonNull() WindowInsetsCompat' is deprecated. Deprecated in Java.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenWindowTraits.kt:49:39 'val systemWindowInsetLeft: Int' is deprecated. Deprecated in Java.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenWindowTraits.kt:51:39 'val systemWindowInsetRight: Int' is deprecated. Deprecated in Java.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenWindowTraits.kt:52:39 'val systemWindowInsetBottom: Int' is deprecated. Deprecated in Java.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreensModule.kt:100:14 'fun getEventDispatcherForReactTag(context: ReactContext, reactTag: Int): EventDispatcher?' is deprecated. reactTag is no longer needed.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/SearchBarView.kt:137:29 'fun getEventDispatcherForReactTag(context: ReactContext, reactTag: Int): EventDispatcher?' is deprecated. reactTag is no longer needed.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/bottomsheet/BottomSheetDialogRootView.kt:7:8 'object ReactFeatureFlags : Any' is deprecated. Use com.facebook.react.internal.featureflags.ReactNativeFeatureFlags instead.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/bottomsheet/BottomSheetDialogRootView.kt:25:13 'object ReactFeatureFlags : Any' is deprecated. Use com.facebook.react.internal.featureflags.ReactNativeFeatureFlags instead.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/bottomsheet/BottomSheetDialogRootView.kt:32:9 The corresponding parameter in the supertype 'ReactViewGroup' is named 'left'. This may cause problems when calling this function with named arguments.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/bottomsheet/BottomSheetDialogRootView.kt:33:9 The corresponding parameter in the supertype 'ReactViewGroup' is named 'top'. This may cause problems when calling this function with named arguments.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/bottomsheet/BottomSheetDialogRootView.kt:34:9 The corresponding parameter in the supertype 'ReactViewGroup' is named 'right'. This may cause problems when calling this function with named arguments.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/bottomsheet/BottomSheetDialogRootView.kt:35:9 The corresponding parameter in the supertype 'ReactViewGroup' is named 'bottom'. This may cause problems when calling this function with named arguments.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/bottomsheet/BottomSheetDialogRootView.kt:71:9 The corresponding parameter in the supertype 'RootView' is named 'childView'. This may cause problems when calling this function with named arguments.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/bottomsheet/BottomSheetDialogRootView.kt:72:9 The corresponding parameter in the supertype 'RootView' is named 'ev'. This may cause problems when calling this function with named arguments.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/bottomsheet/BottomSheetDialogRootView.kt:79:46 The corresponding parameter in the supertype 'RootView' is named 'ev'. This may cause problems when calling this function with named arguments.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/bottomsheet/BottomSheetDialogRootView.kt:83:9 The corresponding parameter in the supertype 'RootView' is named 'childView'. This may cause problems when calling this function with named arguments.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/bottomsheet/BottomSheetDialogRootView.kt:84:9 The corresponding parameter in the supertype 'RootView' is named 'ev'. This may cause problems when calling this function with named arguments.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/bottomsheet/BottomSheetDialogRootView.kt:95:34 The corresponding parameter in the supertype 'RootView' is named 't'. This may cause problems when calling this function with named arguments.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/bottomsheet/DimmingView.kt:64:9 The corresponding parameter in the supertype 'ReactCompoundView' is named 'touchX'. This may cause problems when calling this function with named arguments.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/bottomsheet/DimmingView.kt:65:9 The corresponding parameter in the supertype 'ReactCompoundView' is named 'touchY'. This may cause problems when calling this function with named arguments.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/bottomsheet/DimmingView.kt:69:9 The corresponding parameter in the supertype 'ReactCompoundViewGroup' is named 'touchX'. This may cause problems when calling this function with named arguments.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/bottomsheet/DimmingView.kt:70:9 The corresponding parameter in the supertype 'ReactCompoundViewGroup' is named 'touchY'. This may cause problems when calling this function with named arguments.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/gamma/common/event/BaseEventEmitter.kt:12:38 'fun getEventDispatcherForReactTag(context: ReactContext, reactTag: Int): EventDispatcher?' is deprecated. reactTag is no longer needed.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/gamma/modals/dimmingview/DimmingView.kt:64:9 The corresponding parameter in the supertype 'ReactCompoundView' is named 'touchX'. This may cause problems when calling this function with named arguments.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/gamma/modals/dimmingview/DimmingView.kt:65:9 The corresponding parameter in the supertype 'ReactCompoundView' is named 'touchY'. This may cause problems when calling this function with named arguments.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/gamma/modals/dimmingview/DimmingView.kt:69:9 The corresponding parameter in the supertype 'ReactCompoundViewGroup' is named 'touchX'. This may cause problems when calling this function with named arguments.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/gamma/modals/dimmingview/DimmingView.kt:70:9 The corresponding parameter in the supertype 'ReactCompoundViewGroup' is named 'touchY'. This may cause problems when calling this function with named arguments.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/gamma/modals/formsheet/FormSheetContentView.kt:11:8 'object ReactFeatureFlags : Any' is deprecated. Use com.facebook.react.internal.featureflags.ReactNativeFeatureFlags instead.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/gamma/modals/formsheet/FormSheetContentView.kt:39:33 'fun getEventDispatcher(context: ReactContext, uiManagerType: Int): EventDispatcher?' is deprecated. UIManagerType is no longer needed.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/gamma/modals/formsheet/FormSheetContentView.kt:44:13 'object ReactFeatureFlags : Any' is deprecated. Use com.facebook.react.internal.featureflags.ReactNativeFeatureFlags instead.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/gamma/modals/formsheet/FormSheetHostViewManager.kt:38:9 The corresponding parameter in the supertype 'FormSheetHostViewManager' is named 'view'. This may cause problems when calling this function with named arguments.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/gamma/tabs/host/TabsHostViewManager.kt:44:9 The corresponding parameter in the supertype 'TabsHostViewManager' is named 'view'. This may cause problems when calling this function with named arguments.
+w: file:///O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/safearea/SafeAreaView.kt:143:45 'fun consumeDisplayCutout(): @NonNull() WindowInsetsCompat' is deprecated. Deprecated in Java.
+
+> Task :app:createBundleReleaseJsAndAssets
+LOG:Writing bundle output to: android\app\build\generated\assets\react\release\index.android.bundle
+LOG:Writing sourcemap output to: android\app\build\intermediates\sourcemaps\react\release\index.android.bundle.packager.map
+LOG:Done writing bundle output
+LOG:Done writing sourcemap output
+Copying 19 asset files
+Done copying assets
+
+> Task :react-native-async-storage_async-storage:processReleaseManifest
+package="com.reactnativecommunity.asyncstorage" found in source AndroidManifest.xml: O:\PROJECTS\CONNIFY-APP\Connify\node_modules\@react-native-async-storage\async-storage\android\src\main\AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="com.reactnativecommunity.asyncstorage" from the source AndroidManifest.xml: O:\PROJECTS\CONNIFY-APP\Connify\node_modules\@react-native-async-storage\async-storage\android\src\main\AndroidManifest.xml.
+
+> Task :react-native-device-info:processReleaseManifest
+package="com.learnium.RNDeviceInfo" found in source AndroidManifest.xml: O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-device-info\android\src\main\AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="com.learnium.RNDeviceInfo" from the source AndroidManifest.xml: O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-device-info\android\src\main\AndroidManifest.xml.
+
+> Task :react-native-firebase_app:processReleaseManifest
+package="io.invertase.firebase" found in source AndroidManifest.xml: O:\PROJECTS\CONNIFY-APP\Connify\node_modules\@react-native-firebase\app\android\src\main\AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="io.invertase.firebase" from the source AndroidManifest.xml: O:\PROJECTS\CONNIFY-APP\Connify\node_modules\@react-native-firebase\app\android\src\main\AndroidManifest.xml.
+
+> Task :react-native-firebase_auth:processReleaseManifest
+package="io.invertase.firebase.auth" found in source AndroidManifest.xml: O:\PROJECTS\CONNIFY-APP\Connify\node_modules\@react-native-firebase\auth\android\src\main\AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="io.invertase.firebase.auth" from the source AndroidManifest.xml: O:\PROJECTS\CONNIFY-APP\Connify\node_modules\@react-native-firebase\auth\android\src\main\AndroidManifest.xml.
+
+> Task :react-native-geolocation-service:processReleaseManifest
+package="com.agontuk.RNFusedLocation" found in source AndroidManifest.xml: O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-geolocation-service\android\src\main\AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="com.agontuk.RNFusedLocation" from the source AndroidManifest.xml: O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-geolocation-service\android\src\main\AndroidManifest.xml.
+
+> Task :react-native-image-picker:processReleaseManifest
+package="com.imagepicker" found in source AndroidManifest.xml: O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-image-picker\android\src\main\AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="com.imagepicker" from the source AndroidManifest.xml: O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-image-picker\android\src\main\AndroidManifest.xml.
+
+> Task :react-native-safe-area-context:processReleaseManifest
+package="com.th3rdwave.safeareacontext" found in source AndroidManifest.xml: O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-safe-area-context\android\src\main\AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="com.th3rdwave.safeareacontext" from the source AndroidManifest.xml: O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-safe-area-context\android\src\main\AndroidManifest.xml.
+
+> Task :react-native-vector-icons:processReleaseManifest
+package="com.oblador.vectoricons" found in source AndroidManifest.xml: O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-vector-icons\android\src\main\AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="com.oblador.vectoricons" from the source AndroidManifest.xml: O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-vector-icons\android\src\main\AndroidManifest.xml.
+
+> Task :app:mergeExtDexRelease
+WARNING: C:\Users\godfr\.gradle\caches\8.13\transforms\ce7c541413703a615ce3ac956c581ef9\transformed\play-services-auth-21.5.0-runtime.jar: D8: Invalid stack map table at instruction index 2: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from com.google.android.gms.auth.api.identity.zbd, but was java.lang.Object.<init>().
+WARNING: C:\Users\godfr\.gradle\caches\8.13\transforms\ce7c541413703a615ce3ac956c581ef9\transformed\play-services-auth-21.5.0-runtime.jar: D8: Invalid stack map table at instruction index 2: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from com.google.android.gms.auth.api.identity.zbo, but was java.lang.Object.<init>().
+WARNING: C:\Users\godfr\.gradle\caches\8.13\transforms\ce7c541413703a615ce3ac956c581ef9\transformed\play-services-auth-21.5.0-runtime.jar: D8: Invalid stack map table at instruction index 2: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from com.google.android.gms.auth.api.signin.zbb, but was java.lang.Object.<init>().
+WARNING: C:\Users\godfr\.gradle\caches\8.13\transforms\ce7c541413703a615ce3ac956c581ef9\transformed\play-services-auth-21.5.0-runtime.jar: D8: Invalid stack map table at instruction index 7: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from com.google.android.gms.auth.api.identity.zbv, but was java.lang.Object.<init>().
+WARNING: C:\Users\godfr\.gradle\caches\8.13\transforms\ce7c541413703a615ce3ac956c581ef9\transformed\play-services-auth-21.5.0-runtime.jar: D8: Invalid stack map table at instruction index 7: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from com.google.android.gms.auth.api.identity.zbv, but was java.lang.Object.<init>().
+WARNING: C:\Users\godfr\.gradle\caches\8.13\transforms\ce7c541413703a615ce3ac956c581ef9\transformed\play-services-auth-21.5.0-runtime.jar: D8: Invalid stack map table at instruction index 7: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from com.google.android.gms.auth.api.identity.zbi, but was java.lang.Object.<init>().
+WARNING: C:\Users\godfr\.gradle\caches\8.13\transforms\ce7c541413703a615ce3ac956c581ef9\transformed\play-services-auth-21.5.0-runtime.jar: D8: Invalid stack map table at instruction index 7: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from com.google.android.gms.auth.api.identity.zbi, but was java.lang.Object.<init>().
+WARNING: C:\Users\godfr\.gradle\caches\8.13\transforms\ce7c541413703a615ce3ac956c581ef9\transformed\play-services-auth-21.5.0-runtime.jar: D8: Invalid stack map table at instruction index 2: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from com.google.android.gms.auth.api.identity.zbp, but was java.lang.Object.<init>().
+WARNING: C:\Users\godfr\.gradle\caches\8.13\transforms\ce7c541413703a615ce3ac956c581ef9\transformed\play-services-auth-21.5.0-runtime.jar: D8: Invalid stack map table at instruction index 2: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from com.google.android.gms.auth.api.identity.zbs, but was java.lang.Object.<init>().
+WARNING: C:\Users\godfr\.gradle\caches\8.13\transforms\ce7c541413703a615ce3ac956c581ef9\transformed\play-services-auth-21.5.0-runtime.jar: D8: Invalid stack map table at instruction index 10: invokespecial Lcom/google/android/gms/common/api/Api$AbstractClientBuilder;<init>()V, error: Constructor mismatch, expected constructor from com.google.android.gms.auth.api.zba, but was com.google.android.gms.common.api.Api$AbstractClientBuilder.<init>().
+WARNING: C:\Users\godfr\.gradle\caches\8.13\transforms\ce7c541413703a615ce3ac956c581ef9\transformed\play-services-auth-21.5.0-runtime.jar: D8: Invalid stack map table at instruction index 2: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from com.google.android.gms.auth.api.identity.zbl, but was java.lang.Object.<init>().
+WARNING: C:\Users\godfr\.gradle\caches\8.13\transforms\ce7c541413703a615ce3ac956c581ef9\transformed\play-services-auth-21.5.0-runtime.jar: D8: Invalid stack map table at instruction index 2: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from com.google.android.gms.auth.api.identity.zbn, but was java.lang.Object.<init>().
+WARNING: C:\Users\godfr\.gradle\caches\8.13\transforms\ce7c541413703a615ce3ac956c581ef9\transformed\play-services-auth-21.5.0-runtime.jar: D8: Invalid stack map table at instruction index 2: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from com.google.android.gms.auth.api.identity.zbu, but was java.lang.Object.<init>().
+WARNING: C:\Users\godfr\.gradle\caches\8.13\transforms\ce7c541413703a615ce3ac956c581ef9\transformed\play-services-auth-21.5.0-runtime.jar: D8: Invalid stack map table at instruction index 2: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from com.google.android.gms.auth.api.identity.zbq, but was java.lang.Object.<init>().
+WARNING: C:\Users\godfr\.gradle\caches\8.13\transforms\ce7c541413703a615ce3ac956c581ef9\transformed\play-services-auth-21.5.0-runtime.jar: D8: Invalid stack map table at instruction index 6: invokespecial Lcom/google/android/gms/common/api/Api$AbstractClientBuilder;<init>()V, error: Constructor mismatch, expected constructor from com.google.android.gms.internal.auth-api.zbae, but was com.google.android.gms.common.api.Api$AbstractClientBuilder.<init>().
+WARNING: C:\Users\godfr\.gradle\caches\8.13\transforms\ce7c541413703a615ce3ac956c581ef9\transformed\play-services-auth-21.5.0-runtime.jar: D8: Invalid stack map table at instruction index 2: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from com.google.android.gms.auth.api.identity.zbh, but was java.lang.Object.<init>().
+WARNING: C:\Users\godfr\.gradle\caches\8.13\transforms\ce7c541413703a615ce3ac956c581ef9\transformed\play-services-auth-21.5.0-runtime.jar: D8: Invalid stack map table at instruction index 2: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from com.google.android.gms.auth.api.identity.zbg, but was java.lang.Object.<init>().
+WARNING: C:\Users\godfr\.gradle\caches\8.13\transforms\ce7c541413703a615ce3ac956c581ef9\transformed\play-services-auth-21.5.0-runtime.jar: D8: Invalid stack map table at instruction index 2: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from com.google.android.gms.auth.api.identity.zbm, but was java.lang.Object.<init>().
+WARNING: C:\Users\godfr\.gradle\caches\8.13\transforms\ce7c541413703a615ce3ac956c581ef9\transformed\play-services-auth-21.5.0-runtime.jar: D8: Invalid stack map table at instruction index 2: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from com.google.android.gms.auth.api.identity.zbk, but was java.lang.Object.<init>().
+WARNING: C:\Users\godfr\.gradle\caches\8.13\transforms\ce7c541413703a615ce3ac956c581ef9\transformed\play-services-auth-21.5.0-runtime.jar: D8: Invalid stack map table at instruction index 17: invokespecial Lcom/google/android/gms/auth/api/signin/internal/zbl;<init>(Lcom/google/android/gms/common/api/GoogleApiClient;)V, error: Constructor mismatch, expected constructor from com.google.android.gms.auth.api.signin.internal.zbi, but was com.google.android.gms.auth.api.signin.internal.zbl.<init>(com.google.android.gms.common.api.GoogleApiClient).
+WARNING: C:\Users\godfr\.gradle\caches\8.13\transforms\ce7c541413703a615ce3ac956c581ef9\transformed\play-services-auth-21.5.0-runtime.jar: D8: Invalid stack map table at instruction index 20: invokespecial Lcom/google/android/gms/auth/api/signin/internal/zbl;<init>(Lcom/google/android/gms/common/api/GoogleApiClient;)V, error: Constructor mismatch, expected constructor from com.google.android.gms.auth.api.signin.internal.zbk, but was com.google.android.gms.auth.api.signin.internal.zbl.<init>(com.google.android.gms.common.api.GoogleApiClient).
+WARNING: C:\Users\godfr\.gradle\caches\8.13\transforms\ce7c541413703a615ce3ac956c581ef9\transformed\play-services-auth-21.5.0-runtime.jar: D8: Invalid stack map table at instruction index 2: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from com.google.android.gms.auth.api.identity.zbw, but was java.lang.Object.<init>().
+WARNING: C:\Users\godfr\.gradle\caches\8.13\transforms\ce7c541413703a615ce3ac956c581ef9\transformed\play-services-auth-21.5.0-runtime.jar: D8: Invalid stack map table at instruction index 2: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from com.google.android.gms.auth.api.identity.zbc, but was java.lang.Object.<init>().
+WARNING: C:\Users\godfr\.gradle\caches\8.13\transforms\ce7c541413703a615ce3ac956c581ef9\transformed\play-services-auth-21.5.0-runtime.jar: D8: Invalid stack map table at instruction index 2: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from com.google.android.gms.auth.api.identity.zbe, but was java.lang.Object.<init>().
+WARNING: C:\Users\godfr\.gradle\caches\8.13\transforms\ce7c541413703a615ce3ac956c581ef9\transformed\play-services-auth-21.5.0-runtime.jar: D8: Invalid stack map table at instruction index 2: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from com.google.android.gms.auth.api.identity.zbj, but was java.lang.Object.<init>().
+WARNING: C:\Users\godfr\.gradle\caches\8.13\transforms\ce7c541413703a615ce3ac956c581ef9\transformed\play-services-auth-21.5.0-runtime.jar: D8: Invalid stack map table at instruction index 2: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from com.google.android.gms.auth.api.identity.zbr, but was java.lang.Object.<init>().
+WARNING: C:\Users\godfr\.gradle\caches\8.13\transforms\ce7c541413703a615ce3ac956c581ef9\transformed\play-services-auth-21.5.0-runtime.jar: D8: Invalid stack map table at instruction index 2: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from com.google.android.gms.internal.auth-api.zbay, but was java.lang.Object.<init>().
+WARNING: C:\Users\godfr\.gradle\caches\8.13\transforms\ce7c541413703a615ce3ac956c581ef9\transformed\play-services-auth-21.5.0-runtime.jar: D8: Invalid stack map table at instruction index 6: invokespecial Lcom/google/android/gms/common/api/Api$AbstractClientBuilder;<init>()V, error: Constructor mismatch, expected constructor from com.google.android.gms.internal.auth-api.zbak, but was com.google.android.gms.common.api.Api$AbstractClientBuilder.<init>().
+WARNING: C:\Users\godfr\.gradle\caches\8.13\transforms\ce7c541413703a615ce3ac956c581ef9\transformed\play-services-auth-21.5.0-runtime.jar: D8: Invalid stack map table at instruction index 2: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from com.google.android.gms.auth.api.identity.zbt, but was java.lang.Object.<init>().
+WARNING: C:\Users\godfr\.gradle\caches\8.13\transforms\ce7c541413703a615ce3ac956c581ef9\transformed\play-services-auth-21.5.0-runtime.jar: D8: Invalid stack map table at instruction index 2: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from com.google.android.gms.auth.api.signin.internal.zbu, but was java.lang.Object.<init>().
+WARNING: C:\Users\godfr\.gradle\caches\8.13\transforms\ce7c541413703a615ce3ac956c581ef9\transformed\play-services-auth-21.5.0-runtime.jar: D8: Invalid stack map table at instruction index 2: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from com.google.android.gms.auth.api.identity.zbb, but was java.lang.Object.<init>().
+WARNING: C:\Users\godfr\.gradle\caches\8.13\transforms\ce7c541413703a615ce3ac956c581ef9\transformed\play-services-auth-21.5.0-runtime.jar: D8: Invalid stack map table at instruction index 6: invokespecial Lcom/google/android/gms/common/api/Api$AbstractClientBuilder;<init>()V, error: Constructor mismatch, expected constructor from com.google.android.gms.internal.auth-api.zbw, but was com.google.android.gms.common.api.Api$AbstractClientBuilder.<init>().
+The Daemon will expire after the build after running out of JVM Metaspace.
+The project memory settings are likely not configured or are configured to an insufficient value.
+The daemon will restart for the next build, which may increase subsequent build times.
+These settings can be adjusted by setting 'org.gradle.jvmargs' in 'gradle.properties'.
+The currently configured max heap space is '2 GiB' and the configured max metaspace is '512 MiB'.
+For more information on how to set these values, please refer to https://docs.gradle.org/8.13/userguide/build_environment.html#sec:configuring_jvm_memory in the Gradle documentation.
+To disable this warning, set 'org.gradle.daemon.performance.disable-logging=true'.
+Daemon will be stopped at the end of the build after running out of JVM Metaspace
+
+[Incubating] Problems report is available at: file:///O:/PROJECTS/CONNIFY-APP/Connify/android/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.13/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 36m 20s
+829 actionable tasks: 787 executed, 42 up-to-date
+PS O:\PROJECTS\CONNIFY-APP\Connify\android> 

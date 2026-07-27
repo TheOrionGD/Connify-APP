@@ -69,6 +69,7 @@ export const DeviceController = {
       });
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Unknown error';
+      console.error('❌ Device registration error:', err);
       reply.status(500).send({
         success: false,
         error: { code: 'REGISTRATION_FAILED', message },
