@@ -1,4 +1,4 @@
-import type { FastifyInstance } from 'fastify';
+import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 import { ProfileController } from '../controllers/ProfileController';
 import { authenticate } from '../middleware/authenticate';
@@ -22,13 +22,13 @@ export async function profileRoutes(app: FastifyInstance): Promise<void> {
   app.post(
     '/',
     { preHandler: authenticate },
-    async (req: any, reply) => {
+    async (req: FastifyRequest, reply) => {
       const parsed = upsertProfileSchema.safeParse(req.body);
       if (!parsed.success) {
         return validationError(reply, parsed.error.issues[0]?.message ?? 'Invalid body');
       }
       
-      const deviceId = req.device?.id;
+      const deviceId = req.devicePayload?.sub;
       if (!deviceId) {
         return reply.status(401).send({
           success: false,
