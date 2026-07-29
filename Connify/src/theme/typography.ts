@@ -1,6 +1,6 @@
 /**
  * Typographic system definitions for Connify
- * Spec sourced from App UI/safety_core/DESIGN.md
+ * Spec sourced from App UI/safety_core/DESIGN.md & UI/UX Pro Max system
  */
 
 export const fontFamilies = {
@@ -26,11 +26,17 @@ export const fontFamilies = {
 } as const;
 
 export const typography = {
+  hero: {
+    fontFamily: fontFamilies.primary.bold,
+    fontSize: 36,
+    lineHeight: 44,
+    letterSpacing: -0.8,
+  },
   headlineLg: {
     fontFamily: fontFamilies.primary.bold,
     fontSize: 32,
     lineHeight: 40,
-    letterSpacing: -0.64, // 32 * -0.02
+    letterSpacing: -0.64,
   },
   headlineMd: {
     fontFamily: fontFamilies.primary.bold,
@@ -52,11 +58,28 @@ export const typography = {
     fontSize: 16,
     lineHeight: 24,
   },
+  bodySm: {
+    fontFamily: fontFamilies.secondary.regular,
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  labelLg: {
+    fontFamily: fontFamilies.technical.bold,
+    fontSize: 16,
+    lineHeight: 22,
+    letterSpacing: 0.5,
+  },
   labelMd: {
     fontFamily: fontFamilies.technical.medium,
     fontSize: 14,
     lineHeight: 20,
-    letterSpacing: 0.7, // 14 * 0.05
+    letterSpacing: 0.7,
+  },
+  labelSm: {
+    fontFamily: fontFamilies.technical.medium,
+    fontSize: 12,
+    lineHeight: 16,
+    letterSpacing: 0.8,
   },
   headlineLgMobile: {
     fontFamily: fontFamilies.primary.bold,

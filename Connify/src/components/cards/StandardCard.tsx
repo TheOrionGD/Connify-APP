@@ -21,10 +21,16 @@ export const StandardCard: React.FC<StandardCardProps> = ({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: theme.colors.surfaceContainerLowest, // white
-    borderWidth: theme.spacing.borderWidthLight,
-    borderColor: theme.colors.onBackground, // deep black outline
-    borderRadius: theme.spacing.radiusMd, // 12px
-    padding: theme.spacing.containerPadding, // 20px
+    backgroundColor: theme.colors.cardBackground, // #0E1320 elevated dark
+    borderWidth: 1,
+    borderColor: theme.colors.cardBorder, // rgba(255, 255, 255, 0.08)
+    borderTopColor: 'rgba(255, 255, 255, 0.15)', // subtle top-edge highlight
+    borderRadius: theme.spacing.radiusLg, // 16px
+    padding: theme.spacing.cardPadding, // 16px
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
   },
 });

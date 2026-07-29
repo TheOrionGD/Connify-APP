@@ -19,34 +19,59 @@ export const SOSButton: React.FC<SOSButtonProps> = ({
 }) => {
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const progressAnim = useRef(new Animated.Value(0)).current;
-  const pulseAnim = useRef(new Animated.Value(0)).current;
+  const pulseAnim1 = useRef(new Animated.Value(0)).current;
+  const pulseAnim2 = useRef(new Animated.Value(0)).current;
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Pulse animation loop
+  // Concentric Pulse Animation Loop
   useEffect(() => {
-    const pulse = Animated.loop(
+    const pulse1 = Animated.loop(
       Animated.sequence([
-        Animated.timing(pulseAnim, {
+        Animated.timing(pulseAnim1, {
           toValue: 1,
-          duration: 1500,
+          duration: 1800,
           useNativeDriver: false,
         }),
-        Animated.timing(pulseAnim, {
+        Animated.timing(pulseAnim1, {
           toValue: 0,
-          duration: 1500,
+          duration: 1800,
           useNativeDriver: false,
         }),
       ])
     );
-    pulse.start();
-    return () => pulse.stop();
-  }, [pulseAnim]);
+
+    const pulse2 = Animated.sequence([
+      Animated.delay(600),
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulseAnim2, {
+            toValue: 1,
+            duration: 1800,
+            useNativeDriver: false,
+          }),
+          Animated.timing(pulseAnim2, {
+            toValue: 0,
+            duration: 1800,
+            useNativeDriver: false,
+          }),
+        ])
+      ),
+    ]);
+
+    pulse1.start();
+    pulse2.start();
+
+    return () => {
+      pulse1.stop();
+      pulse2.stop();
+    };
+  }, [pulseAnim1, pulseAnim2]);
 
   const handlePressIn = () => {
     // Start scale and progress animation
     Animated.parallel([
       Animated.timing(scaleAnim, {
-        toValue: 1.15,
+        toValue: 1.12,
         duration: holdDurationMs,
         useNativeDriver: true,
       }),
@@ -86,15 +111,23 @@ export const SOSButton: React.FC<SOSButtonProps> = ({
     ]).start();
   };
 
-  // Interpolate pulse style for scale & border glow
-  const animatedPulseScale = pulseAnim.interpolate({
+  // Concentric Ring Interpolations
+  const pulseScale1 = pulseAnim1.interpolate({
     inputRange: [0, 1],
-    outputRange: [1, 1.25],
+    outputRange: [1, 1.35],
+  });
+  const pulseOpacity1 = pulseAnim1.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.5, 0],
   });
 
-  const animatedPulseOpacity = pulseAnim.interpolate({
+  const pulseScale2 = pulseAnim2.interpolate({
     inputRange: [0, 1],
-    outputRange: [0.6, 0],
+    outputRange: [1, 1.5],
+  });
+  const pulseOpacity2 = pulseAnim2.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.35, 0],
   });
 
   // Interpolate circular indicator width based on progress
@@ -105,13 +138,24 @@ export const SOSButton: React.FC<SOSButtonProps> = ({
 
   return (
     <View style={styles.container}>
-      {/* Outer Pulse Rings */}
+      {/* Outer Pulse Ring 2 */}
       <Animated.View
         style={[
-          styles.pulseRing,
+          styles.pulseRingOuter,
           {
-            transform: [{ scale: animatedPulseScale }],
-            opacity: animatedPulseOpacity,
+            transform: [{ scale: pulseScale2 }],
+            opacity: pulseOpacity2,
+          },
+        ]}
+      />
+
+      {/* Outer Pulse Ring 1 */}
+      <Animated.View
+        style={[
+          styles.pulseRingInner,
+          {
+            transform: [{ scale: pulseScale1 }],
+            opacity: pulseOpacity1,
           },
         ]}
       />
@@ -137,9 +181,11 @@ export const SOSButton: React.FC<SOSButtonProps> = ({
             ]}
           />
 
-          {/* Icon */}
+          {/* Icon / Content */}
           <Text style={styles.sosText}>SOS</Text>
-          <Text style={styles.holdText}>HOLD TO TRIGGER</Text>
+          <View style={styles.holdBadge}>
+            <Text style={styles.holdText}>HOLD TO TRIGGER</Text>
+          </View>
         </Animated.View>
       </TouchableWithoutFeedback>
     </View>
@@ -148,53 +194,69 @@ export const SOSButton: React.FC<SOSButtonProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    width: 210,
-    height: 210,
+    width: 220,
+    height: 220,
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
   },
-  pulseRing: {
+  pulseRingOuter: {
+    position: 'absolute',
+    width: 196,
+    height: 196,
+    borderRadius: 98,
+    backgroundColor: 'rgba(239, 68, 68, 0.25)',
+  },
+  pulseRingInner: {
     position: 'absolute',
     width: 192,
     height: 192,
     borderRadius: 96,
-    backgroundColor: theme.colors.primary,
+    backgroundColor: 'rgba(220, 38, 38, 0.4)',
   },
   sosButton: {
     width: 180,
     height: 180,
     borderRadius: 90,
-    backgroundColor: theme.colors.primary,
-    borderWidth: 4,
-    borderColor: '#ffffff',
+    backgroundColor: '#DC2626',
+    borderWidth: 3.5,
+    borderColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',
-    elevation: 8,
-    shadowColor: theme.colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
+    elevation: 16,
+    shadowColor: '#DC2626',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.65,
+    shadowRadius: 20,
   },
   progressIndicator: {
     position: 'absolute',
     borderRadius: 90,
-    backgroundColor: theme.colors.primaryContainer,
-    opacity: 0.3,
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
   },
   sosText: {
     fontFamily: theme.fontFamilies.primary.bold,
-    fontSize: 54,
-    color: '#ffffff',
-    letterSpacing: 1.5,
+    fontSize: 52,
+    color: '#FFFFFF',
+    letterSpacing: 2,
+    textShadowColor: 'rgba(0, 0, 0, 0.4)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+  },
+  holdBadge: {
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    borderRadius: 12,
+    marginTop: 4,
+    borderWidth: 0.5,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   holdText: {
     fontFamily: theme.fontFamilies.technical.bold,
-    fontSize: 12,
-    color: '#ffffff',
-    marginTop: 4,
-    opacity: 0.9,
-    letterSpacing: 0.8,
+    fontSize: 10,
+    color: '#FFFFFF',
+    letterSpacing: 1,
   },
 });

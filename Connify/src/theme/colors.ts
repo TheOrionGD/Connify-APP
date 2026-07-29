@@ -1,78 +1,90 @@
 /**
- * Warm Beige, Crisp Black & Vivid Crimson Red Design System for Connify
+ * Cinema Dark & OLED Emergency Safety Aesthetic Design System for Connify
  * Global palette applied across the entire app.
  */
 
 export const colors = {
-  // Core Surface & Background (Warm Beige Aesthetic)
-  background: '#F5F0EA',
-  onBackground: '#121212',
+  // Core Surface & Background (Cinema Dark Aesthetic)
+  background: '#050506',
+  onBackground: '#FFFFFF',
   
-  surface: '#F5F0EA',
-  onSurface: '#121212',
-  onSurfaceVariant: '#4A4A4A',
+  surface: '#0E1320',
+  onSurface: '#FFFFFF',
+  onSurfaceVariant: '#94A3B8',
   
-  surfaceDim: '#E8E3DB',
-  surfaceBright: '#FAF8F5',
-  surfaceVariant: '#EFEBE4',
+  surfaceDim: '#090D16',
+  surfaceBright: '#161C2E',
+  surfaceVariant: '#161C2E',
   surfaceTint: '#DC2626',
   
-  inverseSurface: '#121212',
-  inverseOnSurface: '#F5F0EA',
+  inverseSurface: '#F5F0EA',
+  inverseOnSurface: '#050506',
   
-  // Surface Containers (Beige & White Depth Hierarchy)
-  surfaceContainerLowest: '#FFFFFF',
-  surfaceContainerLow: '#FAF8F5',
-  surfaceContainer: '#F5F0EA',
-  surfaceContainerHigh: '#EFEBE4',
-  surfaceContainerHighest: '#E5E0D8',
+  // Surface Containers (Dark Hierarchy)
+  surfaceContainerLowest: '#050506',
+  surfaceContainerLow: '#090D16',
+  surfaceContainer: '#0E1320',
+  surfaceContainerHigh: '#161C2E',
+  surfaceContainerHighest: '#1E2638',
   
-  // Outlines & Borders (Crisp Black & Red Accent Borders)
-  outline: '#121212',
-  outlineVariant: '#333333',
-  borderDark: '#121212',
+  // Outlines & Hairline Borders
+  outline: 'rgba(255, 255, 255, 0.12)',
+  outlineVariant: 'rgba(255, 255, 255, 0.08)',
+  borderDark: 'rgba(255, 255, 255, 0.12)',
   borderRed: '#DC2626',
   
-  // Brand Primary (Vivid Crimson Red)
+  // Brand Primary (Vivid Emergency Crimson Red)
   primary: '#DC2626',
+  vividRed: '#EF4444',
+  glowRed: 'rgba(220, 38, 38, 0.4)',
   onPrimary: '#FFFFFF',
-  primaryContainer: '#FEF2F2',
-  onPrimaryContainer: '#991B1B',
+  primaryContainer: 'rgba(220, 38, 38, 0.15)',
+  onPrimaryContainer: '#EF4444',
   inversePrimary: '#FCA5A5',
   
-  // Brand Secondary (Crisp Black)
-  secondary: '#121212',
+  // Brand Secondary (Elevated Dark Container)
+  secondary: '#161C2E',
   onSecondary: '#FFFFFF',
-  secondaryContainer: '#E5E0D8',
-  onSecondaryContainer: '#121212',
+  secondaryContainer: '#1E2638',
+  onSecondaryContainer: '#F1F5F9',
   
-  // Brand Tertiary (Dark Charcoal Accent)
-  tertiary: '#1E1E1E',
+  // Brand Tertiary (Deep Slate Container)
+  tertiary: '#1E2638',
   onTertiary: '#FFFFFF',
-  tertiaryContainer: '#F5F0EA',
-  onTertiaryContainer: '#121212',
+  tertiaryContainer: '#0E1320',
+  onTertiaryContainer: '#FFFFFF',
   
   // Error / Urgent Alert States
-  error: '#DC2626',
+  error: '#EF4444',
   onError: '#FFFFFF',
-  errorContainer: '#FEE2E2',
-  onErrorContainer: '#7F1D1D',
+  errorContainer: 'rgba(239, 68, 68, 0.2)',
+  onErrorContainer: '#FCA5A5',
+  
+  // Status Tokens
+  statusGreen: '#10B981',
+  statusAmber: '#F59E0B',
+  
+  // Card & Text Shortcuts
+  cardBackground: '#0E1320',
+  cardBorder: 'rgba(255, 255, 255, 0.08)',
+  textMuted: '#94A3B8',
+  textSubtle: '#64748B',
   
   // Fixed Tonal Colors
-  primaryFixed: '#FEE2E2',
-  primaryFixedDim: '#FCA5A5',
-  onPrimaryFixed: '#7F1D1D',
-  onPrimaryFixedVariant: '#991B1B',
+  primaryFixed: 'rgba(220, 38, 38, 0.2)',
+  primaryFixedDim: '#EF4444',
+  onPrimaryFixed: '#FFFFFF',
+  onPrimaryFixedVariant: '#FCA5A5',
   
-  secondaryFixed: '#E5E0D8',
-  secondaryFixedDim: '#D5CF00',
-  onSecondaryFixed: '#121212',
-  onSecondaryFixedVariant: '#333333',
+  secondaryFixed: '#1E2638',
+  secondaryFixedDim: '#161C2E',
+  onSecondaryFixed: '#FFFFFF',
+  onSecondaryFixedVariant: '#94A3B8',
   
-  tertiaryFixed: '#E8E3DB',
-  tertiaryFixedDim: '#D8D3CB',
-  onTertiaryFixed: '#121212',
-  onTertiaryFixedVariant: '#1E1E1E',
+  tertiaryFixed: '#161C2E',
+  tertiaryFixedDim: '#0E1320',
+  onTertiaryFixed: '#FFFFFF',
+  onTertiaryFixedVariant: '#94A3B8',
 } as const;
 
 export type ColorsType = typeof colors;

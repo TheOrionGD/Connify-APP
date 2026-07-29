@@ -21,10 +21,16 @@ export const SafetyCard: React.FC<SafetyCardProps> = ({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: theme.colors.surfaceContainerLowest, // white
-    borderWidth: theme.spacing.borderWidthHeavy,
-    borderColor: theme.colors.primary, // 2px Vivid Red border
-    borderRadius: theme.spacing.radiusMd, // 12px
-    padding: theme.spacing.containerPadding, // 20px
+    backgroundColor: '#0E1320',
+    borderWidth: 1.5,
+    borderColor: '#DC2626',
+    borderTopColor: '#EF4444',
+    borderRadius: theme.spacing.radiusLg, // 16px
+    padding: theme.spacing.cardPadding, // 16px
+    shadowColor: '#DC2626',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    elevation: 6,
   },
 });

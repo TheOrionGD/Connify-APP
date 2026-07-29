@@ -26,6 +26,7 @@ export default function DashboardScreen({ navigation }: any) {
   const [alertMessage, setAlertMessage] = useState('');
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [onAckCallback, setOnAckCallback] = useState<(() => void) | null>(null);
   
   const { hasCompletedProfile, deviceId } = useAuthStore();
   const { latitude, longitude } = useLocationStore();
@@ -60,11 +61,13 @@ export default function DashboardScreen({ navigation }: any) {
   }, [currentState, timeLeft, tickCountdown]);
 
   const triggerSOS = () => {
-    startRequest('Security', 5, 'Immediate Safety Signal', latitude || 0, longitude || 0);
     setAlertTitle('Emergency Signal Broadcasted');
     setAlertMessage(
       'Your emergency alarm has been broadcasted to nearby verified responders and your registered emergency trust contacts.'
     );
+    setOnAckCallback(() => () => {
+      startRequest('Security', 5, 'Immediate Safety Signal', latitude || 0, longitude || 0);
+    });
     setAlertVisible(true);
   };
 
@@ -225,14 +228,14 @@ export default function DashboardScreen({ navigation }: any) {
             <Icon name="fingerprint" size={22} color={theme.colors.primary} />
             <View style={styles.statContent}>
               <Text style={styles.statValue} numberOfLines={1}>
-                {deviceId ? `${deviceId.substring(0, 7)}...` : 'Ed25519'}
+                {deviceId ? `ed25519 (${deviceId.substring(0, 6)}...)` : 'ed25519 (4a2f8b...)'}
               </Text>
               <Text style={styles.statLabel}>DEVICE ID LOCK</Text>
             </View>
           </StandardCard>
 
           <StandardCard style={styles.statCard}>
-            <Icon name="explore" size={22} color={theme.colors.onBackground} />
+            <Icon name="explore" size={22} color="#FFFFFF" />
             <View style={styles.statContent}>
               <Text style={styles.statValue}>500m</Text>
               <Text style={styles.statLabel}>GRID CELL MESH</Text>
@@ -245,13 +248,13 @@ export default function DashboardScreen({ navigation }: any) {
             onPress={() => navigation.navigate('Governance')}
           >
             <View style={styles.bannerIconWrapper}>
-              <Icon name="gavel" size={22} color={theme.colors.onBackground} />
+              <Icon name="gavel" size={22} color="#FFFFFF" />
             </View>
             <View style={styles.bannerContent}>
               <Text style={styles.bannerTitle}>ZERO-TRUST GOVERNANCE</Text>
               <Text style={styles.bannerText}>Inspect cryptography & privacy guarantees.</Text>
             </View>
-            <Icon name="chevron-right" size={20} color={theme.colors.onBackground} />
+            <Icon name="chevron-right" size={20} color="#94A3B8" />
           </TouchableOpacity>
         </View>
 
@@ -269,7 +272,22 @@ export default function DashboardScreen({ navigation }: any) {
         visible={alertVisible}
         title={alertTitle}
         message={alertMessage}
-        onClose={() => setAlertVisible(false)}
+        onClose={() => {
+          setAlertVisible(false);
+          if (onAckCallback) {
+            const cb = onAckCallback;
+            setOnAckCallback(null);
+            cb();
+          }
+        }}
+        onConfirm={() => {
+          setAlertVisible(false);
+          if (onAckCallback) {
+            const cb = onAckCallback;
+            setOnAckCallback(null);
+            cb();
+          }
+        }}
         confirmText="Acknowledge"
       />
 
@@ -297,17 +315,17 @@ export default function DashboardScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: theme.colors.background,
+    backgroundColor: '#050506',
   },
   header: {
     height: 56,
-    borderBottomWidth: theme.spacing.borderWidthLight,
-    borderBottomColor: theme.colors.outline,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.08)',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: theme.spacing.containerPadding,
-    backgroundColor: theme.colors.background,
+    backgroundColor: '#050506',
   },
   headerTitleContainer: {
     flexDirection: 'row',
@@ -317,16 +335,16 @@ const styles = StyleSheet.create({
   headerText: {
     fontFamily: theme.fontFamilies.primary.bold,
     fontSize: 20,
-    color: theme.colors.primary,
+    color: '#DC2626',
     fontWeight: '800',
   },
   emergencyBadge: {
-    backgroundColor: theme.colors.primary,
-    paddingHorizontal: 10,
+    backgroundColor: '#DC2626',
+    paddingHorizontal: 12,
     paddingVertical: 5,
-    borderRadius: theme.spacing.radiusFull,
+    borderRadius: 20,
     borderWidth: 1,
-    borderColor: theme.colors.outline,
+    borderColor: '#EF4444',
   },
   emergencyBadgeText: {
     color: '#FFFFFF',
@@ -340,27 +358,27 @@ const styles = StyleSheet.create({
     gap: theme.spacing.stackGap,
   },
   roleContainer: {
-    backgroundColor: theme.colors.surfaceContainerLowest,
+    backgroundColor: '#0E1320',
     padding: 4,
-    borderRadius: theme.spacing.radiusDefault,
+    borderRadius: 14,
     flexDirection: 'row',
-    borderWidth: theme.spacing.borderWidthLight,
-    borderColor: theme.colors.outline,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
   },
   roleButton: {
     flex: 1,
     paddingVertical: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 6,
+    borderRadius: 10,
   },
   roleButtonActive: {
-    backgroundColor: theme.colors.onBackground,
+    backgroundColor: '#DC2626',
   },
   roleText: {
     fontFamily: theme.fontFamilies.technical.bold,
-    fontSize: 13,
-    color: theme.colors.onBackground,
+    fontSize: 12,
+    color: '#94A3B8',
     letterSpacing: 0.5,
   },
   roleTextActive: {
@@ -370,12 +388,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    backgroundColor: theme.colors.surfaceContainerLowest,
-    borderWidth: theme.spacing.borderWidthLight,
-    borderColor: theme.colors.outline,
+    backgroundColor: '#0E1320',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
     paddingHorizontal: 14,
     paddingVertical: 10,
-    borderRadius: theme.spacing.radiusDefault,
+    borderRadius: 12,
   },
   locationInfo: {
     flex: 1,
@@ -383,13 +401,13 @@ const styles = StyleSheet.create({
   locationLabel: {
     fontFamily: theme.fontFamilies.technical.bold,
     fontSize: 10,
-    color: theme.colors.primary,
+    color: '#EF4444',
     letterSpacing: 0.8,
   },
   locationValue: {
     fontFamily: theme.fontFamilies.secondary.medium,
     fontSize: 13,
-    color: theme.colors.onBackground,
+    color: '#FFFFFF',
     marginTop: 2,
   },
   activeSessionCard: {
@@ -408,13 +426,13 @@ const styles = StyleSheet.create({
   activeSessionText: {
     fontFamily: theme.fontFamilies.primary.bold,
     fontSize: 14,
-    color: theme.colors.primary,
+    color: '#EF4444',
   },
   liveBadge: {
-    backgroundColor: theme.colors.primary,
+    backgroundColor: '#DC2626',
     paddingHorizontal: 8,
     paddingVertical: 2,
-    borderRadius: theme.spacing.radiusFull,
+    borderRadius: 10,
   },
   liveText: {
     color: '#FFFFFF',
@@ -430,13 +448,13 @@ const styles = StyleSheet.create({
   timerLabel: {
     fontFamily: theme.fontFamilies.technical.bold,
     fontSize: 11,
-    color: theme.colors.onSurfaceVariant,
+    color: '#94A3B8',
     letterSpacing: 0.8,
   },
   timerText: {
     fontFamily: theme.fontFamilies.technical.bold,
     fontSize: 32,
-    color: theme.colors.onBackground,
+    color: '#FFFFFF',
     marginTop: 2,
   },
   timerIconWrapper: {
@@ -444,19 +462,19 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: 24,
     borderWidth: 2,
-    borderColor: theme.colors.primary,
+    borderColor: '#DC2626',
     justifyContent: 'center',
     alignItems: 'center',
   },
   progressBarBg: {
     height: 8,
-    backgroundColor: theme.colors.surfaceContainerHigh,
-    borderRadius: theme.spacing.radiusFull,
+    backgroundColor: '#161C2E',
+    borderRadius: 4,
     overflow: 'hidden',
   },
   progressBarFill: {
     height: '100%',
-    backgroundColor: theme.colors.primary,
+    backgroundColor: '#DC2626',
   },
   cardActions: {
     flexDirection: 'row',
@@ -465,20 +483,20 @@ const styles = StyleSheet.create({
   },
   cardButton: {
     flex: 1,
-    borderWidth: theme.spacing.borderWidthHeavy,
-    borderColor: theme.colors.outline,
-    borderRadius: theme.spacing.radiusDefault,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.12)',
+    borderRadius: 10,
     paddingVertical: 10,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: theme.colors.surfaceContainerLowest,
+    backgroundColor: '#161C2E',
   },
   cardButtonText: {
     fontFamily: theme.fontFamilies.technical.bold,
     fontSize: 13,
-    color: theme.colors.onBackground,
+    color: '#FFFFFF',
   },
   sosContainer: {
     paddingVertical: 16,
@@ -488,15 +506,15 @@ const styles = StyleSheet.create({
   sosSubtext: {
     fontFamily: theme.fontFamilies.secondary.regular,
     fontSize: 13,
-    color: theme.colors.onSurfaceVariant,
+    color: '#94A3B8',
     textAlign: 'center',
     paddingHorizontal: 16,
   },
   emptyStateContainer: {
-    backgroundColor: theme.colors.surfaceContainerLowest,
-    borderWidth: theme.spacing.borderWidthLight,
-    borderColor: theme.colors.outline,
-    borderRadius: theme.spacing.radiusMd,
+    backgroundColor: '#0E1320',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: 16,
     padding: 24,
     alignItems: 'center',
     gap: 12,
@@ -504,26 +522,26 @@ const styles = StyleSheet.create({
   emptyStateTitle: {
     fontFamily: theme.fontFamilies.primary.bold,
     fontSize: 18,
-    color: theme.colors.onBackground,
+    color: '#FFFFFF',
   },
   emptyStateSub: {
     fontFamily: theme.fontFamilies.secondary.regular,
     fontSize: 13,
     lineHeight: 20,
-    color: theme.colors.onSurfaceVariant,
+    color: '#94A3B8',
     textAlign: 'center',
   },
   actionPill: {
-    backgroundColor: theme.colors.primary,
+    backgroundColor: '#DC2626',
     paddingHorizontal: 18,
     paddingVertical: 10,
-    borderRadius: theme.spacing.radiusFull,
+    borderRadius: 20,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
     marginTop: 4,
     borderWidth: 1,
-    borderColor: theme.colors.outline,
+    borderColor: '#EF4444',
   },
   actionPillText: {
     color: '#FFFFFF',
@@ -547,22 +565,22 @@ const styles = StyleSheet.create({
   },
   statValue: {
     fontFamily: theme.fontFamilies.primary.bold,
-    fontSize: 20,
-    color: theme.colors.onBackground,
+    fontSize: 15,
+    color: '#FFFFFF',
   },
   statLabel: {
     fontFamily: theme.fontFamilies.technical.bold,
     fontSize: 10,
-    color: theme.colors.onSurfaceVariant,
+    color: '#94A3B8',
     letterSpacing: 0.5,
     marginTop: 2,
   },
   bannerContainer: {
     width: '100%',
-    backgroundColor: theme.colors.surfaceContainerLowest,
-    borderWidth: theme.spacing.borderWidthLight,
-    borderColor: theme.colors.outline,
-    borderRadius: theme.spacing.radiusMd,
+    backgroundColor: '#0E1320',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: 16,
     padding: 14,
     flexDirection: 'row',
     alignItems: 'center',
@@ -571,10 +589,10 @@ const styles = StyleSheet.create({
   bannerIconWrapper: {
     width: 38,
     height: 38,
-    borderRadius: 8,
-    backgroundColor: theme.colors.surfaceContainerHigh,
+    borderRadius: 10,
+    backgroundColor: '#161C2E',
     borderWidth: 1,
-    borderColor: theme.colors.outline,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -584,25 +602,30 @@ const styles = StyleSheet.create({
   bannerTitle: {
     fontFamily: theme.fontFamilies.technical.bold,
     fontSize: 12,
-    color: theme.colors.onBackground,
+    color: '#FFFFFF',
     letterSpacing: 0.5,
   },
   bannerText: {
     fontFamily: theme.fontFamilies.secondary.regular,
     fontSize: 12,
-    color: theme.colors.onSurfaceVariant,
+    color: '#94A3B8',
     marginTop: 1,
   },
   createRequestCTA: {
-    backgroundColor: theme.colors.primary,
+    backgroundColor: '#DC2626',
     paddingVertical: 16,
-    borderRadius: theme.spacing.radiusDefault,
+    borderRadius: 14,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     gap: 8,
-    borderWidth: theme.spacing.borderWidthHeavy,
-    borderColor: theme.colors.outline,
+    borderWidth: 1,
+    borderColor: '#EF4444',
+    shadowColor: '#DC2626',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 10,
+    elevation: 6,
   },
   createRequestCTAText: {
     color: '#FFFFFF',
