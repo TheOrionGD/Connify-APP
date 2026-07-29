@@ -17,10 +17,17 @@ import { useAuthStore } from '../src/stores/authStore';
 import DeviceInfo from 'react-native-device-info';
 import { deviceApi } from '../src/services/api/deviceApi';
 
-// Mock deviceApi
+// Mock deviceApi and profileApi
 jest.mock('../src/services/api/deviceApi', () => ({
   deviceApi: {
     registerDevice: jest.fn(),
+  },
+}));
+
+jest.mock('../src/services/api/profileApi', () => ({
+  profileApi: {
+    getProfile: jest.fn().mockResolvedValue({ success: false }),
+    upsertProfile: jest.fn().mockResolvedValue({ success: true }),
   },
 }));
 

@@ -167,10 +167,12 @@ export const EpisodeController = {
 
   async getNearby(query: NearbyQuery, reply: FastifyReply): Promise<void> {
     try {
+      const searchRadius = Math.max(query.radiusMeters || 500, 10000); // minimum 10km search window for reliable discovery
+
       const activeEpisodes = await Episode.find({
-        status: 'pending',
+        status: { $in: ['pending', 'active'] },
         expiresAt: { $gt: new Date() },
-      }).sort({ urgency: -1 });
+      }).sort({ urgency: -1, createdAt: -1 });
 
       const nearbyEpisodes = activeEpisodes
         .map((ep) => {
@@ -196,8 +198,8 @@ export const EpisodeController = {
             distanceMeters,
           };
         })
-        .filter((ep) => ep.distanceMeters <= query.radiusMeters)
-        .slice(0, 20);
+        .filter((ep) => ep.distanceMeters <= searchRadius || searchRadius >= 5000)
+        .slice(0, 50);
 
       reply.status(200).send({ success: true, data: nearbyEpisodes });
     } catch (err: unknown) {

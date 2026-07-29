@@ -5,6 +5,7 @@ import auth from '@react-native-firebase/auth';
 import nacl from 'tweetnacl';
 import DeviceInfo from 'react-native-device-info';
 import { deviceApi } from '../services/api/deviceApi';
+import { profileApi } from '../services/api/profileApi';
 
 export interface FirebaseUser {
   uid: string;
@@ -36,15 +37,26 @@ function toHex(bytes: Uint8Array): string {
 
 /**
  * Derives a deterministic device fingerprint (64 hex chars) and Ed25519 keypair
- * from the hardware device unique ID using nacl.hash (SHA-512, 64 bytes):
+ * using hardware ID + persistent installation UUID:
  *   bytes[0..31]  → fingerprint (64 hex chars — satisfies backend SHA-256 length)
  *   bytes[32..63] → Ed25519 keypair seed (deterministic, no storage needed)
  */
-async function deriveDeviceCredentials(): Promise<{
+async function deriveDeviceCredentials(userUid?: string): Promise<{
   fingerprint: string;
   publicKeyHex: string;
 }> {
-  const deviceUniqueId = await DeviceInfo.getUniqueId();
+  let deviceUniqueId = await DeviceInfo.getUniqueId();
+  if (!deviceUniqueId || ['unknown', 'android_id', '1234567890'].includes(deviceUniqueId.toLowerCase())) {
+    let installUuid = await AsyncStorage.getItem('@connify_install_uuid');
+    if (!installUuid) {
+      installUuid = 'inst_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
+      await AsyncStorage.setItem('@connify_install_uuid', installUuid);
+    }
+    deviceUniqueId = `${deviceUniqueId || 'dev'}_${installUuid}`;
+  }
+  if (userUid) {
+    deviceUniqueId = `${deviceUniqueId}_${userUid}`;
+  }
   const hashBytes = nacl.hash(strToUint8Array(deviceUniqueId)); // SHA-512 → 64 bytes
   const fingerprint = toHex(hashBytes.slice(0, 32));             // first half → 64 hex chars
   const seed = hashBytes.slice(32, 64);                          // second half → keypair seed
@@ -59,6 +71,7 @@ async function deriveDeviceCredentials(): Promise<{
 
 interface AuthState {
   user: FirebaseUser | null;
+  userProfile: any | null;
   isAuthenticated: boolean;
   loading: boolean;
   error: string | null;
@@ -83,6 +96,7 @@ interface AuthState {
   signOut: () => Promise<void>;
   clearError: () => void;
   setProfileCompleted: () => void;
+  fetchProfile: () => Promise<void>;
 }
 
 // ---------------------------------------------------------------------------
@@ -91,8 +105,9 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
+      userProfile: null,
       isAuthenticated: false,
       hasCompletedProfile: false,
       loading: false,
@@ -102,6 +117,20 @@ export const useAuthStore = create<AuthState>()(
       firebaseIdToken: null,
 
       setProfileCompleted: () => set({ hasCompletedProfile: true }),
+
+      fetchProfile: async () => {
+        try {
+          const res = await profileApi.getProfile();
+          if (res.success && res.data) {
+            set({
+              userProfile: res.data,
+              hasCompletedProfile: true,
+            });
+          }
+        } catch (e) {
+          // Profile not yet created for this device
+        }
+      },
 
       signInWithEmail: async (email, password) => {
         set({ loading: true, error: null });
@@ -143,6 +172,9 @@ export const useAuthStore = create<AuthState>()(
             loading: false,
             error: null,
           });
+
+          // 7. Auto-fetch profile from database if previously saved
+          await get().fetchProfile();
         } catch (e: any) {
           if (process.env.NODE_ENV !== 'test') {
             console.error('Firebase Email sign-in failed:', e);
@@ -170,7 +202,7 @@ export const useAuthStore = create<AuthState>()(
           };
 
           // 3. Derive deterministic device credentials from hardware device ID
-          const { fingerprint, publicKeyHex } = await deriveDeviceCredentials();
+          const { fingerprint, publicKeyHex } = await deriveDeviceCredentials(user.uid);
 
           // 4. Temporarily set sessionToken = Firebase token
           set({ firebaseIdToken: firebaseToken, sessionToken: firebaseToken });
@@ -191,6 +223,9 @@ export const useAuthStore = create<AuthState>()(
             loading: false,
             error: null,
           });
+
+          // 7. Auto-fetch profile from database if previously saved
+          await get().fetchProfile();
         } catch (e: any) {
           console.log(e.response?.status);
           console.log(e.response?.data);
@@ -225,7 +260,7 @@ export const useAuthStore = create<AuthState>()(
           };
 
           // 3. Derive device credentials
-          const { fingerprint, publicKeyHex } = await deriveDeviceCredentials();
+          const { fingerprint, publicKeyHex } = await deriveDeviceCredentials(user.uid);
 
           // 4. Temporarily attach Firebase token for the registration call
           set({ firebaseIdToken: firebaseToken, sessionToken: firebaseToken });
@@ -243,6 +278,9 @@ export const useAuthStore = create<AuthState>()(
             loading: false,
             error: null,
           });
+
+          // 7. Auto-fetch profile from database if previously saved
+          await get().fetchProfile();
         } catch (e: any) {
           set({
             error: e.message || 'Failed to sign up',

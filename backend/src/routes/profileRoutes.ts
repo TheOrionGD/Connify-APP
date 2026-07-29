@@ -39,4 +39,21 @@ export async function profileRoutes(app: FastifyInstance): Promise<void> {
       return ProfileController.upsertProfile(parsed.data, deviceId, reply);
     }
   );
+
+  /** Fetch user profile for the authenticated device */
+  app.get(
+    '/',
+    { preHandler: authenticate },
+    async (req: FastifyRequest, reply) => {
+      const deviceId = req.devicePayload?.sub;
+      if (!deviceId) {
+        return reply.status(401).send({
+          success: false,
+          error: { code: 'UNAUTHORIZED', message: 'Device not found in request' },
+        });
+      }
+
+      return ProfileController.getProfile(deviceId, reply);
+    }
+  );
 }

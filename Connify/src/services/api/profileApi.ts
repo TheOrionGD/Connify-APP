@@ -24,4 +24,12 @@ export const profileApi = {
     const response = await apiClient.post<ProfileResponse>('/api/profile', data);
     return response.data;
   },
+
+  /**
+   * Fetch stored user profile data
+   */
+  async getProfile(): Promise<ProfileResponse> {
+    const response = await apiClient.get<ProfileResponse>('/api/profile');
+    return response.data;
+  },
 };

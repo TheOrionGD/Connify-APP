@@ -39,22 +39,19 @@ export default function NearbyRequestsScreen({ navigation }: any) {
   const [handshakeLoading, setHandshakeLoading] = useState(false);
 
   const fetchFeed = async () => {
-    if (latitude === null || longitude === null) {
-      setRequests([]);
-      return;
-    }
-    
+    const queryLat = latitude ?? 0;
+    const queryLng = longitude ?? 0;
     setLoadingFeed(true);
     try {
-      const res = await episodeApi.getNearbyEpisodes(latitude, longitude, 5000);
+      const res = await episodeApi.getNearbyEpisodes(queryLat, queryLng, 10000);
       if (res.success && res.data && res.data.length > 0) {
         const apiRequests: HelpRequest[] = res.data.map((ep: any) => ({
           id: ep.id,
           category: ep.category ? (ep.category.charAt(0).toUpperCase() + ep.category.slice(1) + ' Request') : 'Emergency Request',
           icon: ep.category === 'medical' ? 'medical-services' : ep.category === 'transport' ? 'local-taxi' : ep.category === 'emergency' ? 'security' : 'warning',
-          distance: `~${Math.round(ep.distanceMeters || 150)}m`,
+          distance: ep.distanceMeters !== undefined ? (ep.distanceMeters < 50 ? '📍 < 50m (Immediate)' : `~${Math.round(ep.distanceMeters)}m`) : 'Nearby',
           urgency: ep.urgency || 3,
-          timeAgo: 'Live',
+          timeAgo: 'Live Broadcast',
           details: `Zero-trust proximity verification required. Tap Offer Support to initialize cryptographic handshake.`,
         }));
         setRequests(apiRequests);
@@ -71,6 +68,10 @@ export default function NearbyRequestsScreen({ navigation }: any) {
 
   React.useEffect(() => {
     fetchFeed();
+    const timer = setInterval(() => {
+      fetchFeed();
+    }, 4000);
+    return () => clearInterval(timer);
   }, [latitude, longitude]);
 
   const handleRespond = (req: HelpRequest) => {

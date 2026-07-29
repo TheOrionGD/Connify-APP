@@ -44,4 +44,27 @@ export const ProfileController = {
       });
     }
   },
+
+  async getProfile(deviceId: string, reply: FastifyReply) {
+    try {
+      const profile = await Profile.findOne({ deviceId });
+      if (!profile) {
+        return reply.status(404).send({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Profile not found for this device' },
+        });
+      }
+
+      return reply.status(200).send({
+        success: true,
+        data: profile,
+      });
+    } catch (error) {
+      console.error('Failed to get profile:', error);
+      return reply.status(500).send({
+        success: false,
+        error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to fetch profile' },
+      });
+    }
+  },
 };

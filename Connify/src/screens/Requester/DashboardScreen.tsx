@@ -13,6 +13,7 @@ import { SafetyCard } from '../../components/cards/SafetyCard';
 import { StandardCard } from '../../components/cards/StandardCard';
 import { DialogueModal } from '../../components/common/DialogueModal';
 import { ProfileSetupModal } from '../../components/common/ProfileSetupModal';
+import { FeedbackModal } from '../../components/common/FeedbackModal';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useEpisodeStore } from '../../stores/episodeStore';
 import { useAuthStore } from '../../stores/authStore';
@@ -24,6 +25,7 @@ export default function DashboardScreen({ navigation }: any) {
   const [alertTitle, setAlertTitle] = useState('');
   const [alertMessage, setAlertMessage] = useState('');
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   
   const { hasCompletedProfile, deviceId } = useAuthStore();
   const { latitude, longitude } = useLocationStore();
@@ -222,7 +224,9 @@ export default function DashboardScreen({ navigation }: any) {
           <StandardCard style={styles.statCard}>
             <Icon name="fingerprint" size={22} color={theme.colors.primary} />
             <View style={styles.statContent}>
-              <Text style={styles.statValue}>Ed25519</Text>
+              <Text style={styles.statValue} numberOfLines={1}>
+                {deviceId ? `${deviceId.substring(0, 7)}...` : 'Ed25519'}
+              </Text>
               <Text style={styles.statLabel}>DEVICE ID LOCK</Text>
             </View>
           </StandardCard>
@@ -269,12 +273,20 @@ export default function DashboardScreen({ navigation }: any) {
         confirmText="Acknowledge"
       />
 
+      <FeedbackModal
+        visible={showFeedbackModal}
+        onComplete={() => {
+          setShowFeedbackModal(false);
+          setShowProfileModal(true);
+        }}
+      />
+
       <ProfileSetupModal
         visible={showProfileModal}
         onComplete={() => {
           setShowProfileModal(false);
-          setAlertTitle('Profile Updated');
-          setAlertMessage('Your profile has been saved. Emergency episode closed.');
+          setAlertTitle('Profile Saved');
+          setAlertMessage('Your profile data has been securely saved to MongoDB Atlas.');
           setAlertVisible(true);
         }}
       />
