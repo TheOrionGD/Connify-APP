@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { theme } from '../../theme';
+import { theme, actionColors } from '../../theme';
 import { useEpisodeStore } from '../../stores/episodeStore';
 import { StandardButton } from '../../components/buttons/StandardButton';
 import { DialogueModal } from '../../components/common/DialogueModal';
@@ -249,9 +249,9 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   handshakeButton: {
-    backgroundColor: '#161C2E',
+    backgroundColor: actionColors.actionRed,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.12)',
+    borderColor: '#EF4444',
     paddingVertical: 14,
     borderRadius: 12,
     flexDirection: 'row',
@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   handshakeButtonText: {
-    color: '#FFFFFF',
+    color: actionColors.actionButtonText,
     fontFamily: theme.fontFamilies.technical.bold,
     fontSize: 12,
     letterSpacing: 0.5,

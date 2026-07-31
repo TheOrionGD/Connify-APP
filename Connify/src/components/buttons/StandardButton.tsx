@@ -7,7 +7,7 @@ import {
   ViewStyle,
   TextStyle,
 } from 'react-native';
-import { theme } from '../../theme';
+import { theme, actionColors } from '../../theme';
 
 interface StandardButtonProps {
   title: string;
@@ -20,44 +20,25 @@ interface StandardButtonProps {
   icon?: React.ReactNode;
 }
 
+export const actionButtonStyle = StyleSheet.create({
+  button: {
+    backgroundColor: actionColors.actionRed,
+    borderColor: '#EF4444',
+  },
+  text: {
+    color: actionColors.actionButtonText,
+  },
+});
+
 export const StandardButton: React.FC<StandardButtonProps> = ({
   title,
   onPress,
-  variant = 'primary',
   disabled = false,
   loading = false,
   style,
   textStyle,
   icon,
 }) => {
-  const getButtonStyle = () => {
-    switch (variant) {
-      case 'secondary':
-        return styles.secondaryButton;
-      case 'dark':
-        return styles.darkButton;
-      case 'outline':
-        return styles.outlineButton;
-      case 'primary':
-      default:
-        return styles.primaryButton;
-    }
-  };
-
-  const getTextStyle = () => {
-    switch (variant) {
-      case 'secondary':
-        return styles.secondaryText;
-      case 'dark':
-        return styles.darkText;
-      case 'outline':
-        return styles.outlineText;
-      case 'primary':
-      default:
-        return styles.primaryText;
-    }
-  };
-
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -65,14 +46,14 @@ export const StandardButton: React.FC<StandardButtonProps> = ({
       activeOpacity={0.8}
       style={[
         styles.button,
-        getButtonStyle(),
+        actionButtonStyle.button,
         disabled && styles.disabledButton,
         style,
       ]}
     >
       {loading ? (
         <ActivityIndicator
-          color={variant === 'outline' ? theme.colors.primary : '#FFFFFF'}
+          color={actionColors.actionButtonText}
           size="small"
         />
       ) : (
@@ -81,7 +62,7 @@ export const StandardButton: React.FC<StandardButtonProps> = ({
           <Text
             style={[
               styles.text,
-              getTextStyle(),
+              actionButtonStyle.text,
               disabled && styles.disabledText,
               icon ? styles.textWithIcon : null,
               textStyle,
@@ -104,49 +85,23 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: theme.spacing.containerPadding,
     borderWidth: theme.spacing.borderWidthHeavy,
-    borderColor: theme.colors.outline,
-  },
-  primaryButton: {
-    backgroundColor: theme.colors.primary,
-    borderColor: theme.colors.outline,
-  },
-  secondaryButton: {
-    backgroundColor: theme.colors.surfaceContainerLowest,
-    borderColor: theme.colors.outline,
-  },
-  darkButton: {
-    backgroundColor: theme.colors.onBackground,
-    borderColor: theme.colors.outline,
-  },
-  outlineButton: {
-    backgroundColor: 'transparent',
-    borderColor: theme.colors.outline,
+    borderColor: '#EF4444',
+    backgroundColor: actionColors.actionRed,
   },
   disabledButton: {
-    backgroundColor: theme.colors.surfaceContainerHigh,
-    borderColor: theme.colors.outlineVariant,
-    opacity: 0.6,
+    backgroundColor: actionColors.actionRed,
+    opacity: 0.5,
   },
   text: {
     fontFamily: theme.fontFamilies.primary.bold,
     fontSize: 16,
     fontWeight: '700',
     letterSpacing: 0.5,
-  },
-  primaryText: {
-    color: '#FFFFFF',
-  },
-  secondaryText: {
-    color: theme.colors.onBackground,
-  },
-  darkText: {
-    color: '#FFFFFF',
-  },
-  outlineText: {
-    color: theme.colors.onBackground,
+    color: actionColors.actionButtonText,
   },
   disabledText: {
-    color: theme.colors.onSurfaceVariant,
+    color: '#000000',
+    opacity: 0.7,
   },
   textWithIcon: {
     marginLeft: theme.spacing.base,

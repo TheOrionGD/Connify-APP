@@ -41,6 +41,12 @@ export default function CreateRequestScreen({ navigation }: any) {
       Alert.alert('Category Required', 'Please select an emergency category before broadcasting.');
       return;
     }
+
+    if (latitude === null || longitude === null || (latitude === 0 && longitude === 0)) {
+      Alert.alert('Location Required', 'Acquiring high-accuracy GPS fix. Please wait a moment before broadcasting.');
+      return;
+    }
+
     setLoading(true);
     try {
       const categoryMapping: Record<CategoryType, 'medical' | 'transport' | 'general' | 'emergency'> = {
@@ -51,8 +57,8 @@ export default function CreateRequestScreen({ navigation }: any) {
       };
       const apiCategory = categoryMapping[selectedCategory];
 
-      const lat = latitude || 0;
-      const lng = longitude || 0;
+      const lat = latitude;
+      const lng = longitude;
 
       // Generate dynamic signals from coordinates rounded to 3 decimal places
       const getGridSignals = (lati: number, longi: number): string[] => {

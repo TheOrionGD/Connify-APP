@@ -49,6 +49,9 @@ export async function episodeRoutes(app: FastifyInstance): Promise<void> {
       if (!parsed.success) {
         return badRequest(reply, parsed.error.issues[0]?.message ?? 'Invalid query');
       }
+      if (parsed.data.latitude === 0 && parsed.data.longitude === 0) {
+        return badRequest(reply, 'location not provided (latitude and longitude cannot both be 0)');
+      }
       return EpisodeController.getNearby(parsed.data, reply);
     }
   );

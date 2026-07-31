@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   Text,
@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { theme } from '../../theme';
+import { useTheme, actionColors } from '../../theme';
 import { StandardCard } from '../../components/cards/StandardCard';
 import { DialogueModal } from '../../components/common/DialogueModal';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -31,19 +31,24 @@ interface HelpRequest {
 }
 
 export default function NearbyRequestsScreen({ navigation }: any) {
-  const { latitude, longitude } = useLocationStore();
+  const { latitude, longitude, loading: locationLoading, startWatchingLocation } = useLocationStore();
+  const { colors } = useTheme();
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<HelpRequest | null>(null);
   const [requests, setRequests] = useState<HelpRequest[]>([]);
   const [loadingFeed, setLoadingFeed] = useState(false);
   const [handshakeLoading, setHandshakeLoading] = useState(false);
 
+  const hasValidLocation = latitude !== null && longitude !== null && !(latitude === 0 && longitude === 0);
+
   const fetchFeed = async () => {
-    const queryLat = latitude ?? 0;
-    const queryLng = longitude ?? 0;
+    if (!hasValidLocation) {
+      // Guard call: skip/hold if coordinates are invalid or not yet resolved
+      return;
+    }
     setLoadingFeed(true);
     try {
-      const res = await episodeApi.getNearbyEpisodes(queryLat, queryLng, 10000);
+      const res = await episodeApi.getNearbyEpisodes(latitude, longitude, 10000);
       if (res.success && res.data && res.data.length > 0) {
         const apiRequests: HelpRequest[] = res.data.map((ep: any) => ({
           id: ep.id,
@@ -66,13 +71,15 @@ export default function NearbyRequestsScreen({ navigation }: any) {
     }
   };
 
-  React.useEffect(() => {
-    fetchFeed();
-    const timer = setInterval(() => {
+  useEffect(() => {
+    startWatchingLocation();
+  }, [startWatchingLocation]);
+
+  useEffect(() => {
+    if (hasValidLocation) {
       fetchFeed();
-    }, 4000);
-    return () => clearInterval(timer);
-  }, [latitude, longitude]);
+    }
+  }, [latitude, longitude, hasValidLocation]);
 
   const handleRespond = (req: HelpRequest) => {
     setSelectedRequest(req);
@@ -80,7 +87,7 @@ export default function NearbyRequestsScreen({ navigation }: any) {
   };
 
   const handleConfirmResponse = async () => {
-    if (!selectedRequest) return;
+    if (!selectedRequest || !hasValidLocation) return;
     setModalVisible(false);
     setHandshakeLoading(true);
     try {
@@ -89,12 +96,10 @@ export default function NearbyRequestsScreen({ navigation }: any) {
       const helperStringY = epDetail.data?.helperStringY;
 
       if (!bchSyndromes || !helperStringY) {
-        // Fallback to handshake screen for direct zero-trust verification
         navigation.navigate('Handshake', { episodeId: selectedRequest.id });
         return;
       }
 
-      // Generate dynamic signals from helper coordinates rounded to 3 decimal places
       const getGridSignals = (lati: number, longi: number): string[] => {
         const sigs: string[] = [];
         const latR = Math.round(lati * 1000) / 1000;
@@ -109,20 +114,19 @@ export default function NearbyRequestsScreen({ navigation }: any) {
         return sigs;
       };
 
-      const signalsBob = getGridSignals(latitude || 0, longitude || 0);
+      const signalsBob = getGridSignals(latitude!, longitude!);
       const bloomBob = new BloomFilter(1024, 4);
       signalsBob.forEach(sig => bloomBob.add(sig));
 
       const K = helperStringY;
-      const cellX = Math.floor((latitude || 0) * 100);
-      const cellY = Math.floor((longitude || 0) * 100);
+      const cellX = Math.floor(latitude! * 100);
+      const cellY = Math.floor(longitude! * 100);
       const cellStr = `grid_${cellX}_${cellY}`;
       const blindedGridCell = SHARPHelper.blindGridCell(K, cellStr, "Bob");
 
       const deviceId = useAuthStore.getState().deviceId;
       if (!deviceId) throw new Error('Missing registered device identity');
 
-      // Dynamically derive token hash based on episode details and helper ID
       const qrTokenHash = SHARPHelper.blindGridCell(selectedRequest.id, deviceId, "QR");
 
       const capsuleRes = await capsuleApi.issueCapsule({
@@ -153,20 +157,20 @@ export default function NearbyRequestsScreen({ navigation }: any) {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.header}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: colors.background, borderBottomColor: colors.outline }]}>
         <View style={styles.headerTitleContainer}>
-          <Icon name="explore" size={24} color={theme.colors.primary} />
-          <Text style={styles.headerTitle}>NEARBY RESPONDER FEED</Text>
+          <Icon name="explore" size={24} color={colors.primary} />
+          <Text style={[styles.headerTitle, { color: colors.onBackground }]}>NEARBY RESPONDER FEED</Text>
         </View>
-        <TouchableOpacity style={styles.refreshButton} onPress={fetchFeed}>
-          <Icon name="refresh" size={22} color={theme.colors.onBackground} />
+        <TouchableOpacity style={styles.refreshButton} onPress={fetchFeed} disabled={!hasValidLocation}>
+          <Icon name="refresh" size={22} color={colors.onBackground} />
         </TouchableOpacity>
       </View>
 
       {handshakeLoading && (
-        <View style={styles.loadingBanner}>
-          <ActivityIndicator color={theme.colors.primary} size="small" />
+        <View style={[styles.loadingBanner, { backgroundColor: colors.surfaceContainerLow, borderColor: colors.outline }]}>
+          <ActivityIndicator color={colors.primary} size="small" />
           <Text style={styles.loadingBannerText}>
             INITIALIZING ZERO-TRUST HANDSHAKE...
           </Text>
@@ -175,25 +179,33 @@ export default function NearbyRequestsScreen({ navigation }: any) {
 
       <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         <View style={styles.feedHeader}>
-          <Text style={styles.feedTitle}>Emergency Broadcasts Nearby</Text>
-          <Text style={styles.feedSubtitle}>
+          <Text style={[styles.feedTitle, { color: colors.onBackground }]}>Emergency Broadcasts Nearby</Text>
+          <Text style={[styles.feedSubtitle, { color: colors.onSurfaceVariant }]}>
             Review active emergency requests in your area. Offer support to initiate proximity verification.
           </Text>
         </View>
 
         <View style={styles.listContainer}>
-          {loadingFeed ? (
-            <ActivityIndicator size="large" color={theme.colors.primary} style={{ marginTop: 24 }} />
+          {!hasValidLocation || locationLoading ? (
+            <View style={[styles.locationLoadingState, { backgroundColor: colors.surfaceContainerLowest, borderColor: colors.outline }]}>
+              <ActivityIndicator size="large" color={colors.primary} />
+              <Text style={[styles.locationLoadingTitle, { color: colors.onBackground }]}>Getting your location…</Text>
+              <Text style={[styles.locationLoadingText, { color: colors.onSurfaceVariant }]}>
+                Acquiring high-accuracy GPS fix before fetching nearby emergency broadcasts.
+              </Text>
+            </View>
+          ) : loadingFeed ? (
+            <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 24 }} />
           ) : requests.length === 0 ? (
-            <View style={styles.emptyState}>
-              <Icon name="location-off" size={48} color={theme.colors.onBackground} />
-              <Text style={styles.emptyStateTitle}>No Active Nearby Signals</Text>
-              <Text style={styles.emptyStateText}>
+            <View style={[styles.emptyState, { backgroundColor: colors.surfaceContainerLowest, borderColor: colors.outline }]}>
+              <Icon name="location-off" size={48} color={colors.onBackground} />
+              <Text style={[styles.emptyStateTitle, { color: colors.onBackground }]}>No Active Nearby Signals</Text>
+              <Text style={[styles.emptyStateText, { color: colors.onSurfaceVariant }]}>
                 There are currently no active emergency requests reported in your immediate vicinity.
               </Text>
               <TouchableOpacity style={styles.scanButton} onPress={fetchFeed}>
                 <Text style={styles.scanButtonText}>REFRESH FEED</Text>
-                <Icon name="refresh" size={16} color="#FFFFFF" />
+                <Icon name="refresh" size={16} color="#000000" />
               </TouchableOpacity>
             </View>
           ) : (
@@ -204,6 +216,7 @@ export default function NearbyRequestsScreen({ navigation }: any) {
                   key={req.id}
                   style={[
                     styles.card,
+                    { backgroundColor: colors.surfaceContainerLowest, borderColor: colors.outline },
                     isHighUrgency ? styles.highUrgencyCard : null,
                   ]}
                 >
@@ -212,32 +225,32 @@ export default function NearbyRequestsScreen({ navigation }: any) {
                       <Icon
                         name={req.icon}
                         size={20}
-                        color={isHighUrgency ? theme.colors.primary : theme.colors.onBackground}
+                        color={isHighUrgency ? colors.primary : colors.onBackground}
                       />
-                      <Text style={styles.categoryText}>{req.category}</Text>
+                      <Text style={[styles.categoryText, { color: colors.onBackground }]}>{req.category}</Text>
                     </View>
                     <View
                       style={[
                         styles.urgencyBadge,
-                        isHighUrgency ? styles.urgencyHigh : styles.urgencyNormal,
+                        isHighUrgency ? styles.urgencyHigh : { backgroundColor: colors.surfaceContainerHigh },
                       ]}
                     >
-                      <Text style={[styles.urgencyText, isHighUrgency ? { color: '#FFFFFF' } : null]}>
+                      <Text style={[styles.urgencyText, { color: '#000000' }]}>
                         LEVEL {req.urgency}
                       </Text>
                     </View>
                   </View>
 
-                  <Text style={styles.detailsText}>{req.details}</Text>
+                  <Text style={[styles.detailsText, { color: colors.onSurfaceVariant }]}>{req.details}</Text>
 
-                  <View style={styles.cardFooter}>
-                    <View style={styles.footerMetric}>
-                      <Icon name="my-location" size={14} color={theme.colors.onSurfaceVariant} />
-                      <Text style={styles.metricText}>{req.distance}</Text>
+                  <View style={[styles.cardFooter, { borderTopColor: colors.outline }]}>
+                    <View style={[styles.footerMetric, { backgroundColor: colors.surfaceContainerHigh }]}>
+                      <Icon name="my-location" size={14} color={colors.onSurfaceVariant} />
+                      <Text style={[styles.metricText, { color: colors.onBackground }]}>{req.distance}</Text>
                     </View>
-                    <View style={styles.footerMetric}>
-                      <Icon name="schedule" size={14} color={theme.colors.onSurfaceVariant} />
-                      <Text style={styles.metricText}>{req.timeAgo}</Text>
+                    <View style={[styles.footerMetric, { backgroundColor: colors.surfaceContainerHigh }]}>
+                      <Icon name="schedule" size={14} color={colors.onSurfaceVariant} />
+                      <Text style={[styles.metricText, { color: colors.onBackground }]}>{req.timeAgo}</Text>
                     </View>
                   </View>
 
@@ -247,7 +260,7 @@ export default function NearbyRequestsScreen({ navigation }: any) {
                     disabled={handshakeLoading}
                   >
                     <Text style={styles.actionButtonText}>OFFER SUPPORT</Text>
-                    <Icon name="directions-walk" size={16} color="#FFFFFF" />
+                    <Icon name="directions-walk" size={16} color="#000000" />
                   </TouchableOpacity>
                 </StandardCard>
               );
@@ -272,17 +285,14 @@ export default function NearbyRequestsScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#050506',
   },
   header: {
     height: 56,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.08)',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: theme.spacing.containerPadding,
-    backgroundColor: '#050506',
+    paddingHorizontal: 16,
   },
   headerTitleContainer: {
     flexDirection: 'row',
@@ -290,9 +300,8 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   headerTitle: {
-    fontFamily: theme.fontFamilies.technical.bold,
+    fontFamily: 'SpaceGrotesk-Bold',
     fontSize: 14,
-    color: '#FFFFFF',
     letterSpacing: 1.2,
     fontWeight: '700',
   },
@@ -301,9 +310,7 @@ const styles = StyleSheet.create({
   },
   loadingBanner: {
     padding: 10,
-    backgroundColor: '#0E1320',
     borderBottomWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'center',
@@ -312,46 +319,56 @@ const styles = StyleSheet.create({
   loadingBannerText: {
     fontSize: 11,
     color: '#EF4444',
-    fontFamily: theme.fontFamilies.technical.bold,
+    fontFamily: 'SpaceGrotesk-Bold',
   },
   scrollContainer: {
-    paddingHorizontal: theme.spacing.containerPadding,
-    paddingVertical: theme.spacing.stackGap,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
     gap: 16,
   },
   feedHeader: {
     gap: 6,
   },
   feedTitle: {
-    fontFamily: theme.fontFamilies.primary.bold,
+    fontFamily: 'WorkSans-Bold',
     fontSize: 22,
-    color: '#FFFFFF',
   },
   feedSubtitle: {
-    fontFamily: theme.fontFamilies.secondary.regular,
+    fontFamily: 'WorkSans-Regular',
     fontSize: 13,
     lineHeight: 20,
-    color: '#94A3B8',
   },
   listContainer: {
     gap: 14,
   },
+  locationLoadingState: {
+    paddingVertical: 36,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+    gap: 12,
+    borderWidth: 1,
+    borderRadius: 16,
+  },
+  locationLoadingTitle: {
+    fontFamily: 'WorkSans-Bold',
+    fontSize: 16,
+    marginTop: 4,
+  },
+  locationLoadingText: {
+    fontFamily: 'WorkSans-Regular',
+    fontSize: 13,
+    textAlign: 'center',
+    lineHeight: 19,
+  },
   card: {
     gap: 12,
     padding: 16,
-    backgroundColor: '#0E1320',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
     borderRadius: 16,
   },
   highUrgencyCard: {
     borderColor: '#DC2626',
     borderWidth: 1.5,
-    shadowColor: '#DC2626',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -364,59 +381,55 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   categoryText: {
-    fontFamily: theme.fontFamilies.primary.bold,
+    fontFamily: 'WorkSans-Bold',
     fontSize: 15,
-    color: '#FFFFFF',
   },
   urgencyBadge: {
     paddingHorizontal: 10,
     paddingVertical: 3,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: '#EF4444',
+    backgroundColor: actionColors.actionRed,
   },
   urgencyHigh: {
-    backgroundColor: '#DC2626',
+    backgroundColor: actionColors.actionRed,
     borderColor: '#EF4444',
   },
   urgencyNormal: {
-    backgroundColor: '#161C2E',
+    backgroundColor: actionColors.actionRed,
   },
   urgencyText: {
-    fontFamily: theme.fontFamilies.technical.bold,
+    fontFamily: 'SpaceGrotesk-Bold',
     fontSize: 10,
-    color: '#FFFFFF',
+    color: actionColors.actionButtonText,
     letterSpacing: 0.5,
   },
   detailsText: {
-    fontFamily: theme.fontFamilies.secondary.regular,
+    fontFamily: 'WorkSans-Regular',
     fontSize: 13,
     lineHeight: 19,
-    color: '#94A3B8',
   },
   cardFooter: {
     flexDirection: 'row',
     gap: 16,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.08)',
     paddingTop: 10,
   },
   footerMetric: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: '#161C2E',
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
   },
   metricText: {
-    fontFamily: theme.fontFamilies.technical.medium,
+    fontFamily: 'SpaceGrotesk-Medium',
     fontSize: 11,
-    color: '#E2E8F0',
   },
   cardActionButton: {
-    backgroundColor: '#DC2626',
+    backgroundColor: actionColors.actionRed,
     height: 46,
     borderRadius: 12,
     flexDirection: 'row',
@@ -426,15 +439,10 @@ const styles = StyleSheet.create({
     marginTop: 4,
     borderWidth: 1,
     borderColor: '#EF4444',
-    shadowColor: '#DC2626',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.4,
-    shadowRadius: 6,
-    elevation: 4,
   },
   actionButtonText: {
-    color: '#FFFFFF',
-    fontFamily: theme.fontFamilies.technical.bold,
+    color: actionColors.actionButtonText,
+    fontFamily: 'SpaceGrotesk-Bold',
     fontSize: 12,
     letterSpacing: 0.8,
   },
@@ -442,28 +450,24 @@ const styles = StyleSheet.create({
     paddingVertical: 40,
     alignItems: 'center',
     gap: 10,
-    backgroundColor: '#0E1320',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
     borderRadius: 16,
     padding: 20,
   },
   emptyStateTitle: {
-    fontFamily: theme.fontFamilies.primary.bold,
+    fontFamily: 'WorkSans-Bold',
     fontSize: 18,
-    color: '#FFFFFF',
   },
   emptyStateText: {
-    fontFamily: theme.fontFamilies.secondary.regular,
+    fontFamily: 'WorkSans-Regular',
     fontSize: 13,
-    color: '#94A3B8',
     textAlign: 'center',
     lineHeight: 19,
   },
   scanButton: {
-    backgroundColor: '#161C2E',
+    backgroundColor: actionColors.actionRed,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.12)',
+    borderColor: '#EF4444',
     paddingHorizontal: 18,
     paddingVertical: 10,
     borderRadius: 20,
@@ -473,8 +477,8 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   scanButtonText: {
-    color: '#FFFFFF',
-    fontFamily: theme.fontFamilies.technical.bold,
+    color: actionColors.actionButtonText,
+    fontFamily: 'SpaceGrotesk-Bold',
     fontSize: 12,
     letterSpacing: 0.5,
   },

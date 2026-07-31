@@ -1,5 +1,5 @@
 import { PermissionsAndroid, Platform } from 'react-native';
-import Geolocation, { GeoPosition } from 'react-native-geolocation-service';
+import Geolocation, { GeoPosition, GeoError } from 'react-native-geolocation-service';
 
 export const locationService = {
   async requestLocationPermission(): Promise<boolean> {
@@ -34,8 +34,28 @@ export const locationService = {
         (error) => {
           reject(error);
         },
-        { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+        { enableHighAccuracy: true, timeout: 8000, maximumAge: 10000 }
       );
     });
+  },
+
+  watchLocation(
+    onSuccess: (position: GeoPosition) => void,
+    onError: (error: GeoError) => void
+  ): number {
+    return Geolocation.watchPosition(
+      onSuccess,
+      onError,
+      {
+        enableHighAccuracy: true,
+        distanceFilter: 10,
+        interval: 5000,
+        fastestInterval: 2000,
+      }
+    );
+  },
+
+  clearWatch(watchId: number): void {
+    Geolocation.clearWatch(watchId);
   },
 };
