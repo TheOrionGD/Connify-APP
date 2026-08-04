@@ -3,7 +3,7 @@ import { StyleSheet, View, Text } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { theme } from '../theme';
+import { useTheme } from '../theme';
 
 import SplashScreen from '../screens/Onboarding/SplashScreen';
 import WelcomeScreen from '../screens/Onboarding/WelcomeScreen';
@@ -23,13 +23,23 @@ const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 function MainTabs() {
+  const { colors } = useTheme();
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
-        tabBarStyle: styles.tabBar,
-        tabBarActiveTintColor: theme.colors.primary,
-        tabBarInactiveTintColor: theme.colors.onBackground,
+        tabBarStyle: {
+          backgroundColor: colors.background,
+          borderTopWidth: 1,
+          borderTopColor: colors.outline,
+          height: 64,
+          paddingBottom: 8,
+          paddingTop: 8,
+          elevation: 0,
+        },
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.onSurfaceVariant,
         tabBarLabelStyle: styles.tabBarLabel,
         tabBarIcon: ({ focused, color, size }) => {
           let iconName = 'help-outline';
@@ -46,11 +56,16 @@ function MainTabs() {
           }
 
           return (
-            <View style={[styles.iconContainer, focused ? styles.iconContainerFocused : null]}>
+            <View
+              style={[
+                styles.iconContainer,
+                focused ? { backgroundColor: colors.surfaceContainerHigh } : null,
+              ]}
+            >
               <Icon
                 name={iconName}
                 size={22}
-                color={focused ? theme.colors.primary : theme.colors.onBackground}
+                color={focused ? colors.primary : colors.onSurfaceVariant}
               />
             </View>
           );
@@ -105,17 +120,8 @@ function AppNavigator() {
 }
 
 const styles = StyleSheet.create({
-  tabBar: {
-    backgroundColor: theme.colors.background,
-    borderTopWidth: theme.spacing.borderWidthHeavy,
-    borderTopColor: theme.colors.outline,
-    height: 64,
-    paddingBottom: 8,
-    paddingTop: 8,
-    elevation: 0,
-  },
   tabBarLabel: {
-    fontFamily: theme.fontFamilies.technical.bold,
+    fontFamily: 'SpaceGrotesk-Bold',
     fontSize: 10,
     letterSpacing: 0.8,
     marginTop: 2,
@@ -124,9 +130,6 @@ const styles = StyleSheet.create({
   iconContainer: {
     padding: 4,
     borderRadius: 8,
-  },
-  iconContainerFocused: {
-    backgroundColor: theme.colors.surfaceContainerHigh,
   },
 });
 

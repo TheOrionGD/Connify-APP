@@ -82,6 +82,19 @@ interface AuthState {
   /** Firebase ID token — stored temporarily during device registration, then kept for refresh. */
   firebaseIdToken: string | null;
 
+  // ── Phone OTP ─────────────────────────────────────────────────────────────
+  /** Firebase phone-auth confirmation object returned after verifyPhoneNumber. */
+  phoneConfirmation: any | null;
+  otpSending: boolean;
+  otpVerifying: boolean;
+  otpError: string | null;
+
+  /** Send real Firebase OTP SMS to the given E.164 phone number. */
+  sendPhoneOtp: (phoneNumber: string) => Promise<void>;
+  /** Confirm the OTP code entered by the user. */
+  verifyPhoneOtp: (code: string) => Promise<boolean>;
+  clearOtpError: () => void;
+
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signUpWithEmail: (email: string, password: string, displayName: string) => Promise<void>;
   signInAnonymously: () => Promise<void>;
@@ -116,7 +129,61 @@ export const useAuthStore = create<AuthState>()(
       sessionToken: null,
       firebaseIdToken: null,
 
+      // Phone OTP initial state
+      phoneConfirmation: null,
+      otpSending: false,
+      otpVerifying: false,
+      otpError: null,
+
       setProfileCompleted: () => set({ hasCompletedProfile: true }),
+
+      // ── Real Firebase Phone OTP ────────────────────────────────────────────
+
+      sendPhoneOtp: async (phoneNumber: string) => {
+        set({ otpSending: true, otpError: null, phoneConfirmation: null });
+        try {
+          // Firebase verifyPhoneNumber sends a real SMS on device.
+          // It returns a confirmation object used to verify the code.
+          const confirmation = await auth().signInWithPhoneNumber(phoneNumber);
+          set({ phoneConfirmation: confirmation, otpSending: false });
+        } catch (e: any) {
+          let msg = e.message || 'Failed to send OTP';
+          // Give friendlier messages for common Firebase errors
+          if (e.code === 'auth/invalid-phone-number') {
+            msg = 'Invalid phone number. Use E.164 format: +91XXXXXXXXXX';
+          } else if (e.code === 'auth/too-many-requests') {
+            msg = 'Too many requests. Please wait a moment before retrying.';
+          } else if (e.code === 'auth/quota-exceeded') {
+            msg = 'SMS quota exceeded. Try again later.';
+          }
+          set({ otpError: msg, otpSending: false });
+        }
+      },
+
+      verifyPhoneOtp: async (code: string): Promise<boolean> => {
+        const { phoneConfirmation } = get();
+        if (!phoneConfirmation) {
+          set({ otpError: 'No OTP session found. Please send OTP first.' });
+          return false;
+        }
+        set({ otpVerifying: true, otpError: null });
+        try {
+          await phoneConfirmation.confirm(code);
+          set({ otpVerifying: false, phoneConfirmation: null });
+          return true;
+        } catch (e: any) {
+          let msg = e.message || 'Invalid OTP code';
+          if (e.code === 'auth/invalid-verification-code') {
+            msg = 'Incorrect OTP. Please check the code and try again.';
+          } else if (e.code === 'auth/code-expired') {
+            msg = 'OTP has expired. Please request a new one.';
+          }
+          set({ otpError: msg, otpVerifying: false });
+          return false;
+        }
+      },
+
+      clearOtpError: () => set({ otpError: null }),
 
       fetchProfile: async () => {
         try {

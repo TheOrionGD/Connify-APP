@@ -15,11 +15,26 @@ import { StandardButton } from '../../components/buttons/StandardButton';
 import { ProfileSetupModal } from '../../components/common/ProfileSetupModal';
 
 export default function SettingsScreen({ navigation }: any) {
-  const { user, deviceId, signOut } = useAuthStore();
+  const { user, userProfile, deviceId, signOut } = useAuthStore();
   const { themeMode, toggleTheme, colors, theme } = useTheme();
   const [showProfileModal, setShowProfileModal] = useState(false);
 
   const isDarkMode = themeMode === 'dark';
+
+  // Derive display name: prefer saved profile firstName+lastName, fallback to Firebase displayName
+  const profileName = userProfile
+    ? `${userProfile.firstName || ''} ${userProfile.lastName || ''}`.trim()
+    : user?.displayName || 'Anonymous Safety Node';
+
+  const profileSub = user?.email || user?.phoneNumber || 'Anonymous Firebase Credential';
+
+  // Derive initials for avatar
+  const initials = profileName
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w: string) => w[0].toUpperCase())
+    .join('');
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
@@ -40,15 +55,20 @@ export default function SettingsScreen({ navigation }: any) {
         {/* Profile Card */}
         <View style={[styles.profileCard, { backgroundColor: colors.surfaceContainerLowest, borderColor: colors.outline }]}>
           <View style={styles.profileHeader}>
-            <View style={[styles.avatarCircle, { backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline }]}>
-              <Icon name="account-circle" size={44} color={colors.primary} />
+            {/* Unified circular avatar — initials if name known, icon if not */}
+            <View style={[styles.avatarCircle, { backgroundColor: initials ? colors.primary : colors.surfaceContainerHigh, borderColor: colors.outline }]}>
+              {initials ? (
+                <Text style={[styles.avatarInitials, { color: '#FFFFFF' }]}>{initials}</Text>
+              ) : (
+                <Icon name="account-circle" size={44} color={colors.primary} />
+              )}
             </View>
             <View style={styles.profileTextGroup}>
               <Text style={[styles.profileName, { color: colors.onBackground }]}>
-                {user?.displayName || 'Anonymous Safety Node'}
+                {profileName}
               </Text>
               <Text style={[styles.profileSub, { color: colors.onSurfaceVariant }]}>
-                {user?.email || 'Anonymous Firebase Credential'}
+                {profileSub}
               </Text>
             </View>
           </View>
@@ -206,6 +226,11 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  avatarInitials: {
+    fontFamily: 'PlusJakartaSans-Bold',
+    fontSize: 18,
+    letterSpacing: 0.5,
   },
   profileTextGroup: {
     flex: 1,

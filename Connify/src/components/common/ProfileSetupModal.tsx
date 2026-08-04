@@ -11,7 +11,7 @@ import {
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
-import { theme } from '../../theme';
+import { useTheme } from '../../theme';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useAuthStore } from '../../stores/authStore';
 import { profileApi } from '../../services/api/profileApi';
@@ -32,7 +32,19 @@ const MEDICAL_CONDITIONS = [
 ];
 
 export function ProfileSetupModal({ visible, onComplete }: ProfileSetupModalProps) {
-  const { userProfile, setProfileCompleted, signUpWithEmail, user } = useAuthStore();
+  const { colors } = useTheme();
+  const {
+    userProfile,
+    setProfileCompleted,
+    // Real Firebase Phone OTP
+    sendPhoneOtp,
+    verifyPhoneOtp,
+    otpSending,
+    otpVerifying,
+    otpError,
+    clearOtpError,
+    phoneConfirmation,
+  } = useAuthStore();
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -43,12 +55,9 @@ export function ProfileSetupModal({ visible, onComplete }: ProfileSetupModalProp
   const [otpSent, setOtpSent] = useState(false);
   const [phoneVerified, setPhoneVerified] = useState(false);
 
-  // Email / Account link state
-  const [accountEmail, setAccountEmail] = useState('');
-  const [accountPassword, setAccountPassword] = useState('');
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [googleInfoVisible, setGoogleInfoVisible] = useState(false);
 
   // Populate stored profile data when modal opens
   useEffect(() => {
@@ -68,29 +77,42 @@ export function ProfileSetupModal({ visible, onComplete }: ProfileSetupModalProp
     }
   }, [visible, userProfile]);
 
-  const toggleCondition = (condId: string) => {
-    if (selectedConditions.includes(condId)) {
-      setSelectedConditions(selectedConditions.filter((id) => id !== condId));
-    } else {
-      setSelectedConditions([...selectedConditions, condId]);
+  // Sync OTP error from store into local error state
+  useEffect(() => {
+    if (otpError) {
+      setError(otpError);
     }
+  }, [otpError]);
+
+  const toggleCondition = (condId: string) => {
+    setSelectedConditions(prev =>
+      prev.includes(condId) ? prev.filter(id => id !== condId) : [...prev, condId],
+    );
   };
 
-  const handleSendOtp = () => {
+  const handleSendOtp = async () => {
     if (!phone.trim() || phone.length < 8) {
-      setError('Please enter a valid phone number with country code');
+      setError('Please enter a valid phone number with country code (e.g. +91XXXXXXXXXX)');
       return;
     }
     setError(null);
+    clearOtpError();
+    setOtpCode('');
+    await sendPhoneOtp(phone.trim());
+    // If no error was set, mark OTP as sent
     setOtpSent(true);
   };
 
-  const handleVerifyOtp = () => {
-    if (otpCode.trim() === '123456' || otpCode.length >= 4) {
+  const handleVerifyOtp = async () => {
+    if (!otpCode.trim() || otpCode.length < 4) {
+      setError('Please enter the OTP code sent to your phone');
+      return;
+    }
+    setError(null);
+    clearOtpError();
+    const success = await verifyPhoneOtp(otpCode.trim());
+    if (success) {
       setPhoneVerified(true);
-      setError(null);
-    } else {
-      setError('Invalid OTP code. Enter 123456 for demo verification.');
     }
   };
 
@@ -99,25 +121,20 @@ export function ProfileSetupModal({ visible, onComplete }: ProfileSetupModalProp
       setError('First and last name are required');
       return;
     }
-
     setLoading(true);
     setError(null);
-
     try {
-      // Build structured medical notes JSON string
       const medicalNotesFormatted = JSON.stringify({
         bloodGroup,
         conditions: selectedConditions,
         verifiedPhone: phoneVerified ? phone : null,
       });
-
       const response = await profileApi.upsertProfile({
         firstName: firstName.trim(),
         lastName: lastName.trim(),
         phone: phone.trim() || undefined,
         medicalNotes: medicalNotesFormatted,
       });
-
       if (response.success) {
         setProfileCompleted();
         onComplete();
@@ -131,108 +148,231 @@ export function ProfileSetupModal({ visible, onComplete }: ProfileSetupModalProp
     }
   };
 
+  const isDark = colors.background === '#050506';
+
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
       <KeyboardAvoidingView
-        style={styles.container}
+        style={[styles.container, { backgroundColor: colors.background }]}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <View style={styles.header}>
-          <Icon name="verified-user" size={36} color={theme.colors.primary} />
-          <Text style={styles.title}>Register Emergency Profile</Text>
-          <Text style={styles.subtitle}>
-            Your identity and medical emergency attributes are stored securely and only shared with verified responders.
+        {/* ── Header ─────────────────────────────────────────────────────── */}
+        <View
+          style={[
+            styles.header,
+            {
+              backgroundColor: colors.surfaceContainerHigh,
+              borderBottomColor: colors.outlineVariant,
+            },
+          ]}
+        >
+          <Icon name="verified-user" size={36} color={colors.primary} />
+          <Text style={[styles.title, { color: colors.onSurface }]}>
+            Register Emergency Profile
+          </Text>
+          <Text style={[styles.subtitle, { color: colors.onSurfaceVariant }]}>
+            Your identity and medical emergency attributes are stored securely and only shared with
+            verified responders.
           </Text>
         </View>
 
-        <ScrollView contentContainerStyle={styles.formContainer} showsVerticalScrollIndicator={false}>
-          {error && (
-            <View style={styles.errorContainer}>
-              <Icon name="error-outline" size={20} color={theme.colors.error} />
-              <Text style={styles.errorText}>{error}</Text>
+        <ScrollView
+          contentContainerStyle={[styles.formContainer, { backgroundColor: colors.background }]}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Error banner */}
+          {(error || otpError) && (
+            <View
+              style={[
+                styles.errorContainer,
+                { backgroundColor: colors.errorContainer, borderColor: colors.error },
+              ]}
+            >
+              <Icon name="error-outline" size={20} color={colors.error} />
+              <Text style={[styles.errorText, { color: colors.onErrorContainer }]}>
+                {error || otpError}
+              </Text>
             </View>
           )}
 
-          {/* Full Name */}
+          {/* ── Full Name ──────────────────────────────────────────────────── */}
           <View style={styles.rowGroup}>
             <View style={[styles.inputGroup, { flex: 1 }]}>
-              <Text style={styles.label}>First Name *</Text>
+              <Text style={[styles.label, { color: colors.onSurface }]}>First Name *</Text>
               <TextInput
-                style={styles.input}
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: colors.surfaceContainerHigh,
+                    borderColor: colors.outlineVariant,
+                    color: colors.onSurface,
+                  },
+                ]}
                 value={firstName}
                 onChangeText={setFirstName}
                 placeholder="e.g. Elena"
-                placeholderTextColor={theme.colors.onSurfaceVariant}
+                placeholderTextColor={colors.onSurfaceVariant}
               />
             </View>
             <View style={[styles.inputGroup, { flex: 1 }]}>
-              <Text style={styles.label}>Last Name *</Text>
+              <Text style={[styles.label, { color: colors.onSurface }]}>Last Name *</Text>
               <TextInput
-                style={styles.input}
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: colors.surfaceContainerHigh,
+                    borderColor: colors.outlineVariant,
+                    color: colors.onSurface,
+                  },
+                ]}
                 value={lastName}
                 onChangeText={setLastName}
                 placeholder="e.g. Vance"
-                placeholderTextColor={theme.colors.onSurfaceVariant}
+                placeholderTextColor={colors.onSurfaceVariant}
               />
             </View>
           </View>
 
-          {/* Phone Number & OTP Verification */}
+          {/* ── Phone + Real Firebase OTP ──────────────────────────────────── */}
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Phone Number (OTP Verification)</Text>
+            <Text style={[styles.label, { color: colors.onSurface }]}>
+              Phone Number (OTP Verification)
+            </Text>
             <View style={styles.phoneInputRow}>
               <TextInput
-                style={[styles.input, { flex: 1 }]}
+                style={[
+                  styles.input,
+                  {
+                    flex: 1,
+                    backgroundColor: colors.surfaceContainerHigh,
+                    borderColor: colors.outlineVariant,
+                    color: colors.onSurface,
+                  },
+                ]}
                 value={phone}
                 onChangeText={setPhone}
-                placeholder="+1 555-0198"
+                placeholder="+91 XXXXX XXXXX"
                 keyboardType="phone-pad"
-                placeholderTextColor={theme.colors.onSurfaceVariant}
+                placeholderTextColor={colors.onSurfaceVariant}
+                editable={!phoneVerified}
               />
               <TouchableOpacity
-                style={[styles.verifyBadge, phoneVerified && styles.verifiedBadge]}
+                style={[
+                  styles.verifyBadge,
+                  phoneVerified
+                    ? { backgroundColor: colors.statusGreen }
+                    : { backgroundColor: colors.primary },
+                  (otpSending || phoneVerified) && styles.disabledOp,
+                ]}
                 onPress={handleSendOtp}
-                disabled={phoneVerified}
+                disabled={phoneVerified || otpSending}
               >
-                <Text style={styles.verifyBadgeText}>
-                  {phoneVerified ? 'VERIFIED ✓' : otpSent ? 'RESEND OTP' : 'SEND OTP'}
-                </Text>
+                {otpSending ? (
+                  <ActivityIndicator size="small" color="#FFFFFF" />
+                ) : (
+                  <Text style={styles.verifyBadgeText}>
+                    {phoneVerified ? 'VERIFIED ✓' : otpSent ? 'RESEND' : 'SEND OTP'}
+                  </Text>
+                )}
               </TouchableOpacity>
             </View>
+            <Text style={[styles.inputHint, { color: colors.onSurfaceVariant }]}>
+              Use E.164 format: +91XXXXXXXXXX · +1XXXXXXXXXX
+            </Text>
           </View>
 
+          {/* OTP Entry — shown after sending */}
           {otpSent && !phoneVerified && (
-            <View style={styles.otpCard}>
-              <Text style={styles.otpHint}>Enter OTP Code (Use 123456 for demo):</Text>
+            <View
+              style={[
+                styles.otpCard,
+                {
+                  backgroundColor: colors.surfaceContainerHigh,
+                  borderColor: colors.primary,
+                },
+              ]}
+            >
+              <View style={styles.otpCardHeader}>
+                <Icon name="sms" size={18} color={colors.primary} />
+                <Text style={[styles.otpHint, { color: colors.onSurface }]}>
+                  OTP sent via Firebase SMS
+                </Text>
+              </View>
+              <Text style={[styles.otpSubHint, { color: colors.onSurfaceVariant }]}>
+                Check your messages and enter the 6-digit code below.
+              </Text>
               <View style={styles.phoneInputRow}>
                 <TextInput
-                  style={[styles.input, { flex: 1 }]}
+                  style={[
+                    styles.input,
+                    {
+                      flex: 1,
+                      backgroundColor: colors.surfaceContainer,
+                      borderColor: colors.primary,
+                      color: colors.onSurface,
+                      letterSpacing: 4,
+                      fontSize: 18,
+                      textAlign: 'center',
+                    },
+                  ]}
                   value={otpCode}
-                  onChangeText={setOtpCode}
-                  placeholder="123456"
+                  onChangeText={text => setOtpCode(text.replace(/\D/g, '').slice(0, 6))}
+                  placeholder="• • • • • •"
                   keyboardType="number-pad"
-                  placeholderTextColor={theme.colors.onSurfaceVariant}
+                  maxLength={6}
+                  placeholderTextColor={colors.onSurfaceVariant}
                 />
-                <TouchableOpacity style={styles.verifyButton} onPress={handleVerifyOtp}>
-                  <Text style={styles.verifyButtonText}>VERIFY</Text>
+                <TouchableOpacity
+                  style={[
+                    styles.verifyButton,
+                    { backgroundColor: colors.primary },
+                    otpVerifying && styles.disabledOp,
+                  ]}
+                  onPress={handleVerifyOtp}
+                  disabled={otpVerifying}
+                >
+                  {otpVerifying ? (
+                    <ActivityIndicator size="small" color="#FFFFFF" />
+                  ) : (
+                    <Text style={styles.verifyButtonText}>VERIFY</Text>
+                  )}
                 </TouchableOpacity>
               </View>
             </View>
           )}
 
-          {/* Medical Data — Blood Group (Radio Choice) */}
+          {/* ── Blood Group ────────────────────────────────────────────────── */}
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Blood Group Type (Radio Select)</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.radioChipsRow}>
-              {BLOOD_GROUPS.map((bg) => {
+            <Text style={[styles.label, { color: colors.onSurface }]}>
+              Blood Group Type (Radio Select)
+            </Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.radioChipsRow}
+            >
+              {BLOOD_GROUPS.map(bg => {
                 const isSelected = bloodGroup === bg;
                 return (
                   <TouchableOpacity
                     key={bg}
-                    style={[styles.chip, isSelected && styles.chipSelected]}
+                    style={[
+                      styles.chip,
+                      {
+                        backgroundColor: isSelected
+                          ? colors.primary
+                          : colors.surfaceContainerHigh,
+                        borderColor: isSelected ? colors.primary : colors.outlineVariant,
+                      },
+                    ]}
                     onPress={() => setBloodGroup(bg)}
                   >
-                    <Text style={[styles.chipText, isSelected && styles.chipTextSelected]}>
+                    <Text
+                      style={[
+                        styles.chipText,
+                        { color: isSelected ? '#FFFFFF' : colors.onSurfaceVariant },
+                      ]}
+                    >
                       {bg}
                     </Text>
                   </TouchableOpacity>
@@ -241,22 +381,48 @@ export function ProfileSetupModal({ visible, onComplete }: ProfileSetupModalProp
             </ScrollView>
           </View>
 
-          {/* Medical Data — Conditions & Allergies (Checkbox Choice) */}
+          {/* ── Medical Conditions ─────────────────────────────────────────── */}
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Medical Conditions & Allergies (Checkboxes)</Text>
+            <Text style={[styles.label, { color: colors.onSurface }]}>
+              Medical Conditions & Allergies
+            </Text>
             <View style={styles.checkboxGrid}>
-              {MEDICAL_CONDITIONS.map((cond) => {
+              {MEDICAL_CONDITIONS.map(cond => {
                 const isChecked = selectedConditions.includes(cond.id);
                 return (
                   <TouchableOpacity
                     key={cond.id}
-                    style={[styles.checkboxTile, isChecked && styles.checkboxTileChecked]}
+                    style={[
+                      styles.checkboxTile,
+                      {
+                        backgroundColor: isChecked
+                          ? colors.primaryContainer
+                          : colors.surfaceContainerHigh,
+                        borderColor: isChecked ? colors.primary : colors.outlineVariant,
+                      },
+                    ]}
                     onPress={() => toggleCondition(cond.id)}
                   >
-                    <View style={[styles.checkboxBox, isChecked && styles.checkboxBoxChecked]}>
+                    <View
+                      style={[
+                        styles.checkboxBox,
+                        {
+                          borderColor: isChecked ? colors.primary : colors.onSurfaceVariant,
+                          backgroundColor: isChecked ? colors.primary : 'transparent',
+                        },
+                      ]}
+                    >
                       {isChecked && <Icon name="check" size={12} color="#FFFFFF" />}
                     </View>
-                    <Text style={[styles.checkboxText, isChecked && styles.checkboxTextChecked]}>
+                    <Text
+                      style={[
+                        styles.checkboxText,
+                        {
+                          color: isChecked ? colors.onPrimaryContainer : colors.onSurfaceVariant,
+                          fontFamily: isChecked ? 'WorkSans-Bold' : 'WorkSans-Regular',
+                        },
+                      ]}
+                    >
                       {cond.label}
                     </Text>
                   </TouchableOpacity>
@@ -265,27 +431,87 @@ export function ProfileSetupModal({ visible, onComplete }: ProfileSetupModalProp
             </View>
           </View>
 
-          {/* Account Authentication Options */}
-          <View style={styles.accountAuthSection}>
-            <Text style={styles.sectionHeader}>Link Account (Google / Email)</Text>
-            <TouchableOpacity
-              style={styles.googleButton}
-              onPress={() => setError('Google Sign-In ready for native build.')}
-            >
-              <Icon name="g-mobiledata" size={26} color="#FFFFFF" />
-              <Text style={styles.googleButtonText}>SIGN IN WITH GOOGLE</Text>
-            </TouchableOpacity>
+          {/* ── Google Sign-In ─────────────────────────────────────────────── */}
+          <View
+            style={[
+              styles.accountAuthSection,
+              { borderTopColor: colors.outlineVariant },
+            ]}
+          >
+            <Text style={[styles.sectionHeader, { color: colors.onSurfaceVariant }]}>
+              LINK ACCOUNT
+            </Text>
+
+            {googleInfoVisible ? (
+              // Info state — not an error, just informational
+              <View
+                style={[
+                  styles.googleInfoBanner,
+                  {
+                    backgroundColor: colors.surfaceContainerHigh,
+                    borderColor: colors.outlineVariant,
+                  },
+                ]}
+              >
+                <Icon name="info-outline" size={20} color={colors.primary} />
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.googleInfoTitle, { color: colors.onSurface }]}>
+                    Google Sign-In — Native Build Required
+                  </Text>
+                  <Text style={[styles.googleInfoBody, { color: colors.onSurfaceVariant }]}>
+                    Google Sign-In is configured in Firebase and ready. It requires the
+                    @react-native-google-signin package and a native Android/iOS build. It is not
+                    available in Expo Go or Metro preview.
+                  </Text>
+                  <TouchableOpacity onPress={() => setGoogleInfoVisible(false)}>
+                    <Text style={[styles.googleInfoDismiss, { color: colors.primary }]}>
+                      Dismiss
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ) : (
+              <TouchableOpacity
+                style={[
+                  styles.googleButton,
+                  {
+                    backgroundColor: colors.surfaceContainerHigh,
+                    borderColor: colors.outlineVariant,
+                  },
+                ]}
+                onPress={() => setGoogleInfoVisible(true)}
+              >
+                <Icon name="g-mobiledata" size={26} color={colors.primary} />
+                <Text style={[styles.googleButtonText, { color: colors.onSurface }]}>
+                  SIGN IN WITH GOOGLE
+                </Text>
+                <Icon name="info-outline" size={16} color={colors.onSurfaceVariant} />
+              </TouchableOpacity>
+            )}
           </View>
         </ScrollView>
 
-        <View style={styles.footer}>
+        {/* ── Footer / Save ──────────────────────────────────────────────── */}
+        <View
+          style={[
+            styles.footer,
+            {
+              backgroundColor: colors.surfaceContainerHigh,
+              borderTopColor: colors.outlineVariant,
+            },
+          ]}
+        >
           <TouchableOpacity
-            style={[styles.button, loading && styles.buttonDisabled]}
+            style={[
+              styles.button,
+              { backgroundColor: colors.primary },
+              loading && styles.disabledOp,
+            ]}
             onPress={handleSave}
             disabled={loading}
           >
             {loading ? (
-              <ActivityIndicator color={theme.colors.onPrimary} />
+              <ActivityIndicator color="#FFFFFF" />
             ) : (
               <Text style={styles.buttonText}>SAVE PROFILE TO DATABASE</Text>
             )}
@@ -299,49 +525,43 @@ export function ProfileSetupModal({ visible, onComplete }: ProfileSetupModalProp
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#050506',
   },
   header: {
     padding: 24,
     paddingTop: 40,
     alignItems: 'center',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.08)',
-    backgroundColor: '#0E1320',
+    gap: 8,
   },
   title: {
-    fontFamily: theme.fontFamilies.primary.bold,
+    fontFamily: 'PlusJakartaSans-Bold',
     fontSize: 22,
-    color: '#FFFFFF',
-    marginTop: 12,
+    marginTop: 4,
   },
   subtitle: {
-    fontFamily: theme.fontFamilies.secondary.regular,
+    fontFamily: 'WorkSans-Regular',
     fontSize: 13,
-    color: '#94A3B8',
     textAlign: 'center',
-    marginTop: 6,
-    lineHeight: 18,
+    lineHeight: 20,
   },
   formContainer: {
     padding: 20,
     gap: 18,
+    paddingBottom: 32,
   },
   errorContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(239, 68, 68, 0.15)',
+    alignItems: 'flex-start',
     borderWidth: 1,
-    borderColor: 'rgba(239, 68, 68, 0.4)',
     padding: 12,
     borderRadius: 10,
     gap: 8,
   },
   errorText: {
-    color: '#FCA5A5',
-    fontFamily: theme.fontFamilies.technical.medium,
+    fontFamily: 'SpaceGrotesk-Medium',
     fontSize: 12,
     flex: 1,
+    lineHeight: 18,
   },
   rowGroup: {
     flexDirection: 'row',
@@ -351,20 +571,21 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   label: {
-    fontFamily: theme.fontFamilies.technical.bold,
+    fontFamily: 'SpaceGrotesk-Bold',
     fontSize: 12,
-    color: '#E2E8F0',
     letterSpacing: 0.5,
   },
+  inputHint: {
+    fontFamily: 'WorkSans-Regular',
+    fontSize: 11,
+    marginTop: 2,
+  },
   input: {
-    backgroundColor: '#161C2E',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
     borderRadius: 10,
     paddingHorizontal: 14,
     paddingVertical: 12,
-    color: '#FFFFFF',
-    fontFamily: theme.fontFamilies.secondary.regular,
+    fontFamily: 'WorkSans-Regular',
     fontSize: 14,
   },
   phoneInputRow: {
@@ -373,42 +594,53 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   verifyBadge: {
-    backgroundColor: '#DC2626',
     paddingHorizontal: 14,
     paddingVertical: 12,
     borderRadius: 10,
+    minWidth: 80,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  verifiedBadge: {
-    backgroundColor: '#10B981',
+  disabledOp: {
+    opacity: 0.65,
   },
   verifyBadgeText: {
     color: '#FFFFFF',
-    fontFamily: theme.fontFamilies.technical.bold,
+    fontFamily: 'SpaceGrotesk-Bold',
     fontSize: 11,
     letterSpacing: 0.5,
   },
   otpCard: {
-    backgroundColor: '#161C2E',
-    padding: 12,
+    padding: 14,
     borderRadius: 10,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderWidth: 1.5,
+    gap: 8,
+  },
+  otpCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 8,
   },
   otpHint: {
+    fontSize: 13,
+    fontFamily: 'WorkSans-Bold',
+  },
+  otpSubHint: {
     fontSize: 12,
-    color: '#94A3B8',
-    fontFamily: theme.fontFamilies.secondary.regular,
+    fontFamily: 'WorkSans-Regular',
+    lineHeight: 17,
   },
   verifyButton: {
-    backgroundColor: '#DC2626',
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 10,
+    minWidth: 80,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   verifyButtonText: {
     color: '#FFFFFF',
-    fontFamily: theme.fontFamilies.technical.bold,
+    fontFamily: 'SpaceGrotesk-Bold',
     fontSize: 12,
   },
   radioChipsRow: {
@@ -420,26 +652,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 20,
-    backgroundColor: '#161C2E',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  chipSelected: {
-    backgroundColor: '#DC2626',
-    borderColor: '#EF4444',
-    shadowColor: '#DC2626',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.5,
-    shadowRadius: 6,
-    elevation: 4,
   },
   chipText: {
     fontSize: 13,
-    fontFamily: theme.fontFamilies.technical.bold,
-    color: '#94A3B8',
-  },
-  chipTextSelected: {
-    color: '#FFFFFF',
+    fontFamily: 'SpaceGrotesk-Bold',
   },
   checkboxGrid: {
     flexDirection: 'row',
@@ -450,94 +667,85 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     width: '48%',
-    backgroundColor: '#161C2E',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
     borderRadius: 10,
     padding: 12,
     gap: 8,
-  },
-  checkboxTileChecked: {
-    borderColor: '#DC2626',
-    backgroundColor: 'rgba(220, 38, 38, 0.15)',
   },
   checkboxBox: {
     width: 18,
     height: 18,
     borderRadius: 4,
     borderWidth: 1.5,
-    borderColor: '#94A3B8',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  checkboxBoxChecked: {
-    borderColor: '#DC2626',
-    backgroundColor: '#DC2626',
-  },
   checkboxText: {
     fontSize: 12,
-    fontFamily: theme.fontFamilies.secondary.regular,
-    color: '#94A3B8',
     flex: 1,
-  },
-  checkboxTextChecked: {
-    fontFamily: theme.fontFamilies.secondary.bold,
-    color: '#FFFFFF',
   },
   accountAuthSection: {
     marginTop: 8,
     gap: 10,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.08)',
     paddingTop: 14,
   },
   sectionHeader: {
-    fontFamily: theme.fontFamilies.technical.bold,
-    fontSize: 12,
-    color: '#94A3B8',
-    letterSpacing: 0.5,
+    fontFamily: 'SpaceGrotesk-Bold',
+    fontSize: 11,
+    letterSpacing: 1,
   },
   googleButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#1E2638',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.12)',
     paddingVertical: 14,
     borderRadius: 10,
     gap: 8,
   },
   googleButtonText: {
-    color: '#FFFFFF',
-    fontFamily: theme.fontFamilies.technical.bold,
+    fontFamily: 'SpaceGrotesk-Bold',
     fontSize: 12,
     letterSpacing: 0.8,
+    flex: 1,
+  },
+  googleInfoBanner: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 14,
+    gap: 10,
+  },
+  googleInfoTitle: {
+    fontFamily: 'WorkSans-Bold',
+    fontSize: 13,
+    marginBottom: 4,
+  },
+  googleInfoBody: {
+    fontFamily: 'WorkSans-Regular',
+    fontSize: 12,
+    lineHeight: 18,
+  },
+  googleInfoDismiss: {
+    fontFamily: 'SpaceGrotesk-Bold',
+    fontSize: 12,
+    marginTop: 8,
   },
   footer: {
     padding: 20,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.08)',
-    backgroundColor: '#0E1320',
   },
   button: {
-    backgroundColor: '#DC2626',
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#DC2626',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  buttonDisabled: {
-    opacity: 0.7,
   },
   buttonText: {
     color: '#FFFFFF',
-    fontFamily: theme.fontFamilies.technical.bold,
+    fontFamily: 'SpaceGrotesk-Bold',
     fontSize: 13,
     letterSpacing: 1,
   },
