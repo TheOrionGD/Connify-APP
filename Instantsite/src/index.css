@@ -1,0 +1,457 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Work+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+html, body, #root {
+  background-color: #090a0f !important;
+  color: #ffffff !important;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+@theme {
+  --font-sans: "Work Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Plus Jakarta Sans", sans-serif;
+  --font-mono: "Space Grotesk", sans-serif;
+  --font-code: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-tech: "Orbitron", sans-serif;
+
+  --color-brand-red: #e11d48;
+  --color-brand-red-hover: #be123c;
+  --color-brand-blue: #2563eb;
+  --color-brand-blue-hover: #1d4ed8;
+  --color-brand-green: #10b981;
+  --color-brand-cyan: #06b6d4;
+  --color-brand-beige: #0f111a;
+  --color-brand-black: #090a0f;
+  --color-brand-surface: #161926;
+  --color-brand-muted: #94a3b8;
+  --color-brand-border: rgba(255, 255, 255, 0.12);
+
+  @keyframes pulse-ring {
+    0% {
+      transform: scale(0.95);
+      opacity: 0.6;
+    }
+    50% {
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1.35);
+      opacity: 0;
+    }
+  }
+
+  @keyframes radar-sweep {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes beacon-ping {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.2);
+      opacity: 0.6;
+    }
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+
+  @keyframes float-glow {
+    0%, 100% {
+      transform: translateY(0px);
+      filter: drop-shadow(0 0 15px rgba(225, 29, 72, 0.3));
+    }
+    50% {
+      transform: translateY(-8px);
+      filter: drop-shadow(0 0 25px rgba(225, 29, 72, 0.5));
+    }
+  }
+
+  --animate-pulse-ring: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-radar-sweep: radar-sweep 6s linear infinite;
+  --animate-beacon-ping: beacon-ping 1.5s ease-in-out infinite;
+  --animate-shimmer: shimmer 3s infinite linear;
+  --animate-float-glow: float-glow 4s ease-in-out infinite;
+}
+
+/* Custom Cyberpunk Dark Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #090a0f;
+}
+::-webkit-scrollbar-thumb {
+  background: #e11d48;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #be123c;
+}
+
+/* Radar Gradient */
+.radar-fade {
+  background: conic-gradient(from 0deg, rgba(225, 29, 72, 0.25) 0deg, rgba(225, 29, 72, 0) 110deg, rgba(225, 29, 72, 0) 360deg);
+}
+
+.radar-fade-cyan {
+  background: conic-gradient(from 0deg, rgba(6, 182, 212, 0.25) 0deg, rgba(6, 182, 212, 0) 110deg, rgba(6, 182, 212, 0) 360deg);
+}
+
+/* High-End Glassmorphic Panels */
+.glass-panel-dark {
+  background: rgba(22, 25, 38, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-card-glow {
+  background: linear-gradient(135deg, rgba(30, 35, 52, 0.7) 0%, rgba(15, 17, 26, 0.85) 100%);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+}
+
+.glass-card-glow:hover {
+  border-color: rgba(225, 29, 72, 0.4);
+  box-shadow: 0 15px 35px -10px rgba(225, 29, 72, 0.25);
+}
+
+.neon-border-red {
+  box-shadow: 0 0 15px rgba(225, 29, 72, 0.3), inset 0 0 15px rgba(225, 29, 72, 0.15);
+}
+
+.neon-border-emerald {
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.3), inset 0 0 15px rgba(16, 185, 129, 0.15);
+}
+
+.scanline-bg {
+  background: linear-gradient(
+    to bottom,
+    rgba(255,255,255,0),
+    rgba(255,255,255,0) 50%,
+    rgba(0, 0, 0, 0.25) 50%,
+    rgba(0, 0, 0, 0.25)
+  );
+  background-size: 100% 4px;
+}
+
+.grid-pattern-bg {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* ── Mobile overflow & text containment fixes ── */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+  /* Smooth theme transition */
+  transition: background-color 0.35s ease, color 0.35s ease;
+}
+
+/* Prevent long unbreakable strings (hashes, addresses) from bursting containers */
+.break-anywhere {
+  overflow-wrap: anywhere;
+  word-break: break-all;
+}
+
+/* Code/pre blocks: scroll horizontally instead of blowing out the layout */
+pre, code {
+  max-width: 100%;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* Constrain all sections to the viewport */
+section {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Ensure every flex/grid child cannot exceed its parent on mobile */
+@media (max-width: 640px) {
+  .glass-card-glow,
+  .glass-panel-dark {
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  /* Tighten font sizes for mono/tech fonts that overflow on small phones */
+  .font-tech {
+    letter-spacing: 0.02em;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════
+   LIGHT THEME  ·  data-theme="light"
+   Warm beige palette — #f5f0e6 background, rich dark text
+   ════════════════════════════════════════════════════════════ */
+
+[data-theme="light"] {
+  /* Base surfaces */
+  --lt-bg:           #f5f0e6;   /* warm beige page background */
+  --lt-surface:      #ede8db;   /* slightly deeper beige for cards */
+  --lt-surface2:     #e4ddd0;   /* inner panels / code blocks */
+  --lt-border:       rgba(140, 110, 70, 0.2);
+  --lt-border-hover: rgba(225, 29, 72, 0.35);
+
+  /* Text */
+  --lt-text:         #1a1410;   /* near-black warm */
+  --lt-text-muted:   #6b5c4a;   /* warm brown-grey for secondary text */
+  --lt-text-faint:   #9c8a76;   /* very faint labels */
+
+  /* Accent - rose stays the same, adjusted opacity */
+  --lt-rose:         #e11d48;
+  --lt-rose-bg:      rgba(225, 29, 72, 0.08);
+  --lt-rose-border:  rgba(225, 29, 72, 0.25);
+}
+
+/* ── HTML + Body ── */
+[data-theme="light"],
+[data-theme="light"] body,
+[data-theme="light"] #root {
+  background-color: var(--lt-bg) !important;
+  color: var(--lt-text) !important;
+}
+
+/* ── Navbar ── */
+[data-theme="light"] header#connify-navbar {
+  background-color: rgba(245, 240, 230, 0.92) !important;
+  border-bottom-color: var(--lt-border) !important;
+  box-shadow: 0 2px 20px rgba(140, 110, 70, 0.12) !important;
+}
+
+[data-theme="light"] header#connify-navbar nav {
+  background-color: var(--lt-surface) !important;
+  border-color: var(--lt-border) !important;
+}
+
+[data-theme="light"] header#connify-navbar .font-tech {
+  color: #1a1410 !important;
+}
+
+[data-theme="light"] header#connify-navbar .text-slate-400 {
+  color: var(--lt-text-muted) !important;
+}
+
+[data-theme="light"] header#connify-navbar .text-emerald-400 {
+  color: #059669 !important;
+}
+
+/* Nav buttons in light mode */
+[data-theme="light"] header#connify-navbar button:not(.bg-rose-600) {
+  color: var(--lt-text-muted);
+}
+
+[data-theme="light"] header#connify-navbar button:not(.bg-rose-600):hover {
+  background-color: var(--lt-surface2) !important;
+  color: var(--lt-text) !important;
+}
+
+/* Admin portal button in light */
+[data-theme="light"] header#connify-navbar button.bg-white\/5 {
+  background-color: var(--lt-surface) !important;
+  border-color: var(--lt-border) !important;
+  color: var(--lt-text) !important;
+}
+
+/* ── Glass Cards ── */
+[data-theme="light"] .glass-card-glow {
+  background: linear-gradient(135deg, rgba(237, 232, 219, 0.95) 0%, rgba(228, 221, 208, 0.98) 100%) !important;
+  border-color: var(--lt-border) !important;
+  box-shadow: 0 8px 24px -8px rgba(140, 110, 70, 0.18) !important;
+}
+
+[data-theme="light"] .glass-card-glow:hover {
+  border-color: var(--lt-border-hover) !important;
+  box-shadow: 0 12px 30px -8px rgba(225, 29, 72, 0.15) !important;
+}
+
+[data-theme="light"] .glass-panel-dark {
+  background: rgba(237, 232, 219, 0.9) !important;
+  border-color: var(--lt-border) !important;
+}
+
+/* ── Section backgrounds (bg-[#0f111a], bg-[#12141d], bg-[#090a0f]) ── */
+[data-theme="light"] .bg-\[\#0f111a\],
+[data-theme="light"] .bg-\[\#090a0f\],
+[data-theme="light"] .bg-\[\#12141d\],
+[data-theme="light"] .bg-\[\#161926\] {
+  background-color: var(--lt-surface) !important;
+}
+
+/* Footer */
+[data-theme="light"] footer {
+  background-color: var(--lt-surface) !important;
+  border-top-color: var(--lt-border) !important;
+}
+
+/* ── Text colour overrides ── */
+[data-theme="light"] .text-white {
+  color: var(--lt-text) !important;
+}
+
+[data-theme="light"] .text-slate-300,
+[data-theme="light"] .text-slate-200 {
+  color: #3d2e1f !important;
+}
+
+[data-theme="light"] .text-slate-400,
+[data-theme="light"] .text-slate-500 {
+  color: var(--lt-text-muted) !important;
+}
+
+[data-theme="light"] .text-slate-600 {
+  color: var(--lt-text-faint) !important;
+}
+
+/* Keep accent colours vivid but slightly deepened for light contrast */
+[data-theme="light"] .text-rose-400,
+[data-theme="light"] .text-rose-500 {
+  color: #be123c !important;
+}
+
+[data-theme="light"] .text-emerald-400 {
+  color: #047857 !important;
+}
+
+[data-theme="light"] .text-cyan-400 {
+  color: #0369a1 !important;
+}
+
+[data-theme="light"] .text-amber-400 {
+  color: #b45309 !important;
+}
+
+[data-theme="light"] .text-purple-400 {
+  color: #7c3aed !important;
+}
+
+/* ── Borders ── */
+[data-theme="light"] .border-white\/10,
+[data-theme="light"] .border-white\/15,
+[data-theme="light"] .border-white\/20 {
+  border-color: var(--lt-border) !important;
+}
+
+/* ── Input fields ── */
+[data-theme="light"] input[type="text"],
+[data-theme="light"] input[type="email"],
+[data-theme="light"] input[type="password"],
+[data-theme="light"] textarea {
+  background-color: #fff8f0 !important;
+  border-color: rgba(140, 110, 70, 0.3) !important;
+  color: var(--lt-text) !important;
+}
+
+[data-theme="light"] input::placeholder {
+  color: var(--lt-text-faint) !important;
+}
+
+[data-theme="light"] input:focus {
+  border-color: var(--lt-rose) !important;
+}
+
+/* ── Range sliders ── */
+[data-theme="light"] input[type="range"] {
+  background-color: #d9cfc0 !important;
+}
+
+/* ── Bg accent pills ── */
+[data-theme="light"] .bg-rose-500\/10 {
+  background-color: rgba(225, 29, 72, 0.08) !important;
+}
+
+[data-theme="light"] .bg-rose-500\/20 {
+  background-color: rgba(225, 29, 72, 0.12) !important;
+}
+
+[data-theme="light"] .bg-emerald-500\/10 {
+  background-color: rgba(4, 120, 87, 0.08) !important;
+}
+
+[data-theme="light"] .bg-emerald-500\/20 {
+  background-color: rgba(4, 120, 87, 0.12) !important;
+}
+
+[data-theme="light"] .bg-white\/5,
+[data-theme="light"] .bg-white\/10 {
+  background-color: rgba(140, 110, 70, 0.08) !important;
+}
+
+/* ── Scrollbar for light mode ── */
+[data-theme="light"] ::-webkit-scrollbar-track {
+  background: var(--lt-bg);
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: rgba(225, 29, 72, 0.5);
+}
+
+/* ── Splash loader ── */
+[data-theme="light"] .min-h-screen.bg-\[\#090a0f\] {
+  background-color: var(--lt-bg) !important;
+}
+
+/* ── Mobile bottom dock ── */
+[data-theme="light"] .bg-\[\#090a0f\]\/90 {
+  background-color: rgba(245, 240, 230, 0.92) !important;
+  border-color: var(--lt-border) !important;
+}
+
+/* ── Grid pattern on hero ── */
+[data-theme="light"] .grid-pattern-bg {
+  background-image: radial-gradient(rgba(140, 110, 70, 0.12) 1px, transparent 1px);
+}
+
+/* Prevent long unbreakable strings (hashes, addresses) from bursting containers */
+.break-anywhere {
+  overflow-wrap: anywhere;
+  word-break: break-all;
+}
+
+/* Code/pre blocks: scroll horizontally instead of blowing out the layout */
+pre, code {
+  max-width: 100%;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* Constrain all sections to the viewport */
+section {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Ensure every flex/grid child cannot exceed its parent on mobile */
+@media (max-width: 640px) {
+  .glass-card-glow,
+  .glass-panel-dark {
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  /* Tighten font sizes for mono/tech fonts that overflow on small phones */
+  .font-tech {
+    letter-spacing: 0.02em;
+  }
+}

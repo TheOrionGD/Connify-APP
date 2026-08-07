@@ -1,0 +1,109 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Device {
+  id                    String    @id @default(auto()) @map("_id") @db.ObjectId
+  deviceFingerprintHash String    @unique @map("device_fingerprint_hash")
+  publicKey             String    @map("public_key")
+  phoneHash             String?   @map("phone_hash")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  lastSeenAt            DateTime? @map("last_seen_at")
+
+  episodes Episode[]
+  capsules Capsule[]
+  profile  Profile?
+
+  @@map("devices")
+}
+
+model Episode {
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  requesterDeviceId String   @map("requester_device_id") @db.ObjectId
+  category          String
+  urgency           Int
+  status            String   @default("pending") // pending/matched/active/completed/expired/cancelled
+  latitude          Float
+  longitude         Float
+  radiusMeters      Int      @default(500) @map("radius_meters")
+  blindedGridSigs      String?  @map("bch_syndromes")
+  helperValidationKey     String?  @map("helper_string_y")
+  gridCellsJson     String?  @map("grid_cells_json")
+  createdAt         DateTime @default(now()) @map("created_at")
+  expiresAt         DateTime @map("expires_at")
+
+  requester Device     @relation(fields: [requesterDeviceId], references: [id])
+  capsules  Capsule[]
+  outcomes  Outcome[]
+  auditLogs AuditLog[]
+
+  @@map("episodes")
+}
+
+model Capsule {
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  episodeId       String    @map("episode_id") @db.ObjectId
+  helperDeviceId  String    @map("helper_device_id") @db.ObjectId
+  signedTokenHash String    @map("signed_token_hash")
+  status          String    @default("issued") // issued/redeemed/expired/revoked
+  blindedGridCell String?   @map("blinded_grid_cell")
+  issuedAt        DateTime  @default(now()) @map("issued_at")
+  expiresAt       DateTime  @map("expires_at")
+  redeemedAt      DateTime? @map("redeemed_at")
+
+  episode Episode @relation(fields: [episodeId], references: [id])
+  helper  Device  @relation(fields: [helperDeviceId], references: [id])
+
+  @@map("capsules")
+}
+
+model Outcome {
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  episodeId         String   @map("episode_id") @db.ObjectId
+  result            String // success/failure
+  category          String
+  riskLevel         Int?     @map("risk_level")
+  completedInWindow Boolean  @map("completed_in_window")
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  episode Episode @relation(fields: [episodeId], references: [id])
+
+  @@map("outcomes")
+}
+
+model AuditLog {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  eventType String   @map("event_type")
+  episodeId String?  @map("episode_id") @db.ObjectId
+  prevHash  String   @map("prev_hash")
+  entryHash String   @map("entry_hash")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  episode Episode? @relation(fields: [episodeId], references: [id])
+
+  @@map("audit_log")
+}
+
+model Profile {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  deviceId     String   @unique @map("device_id") @db.ObjectId
+  firstName    String   @map("first_name")
+  lastName     String   @map("last_name")
+  phone        String?
+  medicalNotes String?  @map("medical_notes")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  device Device @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+
+  @@map("profiles")
+}

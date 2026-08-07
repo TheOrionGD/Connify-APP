@@ -1,0 +1,142 @@
+2026-07-27T07:17:05.003929458Z ==> Downloading cache...
+2026-07-27T07:17:05.03073706Z ==> Cloning from https://github.com/TheOrionGD/Team-Connify-APP
+2026-07-27T07:17:12.053795105Z ==> Checking out commit 7b808218c41ef566cf11cc85a75e2568cdaa8f5a in branch connify
+2026-07-27T07:17:16.490578496Z ==> Downloaded 260MB in 8s. Extraction took 3s.
+2026-07-27T07:17:17.234555467Z ==> Using Node.js version 24.14.1 (default)
+2026-07-27T07:17:17.234558977Z ==> Docs on specifying a Node.js version: https://render.com/docs/node-version
+2026-07-27T07:17:17.266482988Z ==> Running build command 'npm install && npm run build'...
+2026-07-27T07:17:21.796709273Z 
+2026-07-27T07:17:21.796729405Z added 7 packages, removed 53 packages, changed 15 packages, and audited 474 packages in 4s
+2026-07-27T07:17:21.796731428Z 
+2026-07-27T07:17:21.796739412Z 108 packages are looking for funding
+2026-07-27T07:17:21.796779409Z   run `npm fund` for details
+2026-07-27T07:17:21.802900056Z 
+2026-07-27T07:17:21.802904503Z 13 vulnerabilities (6 moderate, 7 high)
+2026-07-27T07:17:21.80290526Z 
+2026-07-27T07:17:21.802906691Z To address issues that do not require attention, run:
+2026-07-27T07:17:21.802907871Z   npm audit fix
+2026-07-27T07:17:21.802908581Z 
+2026-07-27T07:17:21.80290934Z To address all issues (including breaking changes), run:
+2026-07-27T07:17:21.802910726Z   npm audit fix --force
+2026-07-27T07:17:21.802911456Z 
+2026-07-27T07:17:21.802912533Z Run `npm audit` for details.
+2026-07-27T07:17:21.929250116Z 
+2026-07-27T07:17:21.929277666Z > backend@1.0.0 build
+2026-07-27T07:17:21.929279471Z > prisma generate && tsc
+2026-07-27T07:17:21.929280441Z 
+2026-07-27T07:17:22.50230985Z Prisma schema loaded from prisma/schema.prisma
+2026-07-27T07:17:22.610109209Z ┌─────────────────────────────────────────────────────────┐
+2026-07-27T07:17:22.610121961Z 
+2026-07-27T07:17:22.610123972Z │  Update available 6.19.3 -> 7.9.0                       │
+2026-07-27T07:17:22.610135467Z ✔ Generated Prisma Client (v6.19.3) to ./generated/prisma in 32ms
+2026-07-27T07:17:22.610136563Z 
+2026-07-27T07:17:22.610137711Z Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+2026-07-27T07:17:22.610138444Z 
+2026-07-27T07:17:22.610139915Z Tip: Interested in query caching in just a few lines of code? Try Accelerate today! https://pris.ly/tip-3-accelerate
+2026-07-27T07:17:22.610141749Z 
+2026-07-27T07:17:22.610147336Z │                                                         │
+2026-07-27T07:17:22.610148256Z │  This is a major update - please follow the guide at    │
+2026-07-27T07:17:22.610149002Z │  https://pris.ly/d/major-version-upgrade                │
+2026-07-27T07:17:22.610149767Z │                                                         │
+2026-07-27T07:17:22.610150502Z │  Run the following to update                            │
+2026-07-27T07:17:22.610151272Z │    npm i --save-dev prisma@latest                       │
+2026-07-27T07:17:22.61015203Z │    npm i @prisma/client@latest                          │
+2026-07-27T07:17:22.610153271Z └─────────────────────────────────────────────────────────┘
+2026-07-27T07:17:26.339165454Z ==> Uploading build...
+2026-07-27T07:17:32.437849909Z ==> Uploaded in 4.6s. Compression took 1.5s
+2026-07-27T07:17:32.439956574Z ==> Build successful 🎉
+2026-07-27T07:17:35.127693483Z ==> Deploying...
+2026-07-27T07:17:35.189740987Z ==> Setting WEB_CONCURRENCY=1 by default, based on available CPUs in the instance
+2026-07-27T07:17:51.911095418Z ==> Running 'npm start'
+2026-07-27T07:17:53.005542034Z 
+2026-07-27T07:17:53.005571554Z > backend@1.0.0 start
+2026-07-27T07:17:53.005575834Z > node dist/server.js
+2026-07-27T07:17:53.005578305Z 
+2026-07-27T07:17:58.001997497Z 🍃 Connecting to MongoDB Atlas...
+2026-07-27T07:18:00.210882425Z ✅ Connected to MongoDB Atlas successfully!
+2026-07-27T07:18:00.216142727Z 🔑 Ed25519 signing keys loaded
+2026-07-27T07:18:00.217279247Z 🔥 Firebase Admin SDK initialized successfully
+2026-07-27T07:18:01.707215968Z 🚀 Server listening on http://127.0.0.1:5000
+2026-07-27T07:18:01.802144347Z [07:18:01 UTC] INFO: Server listening at http://127.0.0.1:5000
+2026-07-27T07:18:01.803822977Z [07:18:01 UTC] INFO: Server listening at http://10.28.252.159:5000
+2026-07-27T07:18:02.690508214Z [07:18:02 UTC] INFO: incoming request
+2026-07-27T07:18:02.690526334Z     reqId: "req-1"
+2026-07-27T07:18:02.690529864Z     req: {
+2026-07-27T07:18:02.690532414Z       "method": "HEAD",
+2026-07-27T07:18:02.690534794Z       "url": "/",
+2026-07-27T07:18:02.690537064Z       "host": "connify-backend.onrender.com",
+2026-07-27T07:18:02.690539474Z       "remoteAddress": "127.0.0.1",
+2026-07-27T07:18:02.690542254Z       "remotePort": 55336
+2026-07-27T07:18:02.690544585Z     }
+2026-07-27T07:18:02.691123944Z [07:18:02 UTC] INFO: request completed
+2026-07-27T07:18:02.691137585Z     reqId: "req-1"
+2026-07-27T07:18:02.691140105Z     res: {
+2026-07-27T07:18:02.691142335Z       "statusCode": 200
+2026-07-27T07:18:02.691144695Z     }
+2026-07-27T07:18:02.691146685Z     responseTime: 3.8570680000011635
+2026-07-27T07:18:36.300598988Z ==> New primary port detected: 5000. Restarting deploy to update network configuration...
+2026-07-27T07:18:36.392268321Z ==> Docs on specifying a port: https://render.com/docs/web-services#port-binding
+2026-07-27T07:18:51.372005888Z ==> Running 'npm start'
+2026-07-27T07:18:52.481832213Z 
+2026-07-27T07:18:52.481873564Z > backend@1.0.0 start
+2026-07-27T07:18:52.481878684Z > node dist/server.js
+2026-07-27T07:18:52.481881254Z 
+2026-07-27T07:18:57.474519936Z 🍃 Connecting to MongoDB Atlas...
+2026-07-27T07:18:59.716907162Z ✅ Connected to MongoDB Atlas successfully!
+2026-07-27T07:18:59.722099232Z 🔑 Ed25519 signing keys loaded
+2026-07-27T07:18:59.723199405Z 🔥 Firebase Admin SDK initialized successfully
+2026-07-27T07:19:01.567269906Z 🚀 Server listening on http://127.0.0.1:5000
+2026-07-27T07:19:01.666850643Z [07:19:01 UTC] INFO: Server listening at http://127.0.0.1:5000
+2026-07-27T07:19:01.668100269Z [07:19:01 UTC] INFO: Server listening at http://10.27.70.54:5000
+2026-07-27T07:19:02.04977375Z [07:19:02 UTC] INFO: incoming request
+2026-07-27T07:19:02.049794591Z     reqId: "req-1"
+2026-07-27T07:19:02.049801911Z     req: {
+2026-07-27T07:19:02.049839982Z       "method": "HEAD",
+2026-07-27T07:19:02.049846292Z       "url": "/",
+2026-07-27T07:19:02.049850092Z       "host": "connify-backend.onrender.com",
+2026-07-27T07:19:02.049853062Z       "remoteAddress": "127.0.0.1",
+2026-07-27T07:19:02.049856682Z       "remotePort": 57180
+2026-07-27T07:19:02.049859822Z     }
+2026-07-27T07:19:02.049871773Z [07:19:02 UTC] INFO: request completed
+2026-07-27T07:19:02.049874983Z     reqId: "req-1"
+2026-07-27T07:19:02.049878043Z     res: {
+2026-07-27T07:19:02.049881033Z       "statusCode": 200
+2026-07-27T07:19:02.049884073Z     }
+2026-07-27T07:19:02.049887123Z     responseTime: 4.2672809999985475
+2026-07-27T07:19:07.5508533Z ==> Your service is live 🎉
+2026-07-27T07:19:07.666070772Z [07:19:07 UTC] INFO: incoming request
+2026-07-27T07:19:07.666102792Z     reqId: "req-2"
+2026-07-27T07:19:07.666108432Z     req: {
+2026-07-27T07:19:07.666112613Z       "method": "GET",
+2026-07-27T07:19:07.666116923Z       "url": "/",
+2026-07-27T07:19:07.666120983Z       "host": "connify-backend.onrender.com",
+2026-07-27T07:19:07.666125363Z       "remoteAddress": "127.0.0.1",
+2026-07-27T07:19:07.666130453Z       "remotePort": 57188
+2026-07-27T07:19:07.666134833Z     }
+2026-07-27T07:19:07.666626194Z [07:19:07 UTC] INFO: request completed
+2026-07-27T07:19:07.666643104Z     reqId: "req-2"
+2026-07-27T07:19:07.666647904Z     res: {
+2026-07-27T07:19:07.666652474Z       "statusCode": 200
+2026-07-27T07:19:07.666656864Z     }
+2026-07-27T07:19:07.666661744Z     responseTime: 0.9373499999983324
+2026-07-27T07:19:07.672456019Z ==> 
+2026-07-27T07:19:07.685717052Z ==> ///////////////////////////////////////////////////////////
+2026-07-27T07:19:07.692220685Z ==> 
+2026-07-27T07:19:07.698470573Z ==> Available at your primary URL https://connify-backend.onrender.com
+2026-07-27T07:19:07.704220588Z ==> 
+2026-07-27T07:19:07.70896323Z ==> ///////////////////////////////////////////////////////////
+2026-07-27T07:19:14.624370938Z [07:19:14 UTC] INFO: incoming request
+2026-07-27T07:19:14.624402199Z     reqId: "req-3"
+2026-07-27T07:19:14.624407639Z     req: {
+2026-07-27T07:19:14.624412009Z       "method": "GET",
+2026-07-27T07:19:14.624416089Z       "url": "/",
+2026-07-27T07:19:14.624420369Z       "host": "connify-backend.onrender.com",
+2026-07-27T07:19:14.624424459Z       "remoteAddress": "127.0.0.1",
+2026-07-27T07:19:14.624429349Z       "remotePort": 57188
+2026-07-27T07:19:14.624433529Z     }
+2026-07-27T07:19:14.624741046Z [07:19:14 UTC] INFO: request completed
+2026-07-27T07:19:14.624751846Z     reqId: "req-3"
+2026-07-27T07:19:14.624755666Z     res: {
+2026-07-27T07:19:14.624758836Z       "statusCode": 200
+2026-07-27T07:19:14.624762036Z     }
+2026-07-27T07:19:14.624765136Z     responseTime: 0.4670699999987846

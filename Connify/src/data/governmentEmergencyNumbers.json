@@ -1,0 +1,10 @@
+{
+  "US": { "police": "911", "fire": "911", "ambulance": "911", "general": "911" },
+  "CA": { "police": "911", "fire": "911", "ambulance": "911", "general": "911" },
+  "GB": { "police": "999", "fire": "999", "ambulance": "999", "general": "112" },
+  "IN": { "police": "100", "fire": "101", "ambulance": "102", "general": "112", "disaster": "108" },
+  "AU": { "police": "000", "fire": "000", "ambulance": "000", "general": "000" },
+  "NZ": { "police": "111", "fire": "111", "ambulance": "111", "general": "111" },
+  "ZA": { "police": "10111", "fire": "10177", "ambulance": "10177", "general": "112" },
+  "EU_DEFAULT": { "police": "112", "fire": "112", "ambulance": "112", "general": "112" }
+}
