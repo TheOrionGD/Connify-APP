@@ -213,6 +213,7 @@ const styles = StyleSheet.create({
   formTitle: { fontFamily: theme.fontFamilies.primary.bold, fontSize: 16, color: theme.colors.onBackground },
   input: {
     borderWidth: 1, borderColor: theme.colors.outline, borderRadius: 8,
+    backgroundColor: theme.colors.surfaceContainerHigh,
     paddingHorizontal: 12, height: 44, fontFamily: theme.fontFamilies.secondary.regular, color: theme.colors.onBackground
   },
   formActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 12, marginTop: 4 },

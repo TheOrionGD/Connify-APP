@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View, ViewStyle, ViewProps, StyleProp } from 'react-native';
-import { theme } from '../../theme';
+import { theme, useTheme } from '../../theme';
 
 interface StandardCardProps extends ViewProps {
   children: React.ReactNode;
@@ -12,8 +12,20 @@ export const StandardCard: React.FC<StandardCardProps> = ({
   style,
   ...props
 }) => {
+  const { colors } = useTheme();
+
   return (
-    <View style={[styles.card, style]} {...props}>
+    <View
+      style={[
+        styles.card,
+        {
+          backgroundColor: colors.cardBackground,
+          borderColor: colors.cardBorder,
+        },
+        style,
+      ]}
+      {...props}
+    >
       {children}
     </View>
   );
@@ -21,9 +33,7 @@ export const StandardCard: React.FC<StandardCardProps> = ({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: theme.colors.cardBackground, // #0E1320 elevated dark
     borderWidth: 1,
-    borderColor: theme.colors.cardBorder, // rgba(255, 255, 255, 0.08)
     borderTopColor: 'rgba(255, 255, 255, 0.15)', // subtle top-edge highlight
     borderRadius: theme.spacing.radiusLg, // 16px
     padding: theme.spacing.cardPadding, // 16px

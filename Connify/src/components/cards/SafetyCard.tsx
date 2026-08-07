@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View, ViewStyle, ViewProps, StyleProp } from 'react-native';
-import { theme } from '../../theme';
+import { theme, useTheme } from '../../theme';
 
 interface SafetyCardProps extends ViewProps {
   children: React.ReactNode;
@@ -12,8 +12,20 @@ export const SafetyCard: React.FC<SafetyCardProps> = ({
   style,
   ...props
 }) => {
+  const { colors } = useTheme();
+
   return (
-    <View style={[styles.card, style]} {...props}>
+    <View
+      style={[
+        styles.card,
+        {
+          backgroundColor: colors.cardBackground,
+          borderColor: colors.primary,
+        },
+        style,
+      ]}
+      {...props}
+    >
       {children}
     </View>
   );
@@ -21,9 +33,7 @@ export const SafetyCard: React.FC<SafetyCardProps> = ({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#0E1320',
     borderWidth: 1.5,
-    borderColor: '#DC2626',
     borderTopColor: '#EF4444',
     borderRadius: theme.spacing.radiusLg, // 16px
     padding: theme.spacing.cardPadding, // 16px

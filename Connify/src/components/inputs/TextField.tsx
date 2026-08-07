@@ -8,7 +8,7 @@ import {
   ViewStyle,
   TextStyle,
 } from 'react-native';
-import { theme } from '../../theme';
+import { theme, useTheme } from '../../theme';
 
 interface TextFieldProps extends TextInputProps {
   label?: string;
@@ -22,22 +22,37 @@ export const TextField: React.FC<TextFieldProps> = ({
   containerStyle,
   inputStyle,
   error,
-  placeholderTextColor = '#777777',
+  placeholderTextColor,
   ...props
 }) => {
+  const { colors } = useTheme();
+
   return (
     <View style={[styles.container, containerStyle]}>
-      {label ? <Text style={styles.label}>{label.toUpperCase()}</Text> : null}
+      {label ? (
+        <Text style={[styles.label, { color: colors.onBackground }]}>
+          {label.toUpperCase()}
+        </Text>
+      ) : null}
       
-      <View style={[styles.inputWrapper, error ? styles.inputWrapperError : null]}>
+      <View
+        style={[
+          styles.inputWrapper,
+          {
+            backgroundColor: colors.surfaceContainerHigh,
+            borderColor: colors.outline,
+          },
+          error ? { borderColor: colors.error } : null,
+        ]}
+      >
         <TextInput
-          style={[styles.input, inputStyle]}
-          placeholderTextColor={placeholderTextColor}
+          style={[styles.input, { color: colors.onSurface }, inputStyle]}
+          placeholderTextColor={placeholderTextColor || colors.onSurfaceVariant}
           {...props}
         />
       </View>
 
-      {error ? <Text style={styles.errorText}>{error}</Text> : null}
+      {error ? <Text style={[styles.errorText, { color: colors.error }]}>{error}</Text> : null}
     </View>
   );
 };
@@ -50,29 +65,21 @@ const styles = StyleSheet.create({
   label: {
     fontFamily: theme.fontFamilies.technical.bold,
     fontSize: 12,
-    color: theme.colors.onBackground,
     marginBottom: 6,
     letterSpacing: 1,
     fontWeight: '700',
   },
   inputWrapper: {
-    backgroundColor: '#FFFFFF',
     borderWidth: theme.spacing.borderWidthLight,
-    borderColor: theme.colors.outline,
     borderRadius: theme.spacing.radiusDefault,
-  },
-  inputWrapperError: {
-    borderColor: theme.colors.error,
   },
   input: {
     height: 50,
     paddingHorizontal: 14,
-    color: theme.colors.onBackground,
     fontFamily: theme.fontFamilies.secondary.regular,
     fontSize: 15,
   },
   errorText: {
-    color: theme.colors.error,
     fontSize: 12,
     fontFamily: theme.fontFamilies.secondary.regular,
     marginTop: 4,
