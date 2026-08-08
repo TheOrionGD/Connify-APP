@@ -15,6 +15,7 @@ import { useTheme } from '../../theme';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useAuthStore } from '../../stores/authStore';
 import { profileApi } from '../../services/api/profileApi';
+import * as Keychain from 'react-native-keychain';
 
 interface ProfileSetupModalProps {
   visible: boolean;
@@ -37,6 +38,8 @@ export function ProfileSetupModal({ visible, onComplete }: ProfileSetupModalProp
     userProfile,
     setProfileCompleted,
     signInWithGoogle,
+    sendEmailOtp,
+    verifyEmailOtp,
   } = useAuthStore();
 
   const [firstName, setFirstName] = useState('');
@@ -44,10 +47,20 @@ export function ProfileSetupModal({ visible, onComplete }: ProfileSetupModalProp
   const [phone, setPhone] = useState('');
   const [bloodGroup, setBloodGroup] = useState<string>('O+');
   const [selectedConditions, setSelectedConditions] = useState<string[]>([]);
+  const [guardianName, setGuardianName] = useState('');
+  const [guardianPhone, setGuardianPhone] = useState('');
+  const [guardianRelation, setGuardianRelation] = useState('Parent');
+
+  // Email OTP state
+  const [emailForOtp, setEmailForOtp] = useState('');
+  const [otpCode, setOtpCode] = useState('');
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [devOtpHint, setDevOtpHint] = useState<string | null>(null);
 
   const [loading, setLoading] = useState(false);
+  const [otpLoading, setOtpLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [googleInfoVisible, setGoogleInfoVisible] = useState(false);
 
   // Populate stored profile data when modal opens
   useEffect(() => {
@@ -60,12 +73,62 @@ export function ProfileSetupModal({ visible, onComplete }: ProfileSetupModalProp
           const parsed = JSON.parse(userProfile.medicalNotes);
           if (parsed.bloodGroup) setBloodGroup(parsed.bloodGroup);
           if (parsed.conditions) setSelectedConditions(parsed.conditions);
+          if (parsed.guardian) {
+            setGuardianName(parsed.guardian.name || '');
+            setGuardianPhone(parsed.guardian.phone || '');
+            setGuardianRelation(parsed.guardian.relationship || 'Parent');
+          }
+          if (parsed.emailVerified) setOtpVerified(true);
         } catch {
           // If raw text
         }
       }
     }
   }, [visible, userProfile]);
+
+  const handleSendOtpCode = async () => {
+    if (!emailForOtp.trim() || !emailForOtp.includes('@')) {
+      setError('Please enter a valid email address for Mail OTP verification.');
+      return;
+    }
+    setOtpLoading(true);
+    setError(null);
+    try {
+      const res = await sendEmailOtp(emailForOtp);
+      if (res.success) {
+        setOtpSent(true);
+        if (res.devOtp) setDevOtpHint(res.devOtp);
+      } else {
+        setError(res.message || 'Failed to send OTP to email.');
+      }
+    } catch (e: any) {
+      setError(e.message || 'Failed to send OTP to email.');
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  const handleVerifyOtpCode = async () => {
+    if (!otpCode.trim()) {
+      setError('Please enter the verification code sent to your email.');
+      return;
+    }
+    setOtpLoading(true);
+    setError(null);
+    try {
+      const res = await verifyEmailOtp(emailForOtp, otpCode);
+      if (res.success) {
+        setOtpVerified(true);
+        setError(null);
+      } else {
+        setError(res.message || 'Invalid or expired OTP code.');
+      }
+    } catch (e: any) {
+      setError(e.message || 'Failed to verify OTP code.');
+    } finally {
+      setOtpLoading(false);
+    }
+  };
 
 
 
@@ -85,10 +148,40 @@ export function ProfileSetupModal({ visible, onComplete }: ProfileSetupModalProp
     setLoading(true);
     setError(null);
     try {
+      const guardianPayload = {
+        name: guardianName.trim(),
+        phone: guardianPhone.trim(),
+        relationship: guardianRelation.trim() || 'Guardian',
+      };
+
       const medicalNotesFormatted = JSON.stringify({
         bloodGroup,
         conditions: selectedConditions,
+        guardian: guardianPayload,
+        emailVerified: otpVerified,
       });
+
+      // Also sync guardian contact to Keychain emergency contacts list so offline SMS/Calls access it
+      if (guardianPhone.trim()) {
+        try {
+          const creds = await Keychain.getGenericPassword({ service: 'CONNIFY_EMERGENCY_CONTACTS' });
+          let existingContacts: any[] = creds ? JSON.parse(creds.password) : [];
+          // Replace or add primary guardian contact
+          const filtered = existingContacts.filter(c => c.phone !== guardianPhone.trim());
+          filtered.unshift({
+            id: 'guardian-primary',
+            name: guardianName.trim() || 'Guardian',
+            phone: guardianPhone.trim(),
+            relationship: guardianRelation.trim() || 'Guardian',
+          });
+          await Keychain.setGenericPassword('contacts', JSON.stringify(filtered), {
+            service: 'CONNIFY_EMERGENCY_CONTACTS',
+          });
+        } catch (e) {
+          console.warn('Failed to sync guardian to Keychain', e);
+        }
+      }
+
       const response = await profileApi.upsertProfile({
         firstName: firstName.trim(),
         lastName: lastName.trim(),
@@ -309,6 +402,182 @@ export function ProfileSetupModal({ visible, onComplete }: ProfileSetupModalProp
                 );
               })}
             </View>
+          </View>
+
+          {/* ── OFFLINE GUARDIAN & EMERGENCY CONTACT ────────────────────────── */}
+          <View
+            style={[
+              styles.accountAuthSection,
+              { borderTopColor: colors.outlineVariant },
+            ]}
+          >
+            <Text style={[styles.sectionHeader, { color: colors.primary }]}>
+              GUARDIAN & EMERGENCY CONTACT (OFFLINE SMS / CALL)
+            </Text>
+            <Text style={[styles.inputHint, { color: colors.onSurfaceVariant, marginBottom: 4 }]}>
+              This guardian contact will be alerted via offline SMS or voice call when your device is offline.
+            </Text>
+
+            <View style={styles.inputGroup}>
+              <Text style={[styles.label, { color: colors.onSurface }]}>Guardian Full Name</Text>
+              <TextInput
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: colors.surfaceContainerHigh,
+                    borderColor: colors.outlineVariant,
+                    color: colors.onSurface,
+                  },
+                ]}
+                value={guardianName}
+                onChangeText={setGuardianName}
+                placeholder="e.g. John Vance / Parent / Spouse"
+                placeholderTextColor={colors.onSurfaceVariant}
+              />
+            </View>
+
+            <View style={styles.rowGroup}>
+              <View style={[styles.inputGroup, { flex: 1 }]}>
+                <Text style={[styles.label, { color: colors.onSurface }]}>Guardian Phone Number</Text>
+                <TextInput
+                  style={[
+                    styles.input,
+                    {
+                      backgroundColor: colors.surfaceContainerHigh,
+                      borderColor: colors.outlineVariant,
+                      color: colors.onSurface,
+                    },
+                  ]}
+                  value={guardianPhone}
+                  onChangeText={setGuardianPhone}
+                  placeholder="+91 XXXXX XXXXX"
+                  keyboardType="phone-pad"
+                  placeholderTextColor={colors.onSurfaceVariant}
+                />
+              </View>
+
+              <View style={[styles.inputGroup, { flex: 1 }]}>
+                <Text style={[styles.label, { color: colors.onSurface }]}>Relationship</Text>
+                <TextInput
+                  style={[
+                    styles.input,
+                    {
+                      backgroundColor: colors.surfaceContainerHigh,
+                      borderColor: colors.outlineVariant,
+                      color: colors.onSurface,
+                    },
+                  ]}
+                  value={guardianRelation}
+                  onChangeText={setGuardianRelation}
+                  placeholder="Parent / Spouse / Friend"
+                  placeholderTextColor={colors.onSurfaceVariant}
+                />
+              </View>
+            </View>
+          </View>
+
+          {/* ── MAIL ID OTP VERIFICATION SECTION ──────────────────────────── */}
+          <View
+            style={[
+              styles.accountAuthSection,
+              { borderTopColor: colors.outlineVariant },
+            ]}
+          >
+            <Text style={[styles.sectionHeader, { color: colors.primary }]}>
+              EMAIL ID OTP VERIFICATION
+            </Text>
+            <Text style={[styles.inputHint, { color: colors.onSurfaceVariant, marginBottom: 6 }]}>
+              Verify your email address using a 6 or 7-digit OTP sent via SMTP / Mail Service.
+            </Text>
+
+            {otpVerified ? (
+              <View style={[styles.errorContainer, { backgroundColor: '#D1FAE5', borderColor: '#10B981' }]}>
+                <Icon name="check-circle" size={20} color="#059669" />
+                <Text style={[styles.errorText, { color: '#065F46' }]}>
+                  ✓ Email Verified Successfully!
+                </Text>
+              </View>
+            ) : (
+              <>
+                <View style={styles.inputGroup}>
+                  <Text style={[styles.label, { color: colors.onSurface }]}>Email Address *</Text>
+                  <View style={styles.phoneInputRow}>
+                    <TextInput
+                      style={[
+                        styles.input,
+                        {
+                          flex: 1,
+                          backgroundColor: colors.surfaceContainerHigh,
+                          borderColor: colors.outlineVariant,
+                          color: colors.onSurface,
+                        },
+                      ]}
+                      value={emailForOtp}
+                      onChangeText={setEmailForOtp}
+                      placeholder="user@example.com"
+                      keyboardType="email-address"
+                      autoCapitalize="none"
+                      placeholderTextColor={colors.onSurfaceVariant}
+                    />
+                    <TouchableOpacity
+                      style={[styles.verifyButton, { backgroundColor: colors.primary }]}
+                      onPress={handleSendOtpCode}
+                      disabled={otpLoading}
+                    >
+                      {otpLoading ? (
+                        <ActivityIndicator color="#FFFFFF" size="small" />
+                      ) : (
+                        <Text style={styles.verifyButtonText}>{otpSent ? 'RESEND' : 'SEND OTP'}</Text>
+                      )}
+                    </TouchableOpacity>
+                  </View>
+                </View>
+
+                {devOtpHint && (
+                  <View style={[styles.errorContainer, { backgroundColor: '#FEF08A', borderColor: '#EAB308' }]}>
+                    <Icon name="info" size={18} color="#CA8A04" />
+                    <Text style={[styles.errorText, { color: '#854D0E' }]}>
+                      DEV MODE CODE: {devOtpHint}
+                    </Text>
+                  </View>
+                )}
+
+                {otpSent && (
+                  <View style={styles.inputGroup}>
+                    <Text style={[styles.label, { color: colors.onSurface }]}>Enter Verification OTP Code *</Text>
+                    <View style={styles.phoneInputRow}>
+                      <TextInput
+                        style={[
+                          styles.input,
+                          {
+                            flex: 1,
+                            backgroundColor: colors.surfaceContainerHigh,
+                            borderColor: colors.outlineVariant,
+                            color: colors.onSurface,
+                          },
+                        ]}
+                        value={otpCode}
+                        onChangeText={setOtpCode}
+                        placeholder="Enter OTP Code"
+                        keyboardType="number-pad"
+                        placeholderTextColor={colors.onSurfaceVariant}
+                      />
+                      <TouchableOpacity
+                        style={[styles.verifyButton, { backgroundColor: '#059669' }]}
+                        onPress={handleVerifyOtpCode}
+                        disabled={otpLoading}
+                      >
+                        {otpLoading ? (
+                          <ActivityIndicator color="#FFFFFF" size="small" />
+                        ) : (
+                          <Text style={styles.verifyButtonText}>VERIFY OTP</Text>
+                        )}
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                )}
+              </>
+            )}
           </View>
 
           {/* ── Google Sign-In ─────────────────────────────────────────────── */}

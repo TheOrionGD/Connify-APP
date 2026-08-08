@@ -6,6 +6,7 @@ import nacl from 'tweetnacl';
 import DeviceInfo from 'react-native-device-info';
 import { deviceApi } from '../services/api/deviceApi';
 import { profileApi } from '../services/api/profileApi';
+import { authApi } from '../services/api/authApi';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { connectivityService } from '../services/ConnectivityService';
 import { offlineQueueService } from '../services/OfflineQueueService';
@@ -21,6 +22,7 @@ export interface FirebaseUser {
   displayName: string | null;
   photoURL: string | null;
   phoneNumber?: string | null;
+  isAnonymous?: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -94,6 +96,8 @@ interface AuthState {
 
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signUpWithEmail: (email: string, password: string, displayName: string) => Promise<void>;
+  sendEmailOtp: (email: string) => Promise<{ success: boolean; devOtp?: string; message?: string }>;
+  verifyEmailOtp: (email: string, otp: string) => Promise<{ success: boolean; message?: string }>;
   signInAnonymously: () => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   signInWithGithub: () => Promise<void>;
@@ -225,6 +229,7 @@ export const useAuthStore = create<AuthState>()(
             displayName: user.displayName,
             photoURL: user.photoURL,
             phoneNumber: user.phoneNumber,
+            isAnonymous: user.isAnonymous,
           };
 
           const { fingerprint, publicKeyHex } = await deriveDeviceCredentials(user.uid);
@@ -340,9 +345,109 @@ export const useAuthStore = create<AuthState>()(
           }
 
           const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-          await auth().signInWithCredential(googleCredential);
+          const userCredential = await auth().signInWithCredential(googleCredential);
+          const user = userCredential.user;
+          if (!user) throw new Error('No user returned from Google auth');
+
+          const firebaseToken = await user.getIdToken();
+          const firebaseUser: FirebaseUser = {
+            uid: user.uid,
+            email: user.email,
+            displayName: user.displayName,
+            photoURL: user.photoURL,
+            phoneNumber: user.phoneNumber,
+            isAnonymous: user.isAnonymous,
+          };
+
+          const { fingerprint, publicKeyHex } = await deriveDeviceCredentials(user.uid);
+          set({ firebaseIdToken: firebaseToken, sessionToken: firebaseToken });
+
+          if (!connectivityService.isOnline) {
+            offlineQueueService.enqueue('REGISTER_DEVICE', { fingerprint, publicKey: publicKeyHex });
+            set({
+              user: firebaseUser,
+              sessionToken: null,
+              deviceId: null,
+              isAuthenticated: true,
+              isPendingSync: true,
+              loading: false,
+              error: null,
+            });
+            return;
+          }
+
+          const regRes = await deviceApi.registerDevice(fingerprint, publicKeyHex);
+          if (regRes.success) {
+            set({
+              user: firebaseUser,
+              sessionToken: regRes.data.token,
+              deviceId: regRes.data.deviceId,
+              isAuthenticated: true,
+              isPendingSync: false,
+              loading: false,
+              error: null,
+            });
+          } else {
+            set({
+              user: firebaseUser,
+              isAuthenticated: true,
+              loading: false,
+              error: null,
+            });
+          }
+          await get().fetchProfile();
         } catch (e: any) {
           set({ error: e.message || 'Google authentication failed.', loading: false });
+        }
+      },
+
+      sendEmailOtp: async (email: string) => {
+        set({ loading: true, error: null });
+        try {
+          const res = await authApi.sendEmailOtp(email);
+          if (res.success) {
+            set({ loading: false });
+            return { success: true, devOtp: res.devOtp, message: res.message };
+          } else {
+            const err = res.error?.message || 'Failed to send Mail OTP';
+            set({ error: err, loading: false });
+            return { success: false, message: err };
+          }
+        } catch (e: any) {
+          const err = e.message || 'Failed to send Mail OTP';
+          set({ error: err, loading: false });
+          return { success: false, message: err };
+        }
+      },
+
+      verifyEmailOtp: async (email: string, otp: string) => {
+        set({ loading: true, error: null });
+        try {
+          const res = await authApi.verifyEmailOtp(email, otp);
+          if (res.success) {
+            const mockUser: FirebaseUser = {
+              uid: `email_user_${Date.now()}`,
+              email: email,
+              displayName: email.split('@')[0],
+              photoURL: null,
+            };
+            set({
+              user: mockUser,
+              isAuthenticated: true,
+              loading: false,
+              error: null,
+            });
+            await get().fetchProfile();
+            return { success: true, message: 'Email verified successfully!' };
+          } else {
+            const err = res.error?.message || 'Invalid OTP verification code';
+            set({ error: err, loading: false });
+            return { success: false, message: err };
+          }
+        } catch (e: any) {
+          const err = e.message || 'OTP Verification failed';
+          set({ error: err, loading: false });
+          return { success: false, message: err };
         }
       },
 

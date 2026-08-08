@@ -271,6 +271,44 @@ export default function DashboardScreen({ navigation }: any) {
 
           <TouchableOpacity
             activeOpacity={0.85}
+            onPress={() => navigation.navigate('WomenSafety')}
+          >
+            <GradientView
+              colors={['#EC4899', '#BE185D']}
+              style={[styles.bannerContainer, { borderColor: '#F472B6' }]}
+            >
+              <View style={[styles.bannerIconWrapper, { backgroundColor: 'rgba(255,255,255,0.2)', borderColor: '#F472B6' }]}>
+                <Icon name="female" size={22} color="#FFFFFF" />
+              </View>
+              <View style={styles.bannerContent}>
+                <Text style={[styles.bannerTitle, { color: '#FFFFFF' }]}>WOMEN SAFETY & PANIC HUB</Text>
+                <Text style={[styles.bannerText, { color: '#FCE7F3' }]}>Siren panic alarm, 24/7 helplines & fake exit calls.</Text>
+              </View>
+              <Icon name="chevron-right" size={20} color="#FFFFFF" />
+            </GradientView>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            activeOpacity={0.85}
+            onPress={() => navigation.navigate('OfflineEmergency')}
+          >
+            <GradientView
+              colors={['#1E2638', '#161C2E']}
+              style={[styles.bannerContainer, { borderColor: colors.outline }]}
+            >
+              <View style={[styles.bannerIconWrapper, { backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline }]}>
+                <Icon name="wifi-off" size={22} color={colors.primary} />
+              </View>
+              <View style={styles.bannerContent}>
+                <Text style={[styles.bannerTitle, { color: colors.onBackground }]}>NO NETWORK & OFFLINE HUB</Text>
+                <Text style={[styles.bannerText, { color: colors.onSurfaceVariant }]}>Cellular voice dialers, offline SMS & queue status.</Text>
+              </View>
+              <Icon name="chevron-right" size={20} color={colors.onSurfaceVariant} />
+            </GradientView>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            activeOpacity={0.85}
             onPress={() => navigation.navigate('Governance')}
           >
             <GradientView

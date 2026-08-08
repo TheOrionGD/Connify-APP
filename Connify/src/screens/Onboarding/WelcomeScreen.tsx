@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { theme } from '../../theme';
+import { theme, useTheme } from '../../theme';
 import { StandardButton } from '../../components/buttons/StandardButton';
 import { useAuthStore } from '../../stores/authStore';
 import { useLocationStore } from '../../stores/locationStore';
@@ -19,6 +19,7 @@ import { locationService } from '../../services/locationService';
 import { API_BASE_URL } from '@env';
 
 export default function WelcomeScreen({ navigation }: any) {
+  const { colors } = useTheme();
   const { isAuthenticated, signInAnonymously } = useAuthStore();
   const [locationGranted, setLocationGranted] = useState(false);
   const [notificationsGranted, setNotificationsGranted] = useState(false);
@@ -128,45 +129,45 @@ export default function WelcomeScreen({ navigation }: any) {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.header}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: colors.background, borderBottomColor: colors.outline }]}>
         <View style={styles.headerBranding}>
-          <Icon name="security" size={26} color={theme.colors.primary} />
-          <Text style={styles.headerText}>Connify</Text>
+          <Icon name="security" size={26} color={colors.primary} />
+          <Text style={[styles.headerText, { color: colors.primary }]}>Connify</Text>
         </View>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         <View style={styles.heroSection}>
-          <View style={styles.heroDecorator} />
-          <Text style={styles.heroTitle}>
-            Safety coordinated by <Text style={styles.heroTitleHighlight}>those nearby.</Text>
+          <View style={[styles.heroDecorator, { backgroundColor: colors.primary }]} />
+          <Text style={[styles.heroTitle, { color: colors.onBackground }]}>
+            Safety coordinated by <Text style={{ color: colors.primary }}>those nearby.</Text>
           </Text>
-          <Text style={styles.heroDescription}>
+          <Text style={[styles.heroDescription, { color: colors.onSurfaceVariant }]}>
             Connify isn't just an alert—it's a rapid response protocol. We bridge emergency services and the verified community around you.
           </Text>
         </View>
 
         {/* Bento Grid */}
         <View style={styles.explainerSection}>
-          <Text style={styles.sectionLabel}>PROTOCOL EXPLAINER</Text>
+          <Text style={[styles.sectionLabel, { color: colors.onBackground }]}>PROTOCOL EXPLAINER</Text>
           <View style={styles.bentoGrid}>
-            <View style={styles.primaryBentoCard}>
-              <Icon name="emergency" size={38} color={theme.colors.primary} />
-              <Text style={styles.primaryBentoText}>
+            <View style={[styles.primaryBentoCard, { backgroundColor: colors.surfaceContainerLowest, borderColor: colors.outline }]}>
+              <Icon name="emergency" size={38} color={colors.primary} />
+              <Text style={[styles.primaryBentoText, { color: colors.onBackground }]}>
                 Signal for help instantly when you feel unsafe.
               </Text>
             </View>
 
             <View style={styles.bentoRightColumn}>
-              <View style={styles.secondaryBentoCard}>
-                <Icon name="groups" size={22} color={theme.colors.onBackground} />
-                <Text style={styles.secondaryBentoTitle}>Verified Responders</Text>
+              <View style={[styles.secondaryBentoCard, { backgroundColor: colors.surfaceContainerLowest, borderColor: colors.outline }]}>
+                <Icon name="groups" size={22} color={colors.onBackground} />
+                <Text style={[styles.secondaryBentoTitle, { color: colors.onBackground }]}>Verified Responders</Text>
               </View>
 
-              <View style={styles.darkBentoCard}>
-                <Icon name="radar" size={22} color="#FFFFFF" />
-                <Text style={styles.darkBentoTitle}>Live Coordination</Text>
+              <View style={[styles.darkBentoCard, { backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline }]}>
+                <Icon name="radar" size={22} color={colors.primary} />
+                <Text style={[styles.darkBentoTitle, { color: colors.onBackground }]}>Live Coordination</Text>
               </View>
             </View>
           </View>
@@ -174,69 +175,69 @@ export default function WelcomeScreen({ navigation }: any) {
 
         {/* Required Permissions */}
         <View style={styles.permissionsSection}>
-          <Text style={styles.sectionLabel}>REQUIRED PERMISSIONS</Text>
+          <Text style={[styles.sectionLabel, { color: colors.onBackground }]}>REQUIRED PERMISSIONS</Text>
 
-          <View style={styles.permissionCard}>
+          <View style={[styles.permissionCard, { backgroundColor: colors.surfaceContainerLowest, borderColor: colors.outline }]}>
             <View style={styles.permissionInfo}>
-              <View style={styles.permissionIconWrapper}>
-                <Icon name="my-location" size={22} color={theme.colors.onBackground} />
+              <View style={[styles.permissionIconWrapper, { backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline }]}>
+                <Icon name="my-location" size={22} color={colors.onBackground} />
               </View>
               <View style={styles.permissionTextWrapper}>
-                <Text style={styles.permissionTitle}>Precise Location</Text>
-                <Text style={styles.permissionSub}>To find responders nearest to you.</Text>
+                <Text style={[styles.permissionTitle, { color: colors.onBackground }]}>Precise Location</Text>
+                <Text style={[styles.permissionSub, { color: colors.onSurfaceVariant }]}>To find responders nearest to you.</Text>
               </View>
             </View>
             <Switch
               value={locationGranted}
               onValueChange={handleLocationToggle}
-              trackColor={{ false: theme.colors.surfaceContainerHighest, true: theme.colors.primary }}
+              trackColor={{ false: colors.surfaceContainerHighest, true: colors.primary }}
               thumbColor="#FFFFFF"
             />
           </View>
 
-          <View style={styles.permissionCard}>
+          <View style={[styles.permissionCard, { backgroundColor: colors.surfaceContainerLowest, borderColor: colors.outline }]}>
             <View style={styles.permissionInfo}>
-              <View style={styles.permissionIconWrapper}>
-                <Icon name="notifications" size={22} color={theme.colors.onBackground} />
+              <View style={[styles.permissionIconWrapper, { backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline }]}>
+                <Icon name="notifications" size={22} color={colors.onBackground} />
               </View>
               <View style={styles.permissionTextWrapper}>
-                <Text style={styles.permissionTitle}>Critical Alerts</Text>
-                <Text style={styles.permissionSub}>Bypass silent mode for safety updates.</Text>
+                <Text style={[styles.permissionTitle, { color: colors.onBackground }]}>Critical Alerts</Text>
+                <Text style={[styles.permissionSub, { color: colors.onSurfaceVariant }]}>Bypass silent mode for safety updates.</Text>
               </View>
             </View>
             <Switch
               value={notificationsGranted}
               onValueChange={handleNotificationToggle}
-              trackColor={{ false: theme.colors.surfaceContainerHighest, true: theme.colors.primary }}
+              trackColor={{ false: colors.surfaceContainerHighest, true: colors.primary }}
               thumbColor="#FFFFFF"
             />
           </View>
 
-          <View style={styles.permissionCard}>
+          <View style={[styles.permissionCard, { backgroundColor: colors.surfaceContainerLowest, borderColor: colors.outline }]}>
             <View style={styles.permissionInfo}>
-              <View style={styles.permissionIconWrapper}>
-                <Icon name="camera-alt" size={22} color={theme.colors.onBackground} />
+              <View style={[styles.permissionIconWrapper, { backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline }]}>
+                <Icon name="camera-alt" size={22} color={colors.onBackground} />
               </View>
               <View style={styles.permissionTextWrapper}>
-                <Text style={styles.permissionTitle}>Camera Access</Text>
-                <Text style={styles.permissionSub}>To scan devices and verify responders.</Text>
+                <Text style={[styles.permissionTitle, { color: colors.onBackground }]}>Camera Access</Text>
+                <Text style={[styles.permissionSub, { color: colors.onSurfaceVariant }]}>To scan devices and verify responders.</Text>
               </View>
             </View>
             <Switch
               value={cameraGranted}
               onValueChange={handleCameraToggle}
-              trackColor={{ false: theme.colors.surfaceContainerHighest, true: theme.colors.primary }}
+              trackColor={{ false: colors.surfaceContainerHighest, true: colors.primary }}
               thumbColor="#FFFFFF"
             />
           </View>
         </View>
 
-        <Text style={styles.footnote}>
-          By continuing, you agree to Connify's <Text style={styles.footnoteBold}>Safety Protocol</Text> and <Text style={styles.footnoteBold}>Data Protection Policy</Text>.
+        <Text style={[styles.footnote, { color: colors.onSurfaceVariant }]}>
+          By continuing, you agree to Connify's <Text style={[styles.footnoteBold, { color: colors.onBackground }]}>Safety Protocol</Text> and <Text style={[styles.footnoteBold, { color: colors.onBackground }]}>Data Protection Policy</Text>.
         </Text>
       </ScrollView>
 
-      <View style={styles.bottomBar}>
+      <View style={[styles.bottomBar, { backgroundColor: colors.background, borderTopColor: colors.outline }]}>
         <StandardButton
           title={loading ? 'COORDINATING...' : 'GET STARTED'}
           onPress={handleGetStarted}

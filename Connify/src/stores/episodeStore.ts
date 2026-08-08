@@ -5,7 +5,19 @@ import { offlineQueueService } from '../services/OfflineQueueService';
 import { connectivityService } from '../services/ConnectivityService';
 
 export type EpisodeStateName = 'idle' | 'creating' | 'searching' | 'active' | 'feedback';
-export type CategoryType = 'Medical' | 'Security' | 'Transport' | 'Other';
+export type CategoryType =
+  | 'Medical'
+  | 'Security'
+  | 'Fire & Hazard'
+  | 'Transport'
+  | 'Disaster'
+  | 'Women Safety'
+  | 'Child Care'
+  | 'Accident'
+  | 'Animal Rescue'
+  | 'Senior Assist'
+  | 'Blackout'
+  | 'General SOS';
 
 interface EpisodeState {
   currentState: EpisodeStateName;

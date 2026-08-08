@@ -160,6 +160,7 @@ describe('API Services Layer Tests', () => {
         episodeId: 'ep-123',
         helperDeviceId: 'helper-456',
         verificationData: {
+          qrToken: 'qr-token',
           qrTokenHash: 'qr-hash',
           blindedGridCell: 'blinded-cell',
         },

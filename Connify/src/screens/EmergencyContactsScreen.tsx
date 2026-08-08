@@ -86,16 +86,16 @@ export default function EmergencyContactsScreen({ navigation }: any) {
   const handleTriggerAll = (contact: EmergencyContact) => {
     const mapsUrl = latitude && longitude
       ? `https://maps.google.com/?q=${latitude},${longitude}`
-      : 'Location unavailable';
-    const message = `EMERGENCY ALERT! I need immediate help. My current location: ${mapsUrl}`;
+      : 'Acquiring satellite GPS fix...';
+    const message = `EMERGENCY ALERT! I need immediate help. Please track my location: ${mapsUrl}`;
 
     Alert.alert(
       'Broadcast Emergency SMS',
-      `Send instant alert SMS to ${contact.name} (${contact.phone})?`,
+      `Send instant alert SMS with GPS coordinates to ${contact.name} (${contact.phone})? Works offline via mobile SMS network.`,
       [
         { text: 'Cancel', style: 'cancel' },
         {
-          text: 'SEND SMS',
+          text: 'SEND SMS NOW',
           style: 'destructive',
           onPress: () => {
             Linking.openURL(`sms:${contact.phone}?body=${encodeURIComponent(message)}`);
@@ -103,6 +103,10 @@ export default function EmergencyContactsScreen({ navigation }: any) {
         }
       ]
     );
+  };
+
+  const handleVoiceCall = (phone: string) => {
+    Linking.openURL(`tel:${phone}`).catch(() => Alert.alert('Error', 'Could not open mobile phone dialer.'));
   };
 
   return (
@@ -119,7 +123,7 @@ export default function EmergencyContactsScreen({ navigation }: any) {
         <View style={styles.titleSection}>
           <Text style={[styles.mainTitle, { color: colors.onBackground }]}>Trusted Circle</Text>
           <Text style={[styles.subtitle, { color: colors.onSurfaceVariant }]}>
-            Contacts registered here will receive direct SMS coordinates during active SOS alerts.
+            Contacts registered here will receive direct SMS coordinates and cellular calls during emergency alerts.
           </Text>
         </View>
 
@@ -131,11 +135,14 @@ export default function EmergencyContactsScreen({ navigation }: any) {
               <Text style={[styles.contactPhone, { color: colors.onBackground }]}>{contact.phone}</Text>
             </View>
             <View style={styles.cardActions}>
+              <TouchableOpacity style={[styles.actionBtn, { backgroundColor: colors.primary }]} onPress={() => handleVoiceCall(contact.phone)}>
+                <Icon name="phone" size={18} color="#FFFFFF" />
+              </TouchableOpacity>
               <TouchableOpacity style={[styles.actionBtn, { backgroundColor: colors.surfaceContainerHigh }]} onPress={() => handleTriggerAll(contact)}>
-                <Icon name="sms" size={20} color={colors.primary} />
+                <Icon name="sms" size={18} color={colors.primary} />
               </TouchableOpacity>
               <TouchableOpacity style={[styles.actionBtn, { backgroundColor: colors.surfaceContainerHigh }]} onPress={() => handleDelete(contact.id)}>
-                <Icon name="delete-outline" size={20} color={colors.error} />
+                <Icon name="delete-outline" size={18} color={colors.error} />
               </TouchableOpacity>
             </View>
           </View>

@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { theme } from '../../theme';
+import { theme, useTheme } from '../../theme';
 import { StandardCard } from '../../components/cards/StandardCard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -22,6 +22,7 @@ interface HistoryItem {
 }
 
 export default function HistoryScreen({ navigation }: any) {
+  const { colors } = useTheme();
   // Real history storage (empty until user creates/resolves real episodes)
   const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
 
@@ -41,44 +42,44 @@ export default function HistoryScreen({ navigation }: any) {
 
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.header}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: colors.background, borderBottomColor: colors.outline }]}>
         <View style={styles.headerTitleContainer}>
-          <Icon name="history" size={24} color={theme.colors.primary} />
-          <Text style={styles.headerTitle}>EPISODE HISTORY</Text>
+          <Icon name="history" size={24} color={colors.primary} />
+          <Text style={[styles.headerTitle, { color: colors.onBackground }]}>EPISODE HISTORY</Text>
         </View>
-        <Icon name="security" size={22} color={theme.colors.onBackground} />
+        <Icon name="security" size={22} color={colors.onBackground} />
       </View>
 
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         <View style={styles.titleSection}>
-          <Text style={styles.mainTitle}>Cryptographic Audit Trail</Text>
-          <Text style={styles.subtitle}>
+          <Text style={[styles.mainTitle, { color: colors.onBackground }]}>Cryptographic Audit Trail</Text>
+          <Text style={[styles.subtitle, { color: colors.onSurfaceVariant }]}>
             Review your past emergency broadcasts, responder handshakes, and cryptographic audit proofs.
           </Text>
         </View>
 
         {historyItems.length === 0 ? (
-          <View style={styles.emptyCard}>
-            <Icon name="history-toggle-off" size={48} color={theme.colors.onBackground} />
-            <Text style={styles.emptyTitle}>No Emergency History</Text>
-            <Text style={styles.emptySub}>
+          <View style={[styles.emptyCard, { backgroundColor: colors.surfaceContainerLowest, borderColor: colors.outline }]}>
+            <Icon name="history-toggle-off" size={48} color={colors.onBackground} />
+            <Text style={[styles.emptyTitle, { color: colors.onBackground }]}>No Emergency History</Text>
+            <Text style={[styles.emptySub, { color: colors.onSurfaceVariant }]}>
               You have no past emergency broadcasts or responses logged on this device.
             </Text>
           </View>
         ) : (
           historyItems.map((item) => (
-            <StandardCard key={item.id} style={styles.itemCard}>
+            <StandardCard key={item.id} style={[styles.itemCard, { backgroundColor: colors.surfaceContainerLowest, borderColor: colors.outline }]}>
               <View style={styles.itemHeader}>
-                <Text style={styles.itemCategory}>{item.category}</Text>
+                <Text style={[styles.itemCategory, { color: colors.onBackground }]}>{item.category}</Text>
                 <View style={styles.statusPill}>
                   <Text style={styles.statusPillText}>{item.status}</Text>
                 </View>
               </View>
-              <Text style={styles.itemDate}>{item.timestamp}</Text>
-              <View style={styles.hashBox}>
-                <Text style={styles.hashLabel}>AUDIT PROOF HASH:</Text>
-                <Text style={styles.hashValue} numberOfLines={1}>{item.hash}</Text>
+              <Text style={[styles.itemDate, { color: colors.onSurfaceVariant }]}>{item.timestamp}</Text>
+              <View style={[styles.hashBox, { backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline }]}>
+                <Text style={[styles.hashLabel, { color: colors.onBackground }]}>AUDIT PROOF HASH:</Text>
+                <Text style={[styles.hashValue, { color: colors.primary }]} numberOfLines={1}>{item.hash}</Text>
               </View>
             </StandardCard>
           ))

@@ -25,6 +25,8 @@ const getSocketUrl = (): string => {
 };
 
 let socket: Socket | null = null;
+let isSubscribedToFeed = false;
+const newEpisodeHandlers: Set<(data: any) => void> = new Set();
 
 export interface IncomingMessage {
   senderId: string;
@@ -52,7 +54,7 @@ export const socketService = {
     }
 
     socket = io(getSocketUrl(), {
-      auth: { token },
+      auth: { token: sessionToken },
       transports: ['websocket'],
       reconnection: true,
       reconnectionAttempts: 5,
@@ -61,6 +63,15 @@ export const socketService = {
 
     socket.on('connect', () => {
       console.log('[Socket] Connected:', socket?.id);
+      if (isSubscribedToFeed) {
+        socket?.emit('join_feed');
+        console.log('[Socket] Auto-joined feed on connect.');
+      }
+      // Re-attach all registered new_episode handlers
+      newEpisodeHandlers.forEach(handler => {
+        socket?.off('new_episode', handler);
+        socket?.on('new_episode', handler);
+      });
     });
 
     socket.on('disconnect', (reason) => {
@@ -166,11 +177,6 @@ export const socketService = {
   /**
    * Register a listener for incoming messages.
    * Returns a cleanup function — use inside React useEffect.
-   *
-   * @example
-   *   useEffect(() => {
-   *     return socketService.onMessage((msg) => setMessages(prev => [...prev, msg]));
-   *   }, []);
    */
   onMessage(handler: (data: IncomingMessage) => void): () => void {
     if (!socket) return () => {};
@@ -217,19 +223,26 @@ export const socketService = {
   },
 
   joinFeed(): void {
-    if (!socket?.connected) return;
-    socket.emit('join_feed');
+    isSubscribedToFeed = true;
+    if (socket?.connected) {
+      socket.emit('join_feed');
+    }
   },
 
   leaveFeed(): void {
-    if (!socket?.connected) return;
-    socket.emit('leave_feed');
+    isSubscribedToFeed = false;
+    if (socket?.connected) {
+      socket.emit('leave_feed');
+    }
   },
 
   onNewEpisode(handler: (data: any) => void): () => void {
-    if (!socket) return () => {};
-    socket.on('new_episode', handler);
+    newEpisodeHandlers.add(handler);
+    if (socket) {
+      socket.on('new_episode', handler);
+    }
     return () => {
+      newEpisodeHandlers.delete(handler);
       socket?.off('new_episode', handler);
     };
   },

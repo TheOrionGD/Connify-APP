@@ -7,21 +7,23 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { theme } from '../../theme';
+import { theme, useTheme } from '../../theme';
 import { StandardButton } from '../../components/buttons/StandardButton';
 
 export default function ProtocolExplainerScreen({ navigation }: any) {
+  const { colors } = useTheme();
+
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.header}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: colors.background, borderBottomColor: colors.outline }]}>
         <Icon
           name="arrow-back"
           size={24}
-          color={theme.colors.onBackground}
+          color={colors.onBackground}
           onPress={() => navigation.goBack()}
         />
-        <Text style={styles.headerTitle}>HOW CONNIFY WORKS</Text>
-        <Icon name="shield" size={24} color={theme.colors.primary} />
+        <Text style={[styles.headerTitle, { color: colors.onBackground }]}>HOW CONNIFY WORKS</Text>
+        <Icon name="shield" size={24} color={colors.primary} />
       </View>
 
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
@@ -29,76 +31,76 @@ export default function ProtocolExplainerScreen({ navigation }: any) {
           <Text style={styles.heroTitle}>
             Rapid Safety Protocol <Text style={styles.highlight}>Without Tracking</Text>
           </Text>
-          <Text style={styles.heroSub}>
+          <Text style={[styles.heroSub, { color: colors.onSurfaceVariant }]}>
             Connify bridges community responders and emergency services using 4 zero-trust architectural steps.
           </Text>
         </View>
 
         {/* Step 1 */}
-        <View style={styles.stepCard}>
+        <View style={[styles.stepCard, { backgroundColor: colors.surfaceContainerLowest, borderColor: colors.outline }]}>
           <View style={styles.stepHeader}>
-            <View style={styles.stepBadge}>
-              <Text style={styles.stepBadgeText}>01</Text>
+            <View style={[styles.stepBadge, { backgroundColor: colors.surfaceContainerHigh }]}>
+              <Text style={[styles.stepBadgeText, { color: colors.onBackground }]}>01</Text>
             </View>
-            <Text style={styles.stepTitle}>Emergency Signal Broadcast</Text>
+            <Text style={[styles.stepTitle, { color: colors.onBackground }]}>Emergency Signal Broadcast</Text>
           </View>
-          <Text style={styles.stepDescription}>
-            When you trigger an SOS signal, your phone generates an Ed25519 payload containing your category (Medical, Escort, Threat) and blinded location grid cell.
+          <Text style={[styles.stepDescription, { color: colors.onSurfaceVariant }]}>
+            When you trigger an SOS signal, your phone generates an Ed25519 payload containing your category (Medical, Security, Transport, etc.) and blinded location grid cell.
           </Text>
           <View style={styles.iconRow}>
-            <Icon name="warning" size={22} color={theme.colors.primary} />
-            <Text style={styles.iconRowLabel}>Instant local grid notification</Text>
+            <Icon name="warning" size={22} color={colors.primary} />
+            <Text style={[styles.iconRowLabel, { color: colors.onBackground }]}>Instant local grid notification</Text>
           </View>
         </View>
 
         {/* Step 2 */}
-        <View style={styles.stepCard}>
+        <View style={[styles.stepCard, { backgroundColor: colors.surfaceContainerLowest, borderColor: colors.outline }]}>
           <View style={styles.stepHeader}>
-            <View style={[styles.stepBadge, { backgroundColor: theme.colors.primary }]}>
+            <View style={[styles.stepBadge, { backgroundColor: colors.primary }]}>
               <Text style={[styles.stepBadgeText, { color: '#FFFFFF' }]}>02</Text>
             </View>
-            <Text style={styles.stepTitle}>Nearby Responder Match</Text>
+            <Text style={[styles.stepTitle, { color: colors.onBackground }]}>Nearby Responder Match</Text>
           </View>
-          <Text style={styles.stepDescription}>
+          <Text style={[styles.stepDescription, { color: colors.onSurfaceVariant }]}>
             Verified responders within your selected radius receive the anonymized signal and can opt to accept the assistance protocol.
           </Text>
           <View style={styles.iconRow}>
-            <Icon name="people" size={22} color={theme.colors.onBackground} />
-            <Text style={styles.iconRowLabel}>Community & verified assistance</Text>
+            <Icon name="people" size={22} color={colors.onBackground} />
+            <Text style={[styles.iconRowLabel, { color: colors.onBackground }]}>Community & verified assistance</Text>
           </View>
         </View>
 
         {/* Step 3 */}
-        <View style={styles.stepCard}>
+        <View style={[styles.stepCard, { backgroundColor: colors.surfaceContainerLowest, borderColor: colors.outline }]}>
           <View style={styles.stepHeader}>
-            <View style={styles.stepBadge}>
-              <Text style={styles.stepBadgeText}>03</Text>
+            <View style={[styles.stepBadge, { backgroundColor: colors.surfaceContainerHigh }]}>
+              <Text style={[styles.stepBadgeText, { color: colors.onBackground }]}>03</Text>
             </View>
-            <Text style={styles.stepTitle}>Proximity Verification Handshake</Text>
+            <Text style={[styles.stepTitle, { color: colors.onBackground }]}>Proximity Verification Handshake</Text>
           </View>
-          <Text style={styles.stepDescription}>
+          <Text style={[styles.stepDescription, { color: colors.onSurfaceVariant }]}>
             When the responder arrives, both devices execute an offline QR/cryptographic challenge-response handshake to confirm identity.
           </Text>
           <View style={styles.iconRow}>
-            <Icon name="qr-code" size={22} color={theme.colors.primary} />
-            <Text style={styles.iconRowLabel}>Zero-trust identity verification</Text>
+            <Icon name="qr-code" size={22} color={colors.primary} />
+            <Text style={[styles.iconRowLabel, { color: colors.onBackground }]}>Zero-trust identity verification</Text>
           </View>
         </View>
 
         {/* Step 4 */}
-        <View style={styles.stepCard}>
+        <View style={[styles.stepCard, { backgroundColor: colors.surfaceContainerLowest, borderColor: colors.outline }]}>
           <View style={styles.stepHeader}>
-            <View style={styles.stepBadge}>
-              <Text style={styles.stepBadgeText}>04</Text>
+            <View style={[styles.stepBadge, { backgroundColor: colors.surfaceContainerHigh }]}>
+              <Text style={[styles.stepBadgeText, { color: colors.onBackground }]}>04</Text>
             </View>
-            <Text style={styles.stepTitle}>Episode Resolution & Data Purge</Text>
+            <Text style={[styles.stepTitle, { color: colors.onBackground }]}>Episode Resolution & Data Purge</Text>
           </View>
-          <Text style={styles.stepDescription}>
+          <Text style={[styles.stepDescription, { color: colors.onSurfaceVariant }]}>
             Once safety is confirmed, the active episode is closed. All temporary location tokens are purged automatically.
           </Text>
           <View style={styles.iconRow}>
             <Icon name="delete-sweep" size={22} color="#059669" />
-            <Text style={styles.iconRowLabel}>Automatic data cleanup</Text>
+            <Text style={[styles.iconRowLabel, { color: colors.onBackground }]}>Automatic data cleanup</Text>
           </View>
         </View>
 

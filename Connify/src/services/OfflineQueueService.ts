@@ -42,6 +42,15 @@ class OfflineQueueService {
     });
   }
 
+  public async getQueue(): Promise<QueuedItem[]> {
+    if (!this.initialized) await this.init();
+    return [...this.queue];
+  }
+
+  public async flushQueue(): Promise<void> {
+    return this.flush();
+  }
+
   public registerHandler(type: string, handler: QueueHandler) {
     this.handlers.set(type, handler);
   }

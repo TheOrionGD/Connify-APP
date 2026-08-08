@@ -380,6 +380,10 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
         urgency,
         latitude,
         longitude,
+        location: {
+          type: 'Point',
+          coordinates: [longitude, latitude],
+        },
         radiusMeters: 500,
         blindedGridSigs: 'simulated-bch-syndromes',
         helperValidationKey: 'simulated-helper-string-y',
@@ -418,7 +422,7 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
       if (episodeId) {
         episode = await Episode.findById(episodeId);
       } else {
-        episode = await Episode.findOne({ status: 'active' }).sort({ createdAt: -1 });
+        episode = await Episode.findOne({ status: { $in: ['active', 'pending', 'matched'] } }).sort({ createdAt: -1 });
       }
 
       if (!episode) {

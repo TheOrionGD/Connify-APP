@@ -6,6 +6,10 @@ import {
   ScrollView,
   TouchableOpacity,
   Switch,
+  Image,
+  ActivityIndicator,
+  Alert,
+  Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -15,9 +19,10 @@ import { StandardButton } from '../../components/buttons/StandardButton';
 import { ProfileSetupModal } from '../../components/common/ProfileSetupModal';
 
 export default function SettingsScreen({ navigation }: any) {
-  const { user, userProfile, deviceId, signOut } = useAuthStore();
-  const { themeMode, toggleTheme, colors, theme } = useTheme();
+  const { user, userProfile, deviceId, signOut, signInWithGoogle } = useAuthStore();
+  const { themeMode, toggleTheme, colors } = useTheme();
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const isDarkMode = themeMode === 'dark';
 
@@ -41,6 +46,37 @@ export default function SettingsScreen({ navigation }: any) {
     .map((w: string) => w[0].toUpperCase())
     .join('');
 
+  // Parse medical notes JSON if present
+  let bloodGroup = 'Not Specified';
+  let conditionsList: string[] = [];
+  let guardianData: { name: string; phone: string; relationship: string } | null = null;
+
+  if (userProfile?.medicalNotes) {
+    try {
+      const parsed = JSON.parse(userProfile.medicalNotes);
+      if (parsed.bloodGroup) bloodGroup = parsed.bloodGroup;
+      if (Array.isArray(parsed.conditions)) conditionsList = parsed.conditions;
+      if (parsed.guardian && (parsed.guardian.name || parsed.guardian.phone)) {
+        guardianData = parsed.guardian;
+      }
+    } catch {
+      // Raw string fallback
+      bloodGroup = userProfile.medicalNotes;
+    }
+  }
+
+  const handleGoogleSignIn = async () => {
+    setGoogleLoading(true);
+    try {
+      await signInWithGoogle();
+      Alert.alert('Google Sign-In Success', 'Your Google account data has been updated on your profile.');
+    } catch (e: any) {
+      Alert.alert('Google Sign-In', e.message || 'Google authentication failed.');
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
+
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
       <View style={[styles.header, { backgroundColor: colors.background, borderBottomColor: colors.outline }]}>
@@ -60,14 +96,18 @@ export default function SettingsScreen({ navigation }: any) {
         {/* Profile Card */}
         <View style={[styles.profileCard, { backgroundColor: colors.surfaceContainerLowest, borderColor: colors.outline }]}>
           <View style={styles.profileHeader}>
-            {/* Unified circular avatar — initials if name known, icon if not */}
-            <View style={[styles.avatarCircle, { backgroundColor: initials ? colors.primary : colors.surfaceContainerHigh, borderColor: colors.outline }]}>
-              {initials ? (
-                <Text style={[styles.avatarInitials, { color: '#FFFFFF' }]}>{initials}</Text>
-              ) : (
-                <Icon name="account-circle" size={44} color={colors.primary} />
-              )}
-            </View>
+            {/* User photo if from Google, or initials avatar */}
+            {user?.photoURL ? (
+              <Image source={{ uri: user.photoURL }} style={[styles.avatarCircle, { borderColor: colors.primary }]} />
+            ) : (
+              <View style={[styles.avatarCircle, { backgroundColor: initials ? colors.primary : colors.surfaceContainerHigh, borderColor: colors.outline }]}>
+                {initials ? (
+                  <Text style={[styles.avatarInitials, { color: '#FFFFFF' }]}>{initials}</Text>
+                ) : (
+                  <Icon name="account-circle" size={44} color={colors.primary} />
+                )}
+              </View>
+            )}
             <View style={styles.profileTextGroup}>
               <Text style={[styles.profileName, { color: colors.onBackground }]}>
                 {profileName}
@@ -85,6 +125,149 @@ export default function SettingsScreen({ navigation }: any) {
             <Icon name="edit" size={16} color={colors.onBackground} />
             <Text style={[styles.editProfileText, { color: colors.onBackground }]}>EDIT PROFILE DETAILS</Text>
           </TouchableOpacity>
+        </View>
+
+        {/* Google Authentication Section */}
+        <View style={[styles.sectionCard, { backgroundColor: colors.surfaceContainerLowest, borderColor: colors.outline }]}>
+          <Text style={[styles.sectionTitle, { color: colors.onBackground }]}>GOOGLE ACCOUNT SIGN-IN</Text>
+          
+          <TouchableOpacity
+            style={[styles.googleButton, { backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline }]}
+            onPress={handleGoogleSignIn}
+            disabled={googleLoading}
+          >
+            {googleLoading ? (
+              <ActivityIndicator color={colors.primary} />
+            ) : (
+              <>
+                <Icon name="g-mobiledata" size={32} color={colors.primary} />
+                <Text style={[styles.googleButtonText, { color: colors.onBackground }]}>
+                  {user?.email ? 'RE-AUTHENTICATE / LINK GOOGLE ACCOUNT' : 'SIGN IN WITH GOOGLE'}
+                </Text>
+              </>
+            )}
+          </TouchableOpacity>
+
+          {user?.email && (
+            <View style={[styles.infoRow, { backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline }]}>
+              <Text style={[styles.infoLabel, { color: colors.onBackground }]}>LINKED GOOGLE EMAIL:</Text>
+              <Text style={[styles.infoValue, { color: colors.primary }]}>{user.email}</Text>
+            </View>
+          )}
+        </View>
+
+        {/* Collected Profile Data Section */}
+        <View style={[styles.sectionCard, { backgroundColor: colors.surfaceContainerLowest, borderColor: colors.outline }]}>
+          <Text style={[styles.sectionTitle, { color: colors.onBackground }]}>COLLECTED PROFILE DATA</Text>
+          
+          <View style={[styles.infoRow, { backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline }]}>
+            <Text style={[styles.infoLabel, { color: colors.onBackground }]}>FIRST NAME:</Text>
+            <Text style={[styles.infoValue, { color: colors.onBackground }]}>{userProfile?.firstName || 'Not Set'}</Text>
+          </View>
+
+          <View style={[styles.infoRow, { backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline }]}>
+            <Text style={[styles.infoLabel, { color: colors.onBackground }]}>LAST NAME:</Text>
+            <Text style={[styles.infoValue, { color: colors.onBackground }]}>{userProfile?.lastName || 'Not Set'}</Text>
+          </View>
+
+          <View style={[styles.infoRow, { backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline }]}>
+            <Text style={[styles.infoLabel, { color: colors.onBackground }]}>PHONE NUMBER:</Text>
+            <Text style={[styles.infoValue, { color: colors.onBackground }]}>{userProfile?.phone || 'Not Set'}</Text>
+          </View>
+
+          <View style={[styles.infoRow, { backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline }]}>
+            <Text style={[styles.infoLabel, { color: colors.onBackground }]}>BLOOD GROUP:</Text>
+            <Text style={[styles.infoValue, { color: colors.primary }]}>{bloodGroup}</Text>
+          </View>
+
+          <View style={[styles.infoRow, { backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline }]}>
+            <Text style={[styles.infoLabel, { color: colors.onBackground }]}>MEDICAL CONDITIONS & ALLERGIES:</Text>
+            <Text style={[styles.infoValue, { color: colors.onBackground }]}>
+              {conditionsList.length > 0 ? conditionsList.join(', ') : 'None Reported'}
+            </Text>
+          </View>
+        </View>
+
+        {/* PRIMARY GUARDIAN CONTACT SECTION (OFFLINE VOICE & SMS) */}
+        <View style={[styles.sectionCard, { backgroundColor: colors.surfaceContainerLowest, borderColor: colors.outline }]}>
+          <Text style={[styles.sectionTitle, { color: colors.primary }]}>PRIMARY GUARDIAN CONTACT (OFFLINE SMS & CALL)</Text>
+          
+          <View style={[styles.infoRow, { backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline }]}>
+            <Text style={[styles.infoLabel, { color: colors.onBackground }]}>GUARDIAN NAME:</Text>
+            <Text style={[styles.infoValue, { color: colors.onBackground }]}>{guardianData?.name || 'Not Configured'}</Text>
+          </View>
+
+          <View style={[styles.infoRow, { backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline }]}>
+            <Text style={[styles.infoLabel, { color: colors.onBackground }]}>GUARDIAN PHONE NUMBER:</Text>
+            <Text style={[styles.infoValue, { color: colors.primary }]}>{guardianData?.phone || 'Not Configured'}</Text>
+          </View>
+
+          <View style={[styles.infoRow, { backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline }]}>
+            <Text style={[styles.infoLabel, { color: colors.onBackground }]}>RELATIONSHIP:</Text>
+            <Text style={[styles.infoValue, { color: colors.onBackground }]}>{guardianData?.relationship || 'Guardian'}</Text>
+          </View>
+
+          {guardianData?.phone ? (
+            <View style={{ flexDirection: 'row', gap: 10, marginTop: 4 }}>
+              <TouchableOpacity
+                style={[styles.googleButton, { flex: 1, backgroundColor: colors.primary, borderColor: colors.primary }]}
+                onPress={() => Linking.openURL(`tel:${guardianData?.phone}`).catch(() => Alert.alert('Error', 'Could not open phone dialer'))}
+              >
+                <Icon name="phone" size={18} color="#FFFFFF" />
+                <Text style={[styles.googleButtonText, { color: '#FFFFFF', textAlign: 'center' }]}>CALL GUARDIAN</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.googleButton, { flex: 1, backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline }]}
+                onPress={() => Linking.openURL(`sms:${guardianData?.phone}?body=EMERGENCY%20ALERT!%20I%20need%20immediate%20assistance.`).catch(() => Alert.alert('Error', 'Could not open SMS'))}
+              >
+                <Icon name="sms" size={18} color={colors.primary} />
+                <Text style={[styles.googleButtonText, { color: colors.onBackground, textAlign: 'center' }]}>SEND SMS</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <TouchableOpacity
+              style={[styles.editProfilePill, { backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline }]}
+              onPress={() => setShowProfileModal(true)}
+            >
+              <Icon name="person-add" size={16} color={colors.primary} />
+              <Text style={[styles.editProfileText, { color: colors.primary }]}>ADD GUARDIAN DETAILS</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {/* NEW SECTION: Google Account Data */}
+        <View style={[styles.sectionCard, { backgroundColor: colors.surfaceContainerLowest, borderColor: colors.outline }]}>
+          <Text style={[styles.sectionTitle, { color: colors.onBackground }]}>GOOGLE ACCOUNT DATA</Text>
+          
+          <View style={[styles.infoRow, { backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline }]}>
+            <Text style={[styles.infoLabel, { color: colors.onBackground }]}>GOOGLE DISPLAY NAME:</Text>
+            <Text style={[styles.infoValue, { color: colors.onBackground }]}>{user?.displayName || 'N/A (Not Signed in with Google)'}</Text>
+          </View>
+
+          <View style={[styles.infoRow, { backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline }]}>
+            <Text style={[styles.infoLabel, { color: colors.onBackground }]}>GOOGLE EMAIL ADDRESS:</Text>
+            <Text style={[styles.infoValue, { color: colors.primary }]}>{user?.email || 'N/A'}</Text>
+          </View>
+
+          <View style={[styles.infoRow, { backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline }]}>
+            <Text style={[styles.infoLabel, { color: colors.onBackground }]}>GOOGLE ACCOUNT USER ID (UID):</Text>
+            <Text style={[styles.infoValue, { color: colors.primary }]} numberOfLines={1}>{user?.uid || 'N/A'}</Text>
+          </View>
+
+          <View style={[styles.infoRow, { backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline }]}>
+            <Text style={[styles.infoLabel, { color: colors.onBackground }]}>PROFILE PHOTO URL:</Text>
+            <Text style={[styles.infoValue, { color: colors.onSurfaceVariant }]} numberOfLines={1}>
+              {user?.photoURL || 'No Google photo URL'}
+            </Text>
+          </View>
+
+          <View style={[styles.infoRow, { backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline }]}>
+            <Text style={[styles.infoLabel, { color: colors.onBackground }]}>OAUTH ACCOUNT VERIFICATION:</Text>
+            <Text style={[styles.infoValue, { color: user?.email ? '#10B981' : colors.onSurfaceVariant }]}>
+              {user?.email ? 'VERIFIED GOOGLE ACCOUNT OAUTH 2.0' : 'UNVERIFIED / ANONYMOUS SESSION'}
+            </Text>
+          </View>
         </View>
 
         {/* Theme Settings Card */}
@@ -138,6 +321,28 @@ export default function SettingsScreen({ navigation }: any) {
           
           <TouchableOpacity
             style={[styles.navRow, { borderBottomColor: colors.surfaceContainerHigh }]}
+            onPress={() => navigation.navigate('WomenSafety')}
+          >
+            <View style={styles.navRowLeft}>
+              <Icon name="female" size={20} color="#EC4899" />
+              <Text style={[styles.navRowText, { color: colors.onBackground }]}>Women Safety & Panic Hub</Text>
+            </View>
+            <Icon name="chevron-right" size={20} color={colors.onBackground} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.navRow, { borderBottomColor: colors.surfaceContainerHigh }]}
+            onPress={() => navigation.navigate('OfflineEmergency')}
+          >
+            <View style={styles.navRowLeft}>
+              <Icon name="wifi-off" size={20} color={colors.primary} />
+              <Text style={[styles.navRowText, { color: colors.onBackground }]}>No Network & Offline Hub</Text>
+            </View>
+            <Icon name="chevron-right" size={20} color={colors.onBackground} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.navRow, { borderBottomColor: colors.surfaceContainerHigh }]}
             onPress={() => navigation.navigate('Governance')}
           >
             <View style={styles.navRowLeft}>
@@ -157,7 +362,6 @@ export default function SettingsScreen({ navigation }: any) {
             </View>
             <Icon name="chevron-right" size={20} color={colors.onBackground} />
           </TouchableOpacity>
-
 
           <TouchableOpacity
             style={[styles.navRow, { borderBottomColor: colors.surfaceContainerHigh }]}
@@ -286,6 +490,21 @@ const styles = StyleSheet.create({
     fontSize: 11,
     letterSpacing: 1.2,
     marginBottom: 2,
+  },
+  googleButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 10,
+    gap: 8,
+  },
+  googleButtonText: {
+    fontFamily: 'SpaceGrotesk-Bold',
+    fontSize: 12,
+    letterSpacing: 0.8,
   },
   themeRow: {
     flexDirection: 'row',

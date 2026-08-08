@@ -1,0 +1,24 @@
+diff --git a/node_modules/react-native-vision-camera/android/build.gradle b/node_modules/react-native-vision-camera/android/build.gradle
+index fd7f6eb..fcebd34 100644
+--- a/node_modules/react-native-vision-camera/android/build.gradle
++++ b/node_modules/react-native-vision-camera/android/build.gradle
+@@ -162,6 +162,19 @@ dependencies {
+   implementation project(":react-native-nitro-image")
+ }
+ 
++def copyVisionCameraHeaders = {
++  copy {
++    from fileTree('./src/main/cpp').filter { it.isFile() }
++    from fileTree('../cpp/').filter { it.isFile() }
++    from fileTree('../nitrogen/generated/android/c++/').filter { it.isFile() }
++    from fileTree('../nitrogen/generated/shared/c++/').filter { it.isFile() }
++    include "*.hpp"
++    into "${project.buildDir}/headers/visioncamera/VisionCamera/"
++    includeEmptyDirs = false
++  }
++}
++copyVisionCameraHeaders()
++
+ tasks.register('prepareHeaders', Copy) {
+   from fileTree('./src/main/cpp').filter { it.isFile() }
+   from fileTree('../cpp/').filter { it.isFile() }

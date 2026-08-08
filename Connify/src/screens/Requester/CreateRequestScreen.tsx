@@ -9,7 +9,7 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { theme } from '../../theme';
+import { theme, useTheme } from '../../theme';
 import { StandardButton } from '../../components/buttons/StandardButton';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useEpisodeStore } from '../../stores/episodeStore';
@@ -20,9 +20,22 @@ import { connectivityService } from '../../services/ConnectivityService';
 import { offlineQueueService } from '../../services/OfflineQueueService';
 
 
-type CategoryType = 'Medical' | 'Security' | 'Transport' | 'Other';
+type CategoryType =
+  | 'Medical'
+  | 'Security'
+  | 'Fire & Hazard'
+  | 'Transport'
+  | 'Disaster'
+  | 'Women Safety'
+  | 'Child Care'
+  | 'Accident'
+  | 'Animal Rescue'
+  | 'Senior Assist'
+  | 'Blackout'
+  | 'General SOS';
 
 export default function CreateRequestScreen({ navigation }: any) {
+  const { colors } = useTheme();
   const startRequest = useEpisodeStore((state) => state.startRequest);
   const { latitude, longitude } = useLocationStore();
   const [selectedCategory, setSelectedCategory] = useState<CategoryType | null>(null);
@@ -33,8 +46,16 @@ export default function CreateRequestScreen({ navigation }: any) {
   const categories: { name: CategoryType; icon: string }[] = [
     { name: 'Medical', icon: 'medical-services' },
     { name: 'Security', icon: 'security' },
+    { name: 'Fire & Hazard', icon: 'local-fire-department' },
     { name: 'Transport', icon: 'local-taxi' },
-    { name: 'Other', icon: 'warning' },
+    { name: 'Disaster', icon: 'thunderstorm' },
+    { name: 'Women Safety', icon: 'health-and-safety' },
+    { name: 'Child Care', icon: 'child-care' },
+    { name: 'Accident', icon: 'car-crash' },
+    { name: 'Animal Rescue', icon: 'pets' },
+    { name: 'Senior Assist', icon: 'elderly' },
+    { name: 'Blackout', icon: 'power-off' },
+    { name: 'General SOS', icon: 'warning' },
   ];
 
   const urgencyLabels = ['Low', 'Minor', 'Standard', 'High', 'Critical'];
@@ -54,9 +75,17 @@ export default function CreateRequestScreen({ navigation }: any) {
     try {
       const categoryMapping: Record<CategoryType, 'medical' | 'transport' | 'general' | 'emergency'> = {
         'Medical': 'medical',
-        'Transport': 'transport',
         'Security': 'emergency',
-        'Other': 'general',
+        'Fire & Hazard': 'emergency',
+        'Transport': 'transport',
+        'Disaster': 'emergency',
+        'Women Safety': 'emergency',
+        'Child Care': 'general',
+        'Accident': 'medical',
+        'Animal Rescue': 'general',
+        'Senior Assist': 'general',
+        'Blackout': 'general',
+        'General SOS': 'general',
       };
       const apiCategory = categoryMapping[selectedCategory];
 
@@ -145,26 +174,26 @@ export default function CreateRequestScreen({ navigation }: any) {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.header}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: colors.background, borderBottomColor: colors.outline }]}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Icon name="arrow-back" size={24} color={theme.colors.onBackground} />
+          <Icon name="arrow-back" size={24} color={colors.onBackground} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>CREATE HELP REQUEST</Text>
-        <Icon name="radar" size={22} color={theme.colors.primary} />
+        <Text style={[styles.headerTitle, { color: colors.onBackground }]}>CREATE HELP REQUEST</Text>
+        <Icon name="radar" size={22} color={colors.primary} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         <View style={styles.titleSection}>
-          <Text style={styles.mainTitle}>Broadcast Emergency Signal</Text>
-          <Text style={styles.subtitle}>
+          <Text style={[styles.mainTitle, { color: colors.onBackground }]}>Broadcast Emergency Signal</Text>
+          <Text style={[styles.subtitle, { color: colors.onSurfaceVariant }]}>
             Select your category and urgency. Signal will be transmitted to nearest verified volunteer responders.
           </Text>
         </View>
 
         {/* Category Bento Grid */}
         <View style={styles.section}>
-          <Text style={styles.sectionLabel}>CATEGORY</Text>
+          <Text style={[styles.sectionLabel, { color: colors.onBackground }]}>CATEGORY (12 DISPATCH TYPES)</Text>
           <View style={styles.grid}>
             {categories.map((cat) => {
               const isSelected = selectedCategory === cat.name;
@@ -173,19 +202,20 @@ export default function CreateRequestScreen({ navigation }: any) {
                   key={cat.name}
                   style={[
                     styles.categoryCard,
-                    isSelected ? styles.categoryCardSelected : null,
+                    { backgroundColor: colors.surfaceContainerLowest, borderColor: colors.outline },
+                    isSelected ? { backgroundColor: colors.primary, borderColor: colors.primary } : null,
                   ]}
                   onPress={() => setSelectedCategory(cat.name)}
                 >
                   <Icon
                     name={cat.icon}
-                    size={30}
-                    color={isSelected ? '#FFFFFF' : theme.colors.onBackground}
+                    size={28}
+                    color={isSelected ? '#FFFFFF' : colors.onBackground}
                   />
                   <Text
                     style={[
                       styles.categoryLabel,
-                      isSelected ? styles.categoryLabelSelected : null,
+                      { color: isSelected ? '#FFFFFF' : colors.onBackground },
                     ]}
                   >
                     {cat.name}
@@ -199,8 +229,8 @@ export default function CreateRequestScreen({ navigation }: any) {
         {/* Urgency Level Selector */}
         <View style={styles.section}>
           <View style={styles.urgencyHeader}>
-            <Text style={styles.sectionLabel}>URGENCY LEVEL</Text>
-            <Text style={styles.urgencyValue}>{urgencyLabels[urgency - 1]}</Text>
+            <Text style={[styles.sectionLabel, { color: colors.onBackground }]}>URGENCY LEVEL</Text>
+            <Text style={[styles.urgencyValue, { color: colors.primary }]}>{urgencyLabels[urgency - 1]}</Text>
           </View>
 
           <View style={styles.urgencyRow}>
@@ -211,14 +241,15 @@ export default function CreateRequestScreen({ navigation }: any) {
                   key={val}
                   style={[
                     styles.urgencyPill,
-                    isSelected ? styles.urgencyPillSelected : null,
+                    { backgroundColor: colors.surfaceContainerLowest, borderColor: colors.outline },
+                    isSelected ? { backgroundColor: colors.primary, borderColor: colors.primary } : null,
                   ]}
                   onPress={() => setUrgency(val)}
                 >
                   <Text
                     style={[
                       styles.urgencyPillText,
-                      isSelected ? styles.urgencyPillTextSelected : null,
+                      { color: isSelected ? '#FFFFFF' : colors.onBackground },
                     ]}
                   >
                     {val}
@@ -231,12 +262,12 @@ export default function CreateRequestScreen({ navigation }: any) {
 
         {/* Context Brief Input */}
         <View style={styles.section}>
-          <Text style={styles.sectionLabel}>SITUATION DETAILS (OPTIONAL)</Text>
-          <View style={styles.textAreaWrapper}>
+          <Text style={[styles.sectionLabel, { color: colors.onBackground }]}>SITUATION DETAILS (OPTIONAL)</Text>
+          <View style={[styles.textAreaWrapper, { backgroundColor: colors.surfaceContainerLowest, borderColor: colors.outline }]}>
             <TextInput
-              style={styles.textArea}
+              style={[styles.textArea, { color: colors.onBackground }]}
               placeholder="Provide key details for responders..."
-              placeholderTextColor="#777777"
+              placeholderTextColor={colors.onSurfaceVariant}
               multiline
               numberOfLines={4}
               value={context}
@@ -247,7 +278,7 @@ export default function CreateRequestScreen({ navigation }: any) {
         </View>
       </ScrollView>
 
-      <View style={styles.bottomBar}>
+      <View style={[styles.bottomBar, { backgroundColor: colors.background, borderTopColor: colors.outline }]}>
         <StandardButton
           title={loading ? 'BROADCASTING...' : 'BROADCAST REQUEST'}
           onPress={handleBroadcast}

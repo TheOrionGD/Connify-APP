@@ -36,6 +36,21 @@ interface HelpRequest {
   details: string;
 }
 
+const getCategoryIcon = (categoryStr: string): string => {
+  const cat = (categoryStr || '').toLowerCase();
+  if (cat.includes('medical') || cat.includes('health') || cat.includes('accident')) return 'medical-services';
+  if (cat.includes('security') || cat.includes('police') || cat.includes('threat')) return 'security';
+  if (cat.includes('fire') || cat.includes('hazard')) return 'local-fire-department';
+  if (cat.includes('transport') || cat.includes('taxi') || cat.includes('cab')) return 'local-taxi';
+  if (cat.includes('disaster') || cat.includes('flood') || cat.includes('storm')) return 'thunderstorm';
+  if (cat.includes('women')) return 'health-and-safety';
+  if (cat.includes('child')) return 'child-care';
+  if (cat.includes('animal') || cat.includes('pet')) return 'pets';
+  if (cat.includes('senior') || cat.includes('elderly')) return 'elderly';
+  if (cat.includes('blackout') || cat.includes('power')) return 'power-off';
+  return 'warning';
+};
+
 export default function NearbyRequestsScreen({ navigation }: any) {
   const { latitude, longitude, loading: locationLoading, startWatchingLocation } = useLocationStore();
   const { colors } = useTheme();
@@ -86,7 +101,7 @@ export default function NearbyRequestsScreen({ navigation }: any) {
         const apiRequests: HelpRequest[] = res.data.map((ep: any) => ({
           id: ep.id,
           category: ep.category ? (ep.category.charAt(0).toUpperCase() + ep.category.slice(1) + ' Request') : 'Emergency Request',
-          icon: ep.category === 'medical' ? 'medical-services' : ep.category === 'transport' ? 'local-taxi' : ep.category === 'emergency' ? 'security' : 'warning',
+          icon: getCategoryIcon(ep.category),
           distance: ep.distanceMeters !== undefined ? (ep.distanceMeters < 50 ? '📍 < 50m (Immediate)' : `~${Math.round(ep.distanceMeters)}m`) : 'Nearby',
           urgency: ep.urgency || 3,
           timeAgo: 'Live Broadcast',
@@ -154,7 +169,7 @@ export default function NearbyRequestsScreen({ navigation }: any) {
         const newReq: HelpRequest = {
           id: ep.id,
           category: ep.category ? (ep.category.charAt(0).toUpperCase() + ep.category.slice(1) + ' Request') : 'Emergency Request',
-          icon: ep.category === 'medical' ? 'medical-services' : ep.category === 'transport' ? 'local-taxi' : ep.category === 'emergency' ? 'security' : 'warning',
+          icon: getCategoryIcon(ep.category),
           distance: distanceMeters < 50 ? '📍 < 50m (Immediate)' : `~${distanceMeters}m`,
           urgency: ep.urgency || 3,
           timeAgo: 'Just now (Live)',

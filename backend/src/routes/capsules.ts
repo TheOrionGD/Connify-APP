@@ -13,8 +13,8 @@ import { authenticate } from '../middleware/authenticate';
 import { CapsuleController } from '../controllers/CapsuleController';
 
 const issueBodySchema = z.object({
-  episodeId: z.string().uuid('episodeId must be a valid UUID'),
-  helperDeviceId: z.string().uuid('helperDeviceId must be a valid UUID'),
+  episodeId: z.string().min(1, 'episodeId is required'),
+  helperDeviceId: z.string().min(1, 'helperDeviceId is required'),
   /** Verification signals collected during the QR/GPS handshake */
   verificationData: z.object({
     qrToken: z.string().min(1, 'qrToken is required for verification'),

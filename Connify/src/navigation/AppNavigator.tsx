@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -21,7 +21,9 @@ import FeedbackScreen from '../screens/Feedback/FeedbackScreen';
 import EmergencyContactsScreen from '../screens/EmergencyContactsScreen';
 import GovernmentEmergencyNumbersScreen from '../screens/GovernmentEmergencyNumbersScreen';
 import WitnessContactsScreen from '../screens/Governance/WitnessContactsScreen';
-
+import WomenSafetyScreen from '../screens/WomenSafetyScreen';
+import OfflineEmergencyScreen from '../screens/OfflineEmergencyScreen';
+import UnifiedSafetyHubScreen from '../screens/UnifiedSafetyHubScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -45,10 +47,12 @@ function MainTabs() {
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.onSurfaceVariant,
         tabBarLabelStyle: styles.tabBarLabel,
-        tabBarIcon: ({ focused, color, size }) => {
+        tabBarIcon: ({ focused }) => {
           let iconName = 'help-outline';
           if (route.name === 'Dashboard') {
             iconName = 'shield';
+          } else if (route.name === 'SafetyHub') {
+            iconName = 'health-and-safety';
           } else if (route.name === 'Respond') {
             iconName = 'explore';
           } else if (route.name === 'History') {
@@ -69,7 +73,7 @@ function MainTabs() {
               <Icon
                 name={iconName}
                 size={22}
-                color={focused ? colors.primary : colors.onSurfaceVariant}
+                color={focused ? (route.name === 'SafetyHub' ? '#EC4899' : colors.primary) : colors.onSurfaceVariant}
               />
             </View>
           );
@@ -80,6 +84,11 @@ function MainTabs() {
         name="Dashboard"
         component={DashboardScreen}
         options={{ tabBarLabel: 'HOME' }}
+      />
+      <Tab.Screen
+        name="SafetyHub"
+        component={UnifiedSafetyHubScreen}
+        options={{ tabBarLabel: 'SAFETY' }}
       />
       <Tab.Screen
         name="Respond"
@@ -122,16 +131,18 @@ function AppNavigator() {
       <Stack.Screen name="EmergencyContacts" component={EmergencyContactsScreen} />
       <Stack.Screen name="GovernmentEmergencyNumbers" component={GovernmentEmergencyNumbersScreen} />
       <Stack.Screen name="WitnessContacts" component={WitnessContactsScreen} />
+      <Stack.Screen name="WomenSafety" component={WomenSafetyScreen} />
+      <Stack.Screen name="OfflineEmergency" component={OfflineEmergencyScreen} />
+      <Stack.Screen name="UnifiedSafetyHub" component={UnifiedSafetyHubScreen} />
     </Stack.Navigator>
-
   );
 }
 
 const styles = StyleSheet.create({
   tabBarLabel: {
     fontFamily: 'SpaceGrotesk-Bold',
-    fontSize: 10,
-    letterSpacing: 0.8,
+    fontSize: 9,
+    letterSpacing: 0.5,
     marginTop: 2,
     fontWeight: '700',
   },

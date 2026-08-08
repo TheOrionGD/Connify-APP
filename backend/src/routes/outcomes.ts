@@ -13,7 +13,7 @@ import { authenticate } from '../middleware/authenticate';
 import { OutcomeController } from '../controllers/OutcomeController';
 
 const createBodySchema = z.object({
-  episodeId: z.string().uuid('episodeId must be a valid UUID'),
+  episodeId: z.string().min(1, 'episodeId is required'),
   result: z.enum(['success', 'failure']),
   category: z.enum(['medical', 'transport', 'general', 'emergency']),
   /** 1–5 risk rating supplied by the completing party */
