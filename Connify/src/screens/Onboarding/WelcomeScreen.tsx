@@ -8,6 +8,9 @@ import {
   Alert,
   PermissionsAndroid,
   Platform,
+  Modal,
+  TextInput,
+  TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -20,12 +23,20 @@ import { API_BASE_URL } from '@env';
 
 export default function WelcomeScreen({ navigation }: any) {
   const { colors } = useTheme();
-  const { isAuthenticated, signInAnonymously } = useAuthStore();
+  const { isAuthenticated, signInAnonymously, sendEmailOtp, verifyEmailOtp } = useAuthStore();
   const [locationGranted, setLocationGranted] = useState(false);
   const [notificationsGranted, setNotificationsGranted] = useState(false);
   const [cameraGranted, setCameraGranted] = useState(false);
   const [loading, setLoading] = useState(false);
   const { fetchLocation } = useLocationStore();
+
+  // Email OTP state
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [emailInput, setEmailInput] = useState('');
+  const [otpInput, setOtpInput] = useState('');
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [devOtpHint, setDevOtpHint] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     if (!API_BASE_URL) {
@@ -61,6 +72,49 @@ export default function WelcomeScreen({ navigation }: any) {
       Alert.alert('Authentication Error', err.message || 'Verification failed. Please try again.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSendOtp = async () => {
+    if (!emailInput.trim() || !emailInput.includes('@')) {
+      Alert.alert('Invalid Email', 'Please enter a valid email address.');
+      return;
+    }
+    setOtpLoading(true);
+    try {
+      const res = await sendEmailOtp(emailInput.trim());
+      if (res.success) {
+        setOtpSent(true);
+        if (res.devOtp) setDevOtpHint(res.devOtp);
+        Alert.alert('OTP Dispatched', res.message || '7-digit security verification code sent to your email.');
+      } else {
+        Alert.alert('Dispatch Failed', res.message || 'Could not send verification code.');
+      }
+    } catch (err: any) {
+      Alert.alert('Error', err.message || 'Failed to dispatch OTP.');
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    if (!otpInput.trim() || otpInput.trim().length < 6) {
+      Alert.alert('Invalid OTP', 'Please enter the full 7-digit OTP code.');
+      return;
+    }
+    setOtpLoading(true);
+    try {
+      const res = await verifyEmailOtp(emailInput.trim(), otpInput.trim());
+      if (res.success) {
+        setShowEmailModal(false);
+        navigation.replace('Main');
+      } else {
+        Alert.alert('Verification Failed', res.message || 'Invalid or expired OTP code.');
+      }
+    } catch (err: any) {
+      Alert.alert('Error', err.message || 'Failed to verify OTP.');
+    } finally {
+      setOtpLoading(false);
     }
   };
 
@@ -239,13 +293,89 @@ export default function WelcomeScreen({ navigation }: any) {
 
       <View style={[styles.bottomBar, { backgroundColor: colors.background, borderTopColor: colors.outline }]}>
         <StandardButton
-          title={loading ? 'COORDINATING...' : 'GET STARTED'}
+          title={loading ? 'COORDINATING...' : 'GET STARTED (ANONYMOUS)'}
           onPress={handleGetStarted}
           loading={loading}
           icon={!loading && <Icon name="arrow-forward" size={20} color="#FFFFFF" />}
           style={styles.ctaButton}
         />
+        
+        <TouchableOpacity
+          style={[styles.emailOtpButton, { backgroundColor: colors.surfaceContainerLowest, borderColor: colors.outline }]}
+          onPress={() => setShowEmailModal(true)}
+        >
+          <Icon name="mark-email-read" size={18} color={colors.primary} />
+          <Text style={[styles.emailOtpButtonText, { color: colors.onBackground }]}>AUTHENTICATE WITH EMAIL OTP</Text>
+        </TouchableOpacity>
       </View>
+
+      {/* EMAIL OTP MODAL */}
+      <Modal visible={showEmailModal} transparent animationType="slide">
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalCard, { backgroundColor: colors.surfaceContainerLowest, borderColor: colors.outline }]}>
+            <View style={styles.modalHeader}>
+              <Icon name="mark-email-read" size={28} color={colors.primary} />
+              <Text style={[styles.modalTitle, { color: colors.onBackground }]}>Email OTP Security Verification</Text>
+              <TouchableOpacity onPress={() => setShowEmailModal(false)}>
+                <Icon name="close" size={22} color={colors.onBackground} />
+              </TouchableOpacity>
+            </View>
+            <Text style={[styles.modalSub, { color: colors.onSurfaceVariant }]}>
+              Enter your email to receive a 7-digit zero-trust verification code.
+            </Text>
+
+            {!otpSent ? (
+              <View style={styles.inputGroup}>
+                <Text style={[styles.inputLabel, { color: colors.onBackground }]}>EMAIL ADDRESS</Text>
+                <TextInput
+                  style={[styles.textInput, { color: colors.onBackground, borderColor: colors.outline }]}
+                  placeholder="name@example.com"
+                  placeholderTextColor={colors.onSurfaceVariant}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  value={emailInput}
+                  onChangeText={setEmailInput}
+                />
+                <StandardButton
+                  title={otpLoading ? 'SENDING OTP...' : 'SEND OTP CODE'}
+                  onPress={handleSendOtp}
+                  loading={otpLoading}
+                  style={{ marginTop: 10 }}
+                />
+              </View>
+            ) : (
+              <View style={styles.inputGroup}>
+                <Text style={[styles.inputLabel, { color: colors.onBackground }]}>7-DIGIT OTP CODE</Text>
+                <TextInput
+                  style={[styles.textInput, { color: colors.primary, borderColor: colors.primary, fontSize: 24, letterSpacing: 6, textAlign: 'center' }]}
+                  placeholder="1234567"
+                  placeholderTextColor={colors.onSurfaceVariant}
+                  keyboardType="number-pad"
+                  maxLength={7}
+                  value={otpInput}
+                  onChangeText={setOtpInput}
+                />
+                {devOtpHint && (
+                  <Text style={{ color: '#10B981', fontSize: 12, textAlign: 'center', marginTop: 4, fontFamily: 'SpaceGrotesk-Bold' }}>
+                    DEV OTP HINT: {devOtpHint}
+                  </Text>
+                )}
+                <StandardButton
+                  title={otpLoading ? 'VERIFYING...' : 'VERIFY & SIGN IN'}
+                  onPress={handleVerifyOtp}
+                  loading={otpLoading}
+                  style={{ marginTop: 10 }}
+                />
+                <TouchableOpacity onPress={() => setOtpSent(false)} style={{ alignSelf: 'center', marginTop: 8 }}>
+                  <Text style={{ color: colors.onSurfaceVariant, fontSize: 12, textDecorationLine: 'underline' }}>
+                    Resend Code or Change Email
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -443,5 +573,70 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 440,
     flexDirection: 'row-reverse',
+  },
+  emailOtpButton: {
+    width: '100%',
+    maxWidth: 440,
+    marginTop: 10,
+    paddingVertical: 12,
+    borderWidth: 1,
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  emailOtpButtonText: {
+    fontFamily: theme.fontFamilies.technical.bold,
+    fontSize: 12,
+    letterSpacing: 0.8,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalCard: {
+    width: '100%',
+    maxWidth: 400,
+    borderWidth: 1,
+    borderRadius: 16,
+    padding: 20,
+    gap: 12,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  modalTitle: {
+    flex: 1,
+    fontFamily: theme.fontFamilies.primary.bold,
+    fontSize: 16,
+    marginLeft: 10,
+  },
+  modalSub: {
+    fontFamily: theme.fontFamilies.secondary.regular,
+    fontSize: 13,
+    lineHeight: 19,
+  },
+  inputGroup: {
+    gap: 8,
+    marginTop: 8,
+  },
+  inputLabel: {
+    fontFamily: theme.fontFamilies.technical.bold,
+    fontSize: 11,
+    letterSpacing: 1,
+  },
+  textInput: {
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontFamily: theme.fontFamilies.secondary.regular,
+    fontSize: 15,
   },
 });

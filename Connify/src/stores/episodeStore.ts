@@ -4,6 +4,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { offlineQueueService } from '../services/OfflineQueueService';
 import { connectivityService } from '../services/ConnectivityService';
 
+import { outcomeApi } from '../services/api/outcomeApi';
+
 export type EpisodeStateName = 'idle' | 'creating' | 'searching' | 'active' | 'feedback';
 export type CategoryType =
   | 'Medical'
@@ -131,18 +133,45 @@ export const useEpisodeStore = create<EpisodeState>()(
       },
 
       submitFeedback: async (resolved) => {
+        const episodeId = get().episodeId;
+        const category = get().category;
+        const urgency = get().urgency;
+        const expiresAt = get().expiresAt;
+        const completedInWindow = expiresAt ? Date.now() <= expiresAt : true;
+
         const currentEpisode = {
+          episodeId,
           resolved,
-          category: get().category,
-          urgency: get().urgency,
-          episodeId: get().episodeId,
+          category,
+          urgency,
+          completedInWindow,
         };
 
         if (!connectivityService.isOnline) {
           offlineQueueService.enqueue('SUBMIT_FEEDBACK', currentEpisode);
-        } else {
-          // Assume API call here...
-          console.log('Post-episode audit outcome submitted:', currentEpisode);
+        } else if (episodeId) {
+          const categoryMapping: Record<string, 'medical' | 'transport' | 'general' | 'emergency'> = {
+            'Medical': 'medical',
+            'Transport': 'transport',
+            'Security': 'emergency',
+            'Fire & Hazard': 'emergency',
+            'Disaster': 'emergency',
+            'Women Safety': 'emergency',
+            'Accident': 'medical',
+          };
+          const apiCat = categoryMapping[category || ''] || 'general';
+
+          outcomeApi.createOutcome({
+            episodeId,
+            result: resolved ? 'success' : 'failure',
+            category: apiCat,
+            riskLevel: urgency || 3,
+            completedInWindow,
+          }).then((res) => {
+            console.log('Post-episode audit outcome submitted:', res);
+          }).catch((err) => {
+            console.warn('Failed to submit outcome directly:', err);
+          });
         }
 
         // Save to local history for HistoryScreen

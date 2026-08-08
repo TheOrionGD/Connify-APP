@@ -6,6 +6,8 @@ import { useEpisodeStore } from '../stores/episodeStore';
 import { socketService } from './socketService';
 
 
+import { outcomeApi } from './api/outcomeApi';
+
 // Register queue handlers
 
 offlineQueueService.registerHandler('CREATE_EPISODE', async (payload: any) => {
@@ -19,9 +21,29 @@ offlineQueueService.registerHandler('CREATE_EPISODE', async (payload: any) => {
 });
 
 offlineQueueService.registerHandler('SUBMIT_FEEDBACK', async (payload: any) => {
-  // Wait, I need to know the endpoint for feedback/complete.
-  // We'll see how episodeApi or similar submits feedback. Let's assume it's in episodeApi or feedbackApi.
-  // Since we haven't seen the exact API call for feedback yet, I should check how it's done.
+  const { episodeId, resolved, category, riskLevel, completedInWindow } = payload;
+  const categoryMapping: Record<string, 'medical' | 'transport' | 'general' | 'emergency'> = {
+    'Medical': 'medical',
+    'Transport': 'transport',
+    'Security': 'emergency',
+    'Fire & Hazard': 'emergency',
+    'Disaster': 'emergency',
+    'Women Safety': 'emergency',
+    'Accident': 'medical',
+  };
+  const apiCat = categoryMapping[category] || 'general';
+
+  const res = await outcomeApi.createOutcome({
+    episodeId: episodeId || 'offline_episode',
+    result: resolved ? 'success' : 'failure',
+    category: apiCat,
+    riskLevel: riskLevel || 2,
+    completedInWindow: completedInWindow !== undefined ? completedInWindow : true,
+  });
+
+  if (!res.success) {
+    throw new Error(res.error?.message || 'Failed to submit episode outcome from queue');
+  }
 });
 
 offlineQueueService.registerHandler('SEND_CHAT_MESSAGE', async (payload: any) => {

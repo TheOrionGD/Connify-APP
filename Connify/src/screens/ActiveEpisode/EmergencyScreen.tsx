@@ -15,7 +15,8 @@ import { StandardButton } from '../../components/buttons/StandardButton';
 import { DialogueModal } from '../../components/common/DialogueModal';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { GradientView } from '../../components/common/GradientView';
-
+import { socketService } from '../../services/socketService';
+import { capsuleApi } from '../../services/api/capsuleApi';
 
 export default function EmergencyScreen({ navigation }: any) {
   const {
@@ -25,8 +26,10 @@ export default function EmergencyScreen({ navigation }: any) {
     extendTime,
     tickCountdown,
     category,
+    episodeId,
   } = useEpisodeStore();
   const [modalVisible, setModalVisible] = useState(false);
+  const [participantCount, setParticipantCount] = useState(1);
 
   useEffect(() => {
     let timer: any;
@@ -40,10 +43,47 @@ export default function EmergencyScreen({ navigation }: any) {
     };
   }, [timeLeft, tickCountdown]);
 
-  const handleResolve = () => {
+  useEffect(() => {
+    if (!episodeId) return;
+
+    if (!socketService.isConnected()) {
+      socketService.connect();
+    }
+
+    socketService.joinEpisode(episodeId, (err) => {
+      if (err) console.warn('Failed to join socket room:', err);
+    });
+
+    const unsubJoined = socketService.onUserJoined(({ deviceId }) => {
+      setParticipantCount((prev) => prev + 1);
+      Alert.alert('Responder Connected', `Volunteer node (${deviceId.substring(0, 6)}...) joined your live emergency channel.`);
+    });
+
+    const unsubLeft = socketService.onUserLeft(() => {
+      setParticipantCount((prev) => Math.max(1, prev - 1));
+    });
+
+    const unsubExpired = socketService.onEpisodeExpired(({ message }) => {
+      Alert.alert('Episode Expired', message || 'Emergency channel torn down.');
+      completeEpisode();
+      navigation.replace('Feedback');
+    });
+
+    return () => {
+      unsubJoined();
+      unsubLeft();
+      unsubExpired();
+      socketService.leaveEpisode(episodeId);
+    };
+  }, [episodeId]);
+
+  const handleResolve = async () => {
     completeEpisode();
-    Alert.alert('Emergency Resolved', 'Emergency broadcast terminated. Safety lock released.');
-    navigation.replace('Main');
+    if (episodeId) {
+      capsuleApi.revokeCapsule(episodeId).catch((err) => console.log('Capsule revocation status:', err.message));
+    }
+    Alert.alert('Emergency Resolved', 'Emergency broadcast terminated. Ephemeral channel closed.');
+    navigation.replace('Feedback');
   };
 
   const formatTime = (seconds: number) => {

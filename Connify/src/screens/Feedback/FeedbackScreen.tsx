@@ -16,6 +16,7 @@ import { useEpisodeStore } from '../../stores/episodeStore';
 export default function FeedbackScreen({ navigation }: any) {
   const submitFeedback = useEpisodeStore((state) => state.submitFeedback);
   const [resolved, setResolved] = useState<boolean | null>(null);
+  const [riskLevel, setRiskLevel] = useState<number>(3);
   const [modalVisible, setModalVisible] = useState(false);
 
   const handleSubmit = () => {
@@ -45,7 +46,7 @@ export default function FeedbackScreen({ navigation }: any) {
 
           <Text style={styles.title}>Post-Episode Feedback</Text>
           <Text style={styles.subtitle}>
-            Connify runs on zero-trust parameters. Submitting this feedback purges all ephemeral local coordinates, tracking traces, and active tokens.
+            Connify runs on zero-trust parameters. Submitting this feedback logs the anonymized outcome to the audit ledger and purges all local tracking traces.
           </Text>
 
           <StandardCard style={styles.feedbackCard}>
@@ -96,11 +97,30 @@ export default function FeedbackScreen({ navigation }: any) {
                 </Text>
               </TouchableOpacity>
             </View>
+
+            {/* Risk Rating Selector */}
+            <Text style={[styles.questionText, { marginTop: 12 }]}>Perceived Situation Risk Rating:</Text>
+            <View style={styles.riskRow}>
+              {[1, 2, 3, 4, 5].map((lvl) => (
+                <TouchableOpacity
+                  key={lvl}
+                  style={[
+                    styles.riskPill,
+                    riskLevel === lvl ? { backgroundColor: theme.colors.primary, borderColor: theme.colors.primary } : null,
+                  ]}
+                  onPress={() => setRiskLevel(lvl)}
+                >
+                  <Text style={{ color: riskLevel === lvl ? '#FFFFFF' : theme.colors.onBackground, fontFamily: theme.fontFamilies.technical.bold, fontSize: 13 }}>
+                    L{lvl}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
           </StandardCard>
         </View>
 
         <StandardButton
-          title="SUBMIT & CLOSE EPISODE"
+          title="SUBMIT & LOG AUDIT OUTCOME"
           onPress={handleSubmit}
           disabled={resolved === null}
           icon={<Icon name="lock" size={20} color="#FFFFFF" />}
@@ -110,8 +130,8 @@ export default function FeedbackScreen({ navigation }: any) {
 
       <DialogueModal
         visible={modalVisible}
-        title="Session Purged Successfully"
-        message="All ephemeral tracking data, WebSocket sessions, and Trust Capsule credentials have been wiped from device local storage."
+        title="Session Purged & Outcome Logged"
+        message="Your anonymized episode outcome has been recorded on the zero-trust audit ledger. All tracking channels have been torn down."
         onClose={handleFinish}
         confirmText="Done"
         onConfirm={handleFinish}
@@ -150,7 +170,7 @@ const styles = StyleSheet.create({
   contentWrapper: {
     alignItems: 'center',
     width: '100%',
-    gap: 16,
+    gap: 14,
   },
   iconCircle: {
     width: 76,
@@ -180,7 +200,7 @@ const styles = StyleSheet.create({
   feedbackCard: {
     width: '100%',
     marginTop: 8,
-    gap: 16,
+    gap: 12,
     alignItems: 'center',
     backgroundColor: theme.colors.surfaceContainerLowest,
     borderWidth: theme.spacing.borderWidthLight,
@@ -190,7 +210,7 @@ const styles = StyleSheet.create({
   },
   questionText: {
     fontFamily: theme.fontFamilies.primary.bold,
-    fontSize: 15,
+    fontSize: 14,
     color: theme.colors.onBackground,
     textAlign: 'center',
   },
@@ -226,6 +246,22 @@ const styles = StyleSheet.create({
   },
   optionTextActive: {
     color: '#FFFFFF',
+  },
+  riskRow: {
+    flexDirection: 'row',
+    gap: 8,
+    width: '100%',
+    justifyContent: 'center',
+  },
+  riskPill: {
+    flex: 1,
+    height: 38,
+    borderWidth: 1,
+    borderColor: theme.colors.outline,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: theme.colors.surfaceContainerLowest,
   },
   submitButton: {
     width: '100%',
