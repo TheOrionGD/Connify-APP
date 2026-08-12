@@ -47,6 +47,7 @@ function MainTabs() {
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.onSurfaceVariant,
         tabBarLabelStyle: styles.tabBarLabel,
+        tabBarItemStyle: styles.tabBarItem,
         tabBarIcon: ({ focused }) => {
           let iconName = 'help-outline';
           if (route.name === 'Dashboard') {
@@ -141,10 +142,14 @@ function AppNavigator() {
 const styles = StyleSheet.create({
   tabBarLabel: {
     fontFamily: 'SpaceGrotesk-Bold',
-    fontSize: 9,
-    letterSpacing: 0.5,
+    fontSize: 8,
+    letterSpacing: -0.2,
     marginTop: 2,
     fontWeight: '700',
+  },
+  tabBarItem: {
+    paddingHorizontal: 0,
+    marginHorizontal: 0,
   },
   iconContainer: {
     padding: 4,

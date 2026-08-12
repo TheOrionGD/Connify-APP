@@ -13,11 +13,34 @@ export default function UrgentSerenity() {
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [breathingPhase, setBreathingPhase] = useState<'in' | 'hold' | 'out'>('in');
   const [breathingTimer, setBreathingTimer] = useState<number>(4);
-  const [responderStatus, setResponderStatus] = useState<any[]>([
-    { id: 1, name: 'Guardian David (Vetted Resident)', distance: 180, eta: '45s', progress: 10, status: 'dispatched' },
-    { id: 2, name: 'Guardian Sofia (Community Escort)', distance: 320, eta: '1m 20s', progress: 5, status: 'dispatched' },
-    { id: 3, name: 'Safe Spot #84 (Horizon Coffee)', distance: 450, eta: '2m walk', progress: 0, status: 'notified' }
-  ]);
+  const [responderStatus, setResponderStatus] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (sessionState === 'active' || sessionState === 'sos') {
+      // Dynamically load active responders from backend or mesh query
+      const metaEnv = (import.meta as any).env || {};
+      const backendUrl = metaEnv.VITE_BACKEND_URL;
+      if (backendUrl) {
+        fetch(`${backendUrl}/api/admin/guardians`)
+          .then(r => r.json())
+          .then(res => {
+            if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+              setResponderStatus(res.data.slice(0, 3).map((g: any, i: number) => ({
+                id: g.id || i + 1,
+                name: g.name || `Guardian Node #${i + 1}`,
+                distance: 150 + i * 100,
+                eta: `${30 + i * 40}s`,
+                progress: 10 - i * 3,
+                status: 'dispatched'
+              })));
+            }
+          })
+          .catch(() => null);
+      }
+    } else {
+      setResponderStatus([]);
+    }
+  }, [sessionState]);
   const [groundingScript, setGroundingScript] = useState<string>(
     "Keep your shoulders back and maintain standard walking strides. Look around at fixed objects—the corner street light, the brick pattern of the nearest wall. You are connected to a live mesh safety network. Speak aloud: 'I am currently broadcasting on a monitored security grid.'"
   );

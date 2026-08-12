@@ -133,6 +133,7 @@ export const useEpisodeStore = create<EpisodeState>()(
       },
 
       submitFeedback: async (resolved) => {
+        console.log(`Submitting episode feedback. Resolved: ${resolved}`);
         const episodeId = get().episodeId;
         const category = get().category;
         const urgency = get().urgency;
@@ -161,17 +162,18 @@ export const useEpisodeStore = create<EpisodeState>()(
           };
           const apiCat = categoryMapping[category || ''] || 'general';
 
-          outcomeApi.createOutcome({
-            episodeId,
-            result: resolved ? 'success' : 'failure',
-            category: apiCat,
-            riskLevel: urgency || 3,
-            completedInWindow,
-          }).then((res) => {
+          try {
+            const res = await outcomeApi.createOutcome({
+              episodeId,
+              result: resolved ? 'success' : 'failure',
+              category: apiCat,
+              riskLevel: urgency || 3,
+              completedInWindow,
+            });
             console.log('Post-episode audit outcome submitted:', res);
-          }).catch((err) => {
+          } catch (err) {
             console.warn('Failed to submit outcome directly:', err);
-          });
+          }
         }
 
         // Save to local history for HistoryScreen

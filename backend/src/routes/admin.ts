@@ -66,17 +66,17 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
 
       return reply.send({
         success: true,
-        data: devices.map((d, index) => ({
+        data: devices.map((d) => ({
           id: d._id.toString(),
           name: `Guardian Node #${d._id.toString().slice(-4)}`,
           status: 'active',
-          trustScore: 90 + (index % 10),
-          joined: d.createdAt.toISOString().split('T')[0],
+          trustScore: (d as any).trustScore || 100,
+          joined: d.createdAt ? d.createdAt.toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
           method: 'SHARP',
           deviceFingerprintHash: d.deviceFingerprintHash,
           publicKey: d.publicKey,
           phoneHash: d.phoneHash,
-          lastPing: d.lastSeenAt ? d.lastSeenAt.toLocaleTimeString() : 'Unknown',
+          lastPing: d.lastSeenAt ? d.lastSeenAt.toISOString() : 'Offline',
         })),
         pagination: { total, page, limit, pages: Math.ceil(total / limit) },
       });

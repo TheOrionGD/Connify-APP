@@ -270,25 +270,27 @@ export default function DashboardScreen({ navigation }: any) {
           </StandardCard>
 
           <TouchableOpacity
+            style={styles.bannerWrapper}
             activeOpacity={0.85}
             onPress={() => navigation.navigate('WomenSafety')}
           >
             <GradientView
-              colors={['#EC4899', '#BE185D']}
-              style={[styles.bannerContainer, { borderColor: '#F472B6' }]}
+              colors={['#2B101E', '#1B0B14']}
+              style={[styles.bannerContainer, { borderColor: 'rgba(236,72,153,0.35)' }]}
             >
-              <View style={[styles.bannerIconWrapper, { backgroundColor: 'rgba(255,255,255,0.2)', borderColor: '#F472B6' }]}>
-                <Icon name="female" size={22} color="#FFFFFF" />
+              <View style={[styles.bannerIconWrapper, { backgroundColor: 'rgba(236,72,153,0.15)', borderColor: 'rgba(236,72,153,0.4)' }]}>
+                <Icon name="female" size={22} color="#EC4899" />
               </View>
               <View style={styles.bannerContent}>
-                <Text style={[styles.bannerTitle, { color: '#FFFFFF' }]}>WOMEN SAFETY & PANIC HUB</Text>
+                <Text style={[styles.bannerTitle, { color: '#F472B6' }]}>WOMEN SAFETY & PANIC HUB</Text>
                 <Text style={[styles.bannerText, { color: '#FCE7F3' }]}>Siren panic alarm, 24/7 helplines & fake exit calls.</Text>
               </View>
-              <Icon name="chevron-right" size={20} color="#FFFFFF" />
+              <Icon name="chevron-right" size={20} color="#F472B6" />
             </GradientView>
           </TouchableOpacity>
 
           <TouchableOpacity
+            style={styles.bannerWrapper}
             activeOpacity={0.85}
             onPress={() => navigation.navigate('OfflineEmergency')}
           >
@@ -308,6 +310,7 @@ export default function DashboardScreen({ navigation }: any) {
           </TouchableOpacity>
 
           <TouchableOpacity
+            style={styles.bannerWrapper}
             activeOpacity={0.85}
             onPress={() => navigation.navigate('Governance')}
           >
@@ -626,6 +629,9 @@ const styles = StyleSheet.create({
     fontSize: 10,
     letterSpacing: 0.5,
     marginTop: 2,
+  },
+  bannerWrapper: {
+    width: '100%',
   },
   bannerContainer: {
     width: '100%',

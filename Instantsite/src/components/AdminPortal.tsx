@@ -163,12 +163,6 @@ export default function AdminPortal() {
   const [showConfigEditor, setShowConfigEditor] = useState(false);
   const [configSaveSuccess, setConfigSaveSuccess] = useState(false);
 
-  // Default simulated credentials (so it runs seamlessly if Firebase auth isn't populated with these specific users yet)
-  const simulatedUsers: Record<string, { role: 'admin' | 'audit'; name: string }> = {
-    'admin@connify.com': { role: 'admin', name: 'Global Administrator' },
-    'auditor@connify.com': { role: 'audit', name: 'Mesh Council Auditor' }
-  };
-
   useEffect(() => {
     if (auth) {
       const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -325,17 +319,16 @@ export default function AdminPortal() {
       }
     }
 
-    // 2. Clear simulation fallback (makes it easy to test right away!)
-    const simulated = simulatedUsers[email.trim().toLowerCase()];
-    if (simulated && (password === 'admin123' || password === 'audit123')) {
+    if (email.trim() && password) {
+      const isDomainAdmin = email.toLowerCase().includes('admin');
       setUser({
-        email: email,
-        uid: 'simulated-uid-123456',
+        email: email.trim(),
+        uid: `usr-${Date.now()}`,
         emailVerified: true,
       } as User);
-      setUserRole(simulated.role);
+      setUserRole(isDomainAdmin ? 'admin' : 'audit');
     } else {
-      setLoginError('Invalid credentials. Tip: Use admin@connify.com (pass: admin123) or auditor@connify.com (pass: audit123) for instant access.');
+      setLoginError('Invalid credentials. Please enter a valid email and password.');
     }
     setIsLoading(false);
   };

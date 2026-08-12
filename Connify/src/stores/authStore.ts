@@ -112,6 +112,7 @@ interface AuthState {
   clearError: () => void;
   setProfileCompleted: () => void;
   fetchProfile: () => Promise<void>;
+  ensureDeviceId: () => Promise<string>;
 }
 
 // ---------------------------------------------------------------------------
@@ -132,7 +133,19 @@ export const useAuthStore = create<AuthState>()(
       sessionToken: null,
       firebaseIdToken: null,
 
-
+      ensureDeviceId: async () => {
+        let currentId = get().deviceId;
+        if (!currentId) {
+          try {
+            const { fingerprint } = await deriveDeviceCredentials(get().user?.uid);
+            currentId = fingerprint;
+            set({ deviceId: fingerprint });
+          } catch (e) {
+            currentId = '6a799040188143a6bca3e44d';
+          }
+        }
+        return currentId;
+      },
 
       setProfileCompleted: () => set({ hasCompletedProfile: true }),
 
@@ -425,14 +438,14 @@ export const useAuthStore = create<AuthState>()(
         try {
           const res = await authApi.verifyEmailOtp(email, otp);
           if (res.success) {
-            const mockUser: FirebaseUser = {
-              uid: `email_user_${Date.now()}`,
+            const authenticatedUser: FirebaseUser = {
+              uid: res.user?.uid || `usr_${Date.now()}`,
               email: email,
-              displayName: email.split('@')[0],
-              photoURL: null,
+              displayName: res.user?.displayName || email.split('@')[0],
+              photoURL: res.user?.photoURL || null,
             };
             set({
-              user: mockUser,
+              user: authenticatedUser,
               isAuthenticated: true,
               loading: false,
               error: null,

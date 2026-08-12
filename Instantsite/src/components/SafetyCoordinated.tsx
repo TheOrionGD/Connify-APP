@@ -7,18 +7,44 @@ import { motion, AnimatePresence } from 'motion/react';
 import { SafeSpot } from '../types';
 
 export default function SafetyCoordinated() {
-  const [safeSpots, setSafeSpots] = useState<SafeSpot[]>([
-    { id: '1', name: 'Safe Spot #08 - Horizon Coffee Store', type: 'business', lat: 100, lng: -120, status: 'active', address: '402 Sunset Blvd', phone: '+1 (555) 234-8901' },
-    { id: '2', name: 'Civic Shelter #12 (24h Community Center)', type: 'shelter', lat: -150, lng: 80, status: 'active', address: '89 Main Street', phone: '+1 (555) 987-1234' },
-    { id: '3', name: 'Guardian Node #42 (Vetted Resident David)', type: 'guardian_node', lat: 80, lng: 140, status: 'active', address: 'Geofenced Peer Mesh' },
-    { id: '4', name: 'Guardian Node #19 (Vetted Resident Sofia)', type: 'guardian_node', lat: -60, lng: -110, status: 'active', address: 'Geofenced Peer Mesh' }
-  ]);
-  const [selectedSpot, setSelectedSpot] = useState<SafeSpot | null>(safeSpots[0]);
+  const [safeSpots, setSafeSpots] = useState<SafeSpot[]>([]);
+  const [selectedSpot, setSelectedSpot] = useState<SafeSpot | null>(null);
   const [activeFilter, setActiveFilter] = useState<string>('all');
   const [newNodeType, setNewNodeType] = useState<'business' | 'shelter' | 'guardian_node'>('guardian_node');
   const [radarWidth, setRadarWidth] = useState<number>(400);
 
   const radarRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const fetchLiveNodes = async () => {
+      try {
+        const metaEnv = (import.meta as any).env || {};
+        const backendUrl = metaEnv.VITE_BACKEND_URL;
+        if (backendUrl) {
+          const res = await fetch(`${backendUrl}/api/admin/guardians`);
+          const json = await res.json();
+          if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+            const mapped: SafeSpot[] = json.data.map((d: any, idx: number) => ({
+              id: d.id || `node-${idx}`,
+              name: d.name || `Guardian Node #${idx + 1}`,
+              type: 'guardian_node',
+              lat: ((idx * 50) % 200) - 100,
+              lng: ((idx * 70) % 240) - 120,
+              status: 'active',
+              address: 'Geofenced Peer Mesh',
+              phone: ''
+            }));
+            setSafeSpots(mapped);
+            setSelectedSpot(mapped[0]);
+            return;
+          }
+        }
+      } catch (e) {
+        console.warn('Live mesh nodes query fallback:', e);
+      }
+    };
+    fetchLiveNodes();
+  }, []);
 
   useEffect(() => {
     const updateSize = () => {
