@@ -3,10 +3,17 @@ import {
   StyleSheet,
   Text,
   View,
-  Animated,
-  Easing,
   TouchableOpacity,
 } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withTiming,
+  withDelay,
+  Easing,
+  interpolate,
+} from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { theme } from '../../theme';
@@ -14,54 +21,26 @@ import { useEpisodeStore } from '../../stores/episodeStore';
 import { StandardButton } from '../../components/buttons/StandardButton';
 
 export default function SearchingScreen({ navigation }: any) {
-  const [pulseAnim1] = useState(new Animated.Value(0));
-  const [pulseAnim2] = useState(new Animated.Value(0));
   const { currentState, cancelRequest, category, urgency } = useEpisodeStore();
 
+  const pulse1 = useSharedValue(0);
+  const pulse2 = useSharedValue(0);
+
   useEffect(() => {
-    const anim1 = Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulseAnim1, {
-          toValue: 1,
-          duration: 1800,
-          easing: Easing.out(Easing.ease),
-          useNativeDriver: true,
-        }),
-        Animated.timing(pulseAnim1, {
-          toValue: 0,
-          duration: 0,
-          useNativeDriver: true,
-        }),
-      ])
+    pulse1.value = withRepeat(
+      withTiming(1, { duration: 1800, easing: Easing.out(Easing.ease) }),
+      -1,
+      false
     );
-
-    const anim2 = Animated.sequence([
-      Animated.delay(600),
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(pulseAnim2, {
-            toValue: 1,
-            duration: 1800,
-            easing: Easing.out(Easing.ease),
-            useNativeDriver: true,
-          }),
-          Animated.timing(pulseAnim2, {
-            toValue: 0,
-            duration: 0,
-            useNativeDriver: true,
-          }),
-        ])
-      ),
-    ]);
-
-    anim1.start();
-    anim2.start();
-
-    return () => {
-      anim1.stop();
-      anim2.stop();
-    };
-  }, [pulseAnim1, pulseAnim2]);
+    pulse2.value = withDelay(
+      600,
+      withRepeat(
+        withTiming(1, { duration: 1800, easing: Easing.out(Easing.ease) }),
+        -1,
+        false
+      )
+    );
+  }, []);
 
   useEffect(() => {
     if (currentState === 'idle') {
@@ -74,23 +53,15 @@ export default function SearchingScreen({ navigation }: any) {
     navigation.replace('Main');
   };
 
-  const pulseScale1 = pulseAnim1.interpolate({
-    inputRange: [0, 1],
-    outputRange: [1, 2.5],
-  });
-  const pulseOpacity1 = pulseAnim1.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0.6, 0],
-  });
+  const animatedStyle1 = useAnimatedStyle(() => ({
+    transform: [{ scale: interpolate(pulse1.value, [0, 1], [1, 2.5]) }],
+    opacity: interpolate(pulse1.value, [0, 1], [0.6, 0]),
+  }));
 
-  const pulseScale2 = pulseAnim2.interpolate({
-    inputRange: [0, 1],
-    outputRange: [1, 3.0],
-  });
-  const pulseOpacity2 = pulseAnim2.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0.4, 0],
-  });
+  const animatedStyle2 = useAnimatedStyle(() => ({
+    transform: [{ scale: interpolate(pulse2.value, [0, 1], [1, 3.0]) }],
+    opacity: interpolate(pulse2.value, [0, 1], [0.4, 0]),
+  }));
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -104,19 +75,13 @@ export default function SearchingScreen({ navigation }: any) {
           <Animated.View
             style={[
               styles.pulseCircleOuter,
-              {
-                transform: [{ scale: pulseScale2 }],
-                opacity: pulseOpacity2,
-              },
+              animatedStyle2,
             ]}
           />
           <Animated.View
             style={[
               styles.pulseCircleInner,
-              {
-                transform: [{ scale: pulseScale1 }],
-                opacity: pulseOpacity1,
-              },
+              animatedStyle1,
             ]}
           />
           <View style={styles.centerIconBox}>

@@ -19,6 +19,9 @@ import { SHARPHelper } from '../../utils/sharp';
 import QRCode from 'react-native-qrcode-svg';
 import { Camera, useCameraDevice, useCameraPermission, useObjectOutput } from 'react-native-vision-camera';
 import { capsuleApi } from '../../services/api/capsuleApi';
+import SignalFlow from '../../components/animations/SignalFlow';
+import LayeredSuccess from '../../components/animations/LayeredSuccess';
+import Animated, { useSharedValue, useAnimatedStyle, withSequence, withTiming, withSpring } from 'react-native-reanimated';
 
 const encodeBase64Url = (str: string) => {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
@@ -52,6 +55,9 @@ export default function HandshakeScreen({ route, navigation }: any) {
   const device = useCameraDevice('back');
   const { hasPermission, requestPermission } = useCameraPermission();
   const [scanned, setScanned] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const failureAnim = useSharedValue(0);
 
   useEffect(() => {
     if (isRequester) {
@@ -114,25 +120,52 @@ export default function HandshakeScreen({ route, navigation }: any) {
 
       if (capsuleRes.success) {
         setVerified(true);
-        Alert.alert('Proximity Verification Success', 'Zero-trust JIT Trust Capsule issued!');
+        setShowSuccessModal(true);
         const setEpisodeId = useEpisodeStore.getState().setEpisodeId;
         const activateEpisode = useEpisodeStore.getState().activateEpisode;
         setEpisodeId(episodeId);
         activateEpisode(`chan-${episodeId}`, 10);
       } else {
         setVerified(false);
-        Alert.alert('Handshake Failed', 'QR verification failed or capsule already issued.');
-        setScanned(false); // allow retry
+        triggerFailureAnimation();
+        setErrorMessage('QR verification failed or capsule already issued.');
       }
     } catch (err: any) {
       console.error('Handshake verification failed:', err);
       setVerified(false);
-      Alert.alert('Verification Error', err.message || 'Identity verification failed.');
-      setScanned(false);
+      triggerFailureAnimation();
+      
+      const isNetworkError = err.message && (err.message.toLowerCase().includes('network') || err.message.toLowerCase().includes('timeout'));
+      const errorMsg = isNetworkError 
+        ? 'Network connection dropped during key exchange. Please ensure your connection is stable and try scanning again.' 
+        : (err.message || 'Identity verification failed.');
+        
+      setErrorMessage(errorMsg);
     } finally {
       setVerifying(false);
     }
   };
+
+  const handleRetry = () => {
+    setVerified(null);
+    setErrorMessage(null);
+    setScanned(false);
+  };
+
+  const triggerFailureAnimation = () => {
+    failureAnim.value = withSequence(
+      withTiming(10, { duration: 50 }),
+      withTiming(-10, { duration: 50 }),
+      withTiming(10, { duration: 50 }),
+      withTiming(0, { duration: 50 })
+    );
+  };
+
+  const failureStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateX: failureAnim.value }],
+    };
+  });
 
   const objectOutput = useObjectOutput({
     types: ['qr'],
@@ -199,7 +232,7 @@ export default function HandshakeScreen({ route, navigation }: any) {
                 )}
                 {verifying && (
                   <View style={styles.verifyingOverlay}>
-                    <ActivityIndicator size="large" color={theme.colors.primary} />
+                    <SignalFlow color={theme.colors.primary} />
                     <Text style={{ color: '#fff', marginTop: 10 }}>Verifying Signature...</Text>
                   </View>
                 )}
@@ -214,10 +247,11 @@ export default function HandshakeScreen({ route, navigation }: any) {
           ) : null}
 
           {verified !== null ? (
-            <View
+            <Animated.View
               style={[
                 styles.statusBadge,
                 verified ? styles.statusBadgeSuccess : styles.statusBadgeFailed,
+                verified === false ? failureStyle : {},
               ]}
             >
               <Icon
@@ -228,7 +262,13 @@ export default function HandshakeScreen({ route, navigation }: any) {
               <Text style={[styles.statusText, verified ? styles.statusTextSuccess : styles.statusTextFailed]}>
                 {verified ? 'IDENTITY VERIFIED' : 'VERIFICATION FAILED'}
               </Text>
-            </View>
+            </Animated.View>
+          ) : null}
+
+          {errorMessage ? (
+            <Text style={styles.errorText}>
+              {errorMessage}
+            </Text>
           ) : null}
         </View>
 
@@ -245,14 +285,30 @@ export default function HandshakeScreen({ route, navigation }: any) {
           </View>
         </View>
 
-        {(!isRequester && !scanned) && (
-          <StandardButton
-            title="CANCEL SCANNING"
-            onPress={() => navigation.goBack()}
-            style={styles.actionButton}
-          />
+        {(!isRequester) && (
+          verified === false ? (
+            <StandardButton
+              title="RETRY SCANNING"
+              onPress={handleRetry}
+              style={styles.actionButton}
+            />
+          ) : !scanned ? (
+            <StandardButton
+              title="CANCEL SCANNING"
+              onPress={() => navigation.goBack()}
+              style={styles.actionButton}
+            />
+          ) : null
         )}
       </ScrollView>
+
+      <LayeredSuccess
+        visible={showSuccessModal}
+        onClose={() => {
+          setShowSuccessModal(false);
+          navigation.navigate('Main'); // Or let store handle it
+        }}
+      />
     </SafeAreaView>
   );
 }
@@ -407,5 +463,14 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     marginTop: 10,
+  },
+  errorText: {
+    marginTop: 12,
+    fontFamily: theme.fontFamilies.secondary.regular,
+    fontSize: 13,
+    color: theme.colors.primary,
+    textAlign: 'center',
+    lineHeight: 20,
+    paddingHorizontal: 10,
   },
 });

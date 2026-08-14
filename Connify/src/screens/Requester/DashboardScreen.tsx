@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  Vibration,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme, actionColors } from '../../theme';
@@ -21,6 +22,7 @@ import { useAuthStore } from '../../stores/authStore';
 import { useLocationStore } from '../../stores/locationStore';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { GradientView } from '../../components/common/GradientView';
+import PulseRipple from '../../components/animations/PulseRipple';
 
 
 export default function DashboardScreen({ navigation }: any) {
@@ -74,6 +76,7 @@ export default function DashboardScreen({ navigation }: any) {
       Alert.alert('Location Resolving', 'Acquiring high-accuracy GPS fix. Please wait a moment before triggering emergency SOS.');
       return;
     }
+    Vibration.vibrate([0, 50, 100, 50]); // Subtle haptic pattern
     setAlertTitle('Emergency Signal Broadcasted');
     setAlertMessage(
       'Your emergency alarm has been broadcasted to nearby verified responders and your registered emergency trust contacts.'
@@ -186,8 +189,13 @@ export default function DashboardScreen({ navigation }: any) {
                       <Icon name="error" size={22} color={colors.primary} />
                       <Text style={styles.activeSessionText}>ACTIVE EMERGENCY EPISODE</Text>
                     </View>
-                    <View style={styles.liveBadge}>
-                      <Text style={styles.liveText}>LIVE</Text>
+                    <View style={styles.liveBadgeWrapper}>
+                      <View style={styles.pulseContainer}>
+                        <PulseRipple color={actionColors.actionRed} size={40} />
+                      </View>
+                      <View style={styles.liveBadge}>
+                        <Text style={styles.liveText}>LIVE</Text>
+                      </View>
                     </View>
                   </View>
 
@@ -497,11 +505,22 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#EF4444',
   },
+  liveBadgeWrapper: {
+    position: 'relative',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  pulseContainer: {
+    position: 'absolute',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   liveBadge: {
     backgroundColor: actionColors.actionRed,
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 10,
+    zIndex: 1,
   },
   liveText: {
     color: actionColors.actionButtonText,
