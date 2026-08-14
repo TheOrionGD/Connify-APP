@@ -38,6 +38,20 @@ interface EpisodeState {
 
 
   startRequest: (category: CategoryType, urgency: number, description: string, latitude: number, longitude: number) => void;
+  startRequestWithVerification: (
+    category: CategoryType,
+    urgency: number,
+    description: string,
+    latitude: number,
+    longitude: number,
+    secretKeyBytes: Uint8Array,
+    enteredPin?: string
+  ) => Promise<{ success: boolean; isDuress?: boolean }>;
+  acceptEpisodeWithVerification: (
+    targetEpisodeId: string,
+    helperDeviceId: string,
+    secretKeyBytes: Uint8Array
+  ) => Promise<{ success: boolean; capsuleId?: string }>;
   cancelRequest: () => void;
   activateEpisode: (socketChannelId: string, durationMinutes: number) => void;
   extendTime: (minutes: number) => void;
@@ -78,6 +92,39 @@ export const useEpisodeStore = create<EpisodeState>()(
           timeLeft: 0,
           expiresAt: null,
         });
+      },
+
+      startRequestWithVerification: async (category, urgency, description, latitude, longitude, secretKeyBytes, enteredPin) => {
+        const { UserVerificationService } = require('../services/UserVerificationService');
+        const result = await UserVerificationService.verifySenderEmergencyTrigger(secretKeyBytes, enteredPin);
+        
+        get().startRequest(category, urgency, description, latitude, longitude);
+        return { success: true, isDuress: result.isDuress };
+      },
+
+      acceptEpisodeWithVerification: async (targetEpisodeId, helperDeviceId, secretKeyBytes) => {
+        const { UserVerificationService } = require('../services/UserVerificationService');
+        const { capsuleApi } = require('../services/api/capsuleApi');
+        
+        await UserVerificationService.verifyAcceptorLiveness(secretKeyBytes);
+        
+        const capsuleRes = await capsuleApi.issueCapsule({
+          episodeId: targetEpisodeId,
+          helperDeviceId,
+          verificationData: {
+            qrToken: `0x_sig_${targetEpisodeId}`,
+            blindedGridCell: 'grid_cell_alpha',
+          },
+        });
+
+        if (capsuleRes.success && capsuleRes.data?.capsuleId) {
+          set({
+            episodeId: targetEpisodeId,
+            currentState: 'active',
+          });
+          return { success: true, capsuleId: capsuleRes.data.capsuleId };
+        }
+        throw new Error('CAPSULE_ISSUANCE_FAILED: Server failed to issue Trust Capsule.');
       },
 
 

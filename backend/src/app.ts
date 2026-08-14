@@ -11,6 +11,7 @@ import { outcomeRoutes } from './routes/outcomes';
 import { adminRoutes } from './routes/admin';
 import { profileRoutes } from './routes/profileRoutes';
 import { authRoutes } from './routes/authRoutes';
+import { locationRoutes } from './routes/locations';
 
 export function buildApp(): FastifyInstance {
   const isProduction = env.NODE_ENV === 'production';
@@ -68,6 +69,7 @@ export function buildApp(): FastifyInstance {
   app.register(adminRoutes, { prefix: '/api/admin' });
   app.register(profileRoutes, { prefix: '/api/profile' });
   app.register(authRoutes, { prefix: '/api/auth' });
+  app.register(locationRoutes, { prefix: '/api/locations' });
 
   return app;
 }

@@ -10,6 +10,19 @@ const upsertProfileSchema = z.object({
   medicalNotes: z.string().optional(),
 });
 
+const upgradeProfileSchema = z.object({
+  firebaseUid: z.string().optional(),
+  firstName: z.string().min(1, 'firstName is required'),
+  lastName: z.string().min(1, 'lastName is required'),
+  phone: z.string().min(1, 'phone is required'),
+  email: z.string().email().optional(),
+  guardian: z.object({
+    fullName: z.string().min(1, 'guardian fullName is required'),
+    phone: z.string().min(1, 'guardian phone is required'),
+    relationship: z.string().min(1, 'guardian relationship is required'),
+  }),
+});
+
 function validationError(reply: any, message: string) {
   return reply.status(400).send({
     success: false,
@@ -37,6 +50,28 @@ export async function profileRoutes(app: FastifyInstance): Promise<void> {
       }
 
       return ProfileController.upsertProfile(parsed.data, deviceId, reply);
+    }
+  );
+
+  /** Upgrade anonymous profile to permanent registered profile with mandatory guardian */
+  app.post(
+    '/upgrade',
+    { preHandler: authenticate },
+    async (req: FastifyRequest, reply) => {
+      const parsed = upgradeProfileSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return validationError(reply, parsed.error.issues[0]?.message ?? 'Invalid body');
+      }
+
+      const deviceId = req.devicePayload?.sub;
+      if (!deviceId) {
+        return reply.status(401).send({
+          success: false,
+          error: { code: 'UNAUTHORIZED', message: 'Device not found in request' },
+        });
+      }
+
+      return ProfileController.upgradeProfile(parsed.data, deviceId, reply);
     }
   );
 

@@ -2,12 +2,12 @@
  * OutcomeController — minimal outcome logging using Mongoose.
  */
 import type { FastifyReply } from 'fastify';
-import { Outcome, Episode } from '../models';
+import { Outcome, Episode, Device } from '../models';
 import { writeAuditLog } from '../utils/audit';
 
 interface CreateInput {
   episodeId: string;
-  result: 'success' | 'failure';
+  result: 'success' | 'failure' | 'SAFE_RESOLVED' | 'SUSPICIOUS_BEHAVIOR' | 'ACTIVE_THREAT';
   category: string;
   riskLevel?: number;
   completedInWindow: boolean;
@@ -45,6 +45,18 @@ export const OutcomeController = {
 
       episode.status = 'completed';
       await episode.save();
+
+      // Check for suspicious or threat outcome rating to trigger auto-quarantine
+      if (['SUSPICIOUS_BEHAVIOR', 'ACTIVE_THREAT'].includes(input.result)) {
+        const senderDevice = await Device.findById(episode.requesterDeviceId);
+        if (senderDevice) {
+          senderDevice.suspiciousCount = (senderDevice.suspiciousCount || 0) + 1;
+          if (senderDevice.suspiciousCount >= 2 || input.result === 'ACTIVE_THREAT') {
+            senderDevice.isQuarantined = true;
+          }
+          await senderDevice.save();
+        }
+      }
 
       const outcomeIdStr = outcome._id.toString();
 

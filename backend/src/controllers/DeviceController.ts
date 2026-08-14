@@ -141,6 +141,18 @@ export const DeviceController = {
         });
       }
 
+      // Enforce 60-second TTL expiration window
+      const challengeAgeMs = Date.now() - new Date(consumedChallenge.createdAt).getTime();
+      if (challengeAgeMs > 60 * 1000) {
+        return reply.status(400).send({
+          success: false,
+          error: {
+            code: 'INVALID_OR_EXPIRED_CHALLENGE',
+            message: 'Challenge nonce has expired (60-second TTL exceeded)',
+          },
+        });
+      }
+
       if (consumedChallenge.deviceId.toString() !== deviceId) {
         return reply.status(403).send({
           success: false,

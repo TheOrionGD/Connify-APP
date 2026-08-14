@@ -9,19 +9,19 @@ Each of the 27 folders under [App UI](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/)
 | Screen Folder | Screen Visual Asset Path | Description / Client Target |
 |---|---|---|
 | `connify_splash_screen_mobile` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/connify_splash_screen_mobile/screen.png) | Mobile app start-up splash. |
-| `welcome_to_connify` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/welcome_to_connify/screen.png) | Mobile Onboarding & Permissions screen. |
-| `connify_mobile_home` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/connify_mobile_home/screen.png) | Mobile start profile/welcome presentation. |
+| `welcome_to_connify` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/welcome_to_connify/screen.png) | Mobile Onboarding & Permissions screen — **now includes Anonymous Auth initialization via Firebase**. |
+| `connify_mobile_home` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/connify_mobile_home/screen.png) | Mobile start profile/welcome presentation — **profile upgrade CTA added for Guardian registration**. |
 | `dashboard` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/dashboard/screen.png) | Mobile main operations dashboard. |
-| `new_help_request` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/new_help_request/screen.png) | Mobile emergency category & urgency setup. |
+| `new_help_request` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/new_help_request/screen.png) | Mobile emergency category & urgency setup — **blocked if no guardian registered**. |
 | `verify_identity` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/verify_identity/screen.png) | Mobile QR token generation & status checks. |
-| `searching_for_help` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/searching_for_help/screen.png) | Mobile waiting page with radial indicators. |
+| `searching_for_help` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/searching_for_help/screen.png) | Mobile waiting page with radial indicators — **GPS watchdog active during this state**. |
 | `accept_verify` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/accept_verify/screen.png) | Mobile accept task, maps, and arrival panel. |
-| `accept_verify_handshake` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/accept_verify_handshake/screen.png) | Mobile proximity and authentication indicators. |
-| `active_episode_you` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/active_episode_you/screen.png) | Mobile active emergency dashboard (Requester). |
+| `accept_verify_handshake` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/accept_verify_handshake/screen.png) | Mobile proximity and authentication indicators — **Responder Panic Abort trigger available**. |
+| `active_episode_you` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/active_episode_you/screen.png) | Mobile active emergency dashboard (Requester) — **5s GPS ping active; Guardian SMS watchdog running**. |
 | `active_episode_helper` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/active_episode_helper/screen.png) | Mobile active emergency dashboard (Helper). |
-| `protocol_feedback` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/protocol_feedback/screen.png) | Mobile quick post-episode evaluation binary checks. |
+| `protocol_feedback` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/protocol_feedback/screen.png) | Mobile quick post-episode evaluation — **SAFE_RESOLVED / SUSPICIOUS_BEHAVIOR / ACTIVE_THREAT outcome results**. |
 | `episode_history` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/episode_history/screen.png) | Mobile previous safe sessions logs list. |
-| `settings_governance` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/settings_governance/screen.png) | Mobile options panel for security/data controls. |
+| `settings_governance` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/settings_governance/screen.png) | Mobile options panel for security/data controls — **Guardian management section added**. |
 | `emergency_mode` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/emergency_mode/screen.png) | Mobile SOS overrides panel. |
 | `connify_splash_screen_desktop` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/connify_splash_screen_desktop/screen.png) | Web landing starting state screen. |
 | `refined_splash_screen_desktop` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/refined_splash_screen_desktop/screen.png) | Web landing alternative starting screen. |
@@ -54,3 +54,28 @@ These files contain the academic, mathematical, and architectural background con
 * **Connify Academic Paper Draft (PDF)**: [Connify_IEEE_Journal_Paper.pdf](file:///o:/PROJECTS/CONNIFY-APP/Connify_IEEE_Journal_Paper.pdf) (210 KB)
 * **Connify Academic Paper Draft (DOCX)**: [Connify_IEEE_Journal_Paper.docx](file:///o:/PROJECTS/CONNIFY-APP/Connify_IEEE_Journal_Paper.docx) (359 KB)
 * **Connify Batch Write-up Document**: [Batch.6 writeup.docx](file:///o:/PROJECTS/CONNIFY-APP/Batch.6%20writeup.docx) (62 KB)
+
+---
+
+## 2.4 Backend Source Assets (v2.0 — New Safety Systems)
+
+| File | Path | Purpose |
+|---|---|---|
+| `BehavioralRiskEngine.ts` | `backend/src/services/BehavioralRiskEngine.ts` | 5-Pillar harmlessness scoring, trap velocity detection, mandatory guardian assertion |
+| `LocationWatchdogService.ts` | `backend/src/services/LocationWatchdogService.ts` | 5s atomic GPS pings, 15s signal loss watchdog, personalized Guardian SMS alerts, unbounded signal recovery |
+| `ProfileController.ts` | `backend/src/controllers/ProfileController.ts` | Anonymous-to-Registered profile migration, Firebase UID binding, mandatory guardian enforcement |
+| `Guardian.ts` | `backend/src/models/Guardian.ts` | Guardian model: `userFullName`, `fullName`, `phone`, `relationship` |
+| `DeviceLocation.ts` | `backend/src/models/DeviceLocation.ts` | Atomic GPS record model: `latitude`, `longitude`, `lastPingAt`, `signalLostAlertSent`, `retryCount` |
+| `LocationController.ts` | `backend/src/controllers/LocationController.ts` | Handlers for `POST /api/locations/ping`, `/guardians`, `/watchdog/scan` |
+
+---
+
+## 2.5 Integration Test Suites (v2.0)
+
+| Test Suite | Path | Tests | Status |
+|---|---|---|---|
+| `symmetricVerificationPipeline.test.ts` | `backend/tests/` | 10 | ✅ PASSED |
+| `harmlessnessSystem.test.ts` | `backend/tests/` | 6 | ✅ PASSED |
+| `locationWatchdog.test.ts` | `backend/tests/` | 6 | ✅ PASSED |
+| `profileMigration.test.ts` | `backend/tests/` | 5 | ✅ PASSED |
+| **Total** | | **27** | **✅ 100%** |

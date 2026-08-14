@@ -14,7 +14,7 @@ import { OutcomeController } from '../controllers/OutcomeController';
 
 const createBodySchema = z.object({
   episodeId: z.string().min(1, 'episodeId is required'),
-  result: z.enum(['success', 'failure']),
+  result: z.enum(['success', 'failure', 'SAFE_RESOLVED', 'SUSPICIOUS_BEHAVIOR', 'ACTIVE_THREAT']),
   category: z.enum(['medical', 'transport', 'general', 'emergency']),
   /** 1–5 risk rating supplied by the completing party */
   riskLevel: z.number().int().min(1).max(5).optional(),

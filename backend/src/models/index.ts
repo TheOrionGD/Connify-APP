@@ -5,6 +5,9 @@ export interface IDevice extends Document {
   deviceFingerprintHash: string;
   publicKey: string;
   phoneHash?: string;
+  isQuarantined?: boolean;
+  suspiciousCount?: number;
+  harmlessnessScore?: number;
   createdAt: Date;
   lastSeenAt?: Date;
 }
@@ -13,6 +16,9 @@ const DeviceSchema = new Schema<IDevice>({
   deviceFingerprintHash: { type: String, required: true, unique: true },
   publicKey: { type: String, required: true },
   phoneHash: { type: String },
+  isQuarantined: { type: Boolean, default: false },
+  suspiciousCount: { type: Number, default: 0 },
+  harmlessnessScore: { type: Number, default: 100 },
   createdAt: { type: Date, default: Date.now },
   lastSeenAt: { type: Date },
 });
@@ -34,6 +40,9 @@ export interface IEpisode extends Document {
   helperValidationKey?: string;
   gridCellsJson?: string;
   usedQrNonces: string[];
+  isDuress?: boolean;
+  acousticSampleHash?: string;
+  ambientNoiseLevel?: number;
   createdAt: Date;
   expiresAt: Date;
 }
@@ -54,6 +63,9 @@ const EpisodeSchema = new Schema<IEpisode>({
   helperValidationKey: { type: String },
   gridCellsJson: { type: String },
   usedQrNonces: { type: [String], default: [] },
+  isDuress: { type: Boolean, default: false },
+  acousticSampleHash: { type: String },
+  ambientNoiseLevel: { type: Number },
   createdAt: { type: Date, default: Date.now },
   expiresAt: { type: Date, required: true },
 });
@@ -122,9 +134,12 @@ const AuditLogSchema = new Schema<IAuditLog>({
 // ── Profile Model ─────────────────────────────────────────────────────
 export interface IProfile extends Document {
   deviceId: mongoose.Types.ObjectId;
+  firebaseUid?: string;
   firstName: string;
   lastName: string;
+  email?: string;
   phone?: string;
+  isAnonymous?: boolean;
   medicalNotes?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -132,9 +147,12 @@ export interface IProfile extends Document {
 
 const ProfileSchema = new Schema<IProfile>({
   deviceId: { type: Schema.Types.ObjectId, ref: 'Device', required: true, unique: true },
+  firebaseUid: { type: String },
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
+  email: { type: String },
   phone: { type: String },
+  isAnonymous: { type: Boolean, default: true },
   medicalNotes: { type: String },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
@@ -160,4 +178,6 @@ export const Capsule = mongoose.models.Capsule || mongoose.model<ICapsule>('Caps
 export const Outcome = mongoose.models.Outcome || mongoose.model<IOutcome>('Outcome', OutcomeSchema);
 export const AuditLog = mongoose.models.AuditLog || mongoose.model<IAuditLog>('AuditLog', AuditLogSchema);
 export const Profile = mongoose.models.Profile || mongoose.model<IProfile>('Profile', ProfileSchema);
+export { Guardian, IGuardian } from './Guardian';
+export { DeviceLocation, IDeviceLocation } from './DeviceLocation';
 

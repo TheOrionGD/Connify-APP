@@ -1,5 +1,6 @@
 import type { FastifyReply } from 'fastify';
-import { Profile } from '../models';
+import { Profile, Guardian } from '../models';
+import { writeAuditLog } from '../utils/audit.js';
 
 export const ProfileController = {
   async upsertProfile(
@@ -64,6 +65,92 @@ export const ProfileController = {
       return reply.status(500).send({
         success: false,
         error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to fetch profile' },
+      });
+    }
+  },
+
+  async upgradeProfile(
+    data: {
+      firebaseUid?: string;
+      firstName: string;
+      lastName: string;
+      phone: string;
+      email?: string;
+      guardian: {
+        fullName: string;
+        phone: string;
+        relationship: string;
+      };
+    },
+    deviceId: string,
+    reply: FastifyReply
+  ) {
+    try {
+      if (!data.firstName || !data.lastName || !data.phone || !data.guardian?.fullName || !data.guardian?.phone || !data.guardian?.relationship) {
+        return reply.status(400).send({
+          success: false,
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'firstName, lastName, phone, and mandatory guardian details (fullName, phone, relationship) are required',
+          },
+        });
+      }
+
+      // 1. Upgrade Profile in MongoDB (mark isAnonymous = false)
+      let profile = await Profile.findOne({ deviceId });
+      if (profile) {
+        profile.firebaseUid = data.firebaseUid || profile.firebaseUid;
+        profile.firstName = data.firstName;
+        profile.lastName = data.lastName;
+        profile.phone = data.phone;
+        profile.email = data.email || profile.email;
+        profile.isAnonymous = false;
+        profile.updatedAt = new Date();
+        await profile.save();
+      } else {
+        profile = await Profile.create({
+          deviceId,
+          firebaseUid: data.firebaseUid,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          phone: data.phone,
+          email: data.email,
+          isAnonymous: false,
+          updatedAt: new Date(),
+        });
+      }
+
+      // 2. Register / Update Mandatory Guardian bound to deviceId
+      const userFullName = `${data.firstName} ${data.lastName}`.trim();
+      const guardian = await Guardian.findOneAndUpdate(
+        { deviceId },
+        {
+          $set: {
+            deviceId,
+            userFullName,
+            fullName: data.guardian.fullName,
+            phone: data.guardian.phone,
+            relationship: data.guardian.relationship,
+          },
+        },
+        { upsert: true, new: true }
+      );
+
+      await writeAuditLog('PROFILE_MIGRATED_FROM_ANONYMOUS', deviceId);
+
+      return reply.status(200).send({
+        success: true,
+        data: {
+          profile,
+          guardian,
+          message: 'Profile upgraded successfully from Anonymous to Registered user.',
+        },
+      });
+    } catch (error) {
+      console.error('Failed to upgrade profile:', error);
+      return reply.status(500).send({
+        success: false,
+        error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to upgrade profile' },
       });
     }
   },

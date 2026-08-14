@@ -30,6 +30,9 @@ const createBodySchema = z.object({
   blindedGridSigs: z.string().min(1, 'blindedGridSigs is required for SHARP proximity checks'),
   helperValidationKey: z.string().min(1, 'helperValidationKey is required for SHARP proximity checks'),
   gridCellsJson: z.string().min(1, 'gridCellsJson is required for SHARP proximity checks'),
+  isDuress: z.boolean().optional(),
+  challengeHex: z.string().optional(),
+  signatureHex: z.string().optional(),
 });
 
 const nearbyQuerySchema = z.object({
@@ -71,6 +74,9 @@ export async function episodeRoutes(app: FastifyInstance): Promise<void> {
       if (!parsed.success) {
         return badRequest(reply, parsed.error.issues[0]?.message ?? 'Invalid body');
       }
+      if (parsed.data.latitude === 0 && parsed.data.longitude === 0) {
+        return badRequest(reply, 'location not provided (latitude and longitude cannot both be 0)');
+      }
       const deviceId = req.devicePayload!.sub;
       return EpisodeController.create(deviceId, parsed.data, reply);
     }
@@ -92,6 +98,16 @@ export async function episodeRoutes(app: FastifyInstance): Promise<void> {
       const { id } = req.params as { id: string };
       const deviceId = req.devicePayload!.sub;
       return EpisodeController.cancel(id, deviceId, reply);
+    }
+  );
+
+  app.post(
+    '/:id/threat-abort',
+    { preHandler: authenticate },
+    async (req, reply) => {
+      const { id } = req.params as { id: string };
+      const helperDeviceId = req.devicePayload!.sub;
+      return EpisodeController.threatAbort(id, helperDeviceId, reply);
     }
   );
 }

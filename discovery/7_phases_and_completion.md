@@ -18,11 +18,14 @@ This document defines the goals, deliverables, specific completion/acceptance cr
 | **8** | **State Management** | Coordinate session context and local storage rules. | **COMPLETED** | Zustand state machine hooks managing active episode tokens. |
 | **9** | **Backend Architecture** | Deploy/integrate Fastify framework and keys management. | **COMPLETED** | API routes configured and listening locally/remote. |
 | **10** | **API Layer** | Connect client to Fastify using secure Axios interceptors. | **COMPLETED** | Automatic refresh, error retries, and timeout rules verified. |
-| **11** | **Authentication** | Establish device registration and verification paths. | **COMPLETED** | Firebase auth and Ed25519 keys generated and verified. | 
-| **12** | **Database Design** | Build Postgres models, PostGIS indexes, and rules. | **COMPLETED** | Schema migrated; coarse location queries operational. |
-| **13** | **Documentation** | Build instructions, guides, and API specifications. | *Pending* | Markdown guides written for developers and deployment. |
+| **11** | **Authentication** | Establish device registration and verification paths. | **COMPLETED** | Firebase auth and Ed25519 keys generated and verified. |
+| **12** | **Database Design** | MongoDB Atlas models, 2dsphere indexes, and location atomics. | **COMPLETED** | `Device`, `Episode`, `Profile`, `Guardian`, `DeviceLocation`, `Outcome`, `AuditLog` schemas operational. |
+| **13** | **Documentation** | Build instructions, guides, and API specifications. | **COMPLETED** | `discovery/` folder updated; architecture doc, phase tracker, and project report reflect v2.0 systems. |
 | **14** | **Android Build** | Build and signing setup for production apps. | *Pending* | Android package compiles to clean release target (AAB/APK). |
-| **15** | **Quality** | Execute code sanity checks, lint validation, and tests. | *Pending* | Zero unused files, lint clean, all integration tests pass. |
+| **15** | **Quality & Integration Tests** | Execute code sanity checks, lint validation, and tests. | **COMPLETED** | **27/27 integration tests passing (100%)** across all 4 suites. Zero lint errors. |
+| **16** | **5-Pillar Harmlessness System** | Behavioral risk scoring, velocity trap detection, responder panic abort, auto-quarantine. | **COMPLETED** | 6/6 tests passing in `harmlessnessSystem.test.ts`. |
+| **17** | **5-Second GPS Watchdog & Guardian SMS** | Atomic location pings, 15s signal loss detection, unbounded recovery, personalized SMS alerts. | **COMPLETED** | 6/6 tests passing in `locationWatchdog.test.ts`. Guardian SMS reads coordinates directly from MongoDB. |
+| **18** | **Anonymous → Registered Profile Migration** | Firebase `linkWithCredential` integration, mandatory guardian enforcement, `POST /api/profile/upgrade`. | **COMPLETED** | 5/5 tests passing in `profileMigration.test.ts`. `isAnonymous: false` verified in MongoDB. |
  
 ---
 

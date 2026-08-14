@@ -31,8 +31,9 @@ export default function GovernanceScreen({ navigation }: any) {
   const fetchLiveGovernanceData = async () => {
     setLoadingStats(true);
     try {
+      let currentDevId = deviceId;
       if (ensureDeviceId) {
-        await ensureDeviceId();
+        currentDevId = await ensureDeviceId();
       }
       const historyStr = await AsyncStorage.getItem('CONNIFY_EPISODE_HISTORY');
       if (historyStr) {
@@ -42,7 +43,7 @@ export default function GovernanceScreen({ navigation }: any) {
       }
 
       const [dashRes, auditRes] = await Promise.all([
-        adminApi.getDashboard(),
+        adminApi.getDashboard(currentDevId || undefined),
         adminApi.getAuditChain(1, 10),
       ]);
 
@@ -94,9 +95,8 @@ export default function GovernanceScreen({ navigation }: any) {
   const resolvedCount = localHistory.filter(h => h.status === 'RESOLVED' || h.status === 'VERIFIED').length;
   const localSuccessRate = localHistory.length > 0 ? Math.round((resolvedCount / localHistory.length) * 100) : 100;
 
-  const totalEpisodesCount = dashboardData?.totalEpisodes !== undefined && dashboardData.totalEpisodes > 0
-    ? dashboardData.totalEpisodes
-    : localHistory.length;
+  const networkEpisodesCount = dashboardData?.totalEpisodes !== undefined ? dashboardData.totalEpisodes : 0;
+  const userEpisodesCount = dashboardData?.userEpisodes !== undefined ? dashboardData.userEpisodes : localHistory.length;
 
   const displaySuccessRate = dashboardData?.successRate !== undefined && dashboardData?.totalEpisodes > 0
     ? dashboardData.successRate
@@ -151,10 +151,17 @@ export default function GovernanceScreen({ navigation }: any) {
             <>
               <View style={styles.statsRow}>
                 <View style={styles.statBox}>
-                  <Text style={[styles.statNum, { color: colors.onBackground }]}>
-                    {totalEpisodesCount}
+                  <Text style={[styles.statNum, { color: colors.primary }]}>
+                    {userEpisodesCount}
                   </Text>
-                  <Text style={[styles.statLabel, { color: colors.onSurfaceVariant }]}>TOTAL EPISODES</Text>
+                  <Text style={[styles.statLabel, { color: colors.onSurfaceVariant }]}>YOUR EPISODES</Text>
+                </View>
+
+                <View style={styles.statBox}>
+                  <Text style={[styles.statNum, { color: colors.onBackground }]}>
+                    {networkEpisodesCount}
+                  </Text>
+                  <Text style={[styles.statLabel, { color: colors.onSurfaceVariant }]}>NETWORK TOTAL</Text>
                 </View>
 
                 <View style={styles.statBox}>

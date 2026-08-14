@@ -61,11 +61,45 @@ const IsProximate = PostGIS.evalQuery(BlindedQuery); // True/False only`,
     },
     {
       id: 1,
+      title: '5-Pillar Harmlessness Risk Engine',
+      subtitle: 'Zero-Knowledge Behavioral Risk Scoring',
+      description: 'Before any distress episode reaches nearby helpers, the backend calculates a real-time Harmlessness Risk Score across 5 pillars: trap velocity detection, location risk categorization, historical resolution ratio, dual-side anonymity, and automatic quarantine on suspicious repeat behavior.',
+      icon: ShieldCheck,
+      color: 'amber',
+      spec: `// Trap & Velocity Detection
+const recentEpisodes = await Episode.find({
+  requesterDeviceId: deviceId,
+  createdAt: { $gte: tenMinutesAgo }
+});
+if (recentEpisodes.length >= 2) throw new Error('VELOCITY_TRAP_DETECTED');
+// Auto-quarantine on 2+ suspicious ratings
+if (device.suspiciousCount >= 2) device.isQuarantined = true;`,
+    },
+    {
+      id: 2,
+      title: '5-Second GPS Watchdog & Guardian SMS',
+      subtitle: 'Atomic Location Pings & Unbounded Signal Recovery',
+      description: 'Every 5 seconds the device atomically overwrites its GPS record in MongoDB. If no ping is received for 15 seconds (device powered off, Airplane mode, or zero signal range), the backend automatically dispatches a personalized emergency SMS to registered guardians with the user\'s full name, relationship, last known coordinates, and a live Google Maps link.',
+      icon: Radio,
+      color: 'cyan',
+      spec: `// 5s Atomic Location Overwrite
+await DeviceLocation.findOneAndUpdate(
+  { deviceId },
+  { $set: { latitude, longitude, lastPingAt: new Date(), signalLostAlertSent: false } },
+  { upsert: true }
+);
+// 15s Watchdog → Guardian SMS with DB coordinates
+if (timeSinceLastPing >= 15_000) {
+  await dispatchSignalLossSms(deviceId); // reads lat/lng from DB
+}`,
+    },
+    {
+      id: 3,
       title: 'Offline Bluetooth LE & Wi-Fi Mesh',
       subtitle: 'Sub-GHz Off-Grid Relay Mesh',
       description: 'When cellular networks fail or internet connection is suppressed, Connify defaults to peer-to-peer multi-hop Bluetooth LE broadcasting, relaying distress alerts across nearby devices.',
-      icon: Radio,
-      color: 'cyan',
+      icon: Zap,
+      color: 'emerald',
       spec: `// Off-Grid Multi-Hop Packet Format
 struct MeshPacket {
   uint32_t episodeId;
@@ -75,31 +109,34 @@ struct MeshPacket {
 };`,
     },
     {
-      id: 2,
-      title: 'Urgent Serenity Escort Companion',
-      subtitle: 'Dynamic Walk Monitoring & Panic Sirens',
-      description: 'Active companion mode continuously monitors route deviation, heart rate spikes, and sudden acoustic shifts, firing localized audio alarms and instant peer dispatcher alerts when needed.',
-      icon: Zap,
-      color: 'emerald',
-      spec: `// Escort Companion Trigger Pipeline
-if (accelMagnitude > 4.2g || decibelLevel > ${decibelThreshold}dB) {
-  triggerLocalSiren(115dB);
-  broadcastPeerDispatch(radius: ${peerDispatchRadius}m);
-}`,
+      id: 4,
+      title: 'Anonymous → Registered Profile Migration',
+      subtitle: 'Firebase Credential Linking & Mandatory Guardian Binding',
+      description: 'Users launch Connify anonymously via Firebase Anonymous Auth. When they complete onboarding, the app links permanent credentials using Firebase linkWithCredential(), preserving their Firebase UID and MongoDB device bindings. Mandatory guardian registration is enforced — no emergency episodes can be created without a verified guardian on file.',
+      icon: Key,
+      color: 'purple',
+      spec: `// Firebase Anonymous → Permanent Account Link
+await linkWithCredential(anonymousUser, credential);
+// POST /api/profile/upgrade → MongoDB upgrade
+await Profile.findOneAndUpdate({ deviceId }, {
+  $set: { firebaseUid, isAnonymous: false, firstName, phone }
+});
+await Guardian.create({ deviceId, fullName, phone, relationship });
+// Audit log: PROFILE_MIGRATED_FROM_ANONYMOUS`,
     },
     {
-      id: 3,
+      id: 5,
       title: 'Decentralized Consensus & Vetting',
       subtitle: 'Community Reputation Ledger',
       description: 'No corporate monopolies. All safety zone registrations, merchant sanctuary verifications, and protocol threshold changes are governed through decentralized cryptographically-signed community votes.',
-      icon: ShieldCheck,
-      color: 'purple',
+      icon: Cpu,
+      color: 'rose',
       spec: `// Governance Verification Standard
 function verifyResponder(nodeId, trustScore) {
   require(trustScore >= 850, "Trust score insufficient");
   return Ed25519.verifySignature(nodeId, councilPubKey);
 }`,
-    }
+    },
   ];
 
   return (
@@ -134,20 +171,20 @@ function verifyResponder(nodeId, trustScore) {
             {/* Quick Metrics Bar */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-white/10">
               <div className="min-w-0">
-                <span className="block font-tech font-extrabold text-xl sm:text-2xl text-white">0</span>
-                <span className="font-mono text-[10px] sm:text-xs text-slate-400 leading-tight block">GPS Logs Stored</span>
+                <span className="block font-tech font-extrabold text-xl sm:text-2xl text-white">27/27</span>
+                <span className="font-mono text-[10px] sm:text-xs text-slate-400 leading-tight block">Integration Tests</span>
               </div>
               <div className="min-w-0">
-                <span className="block font-tech font-extrabold text-xl sm:text-2xl text-rose-400">&lt;1.2s</span>
-                <span className="font-mono text-[10px] sm:text-xs text-slate-400 leading-tight block">Mesh Propagation</span>
+                <span className="block font-tech font-extrabold text-xl sm:text-2xl text-rose-400">5s</span>
+                <span className="font-mono text-[10px] sm:text-xs text-slate-400 leading-tight block">GPS Atomic Watchdog</span>
               </div>
               <div className="min-w-0">
-                <span className="block font-tech font-extrabold text-xl sm:text-2xl text-emerald-400">100%</span>
-                <span className="font-mono text-[10px] sm:text-xs text-slate-400 leading-tight block">ZK-Proof Private</span>
+                <span className="block font-tech font-extrabold text-xl sm:text-2xl text-emerald-400">5-Pillar</span>
+                <span className="font-mono text-[10px] sm:text-xs text-slate-400 leading-tight block">Harmlessness Engine</span>
               </div>
               <div className="min-w-0">
-                <span className="block font-tech font-extrabold text-xl sm:text-2xl text-cyan-400">BLE+Wi-Fi</span>
-                <span className="font-mono text-[10px] sm:text-xs text-slate-400 leading-tight block">Offline Mesh</span>
+                <span className="block font-tech font-extrabold text-xl sm:text-2xl text-cyan-400">Ed25519</span>
+                <span className="font-mono text-[10px] sm:text-xs text-slate-400 leading-tight block">Device Signing</span>
               </div>
             </div>
 
@@ -173,12 +210,20 @@ function verifyResponder(nodeId, trustScore) {
                     <span className="text-cyan-400">0x8f4a...92b1</span>
                   </div>
                   <div className="flex justify-between text-slate-400">
-                    <span>Proximity Radius:</span>
-                    <span className="text-white font-bold">{sweepRadius}m</span>
+                    <span>GPS Watchdog:</span>
+                    <span className="text-emerald-400 font-bold">5s Atomic Ping</span>
                   </div>
                   <div className="flex justify-between text-slate-400">
-                    <span>Acoustic Panic:</span>
-                    <span className="text-amber-400 font-bold">{decibelThreshold} dB</span>
+                    <span>Signal Loss Alert:</span>
+                    <span className="text-amber-400 font-bold">15s → Guardian SMS</span>
+                  </div>
+                  <div className="flex justify-between text-slate-400">
+                    <span>Harmlessness Engine:</span>
+                    <span className="text-rose-400 font-bold">5-Pillar Active</span>
+                  </div>
+                  <div className="flex justify-between text-slate-400">
+                    <span>Account State:</span>
+                    <span className="text-purple-400 font-bold">Anon → Registered</span>
                   </div>
                   <div className="flex justify-between text-slate-400">
                     <span>Peer Mesh Relay:</span>
@@ -189,7 +234,7 @@ function verifyResponder(nodeId, trustScore) {
                 <div className="p-3 bg-rose-500/10 rounded-lg border border-rose-500/30 flex items-center space-x-3">
                   <Lock className="h-5 w-5 text-rose-400 shrink-0" />
                   <p className="font-sans text-xs text-rose-200">
-                    Oblivious Bloom filter generated on-device. Coordinates never broadcast.
+                    Guardian SMS reads coordinates directly from MongoDB — zero hardcoded data.
                   </p>
                 </div>
               </div>

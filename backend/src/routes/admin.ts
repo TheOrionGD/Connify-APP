@@ -190,6 +190,23 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
   // GET /api/admin/dashboard
   app.get('/dashboard', async (req, reply) => {
     try {
+      const query = (req.query || {}) as any;
+      const deviceIdParam = query.deviceId || req.headers['x-device-id'];
+
+      let userEpisodes = 0;
+      if (deviceIdParam) {
+        let device = null;
+        if (typeof deviceIdParam === 'string' && deviceIdParam.match(/^[0-9a-fA-F]{24}$/)) {
+          device = await Device.findById(deviceIdParam);
+        }
+        if (!device && typeof deviceIdParam === 'string') {
+          device = await Device.findOne({ deviceFingerprintHash: deviceIdParam });
+        }
+        if (device) {
+          userEpisodes = await Episode.countDocuments({ requesterDeviceId: device._id });
+        }
+      }
+
       const [
         totalEpisodes,
         pendingCount,
@@ -216,6 +233,7 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
         success: true,
         data: {
           totalEpisodes,
+          userEpisodes,
           statusCounts: {
             pending: pendingCount,
             matched: matchedCount,

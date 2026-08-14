@@ -2,9 +2,10 @@
  * EpisodeController — lifecycle management for help request episodes using Mongoose.
  */
 import type { FastifyReply } from 'fastify';
-import { Episode } from '../models';
+import { Episode, Device } from '../models';
 import { writeAuditLog } from '../utils/audit';
 import { broadcastNewEpisode } from '../sockets';
+import { BehavioralRiskEngine } from '../services/BehavioralRiskEngine';
 
 interface CreateInput {
   category: string;
@@ -16,6 +17,7 @@ interface CreateInput {
   blindedGridSigs: string;
   helperValidationKey: string;
   gridCellsJson: string;
+  isDuress?: boolean;
 }
 
 interface NearbyQuery {
@@ -34,6 +36,9 @@ export const EpisodeController = {
     reply: FastifyReply
   ): Promise<void> {
     try {
+      // 1. Enforce Behavioral Harmlessness Risk Engine & Luring Velocity Checks
+      await BehavioralRiskEngine.assertEligibilityForEpisodeTrigger(deviceId);
+
       const expiresAt = new Date(Date.now() + EPISODE_TTL_MS);
 
       const episode = await Episode.create({
@@ -50,6 +55,7 @@ export const EpisodeController = {
         blindedGridSigs: input.blindedGridSigs,
         helperValidationKey: input.helperValidationKey,
         gridCellsJson: input.gridCellsJson,
+        isDuress: input.isDuress || false,
         expiresAt,
         status: 'pending',
       });
@@ -216,6 +222,52 @@ export const EpisodeController = {
       reply.status(500).send({
         success: false,
         error: { code: 'NEARBY_FETCH_FAILED', message },
+      });
+    }
+  },
+
+  async threatAbort(
+    episodeId: string,
+    helperDeviceId: string,
+    reply: FastifyReply
+  ): Promise<void> {
+    try {
+      const episode = await Episode.findById(episodeId);
+      if (!episode) {
+        return reply.status(404).send({
+          success: false,
+          error: { code: 'EPISODE_NOT_FOUND', message: 'Episode not found' },
+        });
+      }
+
+      episode.status = 'THREAT_ABORTED';
+      await episode.save();
+
+      // Flag sender device and increment suspicious count
+      const senderDevice = await Device.findById(episode.requesterDeviceId);
+      if (senderDevice) {
+        senderDevice.suspiciousCount = (senderDevice.suspiciousCount || 0) + 1;
+        if (senderDevice.suspiciousCount >= 2) {
+          senderDevice.isQuarantined = true;
+        }
+        await senderDevice.save();
+      }
+
+      await writeAuditLog('THREAT_ABORTED', episodeId);
+
+      reply.status(200).send({
+        success: true,
+        data: {
+          aborted: true,
+          episodeId,
+          message: 'Responder threat abort recorded. Emergency alert dispatched.',
+        },
+      });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      reply.status(500).send({
+        success: false,
+        error: { code: 'THREAT_ABORT_FAILED', message },
       });
     }
   },

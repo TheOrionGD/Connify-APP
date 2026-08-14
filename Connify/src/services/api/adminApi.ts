@@ -4,6 +4,7 @@ export interface DashboardResponse {
   success: boolean;
   data?: {
     totalEpisodes: number;
+    userEpisodes?: number;
     statusCounts: {
       pending: number;
       matched: number;
@@ -49,11 +50,12 @@ export interface AuditChainResponse {
 
 export const adminApi = {
   /**
-   * Fetch real-time dashboard statistics (total episodes, status counts, success rate).
+   * Fetch real-time dashboard statistics (total episodes, user-specific episodes, status counts, success rate).
    */
-  async getDashboard(): Promise<DashboardResponse> {
+  async getDashboard(deviceId?: string): Promise<DashboardResponse> {
     try {
-      const response = await apiClient.get<DashboardResponse>('/api/admin/dashboard');
+      const url = deviceId ? `/api/admin/dashboard?deviceId=${encodeURIComponent(deviceId)}` : '/api/admin/dashboard';
+      const response = await apiClient.get<DashboardResponse>(url);
       return response.data;
     } catch (error: any) {
       return {

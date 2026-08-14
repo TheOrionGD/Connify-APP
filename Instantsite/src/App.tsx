@@ -346,18 +346,22 @@ export default function App() {
               <span>© {new Date().getFullYear()} CONNIFY PROTOCOL FOUNDATION.</span>
               <span>•</span>
               <span className="flex items-center text-rose-400 font-bold">
-                <Lock className="h-3 w-3 mr-1" /> Audit Passed (v1.4)
+                <Lock className="h-3 w-3 mr-1" /> Audit Passed (v2.0)
               </span>
               <span>•</span>
               <span className="flex items-center text-emerald-400 font-bold">
                 <Radio className="h-3 w-3 mr-1" /> ZK-Proofs Enabled
               </span>
+              <span>•</span>
+              <span className="flex items-center text-amber-400 font-bold">
+                <Shield className="h-3 w-3 mr-1" /> 5-Pillar Harmlessness
+              </span>
             </div>
 
             <div className="flex items-center space-x-2">
-              <span className="font-mono text-[9px] text-slate-400 font-bold">CLIENT-CENTRIC P2P SYSTEM</span>
-              <span className="px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 text-[9px] font-mono font-bold uppercase border border-rose-500/30">
-                PROXIMITY SECURED
+              <span className="font-mono text-[9px] text-slate-400 font-bold">27/27 INTEGRATION TESTS</span>
+              <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[9px] font-mono font-bold uppercase border border-emerald-500/30">
+                ALL PASSING
               </span>
             </div>
           </div>

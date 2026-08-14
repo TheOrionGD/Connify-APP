@@ -93,6 +93,22 @@ Connify is not just an app — it's a **protocol implemented as an app**. The ar
 | **Comms Relay** | Ephemeral messaging/calling | Channel dies when capsule expires |
 | **Outcome Service** | Minimal feedback logging | Decoupled from identity — privacy by design |
 | **Revocation/Expiry Worker** | Kills capsules/sessions on timeout or abuse flag | Equivalent to "global logout" pattern |
+| **BehavioralRiskEngine** *(v2.0)* | 5-pillar real-time harmlessness scoring | Trap velocity detection, quarantine, responder panic abort — `POST /api/episodes/:id/threat-abort` |
+| **LocationWatchdogService** *(v2.0)* | 5s atomic GPS pings + 15s Guardian SMS watchdog | Reads coordinates from MongoDB; personalized SMS with name, relationship, & Google Maps link; unbounded signal recovery |
+| **ProfileController** *(v2.0)* | Anonymous → Registered profile migration | Firebase `linkWithCredential` binding; mandatory guardian enforcement; `POST /api/profile/upgrade` |
+
+---
+
+## 3.1 New MongoDB Models (v2.0)
+
+| Model | Fields | Purpose |
+|---|---|---|
+| **Device** | `deviceFingerprintHash`, `publicKey`, `isQuarantined`, `suspiciousCount`, `harmlessnessScore` | Stores Ed25519 public key and behavioral risk state |
+| **Episode** | `requesterDeviceId`, `category`, `urgency`, `location`, `isDuress`, `acousticSampleHash` | Distress episode with geospatial 2dsphere index |
+| **Profile** | `deviceId`, `firebaseUid`, `firstName`, `lastName`, `phone`, `email`, `isAnonymous` | User profile — starts anonymous, upgraded via `/api/profile/upgrade` |
+| **Guardian** | `deviceId`, `userFullName`, `fullName`, `phone`, `relationship` | Mandatory guardian contact; used for personalized watchdog SMS alerts |
+| **DeviceLocation** | `deviceId`, `latitude`, `longitude`, `lastPingAt`, `signalLostAlertSent`, `retryCount`, `isActiveSession` | 5-second atomic GPS record; drives watchdog signal loss detection |
+| **Outcome** | `episodeId`, `responderDeviceId`, `result`, `createdAt` | Outcome logging: `SAFE_RESOLVED`, `SUSPICIOUS_BEHAVIOR`, `ACTIVE_THREAT` |
 
 ---
 
