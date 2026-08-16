@@ -11,7 +11,8 @@
  */
 import { Server as SocketIOServer } from 'socket.io';
 import { verifyToken } from '../services/KeyService';
-import { prisma } from '../utils/prisma';
+import { Episode, Capsule } from '../models';
+import { LocationWatchdogService } from '../services/LocationWatchdogService';
 
 let io: SocketIOServer | null = null;
 
@@ -64,22 +65,19 @@ export async function initSockets(server: any): Promise<SocketIOServer> {
           return callback?.({ success: false, error: 'episodeId is required' });
         }
 
-        const episode = await prisma.episode.findUnique({
-          where: { id: episodeId },
-          include: {
-            capsules: {
-              where: { status: { in: ['issued', 'redeemed'] } },
-              take: 1,
-            },
-          },
-        });
+        const episode = await Episode.findById(episodeId);
 
         if (!episode) {
           return callback?.({ success: false, error: 'Episode not found' });
         }
 
-        const isRequester = episode.requesterDeviceId === deviceId;
-        const isHelper = episode.capsules[0]?.helperDeviceId === deviceId;
+        const capsules = await Capsule.find({
+          episodeId,
+          status: { $in: ['issued', 'redeemed'] },
+        }).limit(1);
+
+        const isRequester = episode.requesterDeviceId.toString() === deviceId;
+        const isHelper = capsules[0]?.helperDeviceId.toString() === deviceId;
 
         if (!isRequester && !isHelper) {
           return callback?.({
@@ -154,6 +152,27 @@ export async function initSockets(server: any): Promise<SocketIOServer> {
       socket.to(roomName).emit('user_left', { deviceId });
       console.log(`👤 Device ${deviceId} left room ${roomName}`);
       callback?.({ success: true });
+    });
+
+    /**
+     * Handle incoming continuous location pings from the device.
+     */
+    socket.on('location_ping', async (payload, callback) => {
+      try {
+        if (payload.latitude === undefined || payload.longitude === undefined) {
+          return callback?.({ success: false, error: 'latitude and longitude are required' });
+        }
+        
+        await LocationWatchdogService.updateLocationPing(deviceId, {
+          latitude: payload.latitude,
+          longitude: payload.longitude,
+          accuracy: payload.accuracy,
+        });
+
+        callback?.({ success: true });
+      } catch (err: any) {
+        callback?.({ success: false, error: err.message });
+      }
     });
 
     socket.on('disconnect', () => {

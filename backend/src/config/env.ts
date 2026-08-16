@@ -43,6 +43,10 @@ const envSchema = z.object({
       if (process.env.NODE_ENV === 'production' && !val) return false;
       return true;
     }, { message: 'FIREBASE_SERVICE_ACCOUNT_KEY is required in production' }),
+
+  // Email Configuration
+  BREVO_API_KEY: z.string().optional(),
+  SMTP_USER: z.string().email().optional(),
 });
 
 const result = envSchema.safeParse(process.env);

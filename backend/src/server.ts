@@ -15,6 +15,7 @@ import { initFirebase } from './config/firebase';
 import { buildApp } from './app';
 import { initSockets } from './sockets';
 import { connectDB } from './utils/db';
+import { LocationWatchdogService } from './services/LocationWatchdogService';
 
 const start = async () => {
   try {
@@ -43,6 +44,16 @@ const start = async () => {
     });
 
     console.log(`🚀 Server listening on ${address}`);
+
+    // 6. Start the Location Watchdog Scanner
+    setInterval(async () => {
+      try {
+        await LocationWatchdogService.checkSignalLossAndNotifyGuardians();
+      } catch (err) {
+        console.error('❌ Watchdog scan failed:', err);
+      }
+    }, 10000); // Scan every 10 seconds
+
   } catch (err: any) {
     console.error('❌ Failed to start server:', err.message);
     process.exit(1);

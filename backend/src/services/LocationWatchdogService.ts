@@ -1,5 +1,6 @@
 import { DeviceLocation, Guardian, Profile } from '../models';
 import { writeAuditLog } from '../utils/audit';
+import { env } from '../config/env';
 
 export interface LocationPingInput {
   latitude: number;
@@ -8,15 +9,17 @@ export interface LocationPingInput {
   batteryLevel?: number;
 }
 
-export interface SmsDispatchRecord {
-  toPhone: string;
-  message: string;
+// Remove SMS log store, replace with Brevo and FCM
+import { getMessaging } from 'firebase-admin/messaging';
+
+export interface DispatchRecord {
+  to: string;
   type: 'SIGNAL_LOSS' | 'SIGNAL_RECOVERED';
+  channel: 'EMAIL' | 'FCM';
   timestamp: Date;
 }
 
-// In-memory store for SMS audit verification during runtime
-export const dispatchedSmsLog: SmsDispatchRecord[] = [];
+export const dispatchedAlertsLog: DispatchRecord[] = [];
 
 export class LocationWatchdogService {
   /**
@@ -60,9 +63,9 @@ export class LocationWatchdogService {
       { upsert: true, new: true }
     );
 
-    // If signal was previously lost and is now recovered, dispatch Signal Recovered Guardian SMS
+    // If signal was previously lost and is now recovered, dispatch Signal Recovered Alerts
     if (wasSignalLost) {
-      await this.dispatchSignalRecoveredSms(deviceId);
+      await this.dispatchSignalRecoveredAlerts(deviceId);
     }
 
     return updatedLocation;
@@ -88,7 +91,7 @@ export class LocationWatchdogService {
       loc.retryCount = (loc.retryCount || 0) + 1;
       await loc.save();
 
-      await this.dispatchSignalLossSms(
+      await this.dispatchSignalLossAlerts(
         loc.deviceId.toString(),
         loc.retryCount
       );
@@ -100,10 +103,9 @@ export class LocationWatchdogService {
   }
 
   /**
-   * Helper: Dispatches personalized Signal Loss SMS to guardians using User Full Name & Relationship.
-   * Fetches last known location directly from MongoDB record.
+   * Helper: Dispatches Brevo Email and FCM Push to guardians on Signal Loss.
    */
-  private static async dispatchSignalLossSms(
+  private static async dispatchSignalLossAlerts(
     deviceId: string,
     retryNum: number
   ): Promise<void> {
@@ -120,27 +122,65 @@ export class LocationWatchdogService {
 
     for (const g of guardians) {
       const relationshipStr = g.relationship || 'contact';
-      const smsMessage = `EMERGENCY ALERT [CONNIFY WATCHDOG]: Signal/GPS lost for your ${relationshipStr}, ${userFullName}, during an active emergency session (Reason: Device powered off, Airplane mode, or out of signal range for >= 15 seconds). Last known coordinates from database: Lat ${latitude}, Lng ${longitude}. View on map: ${mapUrl}`;
+      const subject = `EMERGENCY ALERT: Signal Lost for ${userFullName}`;
+      const message = `Signal/GPS lost for your ${relationshipStr}, ${userFullName}, during an active emergency session (Reason: Device powered off, Airplane mode, or out of signal range for >= 15 seconds).\n\nLast known coordinates: Lat ${latitude}, Lng ${longitude}.\n\nView on map: ${mapUrl}`;
 
-      dispatchedSmsLog.push({
-        toPhone: g.phone,
-        message: smsMessage,
-        type: 'SIGNAL_LOSS',
-        timestamp: new Date(),
-      });
+      // 1. Send Push Notification (FCM)
+      if (g.fcmToken) {
+        try {
+          await getMessaging().send({
+            token: g.fcmToken,
+            notification: {
+              title: subject,
+              body: message,
+            },
+          });
+          dispatchedAlertsLog.push({ to: g.fcmToken, type: 'SIGNAL_LOSS', channel: 'FCM', timestamp: new Date() });
+          console.log(`🔔 FCM Push Sent to ${g.fullName}`);
+        } catch (err: any) {
+          console.error(`❌ FCM Push failed for ${g.fullName}:`, err.message);
+        }
+      }
 
-      console.log(`📱 Guardian SMS Sent to ${g.fullName} (${g.phone}): ${smsMessage}`);
+      // 2. Send Email (Brevo)
+      if (g.email && env.BREVO_API_KEY) {
+        try {
+          const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+            method: 'POST',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+              'api-key': env.BREVO_API_KEY,
+            },
+            body: JSON.stringify({
+              sender: { name: 'Connify Watchdog', email: 'alerts@connify.app' },
+              to: [{ email: g.email, name: g.fullName }],
+              subject: subject,
+              htmlContent: `<p>${message.replace(/\\n/g, '<br>')}</p>`,
+            }),
+          });
+          if (response.ok) {
+            dispatchedAlertsLog.push({ to: g.email, type: 'SIGNAL_LOSS', channel: 'EMAIL', timestamp: new Date() });
+            console.log(`📧 Brevo Email Sent to ${g.email}`);
+          } else {
+            console.error(`❌ Brevo Email failed for ${g.email}:`, await response.text());
+          }
+        } catch (err: any) {
+          console.error(`❌ Brevo Email error for ${g.email}:`, err.message);
+        }
+      } else {
+        // Fallback log if missing email or key
+        console.log(`⚠️ Email omitted for ${g.fullName} - Missing email or BREVO_API_KEY`);
+      }
     }
 
-    await writeAuditLog('GUARDIAN_SIGNAL_LOSS_SMS_DISPATCHED', deviceId);
+    await writeAuditLog('GUARDIAN_SIGNAL_LOSS_ALERTS_DISPATCHED', deviceId);
   }
 
   /**
-   * Helper: Dispatches personalized Signal Recovered SMS to guardians.
-   * Fetches newly updated location directly from MongoDB record.
-   * UNBOUNDED RECOVERY: Triggered regardless of how long signal was lost.
+   * Helper: Dispatches Brevo Email and FCM Push to guardians on Signal Recovery.
    */
-  private static async dispatchSignalRecoveredSms(deviceId: string): Promise<void> {
+  private static async dispatchSignalRecoveredAlerts(deviceId: string): Promise<void> {
     const dbLocation = await DeviceLocation.findOne({ deviceId });
     if (!dbLocation) return;
 
@@ -154,18 +194,53 @@ export class LocationWatchdogService {
 
     for (const g of guardians) {
       const relationshipStr = g.relationship || 'contact';
-      const smsMessage = `SAFETY UPDATE [CONNIFY WATCHDOG]: Signal/GPS has been RE-ESTABLISHED for your ${relationshipStr}, ${userFullName} (Device powered back on / Signal restored). Live tracking active. Updated coordinates from database: Lat ${latitude}, Lng ${longitude}. View on map: ${mapUrl}`;
+      const subject = `SAFETY UPDATE: Signal Recovered for ${userFullName}`;
+      const message = `Signal/GPS has been RE-ESTABLISHED for your ${relationshipStr}, ${userFullName} (Device powered back on / Signal restored). Live tracking active.\n\nUpdated coordinates: Lat ${latitude}, Lng ${longitude}.\n\nView on map: ${mapUrl}`;
 
-      dispatchedSmsLog.push({
-        toPhone: g.phone,
-        message: smsMessage,
-        type: 'SIGNAL_RECOVERED',
-        timestamp: new Date(),
-      });
+      // 1. Send Push Notification (FCM)
+      if (g.fcmToken) {
+        try {
+          await getMessaging().send({
+            token: g.fcmToken,
+            notification: {
+              title: subject,
+              body: message,
+            },
+          });
+          dispatchedAlertsLog.push({ to: g.fcmToken, type: 'SIGNAL_RECOVERED', channel: 'FCM', timestamp: new Date() });
+          console.log(`🔔 FCM Recovery Push Sent to ${g.fullName}`);
+        } catch (err: any) {
+          console.error(`❌ FCM Recovery Push failed for ${g.fullName}:`, err.message);
+        }
+      }
 
-      console.log(`📱 Guardian Recovery SMS Sent to ${g.fullName} (${g.phone}): ${smsMessage}`);
+      // 2. Send Email (Brevo)
+      if (g.email && env.BREVO_API_KEY) {
+        try {
+          const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+            method: 'POST',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+              'api-key': env.BREVO_API_KEY,
+            },
+            body: JSON.stringify({
+              sender: { name: 'Connify Watchdog', email: 'alerts@connify.app' },
+              to: [{ email: g.email, name: g.fullName }],
+              subject: subject,
+              htmlContent: `<p>${message.replace(/\\n/g, '<br>')}</p>`,
+            }),
+          });
+          if (response.ok) {
+            dispatchedAlertsLog.push({ to: g.email, type: 'SIGNAL_RECOVERED', channel: 'EMAIL', timestamp: new Date() });
+            console.log(`📧 Brevo Recovery Email Sent to ${g.email}`);
+          }
+        } catch (err: any) {
+          console.error(`❌ Brevo Recovery Email error for ${g.email}:`, err.message);
+        }
+      }
     }
 
-    await writeAuditLog('GUARDIAN_SIGNAL_RECOVERED_SMS_DISPATCHED', deviceId);
+    await writeAuditLog('GUARDIAN_SIGNAL_RECOVERED_ALERTS_DISPATCHED', deviceId);
   }
 }

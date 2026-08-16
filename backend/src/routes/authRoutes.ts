@@ -1,11 +1,12 @@
 import type { FastifyPluginAsync } from 'fastify';
+import { env } from '../config/env';
 
 // In-memory or database OTP cache for verification
 const otpStore: Map<string, { otp: string; expiresAt: number }> = new Map();
 
 async function sendOtpEmailHelper(toEmail: string, otp: string): Promise<boolean> {
-  const brevoApiKey = process.env.BREVO_API_KEY;
-  const smtpUser = process.env.SMTP_USER || 'godfrey.cs23@krct.ac.in';
+  const brevoApiKey = env.BREVO_API_KEY;
+  const smtpUser = env.SMTP_USER || 'godfrey.cs23@krct.ac.in';
 
   const subject = '🔒 [CONNIFY] Emergency Security Verification OTP Code';
   const htmlContent = `

@@ -5,6 +5,8 @@ export interface IGuardian extends Document {
   userFullName: string;
   fullName: string;
   phone: string;
+  email?: string;
+  fcmToken?: string;
   relationship: string;
   createdAt: Date;
 }
@@ -14,6 +16,8 @@ const GuardianSchema = new Schema<IGuardian>({
   userFullName: { type: String, required: true },
   fullName: { type: String, required: true },
   phone: { type: String, required: true },
+  email: { type: String, required: false },
+  fcmToken: { type: String, required: false },
   relationship: { type: String, required: true },
   createdAt: { type: Date, default: Date.now },
 });

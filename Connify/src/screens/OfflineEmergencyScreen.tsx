@@ -27,13 +27,13 @@ interface EmergencyContact {
 
 export default function OfflineEmergencyScreen({ navigation }: any) {
   const { colors } = useTheme();
-  const { latitude, longitude, fetchLocation } = useLocationStore();
+  const { latitude, longitude, startWatchingLocation, stopWatchingLocation } = useLocationStore();
   const [isOnline, setIsOnline] = useState(connectivityService.isOnline);
   const [queueCount, setQueueCount] = useState(0);
   const [contacts, setContacts] = useState<EmergencyContact[]>([]);
 
   useEffect(() => {
-    fetchLocation();
+    startWatchingLocation();
     loadContacts();
     updateQueueCount();
 
@@ -44,7 +44,11 @@ export default function OfflineEmergencyScreen({ navigation }: any) {
       }
       updateQueueCount();
     });
-    return unsub;
+    
+    return () => {
+      unsub();
+      stopWatchingLocation();
+    };
   }, []);
 
   const updateQueueCount = async () => {

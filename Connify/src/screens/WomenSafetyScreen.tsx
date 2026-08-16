@@ -25,15 +25,19 @@ interface EmergencyContact {
 
 export default function WomenSafetyScreen({ navigation }: any) {
   const { colors } = useTheme();
-  const { latitude, longitude, fetchLocation } = useLocationStore();
+  const { latitude, longitude, startWatchingLocation, stopWatchingLocation } = useLocationStore();
   const [sirenActive, setSirenActive] = useState(false);
   const [fakeCallActive, setFakeCallActive] = useState(false);
   const [contacts, setContacts] = useState<EmergencyContact[]>([]);
   const [fakeTimer, setFakeTimer] = useState<number>(0);
 
   useEffect(() => {
-    fetchLocation();
+    startWatchingLocation();
     loadContacts();
+    
+    return () => {
+      stopWatchingLocation();
+    };
   }, []);
 
   useEffect(() => {

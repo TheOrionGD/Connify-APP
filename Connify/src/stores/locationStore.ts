@@ -57,6 +57,15 @@ export const useLocationStore = create<LocationState>((set, get) => ({
             loading: false,
             error: null,
           });
+          
+          // Emit ping to backend watchdog
+          import('../services/socketService').then(({ socketService }) => {
+            socketService.sendLocationPing(
+              position.coords.latitude,
+              position.coords.longitude,
+              position.coords.accuracy
+            );
+          });
         },
         (err) => {
           // Do not reset cached coordinates on location watch error

@@ -251,4 +251,33 @@ export const socketService = {
   isConnected(): boolean {
     return socket?.connected ?? false;
   },
+
+  /**
+   * Send a location ping to the watchdog on the backend.
+   */
+  sendLocationPing(
+    latitude: number,
+    longitude: number,
+    accuracy?: number,
+    callback?: (error?: string) => void
+  ): void {
+    if (!connectivityService.isOnline || !socket?.connected) {
+      // Offline: watchdog on server will handle signal loss timeout
+      callback?.('Offline, ping not sent.');
+      return;
+    }
+
+    socket.emit(
+      'location_ping',
+      { latitude, longitude, accuracy },
+      (res: { success: boolean; error?: string }) => {
+        if (!res.success) {
+          console.warn('[Socket] Failed to send location ping:', res.error);
+          callback?.(res.error);
+        } else {
+          callback?.();
+        }
+      }
+    );
+  },
 };
