@@ -137,7 +137,7 @@ export default function OfflineEmergencyScreen({ navigation }: any) {
           </Text>
           <View style={[styles.geoBox, { backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline }]}>
             <Text style={[styles.geoLabel, { color: colors.onBackground }]}>LATITUDE & LONGITUDE:</Text>
-            <Text style={[styles.geoValue, { color: colors.primary }]}>
+            <Text style={[styles.geoValue, { color: colors.onBackground }]}>
               {latitude !== null && longitude !== null && !(latitude === 0 && longitude === 0)
                 ? `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`
                 : 'Acquiring GPS fix...'}
@@ -202,7 +202,7 @@ export default function OfflineEmergencyScreen({ navigation }: any) {
             Pending requests saved locally in secure device storage:
           </Text>
           <View style={[styles.queueBox, { backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline }]}>
-            <Text style={[styles.queueCount, { color: colors.primary }]}>{queueCount}</Text>
+            <Text style={[styles.queueCount, { color: colors.onBackground }]}>{queueCount}</Text>
             <Text style={[styles.queueLabel, { color: colors.onBackground }]}>
               {queueCount === 1 ? 'Action queued to sync when online' : 'Actions queued to sync when online'}
             </Text>

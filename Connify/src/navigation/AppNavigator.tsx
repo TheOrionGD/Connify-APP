@@ -24,6 +24,7 @@ import WitnessContactsScreen from '../screens/Governance/WitnessContactsScreen';
 import WomenSafetyScreen from '../screens/WomenSafetyScreen';
 import OfflineEmergencyScreen from '../screens/OfflineEmergencyScreen';
 import UnifiedSafetyHubScreen from '../screens/UnifiedSafetyHubScreen';
+import FakeCallScreen from '../screens/FakeCallScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -135,6 +136,11 @@ function AppNavigator() {
       <Stack.Screen name="WomenSafety" component={WomenSafetyScreen} />
       <Stack.Screen name="OfflineEmergency" component={OfflineEmergencyScreen} />
       <Stack.Screen name="UnifiedSafetyHub" component={UnifiedSafetyHubScreen} />
+      <Stack.Screen 
+        name="FakeCall" 
+        component={FakeCallScreen} 
+        options={{ presentation: 'fullScreenModal', animation: 'fade' }}
+      />
     </Stack.Navigator>
   );
 }

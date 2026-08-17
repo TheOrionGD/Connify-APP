@@ -47,14 +47,7 @@ export default function WomenSafetyScreen({ navigation }: any) {
         setFakeTimer(prev => {
           if (prev <= 1) {
             setFakeCallActive(false);
-            Alert.alert(
-              '📞 Incoming Emergency Call Simulation',
-              'Mom is calling...\n\nPress Answer to simulate exit strategy.',
-              [
-                { text: 'Decline', style: 'cancel' },
-                { text: 'Answer & Exit', onPress: () => console.log('Fake call answered') },
-              ]
-            );
+            navigation.navigate('FakeCall');
             return 0;
           }
           return prev - 1;
@@ -245,7 +238,7 @@ export default function WomenSafetyScreen({ navigation }: any) {
           </View>
 
           {fakeCallActive && (
-            <Text style={[styles.timerBadge, { color: colors.primary }]}>
+            <Text style={[styles.timerBadge, { color: colors.onBackground }]}>
               Call incoming in {fakeTimer}s...
             </Text>
           )}

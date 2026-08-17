@@ -9,6 +9,9 @@ export const ProfileController = {
       lastName: string;
       phone?: string;
       medicalNotes?: string;
+      firebaseUid?: string;
+      email?: string;
+      isAnonymous?: boolean;
     },
     deviceId: string,
     reply: FastifyReply
@@ -20,14 +23,20 @@ export const ProfileController = {
         profile.lastName = data.lastName;
         profile.phone = data.phone;
         profile.medicalNotes = data.medicalNotes;
+        if (data.firebaseUid !== undefined) profile.firebaseUid = data.firebaseUid;
+        if (data.email !== undefined) profile.email = data.email;
+        if (data.isAnonymous !== undefined) profile.isAnonymous = data.isAnonymous;
         profile.updatedAt = new Date();
         await profile.save();
       } else {
         profile = await Profile.create({
           deviceId,
+          firebaseUid: data.firebaseUid,
           firstName: data.firstName,
           lastName: data.lastName,
           phone: data.phone,
+          email: data.email,
+          isAnonymous: data.isAnonymous !== undefined ? data.isAnonymous : true,
           medicalNotes: data.medicalNotes,
           updatedAt: new Date(),
         });

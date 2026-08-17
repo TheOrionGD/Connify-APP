@@ -5,6 +5,9 @@ export interface ProfileData {
   lastName: string;
   phone?: string;
   medicalNotes?: string;
+  firebaseUid?: string;
+  email?: string;
+  isAnonymous?: boolean;
 }
 
 export interface ProfileResponse {

@@ -71,14 +71,7 @@ export default function UnifiedSafetyHubScreen({ navigation }: any) {
         setFakeTimer(prev => {
           if (prev <= 1) {
             setFakeCallActive(false);
-            Alert.alert(
-              '📞 Incoming Emergency Call Simulation',
-              'Mom is calling...\n\nPress Answer to simulate exit strategy.',
-              [
-                { text: 'Decline', style: 'cancel' },
-                { text: 'Answer & Exit', onPress: () => console.log('Fake call answered') },
-              ]
-            );
+            navigation.navigate('FakeCall');
             return 0;
           }
           return prev - 1;
@@ -211,7 +204,7 @@ export default function UnifiedSafetyHubScreen({ navigation }: any) {
 
               <View style={[styles.infoRow, { backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline }]}>
                 <Text style={[styles.infoLabel, { color: colors.onBackground }]}>PHONE NUMBER:</Text>
-                <Text style={[styles.infoValue, { color: colors.primary }]}>{guardianData.phone}</Text>
+                <Text style={[styles.infoValue, { color: colors.onBackground }]}>{guardianData.phone}</Text>
               </View>
 
               <View style={styles.buttonRow}>
@@ -332,7 +325,7 @@ export default function UnifiedSafetyHubScreen({ navigation }: any) {
           </View>
 
           {fakeCallActive && (
-            <Text style={[styles.timerBadge, { color: colors.primary }]}>
+            <Text style={[styles.timerBadge, { color: colors.onBackground }]}>
               Call incoming in {fakeTimer}s...
             </Text>
           )}
@@ -347,7 +340,7 @@ export default function UnifiedSafetyHubScreen({ navigation }: any) {
 
           <View style={[styles.infoRow, { backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline }]}>
             <Text style={[styles.infoLabel, { color: colors.onBackground }]}>GPS COORDINATES:</Text>
-            <Text style={[styles.infoValue, { color: colors.primary }]}>
+            <Text style={[styles.infoValue, { color: colors.onBackground }]}>
               {latitude !== null && longitude !== null && !(latitude === 0 && longitude === 0)
                 ? `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`
                 : 'Acquiring GPS fix...'}

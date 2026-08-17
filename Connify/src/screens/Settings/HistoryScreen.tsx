@@ -79,7 +79,7 @@ export default function HistoryScreen({ navigation }: any) {
               <Text style={[styles.itemDate, { color: colors.onSurfaceVariant }]}>{item.timestamp}</Text>
               <View style={[styles.hashBox, { backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline }]}>
                 <Text style={[styles.hashLabel, { color: colors.onBackground }]}>AUDIT PROOF HASH:</Text>
-                <Text style={[styles.hashValue, { color: colors.primary }]} numberOfLines={1}>{item.hash}</Text>
+                <Text style={[styles.hashValue, { color: colors.onBackground }]} numberOfLines={1}>{item.hash}</Text>
               </View>
             </StandardCard>
           ))

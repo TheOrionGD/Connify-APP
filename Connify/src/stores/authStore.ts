@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getAuth, signInAnonymously, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithCredential, GoogleAuthProvider, signOut, updateProfile } from '@react-native-firebase/auth';
+import { getAuth, signInAnonymously, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithCredential, GoogleAuthProvider, signOut, updateProfile, linkWithCredential } from '@react-native-firebase/auth';
 import nacl from 'tweetnacl';
 import DeviceInfo from 'react-native-device-info';
 import { Platform } from 'react-native';
@@ -363,8 +363,22 @@ export const useAuthStore = create<AuthState>()(
           }
 
           const googleCredential = GoogleAuthProvider.credential(idToken);
-          const userCredential = await signInWithCredential(getAuth(), googleCredential);
-          const user = userCredential.user;
+          const auth = getAuth();
+          let user;
+
+          if (auth.currentUser && auth.currentUser.isAnonymous) {
+            try {
+              const userCredential = await linkWithCredential(auth.currentUser, googleCredential);
+              user = userCredential.user;
+            } catch (linkError: any) {
+              const userCredential = await signInWithCredential(auth, googleCredential);
+              user = userCredential.user;
+            }
+          } else {
+            const userCredential = await signInWithCredential(auth, googleCredential);
+            user = userCredential.user;
+          }
+
           if (!user) throw new Error('No user returned from Google auth');
 
           const firebaseToken = await user.getIdToken();
@@ -417,24 +431,26 @@ export const useAuthStore = create<AuthState>()(
 
           // Sync Google profile data if missing
           const currentProfile = get().userProfile;
-          if (user.displayName && (!currentProfile?.firstName && !currentProfile?.lastName)) {
-            const nameParts = user.displayName.split(' ');
-            const firstName = nameParts[0] || '';
-            const lastName = nameParts.slice(1).join(' ') || '';
-            
-            try {
-              const upsertRes = await profileApi.upsertProfile({
-                firstName,
-                lastName,
-                phone: user.phoneNumber || currentProfile?.phone || '',
-                medicalNotes: currentProfile?.medicalNotes || '',
-              });
-              if (upsertRes.success) {
-                await get().fetchProfile();
-              }
-            } catch (err) {
-              console.warn('Failed to upsert Google profile data', err);
+          
+          const nameParts = (user.displayName || '').split(' ');
+          const firstName = nameParts[0] || currentProfile?.firstName || 'Google';
+          const lastName = nameParts.slice(1).join(' ') || currentProfile?.lastName || 'User';
+          
+          try {
+            const upsertRes = await profileApi.upsertProfile({
+              firstName,
+              lastName,
+              phone: user.phoneNumber || currentProfile?.phone || '',
+              medicalNotes: currentProfile?.medicalNotes || '',
+              firebaseUid: user.uid,
+              email: user.email || undefined,
+              isAnonymous: user.isAnonymous,
+            });
+            if (upsertRes.success) {
+              await get().fetchProfile();
             }
+          } catch (err) {
+            console.warn('Failed to upsert Google profile data', err);
           }
         } catch (e: any) {
           set({ error: e.message || 'Google authentication failed.', loading: false });

@@ -8,6 +8,9 @@ const upsertProfileSchema = z.object({
   lastName: z.string().min(1, 'lastName is required'),
   phone: z.string().optional(),
   medicalNotes: z.string().optional(),
+  firebaseUid: z.string().optional(),
+  email: z.string().email().optional(),
+  isAnonymous: z.boolean().optional(),
 });
 
 const upgradeProfileSchema = z.object({

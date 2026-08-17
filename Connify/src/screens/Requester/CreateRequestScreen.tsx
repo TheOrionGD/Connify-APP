@@ -230,7 +230,7 @@ export default function CreateRequestScreen({ navigation }: any) {
         <View style={styles.section}>
           <View style={styles.urgencyHeader}>
             <Text style={[styles.sectionLabel, { color: colors.onBackground }]}>URGENCY LEVEL</Text>
-            <Text style={[styles.urgencyValue, { color: colors.primary }]}>{urgencyLabels[urgency - 1]}</Text>
+            <Text style={[styles.urgencyValue, { color: colors.onBackground }]}>{urgencyLabels[urgency - 1]}</Text>
           </View>
 
           <View style={styles.urgencyRow}>

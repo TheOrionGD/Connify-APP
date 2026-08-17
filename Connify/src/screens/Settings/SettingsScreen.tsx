@@ -151,7 +151,7 @@ export default function SettingsScreen({ navigation }: any) {
           {user?.email && (
             <View style={[styles.infoRow, { backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline }]}>
               <Text style={[styles.infoLabel, { color: colors.onBackground }]}>LINKED GOOGLE EMAIL:</Text>
-              <Text style={[styles.infoValue, { color: colors.primary }]}>{user.email}</Text>
+              <Text style={[styles.infoValue, { color: colors.onBackground }]}>{user.email}</Text>
             </View>
           )}
         </View>
@@ -177,7 +177,7 @@ export default function SettingsScreen({ navigation }: any) {
 
           <View style={[styles.infoRow, { backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline }]}>
             <Text style={[styles.infoLabel, { color: colors.onBackground }]}>BLOOD GROUP:</Text>
-            <Text style={[styles.infoValue, { color: colors.primary }]}>{bloodGroup}</Text>
+            <Text style={[styles.infoValue, { color: colors.onBackground }]}>{bloodGroup}</Text>
           </View>
 
           <View style={[styles.infoRow, { backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline }]}>
@@ -190,7 +190,7 @@ export default function SettingsScreen({ navigation }: any) {
 
         {/* PRIMARY GUARDIAN CONTACT SECTION (OFFLINE VOICE & SMS) */}
         <View style={[styles.sectionCard, { backgroundColor: colors.surfaceContainerLowest, borderColor: colors.outline }]}>
-          <Text style={[styles.sectionTitle, { color: colors.primary }]}>PRIMARY GUARDIAN CONTACT (OFFLINE SMS & CALL)</Text>
+          <Text style={[styles.sectionTitle, { color: colors.onBackground }]}>PRIMARY GUARDIAN CONTACT (OFFLINE SMS & CALL)</Text>
           
           <View style={[styles.infoRow, { backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline }]}>
             <Text style={[styles.infoLabel, { color: colors.onBackground }]}>GUARDIAN NAME:</Text>
@@ -199,7 +199,7 @@ export default function SettingsScreen({ navigation }: any) {
 
           <View style={[styles.infoRow, { backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline }]}>
             <Text style={[styles.infoLabel, { color: colors.onBackground }]}>GUARDIAN PHONE NUMBER:</Text>
-            <Text style={[styles.infoValue, { color: colors.primary }]}>{guardianData?.phone || 'Not Configured'}</Text>
+            <Text style={[styles.infoValue, { color: colors.onBackground }]}>{guardianData?.phone || 'Not Configured'}</Text>
           </View>
 
           <View style={[styles.infoRow, { backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline }]}>
@@ -231,7 +231,7 @@ export default function SettingsScreen({ navigation }: any) {
               onPress={() => setShowProfileModal(true)}
             >
               <Icon name="person-add" size={16} color={colors.primary} />
-              <Text style={[styles.editProfileText, { color: colors.primary }]}>ADD GUARDIAN DETAILS</Text>
+              <Text style={[styles.editProfileText, { color: colors.onBackground }]}>ADD GUARDIAN DETAILS</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -247,12 +247,12 @@ export default function SettingsScreen({ navigation }: any) {
 
           <View style={[styles.infoRow, { backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline }]}>
             <Text style={[styles.infoLabel, { color: colors.onBackground }]}>GOOGLE EMAIL ADDRESS:</Text>
-            <Text style={[styles.infoValue, { color: colors.primary }]}>{user?.email || 'N/A'}</Text>
+            <Text style={[styles.infoValue, { color: colors.onBackground }]}>{user?.email || 'N/A'}</Text>
           </View>
 
           <View style={[styles.infoRow, { backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline }]}>
             <Text style={[styles.infoLabel, { color: colors.onBackground }]}>GOOGLE ACCOUNT USER ID (UID):</Text>
-            <Text style={[styles.infoValue, { color: colors.primary }]} numberOfLines={1}>{user?.uid || 'N/A'}</Text>
+            <Text style={[styles.infoValue, { color: colors.onBackground }]} numberOfLines={1}>{user?.uid || 'N/A'}</Text>
           </View>
 
           <View style={[styles.infoRow, { backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline }]}>
@@ -303,13 +303,13 @@ export default function SettingsScreen({ navigation }: any) {
           <Text style={[styles.sectionTitle, { color: colors.onBackground }]}>DEVICE IDENTITY & CRYPTOGRAPHY</Text>
           <View style={[styles.infoRow, { backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline }]}>
             <Text style={[styles.infoLabel, { color: colors.onBackground }]}>DEVICE HARDWARE ID:</Text>
-            <Text style={[styles.infoValue, { color: colors.primary }]} numberOfLines={1}>
+            <Text style={[styles.infoValue, { color: colors.onBackground }]} numberOfLines={1}>
               {deviceId || 'REGISTERED ON BOOT'}
             </Text>
           </View>
           <View style={[styles.infoRow, { backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline }]}>
             <Text style={[styles.infoLabel, { color: colors.onBackground }]}>FIREBASE UID:</Text>
-            <Text style={[styles.infoValue, { color: colors.primary }]} numberOfLines={1}>
+            <Text style={[styles.infoValue, { color: colors.onBackground }]} numberOfLines={1}>
               {user?.uid || 'NOT SIGNED IN'}
             </Text>
           </View>

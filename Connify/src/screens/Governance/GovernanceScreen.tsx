@@ -151,7 +151,7 @@ export default function GovernanceScreen({ navigation }: any) {
             <>
               <View style={styles.statsRow}>
                 <View style={styles.statBox}>
-                  <Text style={[styles.statNum, { color: colors.primary }]}>
+                  <Text style={[styles.statNum, { color: colors.onBackground }]}>
                     {userEpisodesCount}
                   </Text>
                   <Text style={[styles.statLabel, { color: colors.onSurfaceVariant }]}>YOUR EPISODES</Text>
