@@ -66,6 +66,9 @@ export default function SearchingScreen({ navigation }: any) {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
+        <TouchableOpacity style={styles.backButton} onPress={handleCancel}>
+          <Icon name="arrow-back" size={24} color="#EF4444" />
+        </TouchableOpacity>
         <Text style={styles.headerTitle}>SEARCHING FOR RESPONDERS</Text>
       </View>
 
@@ -136,6 +139,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#050506',
+    position: 'relative',
+  },
+  backButton: {
+    position: 'absolute',
+    left: 16,
+    padding: 8,
   },
   headerTitle: {
     fontFamily: theme.fontFamilies.technical.bold,

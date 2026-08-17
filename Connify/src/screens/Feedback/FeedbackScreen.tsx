@@ -35,6 +35,9 @@ export default function FeedbackScreen({ navigation }: any) {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+          <Icon name="arrow-back" size={24} color={theme.colors.onBackground} />
+        </TouchableOpacity>
         <Text style={styles.headerTitle}>PROTOCOL EVALUATION</Text>
       </View>
 
@@ -152,6 +155,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: theme.colors.background,
+    position: 'relative',
+  },
+  backButton: {
+    position: 'absolute',
+    left: 16,
+    padding: 8,
   },
   headerTitle: {
     fontFamily: theme.fontFamilies.technical.bold,

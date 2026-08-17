@@ -32,6 +32,7 @@ export default function WelcomeScreen({ navigation }: any) {
 
   // Email OTP state
   const [showEmailModal, setShowEmailModal] = useState(false);
+  const [showPolicyModal, setShowPolicyModal] = useState<'safety' | 'data' | null>(null);
   const [emailInput, setEmailInput] = useState('');
   const [otpInput, setOtpInput] = useState('');
   const [otpSent, setOtpSent] = useState(false);
@@ -54,11 +55,17 @@ export default function WelcomeScreen({ navigation }: any) {
   }, [isAuthenticated, navigation]);
 
   const handleGetStarted = async () => {
+    if (!locationGranted || !cameraGranted || !notificationsGranted) {
+      Alert.alert(
+        'Permissions Required',
+        'Connify relies on peer-to-peer location tracking and alerts. You must enable Location, Notifications, and Camera access to join the network.'
+      );
+      return;
+    }
+
     setLoading(true);
     try {
-      if (locationGranted) {
-        await fetchLocation();
-      }
+      await fetchLocation();
 
       await signInAnonymously();
 
@@ -287,7 +294,7 @@ export default function WelcomeScreen({ navigation }: any) {
         </View>
 
         <Text style={[styles.footnote, { color: colors.onSurfaceVariant }]}>
-          By continuing, you agree to Connify's <Text style={[styles.footnoteBold, { color: colors.onBackground }]}>Safety Protocol</Text> and <Text style={[styles.footnoteBold, { color: colors.onBackground }]}>Data Protection Policy</Text>.
+          By continuing, you agree to Connify's <Text style={[styles.footnoteBold, { color: colors.onBackground }]} onPress={() => setShowPolicyModal('safety')}>Safety Protocol</Text> and <Text style={[styles.footnoteBold, { color: colors.onBackground }]} onPress={() => setShowPolicyModal('data')}>Data Protection Policy</Text>.
         </Text>
       </ScrollView>
 
@@ -376,6 +383,32 @@ export default function WelcomeScreen({ navigation }: any) {
           </View>
         </View>
       </Modal>
+
+      {/* POLICY MODALS */}
+      <Modal visible={!!showPolicyModal} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalCard, { backgroundColor: colors.surfaceContainerLowest, borderColor: colors.outline }]}>
+            <View style={styles.modalHeader}>
+              <Icon name={showPolicyModal === 'safety' ? 'shield' : 'privacy-tip'} size={28} color={colors.primary} />
+              <Text style={[styles.modalTitle, { color: colors.onBackground }]}>
+                {showPolicyModal === 'safety' ? 'Safety Protocol' : 'Data Protection'}
+              </Text>
+              <TouchableOpacity onPress={() => setShowPolicyModal(null)}>
+                <Icon name="close" size={22} color={colors.onBackground} />
+              </TouchableOpacity>
+            </View>
+            <ScrollView style={{ maxHeight: 300 }}>
+              <Text style={[styles.modalSub, { color: colors.onSurfaceVariant, marginTop: 10 }]}>
+                {showPolicyModal === 'safety' ? 
+                  'Connify is a decentralized safety network. By using this platform, you agree to act as a verified responder when possible, and only trigger emergency alerts in genuine situations of distress. Misuse of the panic system may result in a network ban.' 
+                  : 
+                  'Your location data is only tracked during active emergency episodes or when functioning as a nearby responder. All communication is secured via end-to-end encryption, and cryptographic audit proofs are stored to prevent tampering.'}
+              </Text>
+            </ScrollView>
+            <StandardButton title="I UNDERSTAND" onPress={() => setShowPolicyModal(null)} style={{ marginTop: 20 }} />
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -408,7 +441,7 @@ const styles = StyleSheet.create({
   scrollContainer: {
     paddingHorizontal: theme.spacing.containerPadding,
     paddingTop: theme.spacing.stackGap,
-    paddingBottom: 110,
+    paddingBottom: 160,
     gap: 24,
   },
   heroSection: {

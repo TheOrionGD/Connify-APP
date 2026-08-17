@@ -36,47 +36,68 @@ function MainTabs() {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
+        tabBarShowLabel: false,
         tabBarStyle: {
-          backgroundColor: colors.background,
-          borderTopWidth: 1,
-          borderTopColor: colors.outline,
+          backgroundColor: colors.surfaceContainerLowest,
+          borderTopWidth: 0,
+          position: 'absolute',
+          bottom: 16,
+          left: 16,
+          right: 16,
+          borderRadius: 32,
           height: 64,
-          paddingBottom: 8,
-          paddingTop: 8,
-          elevation: 0,
+          elevation: 8,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.15,
+          shadowRadius: 12,
+          paddingBottom: 0,
         },
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.onSurfaceVariant,
-        tabBarLabelStyle: styles.tabBarLabel,
-        tabBarItemStyle: styles.tabBarItem,
         tabBarIcon: ({ focused }) => {
           let iconName = 'help-outline';
-          if (route.name === 'Dashboard') {
-            iconName = 'shield';
-          } else if (route.name === 'SafetyHub') {
-            iconName = 'health-and-safety';
-          } else if (route.name === 'Respond') {
-            iconName = 'explore';
-          } else if (route.name === 'History') {
-            iconName = 'history';
-          } else if (route.name === 'Governance') {
-            iconName = 'gavel';
-          } else if (route.name === 'Settings') {
-            iconName = 'person';
+          let label = '';
+          if (route.name === 'Dashboard') { 
+            iconName = focused ? 'shield' : 'security'; 
+            label = 'HOME'; 
+          }
+          else if (route.name === 'SafetyHub') { 
+            iconName = focused ? 'health-and-safety' : 'healing'; 
+            label = 'SAFETY'; 
+          }
+          else if (route.name === 'Respond') { 
+            iconName = focused ? 'explore' : 'near-me'; 
+            label = 'RESPOND'; 
+          }
+          else if (route.name === 'History') { 
+            iconName = focused ? 'history' : 'access-time'; 
+            label = 'HISTORY'; 
+          }
+          else if (route.name === 'Governance') { 
+            iconName = focused ? 'gavel' : 'account-balance'; 
+            label = 'GOVERN'; 
+          }
+          else if (route.name === 'Settings') { 
+            iconName = focused ? 'person' : 'person-outline'; 
+            label = 'PROFILE'; 
           }
 
           return (
             <View
               style={[
                 styles.iconContainer,
-                focused ? { backgroundColor: colors.surfaceContainerHigh } : null,
+                focused ? { backgroundColor: route.name === 'SafetyHub' ? '#EC489920' : colors.primary + '20', paddingHorizontal: 12, paddingVertical: 8 } : { padding: 8 },
               ]}
             >
               <Icon
                 name={iconName}
-                size={22}
+                size={focused ? 24 : 22}
                 color={focused ? (route.name === 'SafetyHub' ? '#EC4899' : colors.primary) : colors.onSurfaceVariant}
               />
+              {focused && (
+                <Text style={{ marginLeft: 6, color: route.name === 'SafetyHub' ? '#EC4899' : colors.primary, fontFamily: 'SpaceGrotesk-Bold', fontSize: 10, fontWeight: '700' }}>
+                  {label}
+                </Text>
+              )}
             </View>
           );
         },
@@ -85,32 +106,26 @@ function MainTabs() {
       <Tab.Screen
         name="Dashboard"
         component={DashboardScreen}
-        options={{ tabBarLabel: 'HOME' }}
       />
       <Tab.Screen
         name="SafetyHub"
         component={UnifiedSafetyHubScreen}
-        options={{ tabBarLabel: 'SAFETY' }}
       />
       <Tab.Screen
         name="Respond"
         component={NearbyRequestsScreen}
-        options={{ tabBarLabel: 'RESPOND' }}
       />
       <Tab.Screen
         name="History"
         component={HistoryScreen}
-        options={{ tabBarLabel: 'HISTORY' }}
       />
       <Tab.Screen
         name="Governance"
         component={GovernanceScreen}
-        options={{ tabBarLabel: 'GOVERNANCE' }}
       />
       <Tab.Screen
         name="Settings"
         component={SettingsScreen}
-        options={{ tabBarLabel: 'PROFILE' }}
       />
     </Tab.Navigator>
   );
@@ -118,7 +133,13 @@ function MainTabs() {
 
 function AppNavigator() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Splash">
+    <Stack.Navigator 
+      screenOptions={{ 
+        headerShown: false,
+        animation: 'slide_from_right'
+      }} 
+      initialRouteName="Splash"
+    >
       <Stack.Screen name="Splash" component={SplashScreen} />
       <Stack.Screen name="Welcome" component={WelcomeScreen} />
       <Stack.Screen name="Main" component={MainTabs} />
@@ -158,8 +179,10 @@ const styles = StyleSheet.create({
     marginHorizontal: 0,
   },
   iconContainer: {
-    padding: 4,
-    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 20,
   },
 });
 
