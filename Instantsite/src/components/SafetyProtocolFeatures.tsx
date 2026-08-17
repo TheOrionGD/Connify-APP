@@ -98,7 +98,7 @@ if (timeSinceLastPing >= 15_000) {
       id: 3,
       title: 'Offline & Women Safety Modules',
       subtitle: 'Sub-GHz Off-Grid Relay & Tailored Protection',
-      description: 'When cellular networks fail, Connify transitions to the Offline Emergency Screen, relaying distress beacons via multi-hop Bluetooth LE. Integrated Women Safety modules adapt behavioral risk scoring to prioritize proactive threat deterrence.',
+      description: 'When cellular networks fail, Connify transitions to the Offline Emergency Screen, relaying distress beacons via 1-Tap GPS Offline SMS Broadcasts and P2P Volunteer Mesh Servers. Integrated Women Safety modules adapt behavioral risk scoring to prioritize proactive threat deterrence.',
       icon: Zap,
       color: 'emerald',
       spec: `// Off-Grid Multi-Hop Packet Format
@@ -365,9 +365,9 @@ function verifyResponder(nodeId, trustScore) {
                   onChange={(e) => setMeshHops(Number(e.target.value))}
                   className="w-full accent-cyan-500 bg-slate-800 h-2 rounded-lg cursor-pointer"
                 />
-                <p className="font-sans text-[11px] text-slate-400">
-                  Limits off-grid packet forwarding across peer Bluetooth devices to prevent flooding.
-                </p>
+                <div className="text-slate-500 text-sm mt-1">
+                  Limits off-grid packet forwarding across P2P Mesh devices to prevent flooding.
+                </div>
               </div>
 
             </div>

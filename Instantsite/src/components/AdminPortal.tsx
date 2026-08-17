@@ -1872,7 +1872,7 @@ export default function AdminPortal() {
                       <span className="font-mono text-[10px] font-bold text-brand-red uppercase">ACTIVE TARGET URL</span>
                       <h5 className="font-display font-extrabold text-base text-brand-black break-all">{backendUrl}</h5>
                       <p className="font-sans text-xs text-brand-muted leading-relaxed font-medium">
-                        Express client-centric P2P microservice. Handles consensus protocol building, Bluetooth driver metadata streams, and safe haven coordinate indexing.
+                        Express client-centric P2P microservice. Handles consensus protocol building, P2P mesh metadata streams, and safe haven coordinate indexing.
                       </p>
                     </div>
 

@@ -32,7 +32,7 @@ export default function DownloadApk() {
     { icon: Code2, title: "Open Source", desc: "100% transparent" },
     { icon: ShieldCheck, title: "End-to-End Encrypted", desc: "Your data stays yours" },
     { icon: EyeOff, title: "No Tracking", desc: "Privacy first" },
-    { icon: Network, title: "Bluetooth Mesh", desc: "Offline & resilient" },
+    { icon: Network, title: "P2P Mesh & SMS", desc: "Offline & resilient" },
     { icon: Share2, title: "Decentralized", desc: "No central servers" },
   ];
 
@@ -91,7 +91,7 @@ export default function DownloadApk() {
             </div>
 
             <p className="text-slate-600 text-[14px] mb-8 leading-relaxed max-w-lg">
-              Official secure mobile <strong>client</strong> with end-to-end encryption, Bluetooth Mesh, offline communication, and decentralized identity.
+              Official secure mobile <strong>client</strong> with end-to-end encryption, P2P Mesh, offline communication, and decentralized identity.
             </p>
 
             <div className="flex flex-col gap-3 mb-8">
@@ -301,7 +301,7 @@ export default function DownloadApk() {
                   </div>
                   <div>
                     <h4 className="font-bold text-slate-900 text-[13px] mb-0.5">Offline First</h4>
-                    <p className="text-slate-500 text-[11px]">Works without internet using Bluetooth Mesh.</p>
+                    <p className="text-slate-500 text-[11px]">Works without internet using P2P Mesh & SMS.</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
