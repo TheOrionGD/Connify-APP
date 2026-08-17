@@ -49,15 +49,19 @@ export default function SafetyProtocolFeatures() {
   const featurePillars = [
     {
       id: 0,
-      title: 'Zero-Knowledge Oblivious Proximity',
-      subtitle: 'ZK-Proof Spatial Blinding Engine',
-      description: 'Connify encrypts location coordinates into 1024-bit environmental Bloom filters. Nearby peer devices perform relational spatial queries without ever disclosing raw GPS telemetry or identity.',
+      title: 'Zero-Knowledge Trust Capsules',
+      subtitle: 'ZK-Proof Spatial Blinding & QR Tokens',
+      description: 'Connify encrypts location coordinates into 1024-bit environmental Bloom filters. Nearby peer responders perform relational spatial queries and scan a dynamic QR Token to unlock a single-use 2-Hour Trust Capsule for authorized intervention.',
       icon: Lock,
       color: 'rose',
-      spec: `// Ephemeral ZK-Proof Grid Hash
-const BloomFilter = generateSpatialBloom(coords, wifiBssids);
-const BlindedQuery = Hashing.sha256(BloomFilter + SessionNonce);
-const IsProximate = PostGIS.evalQuery(BlindedQuery); // True/False only`,
+      spec: `// 2-Hour Trust Capsule Validation
+const isQrValid = CapsuleController.verifyQrToken(qrToken, episode.id);
+if (!isQrValid) throw new Error('PROXIMITY_FAILED');
+
+// JIT JWT Minting
+const capsuleToken = await signToken({
+  type: 'trust_capsule', sub: helperDeviceId, episodeId
+}, '2h');`
     },
     {
       id: 1,
@@ -77,27 +81,24 @@ if (device.suspiciousCount >= 2) device.isQuarantined = true;`,
     },
     {
       id: 2,
-      title: '5-Second GPS Watchdog & Guardian SMS',
+      title: '5-Second GPS Watchdog & Multi-Channel Alerts',
       subtitle: 'Atomic Location Pings & Unbounded Signal Recovery',
-      description: 'Every 5 seconds the device atomically overwrites its GPS record in MongoDB. If no ping is received for 15 seconds (device powered off, Airplane mode, or zero signal range), the backend automatically dispatches a personalized emergency SMS to registered guardians with the user\'s full name, relationship, last known coordinates, and a live Google Maps link.',
+      description: 'Every 5 seconds the device atomically overwrites its GPS record in MongoDB. If no ping is received for 15 seconds, the backend automatically dispatches FCM Push Notifications and Brevo Email alerts to registered guardians with live coordinates.',
       icon: Radio,
       color: 'cyan',
-      spec: `// 5s Atomic Location Overwrite
-await DeviceLocation.findOneAndUpdate(
-  { deviceId },
-  { $set: { latitude, longitude, lastPingAt: new Date(), signalLostAlertSent: false } },
-  { upsert: true }
-);
-// 15s Watchdog → Guardian SMS with DB coordinates
+      spec: `// 15s Watchdog → FCM & Brevo Dispatch
 if (timeSinceLastPing >= 15_000) {
-  await dispatchSignalLossSms(deviceId); // reads lat/lng from DB
+  await getMessaging().send({ token: g.fcmToken, notification });
+  await fetch('https://api.brevo.com/v3/smtp/email', {
+    body: JSON.stringify({ to: [{ email: g.email }] })
+  });
 }`,
     },
     {
       id: 3,
-      title: 'Offline Bluetooth LE & Wi-Fi Mesh',
-      subtitle: 'Sub-GHz Off-Grid Relay Mesh',
-      description: 'When cellular networks fail or internet connection is suppressed, Connify defaults to peer-to-peer multi-hop Bluetooth LE broadcasting, relaying distress alerts across nearby devices.',
+      title: 'Offline & Women Safety Modules',
+      subtitle: 'Sub-GHz Off-Grid Relay & Tailored Protection',
+      description: 'When cellular networks fail, Connify transitions to the Offline Emergency Screen, relaying distress beacons via multi-hop Bluetooth LE. Integrated Women Safety modules adapt behavioral risk scoring to prioritize proactive threat deterrence.',
       icon: Zap,
       color: 'emerald',
       spec: `// Off-Grid Multi-Hop Packet Format
@@ -110,19 +111,17 @@ struct MeshPacket {
     },
     {
       id: 4,
-      title: 'Anonymous → Registered Profile Migration',
-      subtitle: 'Firebase Credential Linking & Mandatory Guardian Binding',
-      description: 'Users launch Connify anonymously via Firebase Anonymous Auth. When they complete onboarding, the app links permanent credentials using Firebase linkWithCredential(), preserving their Firebase UID and MongoDB device bindings. Mandatory guardian registration is enforced — no emergency episodes can be created without a verified guardian on file.',
+      title: 'Email OTP Profile Verification',
+      subtitle: 'Firebase Migration & Guardian Binding',
+      description: 'Users launch Connify anonymously via Firebase Auth. When they upgrade their account, the app requires Email OTP Verification to link permanent credentials, preserving their Firebase UID. Mandatory guardian registration is enforced before distress calls are enabled.',
       icon: Key,
       color: 'purple',
-      spec: `// Firebase Anonymous → Permanent Account Link
-await linkWithCredential(anonymousUser, credential);
-// POST /api/profile/upgrade → MongoDB upgrade
-await Profile.findOneAndUpdate({ deviceId }, {
-  $set: { firebaseUid, isAnonymous: false, firstName, phone }
-});
-await Guardian.create({ deviceId, fullName, phone, relationship });
-// Audit log: PROFILE_MIGRATED_FROM_ANONYMOUS`,
+      spec: `// Verify Email OTP & Upgrade Account
+const isValidOTP = await OTPService.verify(email, code);
+if (isValidOTP) {
+  await linkWithCredential(anonymousUser, EmailAuthProvider.credential(email, password));
+  await Profile.findOneAndUpdate({ deviceId }, { $set: { isAnonymous: false, email } });
+}`,
     },
     {
       id: 5,
@@ -215,7 +214,7 @@ function verifyResponder(nodeId, trustScore) {
                   </div>
                   <div className="flex justify-between text-slate-400">
                     <span>Signal Loss Alert:</span>
-                    <span className="text-amber-400 font-bold">15s → Guardian SMS</span>
+                    <span className="text-amber-400 font-bold">15s → FCM + Brevo</span>
                   </div>
                   <div className="flex justify-between text-slate-400">
                     <span>Harmlessness Engine:</span>
@@ -234,7 +233,7 @@ function verifyResponder(nodeId, trustScore) {
                 <div className="p-3 bg-rose-500/10 rounded-lg border border-rose-500/30 flex items-center space-x-3">
                   <Lock className="h-5 w-5 text-rose-400 shrink-0" />
                   <p className="font-sans text-xs text-rose-200">
-                    Guardian SMS reads coordinates directly from MongoDB — zero hardcoded data.
+                    Trust Capsule architecture utilizes short-lived Ed25519-signed JWTs, ensuring zero hardcoded guardian access.
                   </p>
                 </div>
               </div>

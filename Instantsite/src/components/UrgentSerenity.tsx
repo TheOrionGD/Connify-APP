@@ -235,7 +235,8 @@ export default function UrgentSerenity() {
                     {[
                       { id: 'night_walk', label: 'Late Night Walk (5m timer)' },
                       { id: 'commute', label: 'Transit Commute (15m timer)' },
-                      { id: 'silent_watch', label: 'Silent Geofence Watch' }
+                      { id: 'women_safety', label: 'Women Safety Mode (High Alert)' },
+                      { id: 'offline_beacon', label: 'Offline Distress Beacon' }
                     ].map((mode) => (
                       <button
                         key={mode.id}

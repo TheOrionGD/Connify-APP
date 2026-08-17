@@ -58,11 +58,11 @@ export default function HowItWorks() {
     },
     {
       id: 5,
-      title: 'Trust Capsule Activation',
-      sub: 'JIT Token Issuance & Ephemeral Wipe',
-      desc: 'Server issues a short-lived Ed25519-signed Trust Capsule JWT. Enforces single-use TTL in memory and immediately wipes coordinate logs upon destination check-in.',
+      title: '2-Hour Trust Capsule QR Activation',
+      sub: 'QR Token Validation & JIT Token Issuance',
+      desc: 'Responder scans a dynamic QR Token to verify proximity. The server validates the cryptographic signature and issues a 2-Hour Trust Capsule JWT, strictly bounding the helper engagement window.',
       icon: ShieldCheck,
-      techDetail: 'Ed25519 Signed JWT + Zero-Log RAM Erasure'
+      techDetail: 'QR Token Scanning + 2-Hour Ed25519 JWT Validation'
     }
   ];
 
