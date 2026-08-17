@@ -1,7 +1,7 @@
 import { describe, it, before, after } from 'node:test';
 import assert from 'node:assert';
 import { buildApp } from '../src/app';
-import { Device, Episode, Outcome } from '../src/models';
+import { Device, Episode } from '../src/models';
 import { connectDB } from '../src/utils/db';
 import { initKeys, signToken } from '../src/services/KeyService';
 import nacl from 'tweetnacl';

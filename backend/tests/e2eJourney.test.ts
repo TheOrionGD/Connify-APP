@@ -244,8 +244,8 @@ describe('Full End-to-End User Journey Simulation', () => {
 
     // Join Rooms
     await Promise.all([
-      new Promise<void>((resolve) => reqSocket.emit('join_episode', { episodeId: activeEpisodeId }, (res: any) => resolve())),
-      new Promise<void>((resolve) => helperSocket.emit('join_episode', { episodeId: activeEpisodeId }, (res: any) => resolve())),
+      new Promise<void>((resolve) => reqSocket.emit('join_episode', { episodeId: activeEpisodeId }, (_res: any) => resolve())),
+      new Promise<void>((resolve) => helperSocket.emit('join_episode', { episodeId: activeEpisodeId }, (_res: any) => resolve())),
     ]);
 
     // Send Message

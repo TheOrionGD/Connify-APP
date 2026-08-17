@@ -107,7 +107,7 @@ export class LocationWatchdogService {
    */
   private static async dispatchSignalLossAlerts(
     deviceId: string,
-    retryNum: number
+    _retryNum: number
   ): Promise<void> {
     const dbLocation = await DeviceLocation.findOne({ deviceId });
     if (!dbLocation) return;

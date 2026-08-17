@@ -3,6 +3,7 @@
  */
 import type { FastifyReply } from 'fastify';
 import { createHash } from 'node:crypto';
+import nacl from 'tweetnacl';
 import { Capsule, Episode, Device } from '../models';
 import { writeAuditLog } from '../utils/audit';
 import { signToken, verifyToken } from '../services/KeyService';
@@ -251,7 +252,6 @@ export const CapsuleController = {
       if (!requesterDevice || !requesterDevice.publicKey) return false;
       
       // We use nacl here because the frontend secureKeyService produces a Hex-encoded signature
-      const nacl = require('tweetnacl');
       const messageBytes = Buffer.from(`${headerB64}.${payloadB64}`, 'utf-8');
       const signatureBytes = Buffer.from(signatureHex, 'hex');
       const publicKeyBytes = Buffer.from(requesterDevice.publicKey, 'hex');
@@ -286,7 +286,7 @@ export const CapsuleController = {
       }
       const isValid = await CapsuleController.verifyQrToken(qrToken, episodeId);
       reply.send({ success: isValid });
-    } catch (err) {
+    } catch {
       reply.status(500).send({ success: false, error: 'Verification failed' });
     }
   }

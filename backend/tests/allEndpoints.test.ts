@@ -3,7 +3,7 @@ import assert from 'node:assert';
 import mongoose from 'mongoose';
 import nacl from 'tweetnacl';
 import { buildApp } from '../src/app';
-import { Device, Episode, Capsule, Outcome, Profile, DeviceChallenge, AuditLog } from '../src/models';
+import { Device, Episode, Capsule, Outcome, Profile, DeviceChallenge } from '../src/models';
 import { connectDB } from '../src/utils/db';
 import { initKeys, signToken } from '../src/services/KeyService';
 
@@ -57,7 +57,6 @@ describe('All Backend Endpoints Integration Test Suite', () => {
   let helperKeyPair: ReturnType<typeof generateTestKeyPair>;
   let createdEpisodeId: string;
   let issuedCapsuleToken: string;
-  let issuedCapsuleId: string;
   let devOtpCode: string;
 
   before(async () => {
@@ -386,7 +385,6 @@ describe('All Backend Endpoints Integration Test Suite', () => {
       assert.ok(json.data.capsuleToken);
       assert.ok(json.data.capsuleId);
       issuedCapsuleToken = json.data.capsuleToken;
-      issuedCapsuleId = json.data.capsuleId;
     });
 
     it('POST /api/capsules/redeem -> Redeems a Trust Capsule', async () => {
