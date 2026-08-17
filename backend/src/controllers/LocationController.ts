@@ -7,6 +7,8 @@ interface GuardianInput {
   fullName: string;
   phone: string;
   relationship: string;
+  email?: string;
+  fcmToken?: string;
 }
 
 export const LocationController = {
@@ -47,6 +49,8 @@ export const LocationController = {
         fullName: body.fullName,
         phone: body.phone,
         relationship: body.relationship,
+        email: body.email,
+        fcmToken: body.fcmToken,
       });
 
       reply.status(201).send({

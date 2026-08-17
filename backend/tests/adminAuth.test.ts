@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { describe, it, before, after } from 'node:test';
 import assert from 'node:assert';
 import { buildApp } from '../src/app';
@@ -11,6 +12,7 @@ describe('Admin API Authorization Tests', () => {
 
   after(async () => {
     await app.close();
+    await mongoose.disconnect();
   });
 
   it('1. GET /api/admin/guardians without token -> returns 401 Unauthorized', async () => {

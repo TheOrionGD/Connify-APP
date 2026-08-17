@@ -1,4 +1,5 @@
-import { describe, it, before } from 'node:test';
+import mongoose from 'mongoose';
+import { describe, it, before, after } from 'node:test';
 import assert from 'node:assert';
 import { Device } from '../src/models';
 import { connectDB } from '../src/utils/db';
@@ -6,6 +7,10 @@ import { connectDB } from '../src/utils/db';
 describe('Device Registration Idempotency Tests', () => {
   before(async () => {
     await connectDB();
+  });
+
+  after(async () => {
+    await mongoose.disconnect();
   });
 
   it('1. Multiple register calls with same fingerprint -> upserts without duplicate records', async () => {

@@ -89,6 +89,8 @@ export const ProfileController = {
         fullName: string;
         phone: string;
         relationship: string;
+        email?: string;
+        fcmToken?: string;
       };
     },
     deviceId: string,
@@ -140,6 +142,8 @@ export const ProfileController = {
             fullName: data.guardian.fullName,
             phone: data.guardian.phone,
             relationship: data.guardian.relationship,
+            ...(data.guardian.email && { email: data.guardian.email }),
+            ...(data.guardian.fcmToken && { fcmToken: data.guardian.fcmToken }),
           },
         },
         { upsert: true, new: true }

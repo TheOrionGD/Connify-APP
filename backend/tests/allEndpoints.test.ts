@@ -3,7 +3,7 @@ import assert from 'node:assert';
 import mongoose from 'mongoose';
 import nacl from 'tweetnacl';
 import { buildApp } from '../src/app';
-import { Device, Episode, Capsule, Outcome, Profile, DeviceChallenge } from '../src/models';
+import { Device, Episode, Capsule, Outcome, Profile, DeviceChallenge, Guardian } from '../src/models';
 import { connectDB } from '../src/utils/db';
 import { initKeys, signToken } from '../src/services/KeyService';
 
@@ -77,6 +77,15 @@ describe('All Backend Endpoints Integration Test Suite', () => {
       publicKey: helperKeyPair.publicKeyHex,
     });
 
+    await Guardian.create({
+      deviceId: testDevice._id,
+      userFullName: 'Test User',
+      fullName: 'Test Guardian',
+      email: 'guardian@example.com',
+      phone: '+1234567890',
+      relationship: 'Parent'
+    });
+
     authToken = await signToken({ sub: testDevice._id.toString() });
   });
 
@@ -88,7 +97,10 @@ describe('All Backend Endpoints Integration Test Suite', () => {
       await Capsule.deleteMany({ episodeId: createdEpisodeId });
       await Outcome.deleteMany({ episodeId: createdEpisodeId });
     }
-    if (testDevice) await Profile.deleteMany({ deviceId: testDevice._id });
+    if (testDevice) {
+      await Profile.deleteMany({ deviceId: testDevice._id });
+      await Guardian.deleteMany({ deviceId: testDevice._id });
+    }
     await app.close();
     await mongoose.disconnect();
   });

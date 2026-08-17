@@ -50,6 +50,7 @@ export const EmergencyCountdownModal: React.FC<EmergencyCountdownModalProps> = (
     return () => {
       if (timer) clearInterval(timer);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible, isVerifying]);
 
   // Handle countdown finish

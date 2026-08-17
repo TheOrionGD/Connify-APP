@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, StyleSheet, Dimensions } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import Svg, { Circle, Line, Path } from 'react-native-svg';
 import Animated, {
   useSharedValue,
@@ -73,6 +73,7 @@ const NodeConnection: React.FC<NodeConnectionProps> = ({
       rightNodeScale.value = 1;
       dataFlowProgress.value = 0;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isConnected]);
 
   const animatedLineProps = useAnimatedProps(() => {

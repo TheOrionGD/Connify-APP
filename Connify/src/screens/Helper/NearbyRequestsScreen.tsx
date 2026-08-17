@@ -5,7 +5,6 @@ import {
   View,
   ScrollView,
   TouchableOpacity,
-  Alert,
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -16,9 +15,7 @@ import { StandardCard } from '../../components/cards/StandardCard';
 import { DialogueModal } from '../../components/common/DialogueModal';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { episodeApi } from '../../services/api/episodeApi';
-import { capsuleApi } from '../../services/api/capsuleApi';
 import { useAuthStore } from '../../stores/authStore';
-import { useEpisodeStore } from '../../stores/episodeStore';
 import { BloomFilter, SHARPHelper } from '../../utils/sharp';
 import { useLocationStore } from '../../stores/locationStore';
 import { socketService } from '../../services/socketService';
@@ -139,6 +136,7 @@ export default function NearbyRequestsScreen({ navigation }: any) {
     if (hasValidLocation) {
       fetchFeed();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [latitude, longitude, hasValidLocation]);
 
   useEffect(() => {

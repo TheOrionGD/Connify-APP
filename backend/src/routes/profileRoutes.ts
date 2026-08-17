@@ -23,6 +23,8 @@ const upgradeProfileSchema = z.object({
     fullName: z.string().min(1, 'guardian fullName is required'),
     phone: z.string().min(1, 'guardian phone is required'),
     relationship: z.string().min(1, 'guardian relationship is required'),
+    email: z.string().email().optional(),
+    fcmToken: z.string().optional(),
   }),
 });
 

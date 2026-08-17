@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { describe, it, before, after } from 'node:test';
 import assert from 'node:assert';
 import { buildApp } from '../src/app';
@@ -17,6 +18,7 @@ describe('Device Challenge-Response Nonce Tests', () => {
 
   after(async () => {
     await app.close();
+    await mongoose.disconnect();
   });
 
   it('1. Reusing a consumed challenge nonce -> fails on second attempt (single-use)', async () => {

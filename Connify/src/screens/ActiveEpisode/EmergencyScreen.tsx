@@ -70,6 +70,7 @@ export default function EmergencyScreen({ navigation }: any) {
       unsubExpired();
       socketService.leaveEpisode(episodeId);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [episodeId]);
 
   const handleResolve = async () => {

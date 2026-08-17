@@ -48,6 +48,7 @@ const ShieldCapsule: React.FC<ShieldCapsuleProps> = ({
     } else {
       progress.value = 1;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isDrawing, duration, delay]);
 
   const animatedProps = useAnimatedProps(() => {

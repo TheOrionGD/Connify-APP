@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getAuth, signInAnonymously, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithCredential, GoogleAuthProvider, signOut, updateProfile, linkWithCredential } from '@react-native-firebase/auth';
+import auth from '@react-native-firebase/auth';
 import nacl from 'tweetnacl';
 import DeviceInfo from 'react-native-device-info';
 import { Platform } from 'react-native';
@@ -171,7 +171,7 @@ export const useAuthStore = create<AuthState>()(
       signInWithEmail: async (email, password) => {
         set({ loading: true, error: null });
         try {
-          const userCredential = await signInWithEmailAndPassword(getAuth(), email, password);
+          const userCredential = await auth().signInWithEmailAndPassword(email, password);
           const user = userCredential.user;
           if (!user) throw new Error('No user returned from Firebase');
 
@@ -233,7 +233,7 @@ export const useAuthStore = create<AuthState>()(
       signInAnonymously: async () => {
         set({ loading: true, error: null });
         try {
-          const userCredential = await signInAnonymously(getAuth());
+          const userCredential = await auth().signInAnonymously();
           const user = userCredential.user;
           if (!user) throw new Error('No user returned from Firebase');
 
@@ -292,11 +292,11 @@ export const useAuthStore = create<AuthState>()(
       signUpWithEmail: async (email, password, displayName) => {
         set({ loading: true, error: null });
         try {
-          const userCredential = await createUserWithEmailAndPassword(getAuth(), email, password);
+          const userCredential = await auth().createUserWithEmailAndPassword(email, password);
           const user = userCredential.user;
           if (!user) throw new Error('No user returned from Firebase');
 
-          await updateProfile(user, { displayName });
+          await user.updateProfile({ displayName });
 
           const firebaseToken = await user.getIdToken();
           const firebaseUser: FirebaseUser = {
@@ -362,20 +362,20 @@ export const useAuthStore = create<AuthState>()(
             throw new Error('No ID token found');
           }
 
-          const googleCredential = GoogleAuthProvider.credential(idToken);
-          const auth = getAuth();
+          const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+          const authInstance = auth();
           let user;
 
-          if (auth.currentUser && auth.currentUser.isAnonymous) {
+          if (authInstance.currentUser && authInstance.currentUser.isAnonymous) {
             try {
-              const userCredential = await linkWithCredential(auth.currentUser, googleCredential);
+              const userCredential = await authInstance.currentUser.linkWithCredential(googleCredential);
               user = userCredential.user;
             } catch (linkError: any) {
-              const userCredential = await signInWithCredential(auth, googleCredential);
+              const userCredential = await authInstance.signInWithCredential(googleCredential);
               user = userCredential.user;
             }
           } else {
-            const userCredential = await signInWithCredential(auth, googleCredential);
+            const userCredential = await authInstance.signInWithCredential(googleCredential);
             user = userCredential.user;
           }
 
@@ -552,7 +552,7 @@ export const useAuthStore = create<AuthState>()(
       signOut: async () => {
         set({ loading: true });
         try {
-          await signOut(getAuth());
+          await auth().signOut();
           set({
             user: null,
             isAuthenticated: false,

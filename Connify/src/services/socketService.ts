@@ -9,7 +9,6 @@
  *  5. Call socketService.disconnect() on sign-out or app background.
  */
 import { io, Socket } from 'socket.io-client';
-import { Platform } from 'react-native';
 import { API_BASE_URL } from '@env';
 import { useAuthStore } from '../stores/authStore';
 import { useEpisodeStore } from '../stores/episodeStore';

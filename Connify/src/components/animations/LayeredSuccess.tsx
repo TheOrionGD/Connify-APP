@@ -6,7 +6,6 @@ import Animated, {
   withSpring,
   withTiming,
   withDelay,
-  withSequence,
   interpolate,
   Easing,
 } from 'react-native-reanimated';
@@ -68,6 +67,7 @@ const LayeredSuccess: React.FC<LayeredSuccessProps> = ({
       textTranslateY.value = 20;
       buttonOpacity.value = 0;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
 
   const animatedModalStyle = useAnimatedStyle(() => {

@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { describe, it, before, after } from 'node:test';
 import assert from 'node:assert';
 import { buildApp } from '../src/app';
@@ -64,6 +65,7 @@ describe('5-Pillar Harmlessness & Threat Assessment System Test Suite', () => {
       await Device.findByIdAndDelete(responderDevice._id);
     }
     await app.close();
+    await mongoose.disconnect();
   });
 
   it('1. Trap & Velocity Detection: Allows valid 1st episode creation', async () => {

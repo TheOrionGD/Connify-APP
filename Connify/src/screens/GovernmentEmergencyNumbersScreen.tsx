@@ -32,11 +32,12 @@ const SERVER_NUMBERS_URL = 'https://connify.app/api/data/emergency-numbers.json'
 export default function GovernmentEmergencyNumbersScreen({ navigation }: any) {
   const { colors } = useTheme();
   const [countryCode, setCountryCode] = useState<string>('EU_DEFAULT');
-  const [numbers, setNumbers] = useState<EmergencyNumbers>(bundledNumbers['EU_DEFAULT']);
+  const [numbers, setNumbers] = useState<EmergencyNumbers>(bundledNumbers.EU_DEFAULT);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     initNumbers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const initNumbers = async () => {
@@ -68,7 +69,7 @@ export default function GovernmentEmergencyNumbersScreen({ navigation }: any) {
       setCountryCode(activeCountry);
 
       // Select numbers for country, fallback to EU_DEFAULT
-      const selectedNumbers = dataMap[activeCountry] || dataMap['EU_DEFAULT'] || bundledNumbers['EU_DEFAULT'];
+      const selectedNumbers = dataMap[activeCountry] || dataMap.EU_DEFAULT || bundledNumbers.EU_DEFAULT;
       setNumbers(selectedNumbers);
       setLoading(false);
 

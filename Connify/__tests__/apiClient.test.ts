@@ -93,7 +93,7 @@ describe('Axios Client Interceptors and Configuration Verification', () => {
 
     // Assert: Check server received the correct header and response was success
     expect(response.status).toBe(200);
-    expect(receivedHeaders['authorization']).toBe(`Bearer ${testToken}`);
+    expect(receivedHeaders.authorization).toBe(`Bearer ${testToken}`);
   });
 
   test('2. Client auto-retries failed requests up to 3 times on 500 errors', async () => {

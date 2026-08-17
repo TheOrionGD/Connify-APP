@@ -15,7 +15,6 @@ import { useLocationStore } from '../stores/locationStore';
 import { connectivityService } from '../services/ConnectivityService';
 import { offlineQueueService } from '../services/OfflineQueueService';
 import { StandardButton } from '../components/buttons/StandardButton';
-import bundledNumbers from '../data/governmentEmergencyNumbers.json';
 import * as Keychain from 'react-native-keychain';
 
 interface EmergencyContact {
@@ -49,6 +48,7 @@ export default function OfflineEmergencyScreen({ navigation }: any) {
       unsub();
       stopWatchingLocation();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const updateQueueCount = async () => {

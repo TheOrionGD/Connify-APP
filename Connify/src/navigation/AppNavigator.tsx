@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -29,6 +29,65 @@ import FakeCallScreen from '../screens/FakeCallScreen';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
+type TabBarIconProps = {
+  focused: boolean;
+  routeName: string;
+  colors: any;
+};
+
+const TabBarIcon = ({ focused, routeName, colors }: TabBarIconProps) => {
+  let iconName = 'help-outline';
+  let label = '';
+  if (routeName === 'Dashboard') { 
+    iconName = focused ? 'shield' : 'security'; 
+    label = 'HOME'; 
+  }
+  else if (routeName === 'SafetyHub') { 
+    iconName = focused ? 'health-and-safety' : 'healing'; 
+    label = 'SAFETY'; 
+  }
+  else if (routeName === 'Respond') { 
+    iconName = focused ? 'explore' : 'near-me'; 
+    label = 'RESPOND'; 
+  }
+  else if (routeName === 'History') { 
+    iconName = focused ? 'history' : 'access-time'; 
+    label = 'HISTORY'; 
+  }
+  else if (routeName === 'Governance') { 
+    iconName = focused ? 'gavel' : 'account-balance'; 
+    label = 'GOVERN'; 
+  }
+  else if (routeName === 'Settings') { 
+    iconName = focused ? 'person' : 'person-outline'; 
+    label = 'PROFILE'; 
+  }
+
+  const isSafetyHub = routeName === 'SafetyHub';
+  const activeBgColor = isSafetyHub ? '#EC489920' : colors.primary + '20';
+  const activeColor = isSafetyHub ? '#EC4899' : colors.primary;
+
+  return (
+    <View
+      style={[
+        styles.iconContainer,
+        focused ? [styles.iconFocused, { backgroundColor: activeBgColor }] : styles.iconUnfocused,
+      ]}
+    >
+      <Icon
+        name={iconName}
+        size={focused ? 24 : 22}
+        color={focused ? activeColor : colors.onSurfaceVariant}
+      />
+      {focused && (
+        <Text style={[styles.iconText, { color: activeColor }]}>
+          {label}
+        </Text>
+      )}
+    </View>
+  );
+};
+
 function MainTabs() {
   const { colors } = useTheme();
 
@@ -53,54 +112,10 @@ function MainTabs() {
           shadowRadius: 12,
           paddingBottom: 0,
         },
-        tabBarIcon: ({ focused }) => {
-          let iconName = 'help-outline';
-          let label = '';
-          if (route.name === 'Dashboard') { 
-            iconName = focused ? 'shield' : 'security'; 
-            label = 'HOME'; 
-          }
-          else if (route.name === 'SafetyHub') { 
-            iconName = focused ? 'health-and-safety' : 'healing'; 
-            label = 'SAFETY'; 
-          }
-          else if (route.name === 'Respond') { 
-            iconName = focused ? 'explore' : 'near-me'; 
-            label = 'RESPOND'; 
-          }
-          else if (route.name === 'History') { 
-            iconName = focused ? 'history' : 'access-time'; 
-            label = 'HISTORY'; 
-          }
-          else if (route.name === 'Governance') { 
-            iconName = focused ? 'gavel' : 'account-balance'; 
-            label = 'GOVERN'; 
-          }
-          else if (route.name === 'Settings') { 
-            iconName = focused ? 'person' : 'person-outline'; 
-            label = 'PROFILE'; 
-          }
-
-          return (
-            <View
-              style={[
-                styles.iconContainer,
-                focused ? { backgroundColor: route.name === 'SafetyHub' ? '#EC489920' : colors.primary + '20', paddingHorizontal: 12, paddingVertical: 8 } : { padding: 8 },
-              ]}
-            >
-              <Icon
-                name={iconName}
-                size={focused ? 24 : 22}
-                color={focused ? (route.name === 'SafetyHub' ? '#EC4899' : colors.primary) : colors.onSurfaceVariant}
-              />
-              {focused && (
-                <Text style={{ marginLeft: 6, color: route.name === 'SafetyHub' ? '#EC4899' : colors.primary, fontFamily: 'SpaceGrotesk-Bold', fontSize: 10, fontWeight: '700' }}>
-                  {label}
-                </Text>
-              )}
-            </View>
-          );
-        },
+        // eslint-disable-next-line react/no-unstable-nested-components
+        tabBarIcon: ({ focused }) => (
+          <TabBarIcon focused={focused} routeName={route.name} colors={colors} />
+        ),
       })}
     >
       <Tab.Screen
@@ -183,6 +198,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 20,
+  },
+  iconFocused: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  iconUnfocused: {
+    padding: 8,
+  },
+  iconText: {
+    marginLeft: 6,
+    fontFamily: 'SpaceGrotesk-Bold',
+    fontSize: 10,
+    fontWeight: '700',
   },
 });
 

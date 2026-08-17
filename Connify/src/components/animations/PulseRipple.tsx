@@ -39,6 +39,7 @@ const PulseRipple: React.FC<PulseRippleProps> = ({
         false
       )
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [duration, delay]);
 
   const animatedStyle = useAnimatedStyle(() => {

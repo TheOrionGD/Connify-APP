@@ -15,6 +15,8 @@ const guardianBodySchema = z.object({
   fullName: z.string().min(1, 'fullName is required'),
   phone: z.string().min(1, 'phone is required'),
   relationship: z.string().min(1, 'relationship is required'),
+  email: z.string().email().optional(),
+  fcmToken: z.string().optional(),
 });
 
 export async function locationRoutes(app: FastifyInstance): Promise<void> {

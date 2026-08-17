@@ -1,4 +1,4 @@
-import auth from '@react-native-firebase/auth';
+
 
 // Stub Firebase Auth instance methods
 const mockAuthInstance = {

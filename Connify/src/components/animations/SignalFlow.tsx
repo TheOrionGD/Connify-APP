@@ -6,7 +6,6 @@ import Animated, {
   withRepeat,
   withTiming,
   withDelay,
-  withSequence,
   Easing,
   interpolate,
 } from 'react-native-reanimated';
@@ -34,6 +33,7 @@ const SignalParticle: React.FC<SignalParticleProps> = ({ delay, color, duration 
         false
       )
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [delay, duration]);
 
   const animatedStyle = useAnimatedStyle(() => {

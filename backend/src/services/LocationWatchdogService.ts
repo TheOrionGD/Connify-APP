@@ -170,7 +170,7 @@ export class LocationWatchdogService {
         }
       } else {
         // Fallback log if missing email or key
-        console.log(`⚠️ Email omitted for ${g.fullName} - Missing email or BREVO_API_KEY`);
+        console.log(`⚠️ Email omitted for ${g.fullName} - Missing email (${g.email}) or BREVO_API_KEY (${env.BREVO_API_KEY})`);
       }
     }
 

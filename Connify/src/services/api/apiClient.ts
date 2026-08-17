@@ -1,5 +1,4 @@
 import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from 'axios';
-import { Platform } from 'react-native';
 import { API_BASE_URL } from '@env';
 
 // Determine base API URL from environment variables

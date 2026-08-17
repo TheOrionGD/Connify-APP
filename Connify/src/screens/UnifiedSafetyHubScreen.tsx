@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   Alert,
   Linking,
-  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -62,6 +61,7 @@ export default function UnifiedSafetyHubScreen({ navigation }: any) {
       updateQueueCount();
     });
     return unsub;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -79,6 +79,7 @@ export default function UnifiedSafetyHubScreen({ navigation }: any) {
       }, 1000);
     }
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fakeCallActive]);
 
   const updateQueueCount = async () => {

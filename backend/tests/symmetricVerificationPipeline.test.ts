@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { describe, it, before, after } from 'node:test';
 import assert from 'node:assert';
 import { buildApp } from '../src/app';
@@ -33,6 +34,14 @@ describe('Symmetric Zero-Fallback Verification Pipeline Test Suite', () => {
     });
     senderToken = await signToken({ sub: senderDevice._id.toString() });
 
+    await mongoose.model('Guardian').create({
+      deviceId: senderDevice._id,
+      userFullName: 'Sender User',
+      fullName: 'Sender Guardian',
+      phone: '+1234567890',
+      relationship: 'Friend'
+    });
+
     // Setup Acceptor Device
     acceptorKeyPair = nacl.sign.keyPair();
     const acceptorPubKeyHex = Buffer.from(acceptorKeyPair.publicKey).toString('hex');
@@ -55,6 +64,7 @@ describe('Symmetric Zero-Fallback Verification Pipeline Test Suite', () => {
       await Device.findByIdAndDelete(acceptorDevice._id);
     }
     await app.close();
+    await mongoose.disconnect();
   });
 
   // -------------------------------------------------------------------------

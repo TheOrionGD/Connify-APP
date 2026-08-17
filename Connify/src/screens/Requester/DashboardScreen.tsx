@@ -11,7 +11,6 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme, actionColors } from '../../theme';
 import { SOSButton } from '../../components/buttons/SOSButton';
-import { SafetyCard } from '../../components/cards/SafetyCard';
 import { StandardCard } from '../../components/cards/StandardCard';
 import { DialogueModal } from '../../components/common/DialogueModal';
 import { ProfileSetupModal } from '../../components/common/ProfileSetupModal';

@@ -6,7 +6,6 @@ import {
   ScrollView,
   Alert,
   ActivityIndicator,
-  Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -15,7 +14,7 @@ import { StandardButton } from '../../components/buttons/StandardButton';
 import { secureKeyService } from '../../services/secureKeyService';
 import { useAuthStore } from '../../stores/authStore';
 import { useEpisodeStore } from '../../stores/episodeStore';
-import { SHARPHelper } from '../../utils/sharp';
+
 import QRCode from 'react-native-qrcode-svg';
 import { Platform } from 'react-native';
 
@@ -34,7 +33,7 @@ if (Platform.OS !== 'web') {
 import { capsuleApi } from '../../services/api/capsuleApi';
 import SignalFlow from '../../components/animations/SignalFlow';
 import LayeredSuccess from '../../components/animations/LayeredSuccess';
-import Animated, { useSharedValue, useAnimatedStyle, withSequence, withTiming, withSpring } from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle, withSequence, withTiming } from 'react-native-reanimated';
 
 const encodeBase64Url = (str: string) => {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
@@ -78,6 +77,7 @@ export default function HandshakeScreen({ route, navigation }: any) {
     } else {
       checkPermissions();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isRequester]);
 
   const checkPermissions = async () => {
@@ -221,7 +221,7 @@ export default function HandshakeScreen({ route, navigation }: any) {
                   <QRCode value={qrToken} size={200} />
                 </View>
              ) : (
-                <ActivityIndicator size="large" color={theme.colors.primary} style={{ margin: 40 }} />
+                <ActivityIndicator size="large" color={theme.colors.primary} style={styles.loadingIndicator} />
              )
           ) : (
              <View style={styles.cameraContainer}>
@@ -233,12 +233,12 @@ export default function HandshakeScreen({ route, navigation }: any) {
                      codeScanner={codeScanner}
                    />
                 ) : (
-                   <Text style={{ color: theme.colors.onBackground }}>Camera permission required</Text>
+                   <Text style={styles.cameraPermissionText}>Camera permission required</Text>
                 )}
                 {!blindedGridCell && (
                   <View style={styles.verifyingOverlay}>
                     <ActivityIndicator size="large" color={theme.colors.primary} />
-                    <Text style={{ color: '#fff', marginTop: 10, textAlign: 'center', paddingHorizontal: 20 }}>
+                    <Text style={styles.acquiringLocationText}>
                       Acquiring Geofenced Mesh Location... Please wait before scanning.
                     </Text>
                   </View>
@@ -246,7 +246,7 @@ export default function HandshakeScreen({ route, navigation }: any) {
                 {verifying && (
                   <View style={styles.verifyingOverlay}>
                     <SignalFlow color={theme.colors.primary} />
-                    <Text style={{ color: '#fff', marginTop: 10 }}>Verifying Signature...</Text>
+                    <Text style={styles.verifyingText}>Verifying Signature...</Text>
                   </View>
                 )}
              </View>
@@ -485,5 +485,21 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 20,
     paddingHorizontal: 10,
+  },
+  loadingIndicator: {
+    margin: 40,
+  },
+  cameraPermissionText: {
+    color: theme.colors.onBackground,
+  },
+  acquiringLocationText: {
+    color: '#fff',
+    marginTop: 10,
+    textAlign: 'center',
+    paddingHorizontal: 20,
+  },
+  verifyingText: {
+    color: '#fff',
+    marginTop: 10,
   },
 });

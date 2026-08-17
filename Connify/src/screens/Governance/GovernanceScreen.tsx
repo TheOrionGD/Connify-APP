@@ -62,6 +62,7 @@ export default function GovernanceScreen({ navigation }: any) {
 
   useEffect(() => {
     fetchLiveGovernanceData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleDeviceChallengeVerify = async () => {
