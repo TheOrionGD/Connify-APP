@@ -32,15 +32,29 @@ export const EmergencyCountdownModal: React.FC<EmergencyCountdownModalProps> = (
   const [isVerifying, setIsVerifying] = useState(false);
   const [statusMessage, setStatusMessage] = useState('Enforcing Hardware Biometric & Cryptographic Handshake');
 
+  // Pulse when modal opens
+  useEffect(() => {
+    if (visible) {
+      Vibration.vibrate([0, 150, 150]);
+    }
+  }, [visible]);
+
+  // Handle countdown interval
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (visible && countdown > 0 && !isVerifying) {
-      // Trigger subtle pulse vibration
-      Vibration.vibrate([0, 150, 150]);
       timer = setInterval(() => {
         setCountdown((prev) => prev - 1);
       }, 1000);
-    } else if (visible && countdown === 0 && !isVerifying) {
+    }
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [visible, isVerifying]);
+
+  // Handle countdown finish
+  useEffect(() => {
+    if (visible && countdown === 0 && !isVerifying) {
       setIsVerifying(true);
       setStatusMessage('Validating Ed25519 Server Challenge Nonce...');
       
@@ -50,11 +64,7 @@ export const EmergencyCountdownModal: React.FC<EmergencyCountdownModalProps> = (
         onConfirmVerified(checkDuress);
       }, 600);
     }
-
-    return () => {
-      if (timer) clearInterval(timer);
-    };
-  }, [visible, countdown, isVerifying, pinInput]);
+  }, [visible, countdown, isVerifying, pinInput, onConfirmVerified]);
 
   const handleCancelPress = () => {
     if (pinInput.trim() === '9999') {

@@ -1,7 +1,6 @@
 import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 import { Platform } from 'react-native';
 import { API_BASE_URL } from '@env';
-import { useAuthStore } from '../../stores/authStore';
 
 // Determine base API URL from environment variables
 const getBaseUrl = (): string => {
@@ -34,6 +33,7 @@ export const apiClient: AxiosInstance = axios.create({
  */
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
+    const { useAuthStore } = require('../../stores/authStore');
     const token = useAuthStore.getState().sessionToken;
     if (token && config.headers) {
       config.headers.set('Authorization', `Bearer ${token}`);
@@ -63,6 +63,7 @@ apiClient.interceptors.response.use(
       if (process.env.NODE_ENV !== 'test') {
         console.warn('Unauthorized request detected. Clearing auth store session.');
       }
+      const { useAuthStore } = require('../../stores/authStore');
       await useAuthStore.getState().signOut();
       return Promise.reject(error);
     }

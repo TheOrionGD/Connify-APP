@@ -56,7 +56,8 @@ export default function App() {
   useEffect(() => {
     const wakeUpBackend = async () => {
       try {
-        await fetch('https://connify-backend.onrender.com/');
+        const backendUrl = import.meta.env.VITE_API_BASE_URL || 'https://connify-backend.onrender.com';
+        await fetch(backendUrl);
       } catch (e) {
         console.error("Backend wake-up notice (continuing locally):", e);
       } finally {

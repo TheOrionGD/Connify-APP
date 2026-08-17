@@ -12,7 +12,7 @@ export async function writeAuditLog(
 ): Promise<void> {
   try {
     // 1. Get the last log entry to retrieve its hash
-    const lastLog = await AuditLog.findOne().sort({ createdAt: -1 });
+    const lastLog = await AuditLog.findOne().sort({ _id: -1 });
 
     const prevHash = lastLog ? lastLog.entryHash : '0';
 

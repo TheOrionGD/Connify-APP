@@ -17,7 +17,7 @@ export default defineConfig(() => {
         '/api': {
           target: 'https://connify-backend.onrender.com', // Centralized backend
           changeOrigin: true,
-          secure: true,
+          secure: false,
         }
       }
     },

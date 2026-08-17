@@ -32,16 +32,11 @@ export default function EmergencyScreen({ navigation }: any) {
   const [participantCount, setParticipantCount] = useState(1);
 
   useEffect(() => {
-    let timer: any;
-    if (timeLeft > 0) {
-      timer = setInterval(() => {
-        tickCountdown();
-      }, 1000);
-    }
-    return () => {
-      if (timer) clearInterval(timer);
-    };
-  }, [timeLeft, tickCountdown]);
+    const timer = setInterval(() => {
+      tickCountdown();
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [tickCountdown]);
 
   useEffect(() => {
     if (!episodeId) return;

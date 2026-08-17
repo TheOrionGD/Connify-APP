@@ -7,7 +7,7 @@ import { authenticate } from '../middleware/authenticate';
 async function verifyAuditChain(page = 1, limit = 50) {
   const skip = (page - 1) * limit;
   const total = await AuditLog.countDocuments();
-  const logs = await AuditLog.find().sort({ createdAt: 1 });
+  const logs = await AuditLog.find().sort({ _id: 1 });
 
   let prevHash = '0';
   let isChainValid = true;

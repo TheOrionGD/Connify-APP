@@ -17,7 +17,20 @@ import { useAuthStore } from '../../stores/authStore';
 import { useEpisodeStore } from '../../stores/episodeStore';
 import { SHARPHelper } from '../../utils/sharp';
 import QRCode from 'react-native-qrcode-svg';
-import { Camera, useCameraDevice, useCameraPermission, useObjectOutput } from 'react-native-vision-camera';
+import { Platform } from 'react-native';
+
+let Camera: any = View;
+let useCameraDevice: any = () => null;
+let useCameraPermission: any = () => ({ hasPermission: false, requestPermission: async () => false });
+let useCodeScanner: any = () => null;
+
+if (Platform.OS !== 'web') {
+  const VC = require('react-native-vision-camera');
+  Camera = VC.Camera;
+  useCameraDevice = VC.useCameraDevice;
+  useCameraPermission = VC.useCameraPermission;
+  useCodeScanner = VC.useCodeScanner;
+}
 import { capsuleApi } from '../../services/api/capsuleApi';
 import SignalFlow from '../../components/animations/SignalFlow';
 import LayeredSuccess from '../../components/animations/LayeredSuccess';
@@ -167,11 +180,11 @@ export default function HandshakeScreen({ route, navigation }: any) {
     };
   });
 
-  const objectOutput = useObjectOutput({
-    types: ['qr'],
-    onObjectsScanned: (objects) => {
-      if (objects.length > 0) {
-        const first = objects[0] as any;
+  const codeScanner = useCodeScanner({
+    codeTypes: ['qr'],
+    onCodeScanned: (codes: any[]) => {
+      if (codes.length > 0) {
+        const first = codes[0];
         if (first && first.value) {
           handleCodeScanned(first.value);
         }
@@ -217,7 +230,7 @@ export default function HandshakeScreen({ route, navigation }: any) {
                      style={StyleSheet.absoluteFill}
                      device={device}
                      isActive={!scanned && verified === null && Boolean(blindedGridCell)}
-                     outputs={[objectOutput]}
+                     codeScanner={codeScanner}
                    />
                 ) : (
                    <Text style={{ color: theme.colors.onBackground }}>Camera permission required</Text>

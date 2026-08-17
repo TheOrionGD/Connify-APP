@@ -66,7 +66,7 @@ export default function UnifiedSafetyHubScreen({ navigation }: any) {
 
   useEffect(() => {
     let interval: any;
-    if (fakeCallActive && fakeTimer > 0) {
+    if (fakeCallActive) {
       interval = setInterval(() => {
         setFakeTimer(prev => {
           if (prev <= 1) {
@@ -85,10 +85,8 @@ export default function UnifiedSafetyHubScreen({ navigation }: any) {
         });
       }, 1000);
     }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [fakeCallActive, fakeTimer]);
+    return () => clearInterval(interval);
+  }, [fakeCallActive]);
 
   const updateQueueCount = async () => {
     try {

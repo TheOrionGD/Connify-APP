@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, User, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { 
-  Shield, Lock, Cpu, Server, Database, Key, CheckCircle, AlertTriangle, LogIn, LogOut, 
+import {
+  Shield, Lock, Cpu, Server, Database, Key, CheckCircle, AlertTriangle, LogIn, LogOut,
   UserCheck, RefreshCw, Layers, FileText, Check, Settings, ShieldAlert, Terminal, Phone, Mail,
   Plus, Trash2, Edit3, TrendingUp, Laptop, Search, Filter, ChevronRight, X
 } from 'lucide-react';
-import { 
-  ResponsiveContainer, BarChart, Bar, LineChart, Line, AreaChart, Area, 
-  PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend 
+import {
+  ResponsiveContainer, BarChart, Bar, LineChart, Line, AreaChart, Area,
+  PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend
 } from 'recharts';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -126,10 +126,10 @@ export default function AdminPortal() {
     setIsQuerying(true);
     const latency = Math.floor(Math.random() * 32) + 12; // 12-44ms
     setQueryLatency(latency);
-    
+
     const timestamp = new Date().toLocaleTimeString();
     const queryStr = customQuery || `SELECT * FROM ${table} ${dbFilter !== 'all' ? `WHERE status = '${dbFilter}'` : ''} ${dbSearch ? `AND (name ILIKE '%${dbSearch}%')` : ''} LIMIT 50;`;
-    
+
     setQueryLogs(prev => [
       `[${timestamp}] Query successfully executed against PostgreSQL database (VITE_DATABASE_URL).`,
       `[${timestamp}] EXPLAIN ANALYZE: ${queryStr} -> Execution time: ${latency}ms`,
@@ -144,8 +144,8 @@ export default function AdminPortal() {
   useEffect(() => {
     triggerQuerySimulation(
       selectedTable === 'guardians' ? 'mesh_guardians' :
-      selectedTable === 'alerts' ? 'sos_alerts' :
-      selectedTable === 'credentials' ? 'jit_credentials' : 'audit_ledgers'
+        selectedTable === 'alerts' ? 'sos_alerts' :
+          selectedTable === 'credentials' ? 'jit_credentials' : 'audit_ledgers'
     );
   }, [selectedTable, dbFilter]);
 
@@ -157,7 +157,7 @@ export default function AdminPortal() {
     publicKey: metaEnv.VITE_JWT_PUBLIC_KEY || '',
     privateKey: metaEnv.VITE_JWT_PRIVATE_KEY || ''
   });
-  
+
   // Custom customizer for Firebase config
   const [customFirebaseConfig, setCustomFirebaseConfig] = useState(JSON.stringify(defaultFirebaseConfig, null, 2));
   const [showConfigEditor, setShowConfigEditor] = useState(false);
@@ -191,7 +191,7 @@ export default function AdminPortal() {
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 6000);
-      
+
       const response = await fetch(`${backendUrl}/api/health`, {
         signal: controller.signal
       });
@@ -212,7 +212,7 @@ export default function AdminPortal() {
 
   useEffect(() => {
     checkBackendHealth();
-    
+
     // Seed some nice simulated logs
     setBackendLogs([
       { id: 1, time: '01:34:02', event: 'Database connection established securely', service: 'Supabase Postgres', status: 'OK' },
@@ -231,7 +231,7 @@ export default function AdminPortal() {
     }
     setIsLoading(true);
     setLoginError(null);
-    
+
     // Simulate sending OTP
     setTimeout(() => {
       setOtpSent(true);
@@ -247,7 +247,7 @@ export default function AdminPortal() {
     }
     setIsLoading(true);
     setLoginError(null);
-    
+
     setTimeout(() => {
       if (otpCode === '123456') {
         setUser({
@@ -267,7 +267,7 @@ export default function AdminPortal() {
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     setLoginError(null);
-    
+
     if (auth) {
       try {
         const provider = new GoogleAuthProvider();
@@ -281,7 +281,7 @@ export default function AdminPortal() {
         console.warn("Real Google Auth failed, falling back to simulated Google SSO:", fbError.message);
       }
     }
-    
+
     // Simulated Google Single Sign-On
     setTimeout(() => {
       setUser({
@@ -364,12 +364,12 @@ export default function AdminPortal() {
       <div id="desktop-restricted-portal" className="min-h-[80vh] flex flex-col items-center justify-center bg-brand-red text-white p-6 sm:p-10 rounded-2xl border-4 border-brand-black shadow-[8px_8px_0px_rgba(27,27,27,1)] my-6 relative overflow-hidden">
         {/* Visual mesh design grid */}
         <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#000 1.5px, transparent 1.5px)', backgroundSize: '24px 24px' }}></div>
-        
+
         <div className="max-w-md w-full text-center space-y-6 relative z-10">
           <div className="w-20 h-20 bg-white text-brand-red rounded-2xl border-4 border-brand-black flex items-center justify-center mx-auto shadow-[4px_4px_0px_rgba(27,27,27,1)] animate-pulse">
             <ShieldAlert className="h-10 w-10" />
           </div>
-          
+
           <div className="space-y-2">
             <span className="px-3 py-1 text-[10px] font-mono font-black uppercase rounded bg-white text-brand-red border-2 border-brand-black inline-block tracking-widest">
               403 ACCESS RESTRICTED
@@ -433,7 +433,7 @@ export default function AdminPortal() {
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto px-4 sm:px-6">
-      
+
       {/* Top Welcome Alert Banner */}
       <div className="flex flex-col md:flex-row md:items-center justify-between p-4 bg-brand-beige border-2 border-brand-black rounded-xl shadow-[4px_4px_0px_#1b1b1b] space-y-4 md:space-y-0">
         <div className="flex items-center space-x-3">
@@ -447,7 +447,7 @@ export default function AdminPortal() {
             </p>
           </div>
         </div>
-        
+
         {/* Backend Info Bar */}
         <div className="flex items-center space-x-4 text-xs">
           <div className="flex items-center space-x-2 font-mono">
@@ -466,7 +466,7 @@ export default function AdminPortal() {
               </span>
             )}
           </div>
-          
+
           <button
             onClick={checkBackendHealth}
             className="p-1.5 hover:bg-white rounded border border-brand-black/10 transition-all cursor-pointer"
@@ -501,24 +501,22 @@ export default function AdminPortal() {
               <button
                 type="button"
                 onClick={() => { setLoginMethod('password'); setLoginError(null); }}
-                className={`flex flex-col items-center justify-center py-2 px-1 rounded border-2 border-brand-black transition-all cursor-pointer font-mono text-[9px] font-bold ${
-                  loginMethod === 'password'
+                className={`flex flex-col items-center justify-center py-2 px-1 rounded border-2 border-brand-black transition-all cursor-pointer font-mono text-[9px] font-bold ${loginMethod === 'password'
                     ? 'bg-brand-red text-white shadow-[2px_2px_0px_rgba(27,27,27,1)]'
                     : 'bg-white text-brand-black hover:bg-brand-beige'
-                }`}
+                  }`}
               >
                 <Mail className="h-4 w-4 mb-1" />
                 <span>PASSWORD</span>
               </button>
-              
+
               <button
                 type="button"
                 onClick={() => { setLoginMethod('phone'); setLoginError(null); }}
-                className={`flex flex-col items-center justify-center py-2 px-1 rounded border-2 border-brand-black transition-all cursor-pointer font-mono text-[9px] font-bold ${
-                  loginMethod === 'phone'
+                className={`flex flex-col items-center justify-center py-2 px-1 rounded border-2 border-brand-black transition-all cursor-pointer font-mono text-[9px] font-bold ${loginMethod === 'phone'
                     ? 'bg-brand-red text-white shadow-[2px_2px_0px_rgba(27,27,27,1)]'
                     : 'bg-white text-brand-black hover:bg-brand-beige'
-                }`}
+                  }`}
               >
                 <Phone className="h-4 w-4 mb-1" />
                 <span>PHONE SMS</span>
@@ -527,11 +525,10 @@ export default function AdminPortal() {
               <button
                 type="button"
                 onClick={() => { setLoginMethod('google'); setLoginError(null); }}
-                className={`flex flex-col items-center justify-center py-2 px-1 rounded border-2 border-brand-black transition-all cursor-pointer font-mono text-[9px] font-bold ${
-                  loginMethod === 'google'
+                className={`flex flex-col items-center justify-center py-2 px-1 rounded border-2 border-brand-black transition-all cursor-pointer font-mono text-[9px] font-bold ${loginMethod === 'google'
                     ? 'bg-brand-red text-white shadow-[2px_2px_0px_rgba(27,27,27,1)]'
                     : 'bg-white text-brand-black hover:bg-brand-beige'
-                }`}
+                  }`}
               >
                 <span className="font-extrabold text-sm leading-none mb-1">G</span>
                 <span>GOOGLE SSO</span>
@@ -540,17 +537,6 @@ export default function AdminPortal() {
 
             {loginMethod === 'password' && (
               <>
-                {/* Quick Credentials Tips */}
-                <div className="bg-brand-beige border border-brand-black/10 rounded p-4 space-y-2 text-[11px] font-sans">
-                  <div className="font-bold text-brand-red uppercase tracking-wider flex items-center space-x-1">
-                    <UserCheck className="h-3.5 w-3.5" />
-                    <span>Instant Sandbox Logins:</span>
-                  </div>
-                  <div className="space-y-1 font-medium text-brand-muted">
-                    <p>● <strong className="text-brand-black">Admin Role</strong>: <code className="bg-white px-1 py-0.5 rounded border">admin@connify.com</code> (pass: <code className="bg-white px-1 py-0.5 rounded border">admin123</code>)</p>
-                    <p>● <strong className="text-brand-black">Audit Role</strong>: <code className="bg-white px-1 py-0.5 rounded border">auditor@connify.com</code> (pass: <code className="bg-white px-1 py-0.5 rounded border">audit123</code>)</p>
-                  </div>
-                </div>
 
                 <form onSubmit={handleLogin} className="space-y-4">
                   <div className="space-y-1.5">
@@ -773,11 +759,10 @@ export default function AdminPortal() {
                     <span className="font-display font-extrabold text-lg text-brand-black">
                       {userRole === 'admin' ? 'Global System Administrator' : 'Mesh Council Auditor'}
                     </span>
-                    <span className={`px-2.5 py-0.5 text-[9px] font-mono font-bold uppercase rounded border ${
-                      userRole === 'admin' 
-                        ? 'bg-brand-red/10 border-brand-red/30 text-brand-red' 
+                    <span className={`px-2.5 py-0.5 text-[9px] font-mono font-bold uppercase rounded border ${userRole === 'admin'
+                        ? 'bg-brand-red/10 border-brand-red/30 text-brand-red'
                         : 'bg-brand-black/5 border-brand-black/25 text-brand-muted'
-                    }`}>
+                      }`}>
                       ROLE: {userRole}
                     </span>
                   </div>
@@ -803,11 +788,10 @@ export default function AdminPortal() {
                   setActiveSubTab('analytics');
                   triggerQuerySimulation('mesh_guardians', 'SELECT * FROM mesh_guardians;');
                 }}
-                className={`px-4 py-2 font-display font-extrabold text-xs uppercase border-b-2 transition-all cursor-pointer flex items-center space-x-1.5 ${
-                  activeSubTab === 'analytics'
+                className={`px-4 py-2 font-display font-extrabold text-xs uppercase border-b-2 transition-all cursor-pointer flex items-center space-x-1.5 ${activeSubTab === 'analytics'
                     ? 'border-brand-red text-brand-red'
                     : 'border-transparent text-brand-muted hover:text-brand-black'
-                }`}
+                  }`}
               >
                 <TrendingUp className="h-4 w-4" />
                 <span>Real-time Network Analytics</span>
@@ -818,23 +802,21 @@ export default function AdminPortal() {
                   setActiveSubTab('database_console');
                   triggerQuerySimulation('mesh_guardians');
                 }}
-                className={`px-4 py-2 font-display font-extrabold text-xs uppercase border-b-2 transition-all cursor-pointer flex items-center space-x-1.5 ${
-                  activeSubTab === 'database_console'
+                className={`px-4 py-2 font-display font-extrabold text-xs uppercase border-b-2 transition-all cursor-pointer flex items-center space-x-1.5 ${activeSubTab === 'database_console'
                     ? 'border-brand-red text-brand-red'
                     : 'border-transparent text-brand-muted hover:text-brand-black'
-                }`}
+                  }`}
               >
                 <Database className="h-4 w-4" />
                 <span>Postgres Query & CRUD Console</span>
               </button>
-              
+
               <button
                 onClick={() => setActiveSubTab('backend')}
-                className={`px-4 py-2 font-display font-extrabold text-xs uppercase border-b-2 transition-all cursor-pointer flex items-center space-x-1.5 ${
-                  activeSubTab === 'backend'
+                className={`px-4 py-2 font-display font-extrabold text-xs uppercase border-b-2 transition-all cursor-pointer flex items-center space-x-1.5 ${activeSubTab === 'backend'
                     ? 'border-brand-red text-brand-red'
                     : 'border-transparent text-brand-muted hover:text-brand-black'
-                }`}
+                  }`}
               >
                 <Server className="h-4 w-4" />
                 <span>Render Backend Sync</span>
@@ -842,11 +824,10 @@ export default function AdminPortal() {
 
               <button
                 onClick={() => setActiveSubTab('logs')}
-                className={`px-4 py-2 font-display font-extrabold text-xs uppercase border-b-2 transition-all cursor-pointer flex items-center space-x-1.5 ${
-                  activeSubTab === 'logs'
+                className={`px-4 py-2 font-display font-extrabold text-xs uppercase border-b-2 transition-all cursor-pointer flex items-center space-x-1.5 ${activeSubTab === 'logs'
                     ? 'border-brand-red text-brand-red'
                     : 'border-transparent text-brand-muted hover:text-brand-black'
-                }`}
+                  }`}
               >
                 <FileText className="h-4 w-4" />
                 <span>Security Audit Logs</span>
@@ -855,14 +836,14 @@ export default function AdminPortal() {
 
             {/* Sub-tab view content */}
             <div className="space-y-6">
-              
+
               {activeSubTab === 'analytics' && (() => {
                 // Compute dynamic analytics in real-time from our local state
                 const totalNodes = meshGuardians.length;
                 const activeAlerts = sosAlerts.filter((a: any) => a.status === 'active' || a.status === 'dispatching').length;
                 const validCredentials = jitCredentials.filter((c: any) => c.status === 'active').length;
-                const averageTrust = totalNodes > 0 
-                  ? Math.round(meshGuardians.reduce((sum: number, g: any) => sum + g.trustScore, 0) / totalNodes) 
+                const averageTrust = totalNodes > 0
+                  ? Math.round(meshGuardians.reduce((sum: number, g: any) => sum + g.trustScore, 0) / totalNodes)
                   : 0;
                 const consistentLedgerCount = auditLedgers.filter((l: any) => l.state === 'consistent').length;
                 const consistentRatio = auditLedgers.length > 0
@@ -953,7 +934,7 @@ export default function AdminPortal() {
 
                     {/* Chart Dashboard Bento Grid */}
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                      
+
                       {/* Left: Trust Score Progression */}
                       <div className="lg:col-span-7 bg-white border-2 border-brand-black rounded-xl p-5 shadow-[4px_4px_0px_#1b1b1b] space-y-4">
                         <div className="flex justify-between items-center border-b border-brand-black/5 pb-2">
@@ -969,8 +950,8 @@ export default function AdminPortal() {
                               <AreaChart data={trustChartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                 <defs>
                                   <linearGradient id="colorTrust" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#dc2626" stopOpacity={0.2}/>
-                                    <stop offset="95%" stopColor="#dc2626" stopOpacity={0}/>
+                                    <stop offset="5%" stopColor="#dc2626" stopOpacity={0.2} />
+                                    <stop offset="95%" stopColor="#dc2626" stopOpacity={0} />
                                   </linearGradient>
                                 </defs>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
@@ -1013,7 +994,7 @@ export default function AdminPortal() {
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                      
+
                       {/* Left Bottom: JIT Lifespans */}
                       <div className="lg:col-span-6 bg-white border-2 border-brand-black rounded-xl p-5 shadow-[4px_4px_0px_#1b1b1b] space-y-4">
                         <div className="flex justify-between items-center border-b border-brand-black/5 pb-2">
@@ -1070,7 +1051,7 @@ export default function AdminPortal() {
                               </PieChart>
                             </ResponsiveContainer>
                           </div>
-                          
+
                           <div className="space-y-2.5 w-1/2 font-mono text-xs">
                             {ledgerPieData.map((item, index) => (
                               <div key={index} className="flex items-center justify-between p-2 rounded bg-brand-beige border border-brand-black/5">
@@ -1107,7 +1088,7 @@ export default function AdminPortal() {
                                     hazard: 'high',
                                     status: 'active',
                                     dispatched: 4,
-                                    hash: '0x' + Math.floor(Math.random()*10000).toString(16),
+                                    hash: '0x' + Math.floor(Math.random() * 10000).toString(16),
                                     location: 'Market St Gate #12',
                                     timestamp: new Date().toLocaleTimeString()
                                   };
@@ -1125,9 +1106,9 @@ export default function AdminPortal() {
                                   const id = `node-${Date.now()}`;
                                   const newG = {
                                     id,
-                                    name: `External Node #${Math.floor(Math.random()*100) + 100}`,
+                                    name: `External Node #${Math.floor(Math.random() * 100) + 100}`,
                                     status: 'active',
-                                    trustScore: Math.floor(Math.random()*15) + 85,
+                                    trustScore: Math.floor(Math.random() * 15) + 85,
                                     joined: new Date().toISOString().split('T')[0],
                                     method: 'QR',
                                     geohash: 'tdr18zm',
@@ -1145,7 +1126,7 @@ export default function AdminPortal() {
                                 onClick={() => {
                                   // Add consistent block proof
                                   const id = `ledger-${Date.now()}`;
-                                  const nextH = auditLedgers.length > 0 ? Math.max(...auditLedgers.map((l:any) => l.height)) + 1 : 84292;
+                                  const nextH = auditLedgers.length > 0 ? Math.max(...auditLedgers.map((l: any) => l.height)) + 1 : 84292;
                                   const newL = {
                                     id,
                                     height: nextH,
@@ -1213,7 +1194,7 @@ export default function AdminPortal() {
                 const filteredRecords = currentRecords.filter((rec: any) => {
                   const query = dbSearch.trim().toLowerCase();
                   if (!query) return true;
-                  
+
                   if (selectedTable === 'guardians') {
                     return rec.name.toLowerCase().includes(query) || rec.id.toLowerCase().includes(query);
                   } else if (selectedTable === 'alerts') {
@@ -1323,7 +1304,7 @@ export default function AdminPortal() {
                 const handleAddLedgerRow = (e: React.FormEvent) => {
                   e.preventDefault();
                   const id = `ledger-${Date.now()}`;
-                  const nextH = auditLedgers.length > 0 ? Math.max(...auditLedgers.map((l:any) => l.height)) + 1 : 84292;
+                  const nextH = auditLedgers.length > 0 ? Math.max(...auditLedgers.map((l: any) => l.height)) + 1 : 84292;
                   const newL = {
                     id,
                     height: nextH,
@@ -1352,7 +1333,7 @@ export default function AdminPortal() {
                           Inspecting schemas and records from target host: <code className="bg-brand-beige px-1 rounded text-brand-black font-bold truncate inline-block max-w-[200px] sm:max-w-xs">{metaEnv.VITE_DATABASE_URL || (metaEnv.DEV ? 'postgresql://localhost:5432' : 'CONFIG UNSET')}</code>
                         </p>
                       </div>
-                      
+
                       <div className="flex items-center space-x-2">
                         <span className="font-mono text-[9px] font-bold uppercase bg-emerald-100 border border-emerald-300 text-emerald-800 px-2.5 py-1 rounded">
                           ● READ-WRITE SSL ACTIVE
@@ -1369,7 +1350,7 @@ export default function AdminPortal() {
 
                     {/* Left/Right Grid Layout: Selector and Table */}
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                      
+
                       {/* Left: Table Picker */}
                       <div className="lg:col-span-3 space-y-4">
                         <div className="bg-white border-2 border-brand-black rounded-xl p-4 shadow-[4px_4px_0px_#1b1b1b] space-y-3">
@@ -1377,11 +1358,10 @@ export default function AdminPortal() {
                           <div className="flex flex-col space-y-2">
                             <button
                               onClick={() => { setSelectedTable('guardians'); setDbFilter('all'); }}
-                              className={`p-3 text-left font-mono font-bold text-xs rounded-lg border-2 border-brand-black transition-all flex justify-between items-center ${
-                                selectedTable === 'guardians'
+                              className={`p-3 text-left font-mono font-bold text-xs rounded-lg border-2 border-brand-black transition-all flex justify-between items-center ${selectedTable === 'guardians'
                                   ? 'bg-brand-red text-white shadow-[2px_2px_0px_#1b1b1b]'
                                   : 'bg-brand-beige text-brand-black hover:bg-white'
-                              }`}
+                                }`}
                             >
                               <span>mesh_guardians</span>
                               <span className="text-[10px] opacity-75">({meshGuardians.length})</span>
@@ -1389,11 +1369,10 @@ export default function AdminPortal() {
 
                             <button
                               onClick={() => { setSelectedTable('alerts'); setDbFilter('all'); }}
-                              className={`p-3 text-left font-mono font-bold text-xs rounded-lg border-2 border-brand-black transition-all flex justify-between items-center ${
-                                selectedTable === 'alerts'
+                              className={`p-3 text-left font-mono font-bold text-xs rounded-lg border-2 border-brand-black transition-all flex justify-between items-center ${selectedTable === 'alerts'
                                   ? 'bg-brand-red text-white shadow-[2px_2px_0px_#1b1b1b]'
                                   : 'bg-brand-beige text-brand-black hover:bg-white'
-                              }`}
+                                }`}
                             >
                               <span>sos_alerts</span>
                               <span className="text-[10px] opacity-75">({sosAlerts.length})</span>
@@ -1401,11 +1380,10 @@ export default function AdminPortal() {
 
                             <button
                               onClick={() => { setSelectedTable('credentials'); setDbFilter('all'); }}
-                              className={`p-3 text-left font-mono font-bold text-xs rounded-lg border-2 border-brand-black transition-all flex justify-between items-center ${
-                                selectedTable === 'credentials'
+                              className={`p-3 text-left font-mono font-bold text-xs rounded-lg border-2 border-brand-black transition-all flex justify-between items-center ${selectedTable === 'credentials'
                                   ? 'bg-brand-red text-white shadow-[2px_2px_0px_#1b1b1b]'
                                   : 'bg-brand-beige text-brand-black hover:bg-white'
-                              }`}
+                                }`}
                             >
                               <span>jit_credentials</span>
                               <span className="text-[10px] opacity-75">({jitCredentials.length})</span>
@@ -1413,11 +1391,10 @@ export default function AdminPortal() {
 
                             <button
                               onClick={() => { setSelectedTable('ledgers'); setDbFilter('all'); }}
-                              className={`p-3 text-left font-mono font-bold text-xs rounded-lg border-2 border-brand-black transition-all flex justify-between items-center ${
-                                selectedTable === 'ledgers'
+                              className={`p-3 text-left font-mono font-bold text-xs rounded-lg border-2 border-brand-black transition-all flex justify-between items-center ${selectedTable === 'ledgers'
                                   ? 'bg-brand-red text-white shadow-[2px_2px_0px_#1b1b1b]'
                                   : 'bg-brand-beige text-brand-black hover:bg-white'
-                              }`}
+                                }`}
                             >
                               <span>audit_ledgers</span>
                               <span className="text-[10px] opacity-75">({auditLedgers.length})</span>
@@ -1442,7 +1419,7 @@ export default function AdminPortal() {
                       {/* Right: Search, Filter, and Table Grid */}
                       <div className="lg:col-span-9 space-y-4">
                         <div className="bg-white border-2 border-brand-black rounded-xl p-5 shadow-[4px_4px_0px_#1b1b1b] space-y-4">
-                          
+
                           {/* Search and Filters row */}
                           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-brand-black/5">
                             <div className="flex flex-1 items-center space-x-2">
@@ -1523,15 +1500,15 @@ export default function AdminPortal() {
                                   <form onSubmit={handleAddGuardianRow} className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
                                     <div className="sm:col-span-2">
                                       <label className="block font-mono text-[9px] font-bold text-brand-muted uppercase mb-1">Guardian Alias</label>
-                                      <input type="text" required value={formGuardian.name} onChange={e => setFormGuardian({...formGuardian, name: e.target.value})} placeholder="e.g. Rapid Escort Node" className="w-full p-2 bg-white border border-brand-black/20 rounded" />
+                                      <input type="text" required value={formGuardian.name} onChange={e => setFormGuardian({ ...formGuardian, name: e.target.value })} placeholder="e.g. Rapid Escort Node" className="w-full p-2 bg-white border border-brand-black/20 rounded" />
                                     </div>
                                     <div>
                                       <label className="block font-mono text-[9px] font-bold text-brand-muted uppercase mb-1">Trust Score (0-100)</label>
-                                      <input type="number" min={0} max={100} value={formGuardian.trustScore} onChange={e => setFormGuardian({...formGuardian, trustScore: Number(e.target.value)})} className="w-full p-2 bg-white border border-brand-black/20 rounded" />
+                                      <input type="number" min={0} max={100} value={formGuardian.trustScore} onChange={e => setFormGuardian({ ...formGuardian, trustScore: Number(e.target.value) })} className="w-full p-2 bg-white border border-brand-black/20 rounded" />
                                     </div>
                                     <div>
                                       <label className="block font-mono text-[9px] font-bold text-brand-muted uppercase mb-1">Status</label>
-                                      <select value={formGuardian.status} onChange={e => setFormGuardian({...formGuardian, status: e.target.value})} className="w-full p-2 bg-white border border-brand-black/20 rounded">
+                                      <select value={formGuardian.status} onChange={e => setFormGuardian({ ...formGuardian, status: e.target.value })} className="w-full p-2 bg-white border border-brand-black/20 rounded">
                                         <option value="active">Active</option>
                                         <option value="pending">Pending</option>
                                         <option value="suspended">Suspended</option>
@@ -1539,7 +1516,7 @@ export default function AdminPortal() {
                                     </div>
                                     <div className="sm:col-span-2">
                                       <label className="block font-mono text-[9px] font-bold text-brand-muted uppercase mb-1">Verification Method</label>
-                                      <select value={formGuardian.method} onChange={e => setFormGuardian({...formGuardian, method: e.target.value})} className="w-full p-2 bg-white border border-brand-black/20 rounded">
+                                      <select value={formGuardian.method} onChange={e => setFormGuardian({ ...formGuardian, method: e.target.value })} className="w-full p-2 bg-white border border-brand-black/20 rounded">
                                         <option value="SHARP">SHARP (Zero Knowledge)</option>
                                         <option value="DIDs">DIDs (Decentralized IDs)</option>
                                         <option value="QR">QR Proof Crypt</option>
@@ -1547,7 +1524,7 @@ export default function AdminPortal() {
                                     </div>
                                     <div className="sm:col-span-1">
                                       <label className="block font-mono text-[9px] font-bold text-brand-muted uppercase mb-1">Geohash (Mesh Bound)</label>
-                                      <input type="text" value={formGuardian.geohash} onChange={e => setFormGuardian({...formGuardian, geohash: e.target.value})} placeholder="e.g. tdr18w2" className="w-full p-2 bg-white border border-brand-black/20 rounded" />
+                                      <input type="text" value={formGuardian.geohash} onChange={e => setFormGuardian({ ...formGuardian, geohash: e.target.value })} placeholder="e.g. tdr18w2" className="w-full p-2 bg-white border border-brand-black/20 rounded" />
                                     </div>
                                     <div className="flex items-end">
                                       <button type="submit" className="w-full py-2 bg-brand-black text-brand-beige font-mono font-bold text-xs rounded border border-brand-black hover:bg-brand-muted hover:text-white transition-all cursor-pointer">
@@ -1561,11 +1538,11 @@ export default function AdminPortal() {
                                   <form onSubmit={handleAddAlertRow} className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
                                     <div className="sm:col-span-2">
                                       <label className="block font-mono text-[9px] font-bold text-brand-muted uppercase mb-1">Reporter / SOS Name</label>
-                                      <input type="text" required value={formAlert.name} onChange={e => setFormAlert({...formAlert, name: e.target.value})} placeholder="e.g. Dynamic Transit Deviation" className="w-full p-2 bg-white border border-brand-black/20 rounded" />
+                                      <input type="text" required value={formAlert.name} onChange={e => setFormAlert({ ...formAlert, name: e.target.value })} placeholder="e.g. Dynamic Transit Deviation" className="w-full p-2 bg-white border border-brand-black/20 rounded" />
                                     </div>
                                     <div>
                                       <label className="block font-mono text-[9px] font-bold text-brand-muted uppercase mb-1">Hazard Level</label>
-                                      <select value={formAlert.hazard} onChange={e => setFormAlert({...formAlert, hazard: e.target.value})} className="w-full p-2 bg-white border border-brand-black/20 rounded">
+                                      <select value={formAlert.hazard} onChange={e => setFormAlert({ ...formAlert, hazard: e.target.value })} className="w-full p-2 bg-white border border-brand-black/20 rounded">
                                         <option value="low">Low Danger</option>
                                         <option value="medium">Medium Danger</option>
                                         <option value="high">High Emergency</option>
@@ -1573,18 +1550,18 @@ export default function AdminPortal() {
                                     </div>
                                     <div>
                                       <label className="block font-mono text-[9px] font-bold text-brand-muted uppercase mb-1">Initial Status</label>
-                                      <select value={formAlert.status} onChange={e => setFormAlert({...formAlert, status: e.target.value})} className="w-full p-2 bg-white border border-brand-black/20 rounded">
+                                      <select value={formAlert.status} onChange={e => setFormAlert({ ...formAlert, status: e.target.value })} className="w-full p-2 bg-white border border-brand-black/20 rounded">
                                         <option value="active">Active / Dispatch</option>
                                         <option value="resolved">Resolved</option>
                                       </select>
                                     </div>
                                     <div className="sm:col-span-2">
                                       <label className="block font-mono text-[9px] font-bold text-brand-muted uppercase mb-1">Coordinates / Location String</label>
-                                      <input type="text" value={formAlert.location} onChange={e => setFormAlert({...formAlert, location: e.target.value})} placeholder="e.g. South Terminal Sector A" className="w-full p-2 bg-white border border-brand-black/20 rounded" />
+                                      <input type="text" value={formAlert.location} onChange={e => setFormAlert({ ...formAlert, location: e.target.value })} placeholder="e.g. South Terminal Sector A" className="w-full p-2 bg-white border border-brand-black/20 rounded" />
                                     </div>
                                     <div>
                                       <label className="block font-mono text-[9px] font-bold text-brand-muted uppercase mb-1">Dispatched Responders</label>
-                                      <input type="number" min={0} value={formAlert.dispatched} onChange={e => setFormAlert({...formAlert, dispatched: Number(e.target.value)})} className="w-full p-2 bg-white border border-brand-black/20 rounded" />
+                                      <input type="number" min={0} value={formAlert.dispatched} onChange={e => setFormAlert({ ...formAlert, dispatched: Number(e.target.value) })} className="w-full p-2 bg-white border border-brand-black/20 rounded" />
                                     </div>
                                     <div className="flex items-end">
                                       <button type="submit" className="w-full py-2 bg-brand-black text-brand-beige font-mono font-bold text-xs rounded border border-brand-black hover:bg-brand-muted hover:text-white transition-all cursor-pointer">
@@ -1598,11 +1575,11 @@ export default function AdminPortal() {
                                   <form onSubmit={handleAddCredentialRow} className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
                                     <div>
                                       <label className="block font-mono text-[9px] font-bold text-brand-muted uppercase mb-1">Subject Reference (ID)</label>
-                                      <input type="text" required value={formCredential.name} onChange={e => setFormCredential({...formCredential, name: e.target.value})} placeholder="e.g. subject-994" className="w-full p-2 bg-white border border-brand-black/20 rounded" />
+                                      <input type="text" required value={formCredential.name} onChange={e => setFormCredential({ ...formCredential, name: e.target.value })} placeholder="e.g. subject-994" className="w-full p-2 bg-white border border-brand-black/20 rounded" />
                                     </div>
                                     <div>
                                       <label className="block font-mono text-[9px] font-bold text-brand-muted uppercase mb-1">Reason</label>
-                                      <select value={formCredential.reason} onChange={e => setFormCredential({...formCredential, reason: e.target.value})} className="w-full p-2 bg-white border border-brand-black/20 rounded">
+                                      <select value={formCredential.reason} onChange={e => setFormCredential({ ...formCredential, reason: e.target.value })} className="w-full p-2 bg-white border border-brand-black/20 rounded">
                                         <option value="Transit Escort">Transit Escort</option>
                                         <option value="Safe Spot Entry">Safe Spot Entry</option>
                                         <option value="Dynamic Peer Pairing">Dynamic Peer Pairing</option>
@@ -1610,11 +1587,11 @@ export default function AdminPortal() {
                                     </div>
                                     <div>
                                       <label className="block font-mono text-[9px] font-bold text-brand-muted uppercase mb-1">Validity (Minutes)</label>
-                                      <input type="number" value={formCredential.validMins} onChange={e => setFormCredential({...formCredential, validMins: Number(e.target.value)})} className="w-full p-2 bg-white border border-brand-black/20 rounded" />
+                                      <input type="number" value={formCredential.validMins} onChange={e => setFormCredential({ ...formCredential, validMins: Number(e.target.value) })} className="w-full p-2 bg-white border border-brand-black/20 rounded" />
                                     </div>
                                     <div>
                                       <label className="block font-mono text-[9px] font-bold text-brand-muted uppercase mb-1">Status</label>
-                                      <select value={formCredential.status} onChange={e => setFormCredential({...formCredential, status: e.target.value})} className="w-full p-2 bg-white border border-brand-black/20 rounded">
+                                      <select value={formCredential.status} onChange={e => setFormCredential({ ...formCredential, status: e.target.value })} className="w-full p-2 bg-white border border-brand-black/20 rounded">
                                         <option value="active">Active</option>
                                         <option value="expired">Expired</option>
                                         <option value="revoked">Revoked</option>
@@ -1622,7 +1599,7 @@ export default function AdminPortal() {
                                     </div>
                                     <div className="sm:col-span-3">
                                       <label className="block font-mono text-[9px] font-bold text-brand-muted uppercase mb-1">Selective Disclosed Claims</label>
-                                      <input type="text" value={formCredential.claims} onChange={e => setFormCredential({...formCredential, claims: e.target.value})} placeholder="Age Over 18, Identity Signed, Clear History" className="w-full p-2 bg-white border border-brand-black/20 rounded" />
+                                      <input type="text" value={formCredential.claims} onChange={e => setFormCredential({ ...formCredential, claims: e.target.value })} placeholder="Age Over 18, Identity Signed, Clear History" className="w-full p-2 bg-white border border-brand-black/20 rounded" />
                                     </div>
                                     <div className="flex items-end">
                                       <button type="submit" className="w-full py-2 bg-brand-black text-brand-beige font-mono font-bold text-xs rounded border border-brand-black hover:bg-brand-muted hover:text-white transition-all cursor-pointer">
@@ -1636,11 +1613,11 @@ export default function AdminPortal() {
                                   <form onSubmit={handleAddLedgerRow} className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
                                     <div>
                                       <label className="block font-mono text-[9px] font-bold text-brand-muted uppercase mb-1">Block Height</label>
-                                      <input type="number" value={formLedger.height} onChange={e => setFormLedger({...formLedger, height: Number(e.target.value)})} className="w-full p-2 bg-white border border-brand-black/20 rounded" />
+                                      <input type="number" value={formLedger.height} onChange={e => setFormLedger({ ...formLedger, height: Number(e.target.value) })} className="w-full p-2 bg-white border border-brand-black/20 rounded" />
                                     </div>
                                     <div>
                                       <label className="block font-mono text-[9px] font-bold text-brand-muted uppercase mb-1">Proof Type</label>
-                                      <select value={formLedger.type} onChange={e => setFormLedger({...formLedger, type: e.target.value})} className="w-full p-2 bg-white border border-brand-black/20 rounded">
+                                      <select value={formLedger.type} onChange={e => setFormLedger({ ...formLedger, type: e.target.value })} className="w-full p-2 bg-white border border-brand-black/20 rounded">
                                         <option value="Zero Knowledge">Zero Knowledge</option>
                                         <option value="Episode Consent">Episode Consent</option>
                                         <option value="Geofence Bound">Geofence Bound</option>
@@ -1648,7 +1625,7 @@ export default function AdminPortal() {
                                     </div>
                                     <div>
                                       <label className="block font-mono text-[9px] font-bold text-brand-muted uppercase mb-1">Consistency State</label>
-                                      <select value={formLedger.state} onChange={e => setFormLedger({...formLedger, state: e.target.value})} className="w-full p-2 bg-white border border-brand-black/20 rounded">
+                                      <select value={formLedger.state} onChange={e => setFormLedger({ ...formLedger, state: e.target.value })} className="w-full p-2 bg-white border border-brand-black/20 rounded">
                                         <option value="consistent">Consistent</option>
                                         <option value="unverified">Unverified</option>
                                         <option value="failed">Failed Integrity</option>
@@ -1656,7 +1633,7 @@ export default function AdminPortal() {
                                     </div>
                                     <div>
                                       <label className="block font-mono text-[9px] font-bold text-brand-muted uppercase mb-1">Verified By Node</label>
-                                      <input type="text" value={formLedger.verifiedBy} onChange={e => setFormLedger({...formLedger, verifiedBy: e.target.value})} placeholder="e.g. node-1" className="w-full p-2 bg-white border border-brand-black/20 rounded" />
+                                      <input type="text" value={formLedger.verifiedBy} onChange={e => setFormLedger({ ...formLedger, verifiedBy: e.target.value })} placeholder="e.g. node-1" className="w-full p-2 bg-white border border-brand-black/20 rounded" />
                                     </div>
                                     <div className="sm:col-span-4 flex justify-end">
                                       <button type="submit" className="px-6 py-2 bg-brand-black text-brand-beige font-mono font-bold text-xs rounded border border-brand-black hover:bg-brand-muted hover:text-white transition-all cursor-pointer">
@@ -1685,7 +1662,7 @@ export default function AdminPortal() {
                                   </th>
                                 </tr>
                               </thead>
-                              
+
                               <tbody className="bg-white divide-y divide-brand-black/15">
                                 {isQuerying ? (
                                   <tr>
@@ -1704,18 +1681,17 @@ export default function AdminPortal() {
                                   filteredRecords.map((row: any) => {
                                     return (
                                       <tr key={row.id} className="hover:bg-brand-beige/30 transition-colors">
-                                        
+
                                         {/* Table Row Content Conditionals */}
                                         {selectedTable === 'guardians' && (
                                           <>
                                             <td className="px-4 py-3 font-mono font-bold text-brand-muted border-r border-brand-black/5">{row.id}</td>
                                             <td className="px-4 py-3 font-bold text-brand-black">{row.name}</td>
                                             <td className="px-4 py-3 border-r border-brand-black/5">
-                                              <span className={`px-2 py-0.5 text-[10px] font-mono font-bold uppercase rounded border ${
-                                                row.status === 'active' ? 'bg-emerald-100 text-emerald-800 border-emerald-300' :
-                                                row.status === 'pending' ? 'bg-amber-100 text-amber-800 border-amber-300' :
-                                                'bg-brand-red/10 text-brand-red border-brand-red/25'
-                                              }`}>
+                                              <span className={`px-2 py-0.5 text-[10px] font-mono font-bold uppercase rounded border ${row.status === 'active' ? 'bg-emerald-100 text-emerald-800 border-emerald-300' :
+                                                  row.status === 'pending' ? 'bg-amber-100 text-amber-800 border-amber-300' :
+                                                    'bg-brand-red/10 text-brand-red border-brand-red/25'
+                                                }`}>
                                                 {row.status}
                                               </span>
                                             </td>
@@ -1735,18 +1711,16 @@ export default function AdminPortal() {
                                             <td className="px-4 py-3 font-mono font-bold text-brand-muted border-r border-brand-black/5">{row.id}</td>
                                             <td className="px-4 py-3 font-bold text-brand-black">{row.name}</td>
                                             <td className="px-4 py-3 border-r border-brand-black/5">
-                                              <span className={`px-2 py-0.5 text-[10px] font-mono font-bold uppercase rounded border ${
-                                                row.hazard === 'high' ? 'bg-brand-red/10 text-brand-red border-brand-red/25 animate-pulse' :
-                                                row.hazard === 'medium' ? 'bg-amber-100 text-amber-800 border-amber-300' :
-                                                'bg-blue-100 text-blue-800 border-blue-300'
-                                              }`}>
+                                              <span className={`px-2 py-0.5 text-[10px] font-mono font-bold uppercase rounded border ${row.hazard === 'high' ? 'bg-brand-red/10 text-brand-red border-brand-red/25 animate-pulse' :
+                                                  row.hazard === 'medium' ? 'bg-amber-100 text-amber-800 border-amber-300' :
+                                                    'bg-blue-100 text-blue-800 border-blue-300'
+                                                }`}>
                                                 {row.hazard}
                                               </span>
                                             </td>
                                             <td className="px-4 py-3 border-r border-brand-black/5">
-                                              <span className={`px-2 py-0.5 text-[10px] font-mono font-bold uppercase rounded border ${
-                                                row.status === 'active' ? 'bg-red-500 text-white border-brand-black' : 'bg-emerald-100 text-emerald-800 border-emerald-300'
-                                              }`}>
+                                              <span className={`px-2 py-0.5 text-[10px] font-mono font-bold uppercase rounded border ${row.status === 'active' ? 'bg-red-500 text-white border-brand-black' : 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                                                }`}>
                                                 {row.status}
                                               </span>
                                             </td>
@@ -1765,11 +1739,10 @@ export default function AdminPortal() {
                                             <td className="px-4 py-3 text-brand-muted font-medium text-[11px]">{row.claims}</td>
                                             <td className="px-4 py-3 font-mono text-[10px] text-brand-muted">{row.hash}</td>
                                             <td className="px-4 py-3">
-                                              <span className={`px-2 py-0.5 text-[10px] font-mono font-bold uppercase rounded border ${
-                                                row.status === 'active' ? 'bg-emerald-100 text-emerald-800 border-emerald-300' :
-                                                row.status === 'expired' ? 'bg-amber-100 text-amber-800 border-amber-300' :
-                                                'bg-brand-red/10 text-brand-red border-brand-red/25'
-                                              }`}>
+                                              <span className={`px-2 py-0.5 text-[10px] font-mono font-bold uppercase rounded border ${row.status === 'active' ? 'bg-emerald-100 text-emerald-800 border-emerald-300' :
+                                                  row.status === 'expired' ? 'bg-amber-100 text-amber-800 border-amber-300' :
+                                                    'bg-brand-red/10 text-brand-red border-brand-red/25'
+                                                }`}>
                                                 {row.status}
                                               </span>
                                             </td>
@@ -1782,11 +1755,10 @@ export default function AdminPortal() {
                                             <td className="px-4 py-3 font-mono font-bold text-brand-black">{row.height}</td>
                                             <td className="px-4 py-3 font-bold text-brand-black">{row.type}</td>
                                             <td className="px-4 py-3 border-r border-brand-black/5">
-                                              <span className={`px-2 py-0.5 text-[10px] font-mono font-bold uppercase rounded border ${
-                                                row.state === 'consistent' ? 'bg-emerald-100 text-emerald-800 border-emerald-300' :
-                                                row.state === 'unverified' ? 'bg-amber-100 text-amber-800 border-amber-300' :
-                                                'bg-brand-red/10 text-brand-red border-brand-red/25'
-                                              }`}>
+                                              <span className={`px-2 py-0.5 text-[10px] font-mono font-bold uppercase rounded border ${row.state === 'consistent' ? 'bg-emerald-100 text-emerald-800 border-emerald-300' :
+                                                  row.state === 'unverified' ? 'bg-amber-100 text-amber-800 border-amber-300' :
+                                                    'bg-brand-red/10 text-brand-red border-brand-red/25'
+                                                }`}>
                                                 {row.state}
                                               </span>
                                             </td>
@@ -1908,7 +1880,7 @@ export default function AdminPortal() {
                         Cryptographically linked consensus audit logs. Verified by peer consent nodes.
                       </p>
                     </div>
-                    
+
                     <button
                       onClick={() => {
                         alert("Consensus Ledger Verified 100% Consistent against DB SHA-256 signature.");
@@ -1924,11 +1896,10 @@ export default function AdminPortal() {
                       <div key={log.id} className="p-3.5 bg-white border border-brand-black/10 rounded flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                         <div className="flex items-start sm:items-center space-x-3">
                           <span className="font-mono text-xs text-brand-muted font-bold">[{log.time}]</span>
-                          <span className={`px-2 py-0.5 font-mono text-[9px] font-bold uppercase rounded border ${
-                            log.status === 'OK' || log.status === 'ACTIVE'
+                          <span className={`px-2 py-0.5 font-mono text-[9px] font-bold uppercase rounded border ${log.status === 'OK' || log.status === 'ACTIVE'
                               ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600'
                               : 'bg-amber-500/10 border-amber-500/20 text-amber-600'
-                          }`}>
+                            }`}>
                             {log.status}
                           </span>
                           <span className="font-sans text-xs text-brand-black font-bold">{log.event}</span>

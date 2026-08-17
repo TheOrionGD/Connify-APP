@@ -42,7 +42,7 @@ export default function WomenSafetyScreen({ navigation }: any) {
 
   useEffect(() => {
     let interval: any;
-    if (fakeCallActive && fakeTimer > 0) {
+    if (fakeCallActive) {
       interval = setInterval(() => {
         setFakeTimer(prev => {
           if (prev <= 1) {
@@ -61,10 +61,8 @@ export default function WomenSafetyScreen({ navigation }: any) {
         });
       }, 1000);
     }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [fakeCallActive, fakeTimer]);
+    return () => clearInterval(interval);
+  }, [fakeCallActive]);
 
   const loadContacts = async () => {
     try {

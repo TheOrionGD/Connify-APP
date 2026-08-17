@@ -16,10 +16,17 @@ jest.mock('react-native-reanimated', () => {
       call: () => {},
       createAnimatedComponent: (c) => c,
     },
+    createAnimatedComponent: (c) => c,
     useSharedValue: (init) => ({ value: init }),
     useAnimatedStyle: (fn) => fn(),
+    useAnimatedProps: (fn) => fn(),
     withTiming: (val) => val,
     withSpring: (val) => val,
+    withDelay: (delay, val) => val,
+    Easing: {
+      inOut: () => {},
+      ease: () => {},
+    },
     View: View,
   };
 });

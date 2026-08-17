@@ -1,9 +1,10 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import auth from '@react-native-firebase/auth';
+import { getAuth, signInAnonymously, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithCredential, GoogleAuthProvider, signOut, updateProfile } from '@react-native-firebase/auth';
 import nacl from 'tweetnacl';
 import DeviceInfo from 'react-native-device-info';
+import { Platform } from 'react-native';
 import { deviceApi } from '../services/api/deviceApi';
 import { profileApi } from '../services/api/profileApi';
 import { authApi } from '../services/api/authApi';
@@ -12,9 +13,11 @@ import { connectivityService } from '../services/ConnectivityService';
 import { offlineQueueService } from '../services/OfflineQueueService';
 
 
-GoogleSignin.configure({
-  webClientId: '268788625625-vh6gf0l25q396jedmmchvs699g6p09e7.apps.googleusercontent.com',
-});
+if (Platform.OS !== 'web') {
+  GoogleSignin.configure({
+    webClientId: '268788625625-vh6gf0l25q396jedmmchvs699g6p09e7.apps.googleusercontent.com',
+  });
+}
 
 export interface FirebaseUser {
   uid: string;
@@ -168,8 +171,7 @@ export const useAuthStore = create<AuthState>()(
       signInWithEmail: async (email, password) => {
         set({ loading: true, error: null });
         try {
-          // 1. Authenticate with Firebase
-          const userCredential = await auth().signInWithEmailAndPassword(email, password);
+          const userCredential = await signInWithEmailAndPassword(getAuth(), email, password);
           const user = userCredential.user;
           if (!user) throw new Error('No user returned from Firebase');
 
@@ -231,7 +233,7 @@ export const useAuthStore = create<AuthState>()(
       signInAnonymously: async () => {
         set({ loading: true, error: null });
         try {
-          const userCredential = await auth().signInAnonymously();
+          const userCredential = await signInAnonymously(getAuth());
           const user = userCredential.user;
           if (!user) throw new Error('No user returned from Firebase');
 
@@ -290,11 +292,11 @@ export const useAuthStore = create<AuthState>()(
       signUpWithEmail: async (email, password, displayName) => {
         set({ loading: true, error: null });
         try {
-          const userCredential = await auth().createUserWithEmailAndPassword(email, password);
+          const userCredential = await createUserWithEmailAndPassword(getAuth(), email, password);
           const user = userCredential.user;
           if (!user) throw new Error('No user returned from Firebase');
 
-          await user.updateProfile({ displayName });
+          await updateProfile(user, { displayName });
 
           const firebaseToken = await user.getIdToken();
           const firebaseUser: FirebaseUser = {
@@ -349,6 +351,9 @@ export const useAuthStore = create<AuthState>()(
       signInWithGoogle: async () => {
         set({ loading: true, error: null });
         try {
+          if (Platform.OS === 'web') {
+            throw new Error('Google Sign-In is not currently supported on the web.');
+          }
           await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
           const signInResult = await GoogleSignin.signIn();
           const idToken = signInResult.data?.idToken;
@@ -357,8 +362,8 @@ export const useAuthStore = create<AuthState>()(
             throw new Error('No ID token found');
           }
 
-          const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-          const userCredential = await auth().signInWithCredential(googleCredential);
+          const googleCredential = GoogleAuthProvider.credential(idToken);
+          const userCredential = await signInWithCredential(getAuth(), googleCredential);
           const user = userCredential.user;
           if (!user) throw new Error('No user returned from Google auth');
 
@@ -409,6 +414,28 @@ export const useAuthStore = create<AuthState>()(
             });
           }
           await get().fetchProfile();
+
+          // Sync Google profile data if missing
+          const currentProfile = get().userProfile;
+          if (user.displayName && (!currentProfile?.firstName && !currentProfile?.lastName)) {
+            const nameParts = user.displayName.split(' ');
+            const firstName = nameParts[0] || '';
+            const lastName = nameParts.slice(1).join(' ') || '';
+            
+            try {
+              const upsertRes = await profileApi.upsertProfile({
+                firstName,
+                lastName,
+                phone: user.phoneNumber || currentProfile?.phone || '',
+                medicalNotes: currentProfile?.medicalNotes || '',
+              });
+              if (upsertRes.success) {
+                await get().fetchProfile();
+              }
+            } catch (err) {
+              console.warn('Failed to upsert Google profile data', err);
+            }
+          }
         } catch (e: any) {
           set({ error: e.message || 'Google authentication failed.', loading: false });
         }
@@ -509,7 +536,7 @@ export const useAuthStore = create<AuthState>()(
       signOut: async () => {
         set({ loading: true });
         try {
-          await auth().signOut();
+          await signOut(getAuth());
           set({
             user: null,
             isAuthenticated: false,

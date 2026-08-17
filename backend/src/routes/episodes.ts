@@ -26,7 +26,7 @@ const createBodySchema = z.object({
   context: z.string().max(280).optional(),
   latitude: z.number().min(-90).max(90),
   longitude: z.number().min(-180).max(180),
-  radiusMeters: z.number().int().min(50).max(5000).default(DEFAULT_SEARCH_RADIUS_METERS),
+  radiusMeters: z.number().int().min(50).max(50000).default(DEFAULT_SEARCH_RADIUS_METERS),
   blindedGridSigs: z.string().min(1, 'blindedGridSigs is required for SHARP proximity checks'),
   helperValidationKey: z.string().min(1, 'helperValidationKey is required for SHARP proximity checks'),
   gridCellsJson: z.string().min(1, 'gridCellsJson is required for SHARP proximity checks'),
@@ -38,7 +38,7 @@ const createBodySchema = z.object({
 const nearbyQuerySchema = z.object({
   latitude: z.coerce.number().min(-90).max(90),
   longitude: z.coerce.number().min(-180).max(180),
-  radiusMeters: z.coerce.number().int().min(50).max(5000).default(DEFAULT_SEARCH_RADIUS_METERS),
+  radiusMeters: z.coerce.number().int().min(50).max(50000).default(DEFAULT_SEARCH_RADIUS_METERS),
 });
 
 

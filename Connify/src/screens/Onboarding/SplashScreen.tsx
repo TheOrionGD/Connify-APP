@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, Animated, Easing } from 'react-native';
+import { StyleSheet, Text, View, Animated, Easing, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { theme } from '../../theme';
 import { useAuthStore } from '../../stores/authStore';
+import { API_BASE_URL } from '@env';
 
 export default function SplashScreen({ navigation }: any) {
   const [pulseAnim] = useState(new Animated.Value(0));
@@ -15,13 +16,13 @@ export default function SplashScreen({ navigation }: any) {
           toValue: 1,
           duration: 600,
           easing: Easing.inOut(Easing.ease),
-          useNativeDriver: true,
+          useNativeDriver: Platform.OS !== 'web',
         }),
         Animated.timing(pulseAnim, {
           toValue: 0,
           duration: 600,
           easing: Easing.inOut(Easing.ease),
-          useNativeDriver: true,
+          useNativeDriver: Platform.OS !== 'web',
         }),
       ])
     ).start();
@@ -36,7 +37,9 @@ export default function SplashScreen({ navigation }: any) {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 10000); 
         
-        const response = await fetch('https://connify-backend.onrender.com/', {
+        const backendUrl = API_BASE_URL || 'https://connify-backend.onrender.com';
+        const fetchUrl = backendUrl.endsWith('/') ? backendUrl : `${backendUrl}/`;
+        const response = await fetch(fetchUrl, {
           signal: controller.signal,
         });
         clearTimeout(timeoutId);

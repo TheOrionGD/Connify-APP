@@ -61,7 +61,7 @@ export default function DashboardScreen({ navigation }: any) {
 
   useEffect(() => {
     let timer: any;
-    if (currentState === 'active' && timeLeft > 0) {
+    if (currentState === 'active') {
       timer = setInterval(() => {
         tickCountdown();
       }, 1000);
@@ -69,7 +69,7 @@ export default function DashboardScreen({ navigation }: any) {
     return () => {
       if (timer) clearInterval(timer);
     };
-  }, [currentState, timeLeft, tickCountdown]);
+  }, [currentState, tickCountdown]);
 
   const triggerSOS = () => {
     if (latitude === null || longitude === null || (latitude === 0 && longitude === 0)) {

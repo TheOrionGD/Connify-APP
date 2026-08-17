@@ -4,6 +4,18 @@
   <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
   <uses-permission android:name="android.permission.CAMERA" />
   <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+  <uses-permission android:name="android.permission.VIBRATE" />
+  
+  <!-- Network & Connectivity -->
+  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+  
+  <!-- Cryptography & Biometric Auth -->
+  <uses-permission android:name="android.permission.USE_BIOMETRIC" />
+  <uses-permission android:name="android.permission.USE_FINGERPRINT" />
+  
+  <!-- Offline Emergency Fallbacks -->
+  <uses-permission android:name="android.permission.CALL_PHONE" />
+  <uses-permission android:name="android.permission.SEND_SMS" />
 
   <application
     android:name=".MainApplication"

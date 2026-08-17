@@ -249,10 +249,7 @@ const styles = StyleSheet.create({
     height: 180,
     borderRadius: 90,
     elevation: 16,
-    shadowColor: '#DC2626',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.65,
-    shadowRadius: 20,
+    boxShadow: '0px 8px 20px rgba(220, 38, 38, 0.65)',
     backgroundColor: '#991B1B', // Fallback
   },
   sosButtonGradient: {
@@ -276,9 +273,7 @@ const styles = StyleSheet.create({
     fontSize: 52,
     color: '#FFFFFF',
     letterSpacing: 2,
-    textShadowColor: 'rgba(0, 0, 0, 0.4)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
+    textShadow: '0px 2px 4px rgba(0, 0, 0, 0.4)',
   },
   holdBadge: {
     backgroundColor: 'rgba(0, 0, 0, 0.3)',
