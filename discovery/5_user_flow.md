@@ -106,7 +106,21 @@ This document details the step-by-step user interactions and state transitions f
 
 ---
 
-## 5.5 State Machine Transition Map (Updated v2.0)
+## 5.5 Unified Safety Hub Utilities Flow (NEW v2.0)
+
+```
+[Dashboard] ➔ [Safety Hub] ➔ [Select Tool: Fake Call / Offline Mode / Women Safety] ➔ [Execute Utility]
+```
+
+1. **Access**: User navigates to the Unified Safety Hub from the main dashboard.
+2. **Emergency Contacts Management**: User can dynamically add or remove trusted secondary contacts.
+3. **Fake Call Simulator**: User configures caller ID and sets a timer (e.g., 5s, 30s). An incoming call simulation is triggered to deter harassment.
+4. **Offline Emergency Mode**: If cellular data is lost, user can execute direct SMS dispatch to pre-configured guardians and initialize local Bluetooth LE broadcasts.
+5. **Women Safety Toolkit**: specialized sub-tools for discreet SOS triggering without visual/audio indicators.
+
+---
+
+## 5.6 State Machine Transition Map (Updated v2.0)
 
 ```mermaid
 stateDiagram-v2

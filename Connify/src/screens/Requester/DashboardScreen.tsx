@@ -183,6 +183,27 @@ export default function DashboardScreen({ navigation }: any) {
           </View>
         </Animated.View>
 
+        {!hasCompletedProfile && (
+          <Animated.View entering={FadeInDown.duration(400).delay(250)} style={[styles.setupBanner, { backgroundColor: colors.surfaceContainerLowest, borderColor: colors.outline }]}>
+            <View style={styles.setupBannerHeader}>
+              <Icon name="shield" size={20} color="#059669" />
+              <Text style={[styles.setupBannerTitle, { color: colors.onBackground }]}>Mesh Active • Profile Incomplete</Text>
+            </View>
+            <Text style={[styles.setupBannerText, { color: colors.onSurfaceVariant }]}>
+              You have basic mesh access. <Text style={{ color: '#EF4444', fontWeight: 'bold' }}>Warning:</Text> You will lose access to offline cellular SOS fallback during internet blackouts if your profile remains incomplete.
+            </Text>
+            <View style={styles.progressRow}>
+              <View style={[styles.progressBarBg, { backgroundColor: colors.surfaceContainerHigh, flex: 1, marginRight: 10 }]}>
+                <View style={[styles.progressBarFill, { width: '50%', backgroundColor: '#059669' }]} />
+              </View>
+              <Text style={[styles.progressText, { color: colors.onSurfaceVariant }]}>50% Complete</Text>
+            </View>
+            <TouchableOpacity style={[styles.setupBannerBtn, { backgroundColor: colors.primary }]} onPress={() => setShowProfileModal(true)}>
+              <Text style={styles.setupBannerBtnText}>SECURE MY DEVICE</Text>
+            </TouchableOpacity>
+          </Animated.View>
+        )}
+
 
         {activeMode === 'need-help' ? (
           <>
@@ -318,10 +339,10 @@ export default function DashboardScreen({ navigation }: any) {
                 <Icon name="wifi-off" size={22} color={colors.primary} />
               </View>
               <View style={styles.bannerContent}>
-                <Text style={[styles.bannerTitle, { color: colors.onBackground }]}>NO NETWORK & OFFLINE HUB</Text>
-                <Text style={[styles.bannerText, { color: colors.onSurfaceVariant }]}>Cellular voice dialers, offline SMS & queue status.</Text>
+                <Text style={[styles.bannerTitle, { color: '#FFFFFF' }]}>NO NETWORK & OFFLINE HUB</Text>
+                <Text style={[styles.bannerText, { color: '#94A3B8' }]}>Cellular voice dialers, offline SMS & queue status.</Text>
               </View>
-              <Icon name="chevron-right" size={20} color={colors.onSurfaceVariant} />
+              <Icon name="chevron-right" size={20} color="#94A3B8" />
             </GradientView>
           </TouchableOpacity>
 
@@ -338,10 +359,10 @@ export default function DashboardScreen({ navigation }: any) {
                 <Icon name="gavel" size={22} color={colors.onBackground} />
               </View>
               <View style={styles.bannerContent}>
-                <Text style={[styles.bannerTitle, { color: colors.onBackground }]}>ZERO-TRUST GOVERNANCE</Text>
-                <Text style={[styles.bannerText, { color: colors.onSurfaceVariant }]}>Inspect cryptography & privacy guarantees.</Text>
+                <Text style={[styles.bannerTitle, { color: '#FFFFFF' }]}>ZERO-TRUST GOVERNANCE</Text>
+                <Text style={[styles.bannerText, { color: '#94A3B8' }]}>Inspect cryptography & privacy guarantees.</Text>
               </View>
-              <Icon name="chevron-right" size={20} color={colors.onSurfaceVariant} />
+              <Icon name="chevron-right" size={20} color="#94A3B8" />
             </GradientView>
           </TouchableOpacity>
         </Animated.View>
@@ -355,7 +376,10 @@ export default function DashboardScreen({ navigation }: any) {
               colors={['#EF4444', '#991B1B']}
               style={styles.createRequestCTA}
             >
-              <Text style={styles.createRequestCTAText}>BROADCAST CUSTOM HELP REQUEST</Text>
+              <View style={styles.createRequestContent}>
+                <Text style={styles.createRequestCTAText}>CUSTOMIZE YOUR QUICK SOS</Text>
+                <Text style={styles.createRequestCTASub}>Pre-configure custom alerts for faster response.</Text>
+              </View>
               <Icon name="arrow-forward" size={18} color="#000000" />
             </GradientView>
           </TouchableOpacity>
@@ -705,6 +729,56 @@ const styles = StyleSheet.create({
     color: actionColors.actionButtonText,
     fontFamily: 'SpaceGrotesk-Bold',
     fontSize: 13,
+    letterSpacing: 0.5,
+  },
+  createRequestContent: {
+    flex: 1,
+    gap: 2,
+  },
+  createRequestCTASub: {
+    color: 'rgba(0,0,0,0.7)',
+    fontFamily: 'WorkSans-Regular',
+    fontSize: 11,
+  },
+  setupBanner: {
+    borderWidth: 1,
+    borderRadius: 14,
+    padding: 14,
+    gap: 10,
+  },
+  setupBannerHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  setupBannerTitle: {
+    fontFamily: 'WorkSans-Bold',
+    fontSize: 14,
+  },
+  setupBannerText: {
+    fontFamily: 'WorkSans-Regular',
+    fontSize: 12,
+    lineHeight: 18,
+  },
+  progressRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  progressText: {
+    fontFamily: 'SpaceGrotesk-Bold',
+    fontSize: 10,
+  },
+  setupBannerBtn: {
+    paddingVertical: 10,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 4,
+  },
+  setupBannerBtnText: {
+    fontFamily: 'SpaceGrotesk-Bold',
+    fontSize: 12,
+    color: '#FFFFFF',
     letterSpacing: 0.5,
   },
 });

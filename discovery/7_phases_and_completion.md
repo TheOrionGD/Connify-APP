@@ -22,7 +22,7 @@ This document defines the goals, deliverables, specific completion/acceptance cr
 | **12** | **Database Design** | MongoDB Atlas models, 2dsphere indexes, and location atomics. | **COMPLETED** | `Device`, `Episode`, `Profile`, `Guardian`, `DeviceLocation`, `Outcome`, `AuditLog` schemas operational. |
 | **13** | **Documentation** | Build instructions, guides, and API specifications. | **COMPLETED** | `discovery/` folder updated; architecture doc, phase tracker, and project report reflect v2.0 systems. |
 | **14** | **Android Build** | Build and signing setup for production apps. | *Pending* | Android package compiles to clean release target (AAB/APK). |
-| **15** | **Quality & Integration Tests** | Execute code sanity checks, lint validation, and tests. | **COMPLETED** | **27/27 integration tests passing (100%)** across all 4 suites. Zero lint errors. |
+| **15** | **Quality & Integration Tests** | Execute code sanity checks, lint validation, and tests. | **COMPLETED** | **All integration tests passing (100%)** across all 10 suites. Zero lint errors. |
 | **16** | **5-Pillar Harmlessness System** | Behavioral risk scoring, velocity trap detection, responder panic abort, auto-quarantine. | **COMPLETED** | 6/6 tests passing in `harmlessnessSystem.test.ts`. |
 | **17** | **5-Second GPS Watchdog & Guardian SMS** | Atomic location pings, 15s signal loss detection, unbounded recovery, personalized SMS alerts. | **COMPLETED** | 6/6 tests passing in `locationWatchdog.test.ts`. Guardian SMS reads coordinates directly from MongoDB. |
 | **18** | **Anonymous → Registered Profile Migration** | Firebase `linkWithCredential` integration, mandatory guardian enforcement, `POST /api/profile/upgrade`. | **COMPLETED** | 5/5 tests passing in `profileMigration.test.ts`. `isAnonymous: false` verified in MongoDB. |
@@ -79,10 +79,10 @@ This document defines the goals, deliverables, specific completion/acceptance cr
   * Ensure private keys never leak to plaintext local storage.
 
 ### Phase 12: Database Design
-* **Input**: SQL schemas.
+* **Input**: Mongoose schemas and TypeScript interfaces.
 * **Completion Checklist**:
-  * Run Postgres migration scripts.
-  * Verify spatial index performance on PostGIS fields.
+  * Implement MongoDB models (`Device`, `Episode`, `Profile`, `Guardian`, `DeviceLocation`, `Outcome`, `AuditLog`).
+  * Verify spatial index performance on `2dsphere` location fields.
 
 ### Phase 13: Documentation
 * **Input**: Finished code modules.

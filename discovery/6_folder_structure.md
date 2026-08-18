@@ -62,15 +62,21 @@ Connify/src/
 │   ├── AppNavigator.ts     # Root switcher (Onboarding vs Main Application)
 │   ├── TabNavigator.ts     # Bottom tab bar setup (Dashboard, History, Settings)
 │   └── StackNavigators.ts  # Requester, Helper, and Profile migration sub-stacks
-├── screens/                # State-aware screen components
-│   ├── Onboarding/         # Welcome, Permissions, Setup
-│   ├── Profile/            # ProfileUpgradeScreen, GuardianRegistrationScreen [v2.0]
-│   ├── Requester/          # CreateRequest, RequestVerification, Searching
-│   ├── Helper/             # NearbyRequests, AcceptVerify, ProximityVerification
-│   ├── ActiveEpisode/      # RequesterActive, HelperActive
-│   ├── Feedback/           # FeedbackScreen (SAFE_RESOLVED / SUSPICIOUS_BEHAVIOR / ACTIVE_THREAT)
-│   ├── Settings/           # SettingsScreen, HistoryScreen
-│   └── Governance/         # GovernanceScreen [v2.0]
+│   ├── screens/                # State-aware screen components
+│   │   ├── Onboarding/         # Welcome, Permissions, Setup
+│   │   ├── Profile/            # ProfileUpgradeScreen, GuardianRegistrationScreen [v2.0]
+│   │   ├── Requester/          # CreateRequest, RequestVerification, Searching
+│   │   ├── Helper/             # NearbyRequests, AcceptVerify, ProximityVerification
+│   │   ├── ActiveEpisode/      # RequesterActive, HelperActive
+│   │   ├── Feedback/           # FeedbackScreen (SAFE_RESOLVED / SUSPICIOUS_BEHAVIOR / ACTIVE_THREAT)
+│   │   ├── Settings/           # SettingsScreen, HistoryScreen
+│   │   ├── Governance/         # GovernanceScreen [v2.0]
+│   │   ├── UnifiedSafetyHubScreen.tsx               # Unified Safety Hub [NEW v2.0]
+│   │   ├── EmergencyContactsScreen.tsx              # Emergency Contacts [NEW v2.0]
+│   │   ├── FakeCallScreen.tsx                       # Fake Call Simulator [NEW v2.0]
+│   │   ├── GovernmentEmergencyNumbersScreen.tsx     # Government Numbers [NEW v2.0]
+│   │   ├── OfflineEmergencyScreen.tsx               # Offline Emergency Operations [NEW v2.0]
+│   │   └── WomenSafetyScreen.tsx                    # Women Safety Toolkit [NEW v2.0]
 ├── services/               # API clients and background tasks
 │   ├── api/                # Axios configuration, interceptors, auth relays
 │   │   ├── locationApi.ts  # POST /api/locations/ping (5s GPS watchdog) [v2.0]
@@ -133,10 +139,16 @@ backend/src/
 
 ```
 backend/tests/
-├── symmetricVerificationPipeline.test.ts  # 10 tests — Ed25519 challenge, nonce, replay defense, Trust Capsule
-├── harmlessnessSystem.test.ts             # 6 tests  — 5-Pillar harmlessness, velocity trap, threat abort, quarantine
-├── locationWatchdog.test.ts               # 6 tests  — 5s GPS ping, 15s loss, Guardian SMS, unbounded recovery
-└── profileMigration.test.ts              # 5 tests  — Anonymous baseline, profile upgrade, DB state, episode creation, SMS personalization
+├── adminAuth.test.ts
+├── allEndpoints.test.ts
+├── CapsuleController.test.ts
+├── deviceChallenge.test.ts
+├── deviceRegistration.test.ts
+├── e2eJourney.test.ts
+├── harmlessnessSystem.test.ts
+├── locationWatchdog.test.ts
+├── profileMigration.test.ts
+└── symmetricVerificationPipeline.test.ts
 ```
 
-**Total: 27 / 27 tests passing (100%)**
+**Total: All tests passing (100%)**

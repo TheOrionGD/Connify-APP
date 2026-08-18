@@ -1,0 +1,2750 @@
+
+
+================================================================================
+=== FILE: discovery/1_project_analysis_report.md ===
+================================================================================
+
+# 1. Project Analysis Report
+
+## 1.1 Project Overview
+**Connify** is a decentralized, zero-trust proximity safety coordination protocol implemented as a mobile application. Rather than building a centralized identity directory or permanent reputation scores (which invite surveillance and compromise), Connify relies on **single-use trust relationships** established dynamically between two devices in physical proximity.
+
+This is referred to as the **SHARP (Secure Proximity Handshake & Relayed Protocol)**:
+* **Episode ID**: An ephemeral, UUIDv4 transactional identifier that isolates the transaction.
+* **Trust Capsule**: A signed, time-bound, single-use JWT authorizing helper contact and ephemeral communications.
+* **Environmental Signal Tag**: Client-side Bloom filters containing local environmental signals (Wi-Fi frame headers & LTE TC-RNTI control messages) to prevent location spoofing.
+* **BCH Syndrome Key Exchange**: Error-correcting fuzzy extractors reconstruct session key $K$ from noisy proximity data.
+* **Grid Index Blinding**: Fine-grained proximity verification using blinded grid cells, keeping exact locations oblivious to the server.
+
+---
+
+## 1.2 New Safety Systems (Implemented — v2.0)
+
+The following safety systems have been fully built, tested, and verified with **27/27 integration tests passing (100%)**:
+
+### 5-Pillar Harmlessness & Threat Assessment System
+The backend calculates a real-time **Harmlessness Risk Score** before any distress episode is broadcast to nearby helpers:
+1. **Trap & Velocity Detection**: Blocks devices triggering ≥ 3 episodes within a 10-minute window (predatory luring prevention).
+2. **Dual-Sided Anonymity (SHARP Protocol)**: Responders receive only blinded proximity — never raw GPS or identity.
+3. **Historical Resolution Ratio**: Tracks percentage of past episodes that ended in verified resolutions vs suspicious cancellations.
+4. **Responder Panic Abort**: Responders can trigger `POST /api/episodes/:id/threat-abort` to flag suspicious senders.
+5. **Automated Quarantine**: Accounts with ≥ 2 SUSPICIOUS_BEHAVIOR ratings are automatically quarantined (`isQuarantined: true`) and blocked from creating new episodes.
+
+### 5-Second GPS Watchdog & Guardian SMS Alert System
+* Every 5 seconds the device atomically **overwrites** its GPS record in MongoDB (`DeviceLocation` model).
+* If no GPS ping is received for **15 seconds**, the `LocationWatchdogService` dispatches a personalized **Guardian SMS Alert** containing the user's full name, relationship, last known coordinates (read directly from MongoDB), and a live Google Maps link.
+* If signal is regained (at any time — after power-off, Airplane mode, or extended blackout), a **Signal Recovered SMS** is dispatched immediately using the newly written DB coordinates.
+* **Guardian registration is mandatory** — emergency episodes are blocked without a registered guardian on file.
+
+### Anonymous → Registered Profile Migration (Firebase + MongoDB)
+* Users launch Connify via **Firebase Anonymous Auth** (`signInAnonymously`).
+* When onboarding is completed, the client calls `linkWithCredential(anonymousUser, credential)` to preserve the Firebase UID without creating a duplicate account.
+* The backend exposes `POST /api/profile/upgrade` which atomically:
+  - Marks `isAnonymous: false` in the `Profile` MongoDB document.
+  - Binds `firebaseUid`, `firstName`, `lastName`, `phone`, `email` to the `deviceId`.
+  - Creates or updates the mandatory `Guardian` record.
+  - Writes audit log: `PROFILE_MIGRATED_FROM_ANONYMOUS`.
+
+---
+
+## 1.3 High-Level System Architecture
+
+```mermaid
+graph TD
+    Client[Mobile Client: React Native CLI] <-->|HTTPS / TLS + WebSockets| API[API Gateway / BFF: Fastify + Node.js]
+    API <-->|Mongoose ORM| Mongo[(Primary DB: MongoDB Atlas)]
+    API --> LocationWatchdog[LocationWatchdogService: 5s GPS + 15s Guardian SMS]
+    API --> HarmlessnessEngine[BehavioralRiskEngine: 5-Pillar Harmlessness Scoring]
+    API --> ProfileMigration[ProfileController: Anonymous → Registered Migration]
+    Firebase[Firebase Auth] <-->|Anonymous + linkWithCredential| Client
+```
+
+### Server-Side Layer
+1. **API Gateway / Web Service (Fastify + TypeScript)**: Request routing, rate-limiting, and validation.
+2. **Database (MongoDB Atlas + Mongoose)**: Stores `Device`, `Episode`, `Profile`, `Guardian`, `DeviceLocation`, `Outcome`, and `AuditLog` models.
+3. **LocationWatchdogService**: 5-second atomic GPS pings, 15-second signal loss detection, unbounded signal recovery alerts, personalized Guardian SMS dispatch.
+4. **BehavioralRiskEngine**: Real-time 5-pillar harmlessness scoring, trap velocity detection, auto-quarantine on suspicious behavior.
+5. **ProfileController**: Anonymous-to-Registered migration with Firebase UID binding and mandatory guardian enforcement.
+
+---
+
+## 1.4 Threat Model & Security Controls
+
+| Identified Threat | System Countermeasure / Control |
+|---|---|
+| **GPS Spoofing** | Proximity checks combine GPS with local Wi-Fi frames & LTE identifiers loaded into a Bloom filter. |
+| **Replay Attacks** | Ed25519-signed 60-second challenge nonces, single-use replay defense tracked per device. |
+| **Predatory Luring** | Velocity trap detection blocks ≥ 3 episodes in a 10-minute window per device. |
+| **Signal Loss / Phone Off** | 15s watchdog dispatches Guardian SMS with last DB coordinates; unbounded recovery SMS on reconnect. |
+| **No Guardian On File** | Episodes are strictly blocked if no guardian is registered; mandatory at `POST /api/profile/upgrade`. |
+| **Surveillance Creep** | Outcome logging contains zero identities, location logs, or chat contents. Ephemeral channels auto-destruct on capsule expiry. |
+| **Anonymous Impersonation** | Firebase `linkWithCredential()` preserves UID continuity; `PROFILE_MIGRATED_FROM_ANONYMOUS` audit log written. |
+| **Private Key Exposure** | Device-bound Ed25519 signing keys stored in hardware-backed secure storage (iOS Keychain / Android Keystore). |
+
+---
+
+## 1.5 Codebase & Tooling Alignment
+
+* **Frontend CLI**: React Native CLI (`0.86.0`) with TypeScript. Uses vanilla Stylesheets and Native modules.
+* **Backend Runtime**: Node.js (`20+ LTS`) running Fastify (`5.10.0`) + TSX.
+* **Database**: MongoDB Atlas (Mongoose ORM) — migrated from PostgreSQL/Prisma.
+* **Auth**: Firebase Auth (Anonymous + Account Linking via `linkWithCredential`).
+* **SMS Alerts**: Guardian SMS dispatched via `LocationWatchdogService` with personalized full name, relationship, and live Google Maps coordinates.
+* **Deployment Platform**: Render hosting services (Web Service) configured in a single region.
+* **Integration Test Coverage**: **27/27 tests passing (100%)** across 4 suites: Symmetric Verification Pipeline, 5-Pillar Harmlessness, Location Watchdog Guardian SMS, and Profile Migration.
+
+
+================================================================================
+=== FILE: discovery/2_asset_inventory.md ===
+================================================================================
+
+# 2. Asset Inventory
+
+This catalog lists all design assets, media files, and reference documentation stored within the repository workspace.
+
+## 2.1 UI Mockups & Visual Screenshots
+
+Each of the 27 folders under [App UI](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/) contains a `screen.png` showing the target interface.
+
+| Screen Folder | Screen Visual Asset Path | Description / Client Target |
+|---|---|---|
+| `connify_splash_screen_mobile` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/connify_splash_screen_mobile/screen.png) | Mobile app start-up splash. |
+| `welcome_to_connify` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/welcome_to_connify/screen.png) | Mobile Onboarding & Permissions screen — **now includes Anonymous Auth initialization via Firebase**. |
+| `connify_mobile_home` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/connify_mobile_home/screen.png) | Mobile start profile/welcome presentation — **profile upgrade CTA added for Guardian registration**. |
+| `dashboard` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/dashboard/screen.png) | Mobile main operations dashboard. |
+| `new_help_request` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/new_help_request/screen.png) | Mobile emergency category & urgency setup — **blocked if no guardian registered**. |
+| `verify_identity` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/verify_identity/screen.png) | Mobile QR token generation & status checks. |
+| `searching_for_help` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/searching_for_help/screen.png) | Mobile waiting page with radial indicators — **GPS watchdog active during this state**. |
+| `accept_verify` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/accept_verify/screen.png) | Mobile accept task, maps, and arrival panel. |
+| `accept_verify_handshake` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/accept_verify_handshake/screen.png) | Mobile proximity and authentication indicators — **Responder Panic Abort trigger available**. |
+| `active_episode_you` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/active_episode_you/screen.png) | Mobile active emergency dashboard (Requester) — **5s GPS ping active; Guardian SMS watchdog running**. |
+| `active_episode_helper` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/active_episode_helper/screen.png) | Mobile active emergency dashboard (Helper). |
+| `protocol_feedback` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/protocol_feedback/screen.png) | Mobile quick post-episode evaluation — **SAFE_RESOLVED / SUSPICIOUS_BEHAVIOR / ACTIVE_THREAT outcome results**. |
+| `episode_history` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/episode_history/screen.png) | Mobile previous safe sessions logs list. |
+| `settings_governance` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/settings_governance/screen.png) | Mobile options panel for security/data controls — **Guardian management section added**. |
+| `emergency_mode` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/emergency_mode/screen.png) | Mobile SOS overrides panel. |
+| `connify_splash_screen_desktop` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/connify_splash_screen_desktop/screen.png) | Web landing starting state screen. |
+| `refined_splash_screen_desktop` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/refined_splash_screen_desktop/screen.png) | Web landing alternative starting screen. |
+| `connify_mobile_web` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/connify_mobile_web/screen.png) | Web portal main view. |
+| `connify_safety_coordination_protocol` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/connify_safety_coordination_protocol/screen.png) | Web protocol introduction. |
+| `connify_trusted_safety_coordination` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/connify_trusted_safety_coordination/screen.png) | Web portal landing page details. |
+| `connify_trustworthy_safety_protocol` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/connify_trustworthy_safety_protocol/screen.png) | Web onboarding information view. |
+| `features_governance_connify_safety` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/features_governance_connify_safety/screen.png) | Web layout features overview. |
+| `how_it_works_connify_protocol` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/how_it_works_connify_protocol/screen.png) | Web documentation/infographic view. |
+| `privacy_governance_connify` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/privacy_governance_connify/screen.png) | Web privacy center and controls explainer. |
+| `protocol_features_connify_safety` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/protocol_features_connify_safety/screen.png) | Web security features sheet. |
+| `nearby_requests` | [screen.png](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/nearby_requests/screen.png) | Mobile feed of incoming, nearby anonymized issues. |
+| `safety_core` | *(None)* | Safety core features placeholder directory. |
+
+---
+
+## 2.2 System & Design Images
+
+* **Color Palette Spec**: [Color Pallete.png](file:///o:/PROJECTS/CONNIFY-APP/Color%20Pallete.png) (314 KB)
+* **Architecture Diagram**: [architecture_diagram_1783676807991.png](file:///o:/PROJECTS/CONNIFY-APP/architecture_diagram_1783676807991.png) (585 KB)
+* **General Interface graphic**: [image.png](file:///o:/PROJECTS/CONNIFY-APP/image.png) (94 KB)
+
+---
+
+## 2.3 Reference Documentation Files
+
+These files contain the academic, mathematical, and architectural background context for the SHARP protocol:
+
+* **SHARP Cryptography Protocol Paper**: [978-3-642-33167-1_21.pdf](file:///o:/PROJECTS/CONNIFY-APP/978-3-642-33167-1_21.pdf) (2.32 MB) — Detail on Bloom filters, fuzzy extractors, and syndrome calculations.
+* **Connify Academic Paper Draft (PDF)**: [Connify_IEEE_Journal_Paper.pdf](file:///o:/PROJECTS/CONNIFY-APP/Connify_IEEE_Journal_Paper.pdf) (210 KB)
+* **Connify Academic Paper Draft (DOCX)**: [Connify_IEEE_Journal_Paper.docx](file:///o:/PROJECTS/CONNIFY-APP/Connify_IEEE_Journal_Paper.docx) (359 KB)
+* **Connify Batch Write-up Document**: [Batch.6 writeup.docx](file:///o:/PROJECTS/CONNIFY-APP/Batch.6%20writeup.docx) (62 KB)
+
+---
+
+## 2.4 Backend Source Assets (v2.0 — New Safety Systems)
+
+| File | Path | Purpose |
+|---|---|---|
+| `BehavioralRiskEngine.ts` | `backend/src/services/BehavioralRiskEngine.ts` | 5-Pillar harmlessness scoring, trap velocity detection, mandatory guardian assertion |
+| `LocationWatchdogService.ts` | `backend/src/services/LocationWatchdogService.ts` | 5s atomic GPS pings, 15s signal loss watchdog, personalized Guardian SMS alerts, unbounded signal recovery |
+| `ProfileController.ts` | `backend/src/controllers/ProfileController.ts` | Anonymous-to-Registered profile migration, Firebase UID binding, mandatory guardian enforcement |
+| `Guardian.ts` | `backend/src/models/Guardian.ts` | Guardian model: `userFullName`, `fullName`, `phone`, `relationship` |
+| `DeviceLocation.ts` | `backend/src/models/DeviceLocation.ts` | Atomic GPS record model: `latitude`, `longitude`, `lastPingAt`, `signalLostAlertSent`, `retryCount` |
+| `LocationController.ts` | `backend/src/controllers/LocationController.ts` | Handlers for `POST /api/locations/ping`, `/guardians`, `/watchdog/scan` |
+
+---
+
+## 2.5 Integration Test Suites (v2.0)
+
+| Test Suite | Path | Status |
+|---|---|---|
+| `adminAuth.test.ts` | `backend/tests/` | ✅ PASSED |
+| `allEndpoints.test.ts` | `backend/tests/` | ✅ PASSED |
+| `CapsuleController.test.ts` | `backend/tests/` | ✅ PASSED |
+| `deviceChallenge.test.ts` | `backend/tests/` | ✅ PASSED |
+| `deviceRegistration.test.ts` | `backend/tests/` | ✅ PASSED |
+| `e2eJourney.test.ts` | `backend/tests/` | ✅ PASSED |
+| `harmlessnessSystem.test.ts` | `backend/tests/` | ✅ PASSED |
+| `locationWatchdog.test.ts` | `backend/tests/` | ✅ PASSED |
+| `profileMigration.test.ts` | `backend/tests/` | ✅ PASSED |
+| `symmetricVerificationPipeline.test.ts` | `backend/tests/` | ✅ PASSED |
+| **Total** | | **✅ 100%** |
+
+
+================================================================================
+=== FILE: discovery/3_screen_inventory.md ===
+================================================================================
+
+# 3. Screen Inventory
+
+This inventory registers all screens present in the design specification directories, detailing their client target (Mobile App vs. Web Portal), primary functions, visual components, icons, actions, and custom style rules.
+
+## 3.1 Design System Color Token Registry
+Across the design templates, the active design token palette uses the Material 3 schema:
+
+* **Primary**: `#b60100` (Main crimson brand color)
+* **Secondary**: `#5e604d` (Dark neutral olive accent)
+* **Tertiary**: `#0051c6` (Deep cobalt blue accent)
+* **Background / Surface**: `#f9f9f9`
+* **Error**: `#ba1a1a`
+* **Surface Containers**: Lowest (`#ffffff`), Low (`#f3f3f3`), Standard (`#eeeeee`), High (`#e8e8e8`), Highest (`#e2e2e2`).
+* **Text on Tokens**: `on-primary` (`#ffffff`), `on-secondary` (`#ffffff`), `on-background` / `on-surface` (`#1b1b1b`).
+
+---
+
+## 3.2 Mobile Application Screen Registry
+
+### 3.2.1 welcome_to_connify
+* **Asset Location**: [welcome_to_connify/](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/welcome_to_connify/)
+* **Client Target**: Mobile App (iOS / Android)
+* **Purpose**: Onboarding entry page introducing the zero-trust proximity protocol.
+* **Key Components**:
+  * Title: "Welcome to Connify — Safety Coordinated by those Nearby"
+  * Action Checklist: Explicit permission requests for location access, camera utilization, and push notifications.
+  * Form Field: Acceptance checkbox for terms & conditions and privacy policies.
+  * Main CTA: "GET STARTED" button with trailing arrow icon.
+* **v2.0 Updates**: Firebase Anonymous Auth initializes silently on launch (`signInAnonymously()`). Device fingerprint and Ed25519 key pair are generated and stored in hardware-backed secure storage.
+* **Icons Used**: `emergency_share`, `group`, `share_location`, `location_on`, `notifications_active`, `arrow_forward`, `sync`.
+
+### 3.2.2 connify_mobile_home
+* **Asset Location**: [connify_mobile_home/](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/connify_mobile_home/)
+* **Client Target**: Mobile App
+* **Purpose**: Safety profile initialization screen — now includes mandatory guardian registration prompt.
+* **Key Components**:
+  * Action CTA: "Get Started" and "Start My Safety Profile".
+  * **v2.0 Update**: "Complete Your Profile" and "Add Emergency Guardian" CTA cards to initiate `POST /api/profile/upgrade`.
+  * Explanation cards: Detail local keys and privacy-first outcome logging.
+* **Icons Used**: `emergency`, `record_voice_over`, `volunteer_activism`, `verified_user`, `location_off`, `history_toggle_off`, `lock`, `stars`, `notification_important`, `history`, `settings`.
+
+### 3.2.3 dashboard
+* **Asset Location**: [dashboard/](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/dashboard/)
+* **Client Target**: Mobile App
+* **Purpose**: Main action screen for the active session.
+* **Key Components**:
+  * Split CTA Buttons: "I NEED HELP" (primary alert creator — **blocked if guardian not registered**) and "I CAN HELP" (feed of local requests).
+  * Safe Session Timer Card: Shows a countdown timer with action "I'M SAFE" or "+5 MIN" duration extensions.
+  * High-priority trigger: "EMERGENCY SOS" button (press & hold).
+  * **v2.0 Update**: GPS Watchdog status indicator — shows live 5s ping status and last known location sync timestamp.
+* **Buttons**: `EMERGENCY`, `I NEED HELP`, `I CAN HELP`, `I'M SAFE`, `+5 MIN`, `HOLD TO TRIGGER`.
+
+### 3.2.4 new_help_request
+* **Asset Location**: [new_help_request/](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/new_help_request/)
+* **Client Target**: Mobile App
+* **Purpose**: Request Creator form specifying coordinates, categories, and urgency.
+* **Key Components**:
+  * Category Quick-Select Grid: "Medical", "Security", "Transport", and "Other".
+  * Form Elements: Urgency range slider (1 to 5) and contextual details input.
+  * Main Action: "BROADCAST REQUEST" with radial broadcast icon.
+  * **v2.0 Update**: Request is blocked at backend if: (a) no guardian registered, (b) device is quarantined, or (c) velocity trap limit reached (≥ 3 episodes in 10 minutes).
+* **Buttons**: `arrow_back`, `EMERGENCY`, `Medical`, `Security`, `Transport`, `Other`, `BROADCAST REQUEST`.
+
+### 3.2.5 verify_identity
+* **Asset Location**: [verify_identity/](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/verify_identity/)
+* **Client Target**: Mobile App
+* **Purpose**: Presenting verification QR code and environmental parameters to establish initial handshake.
+* **Key Components**:
+  * QR Code container: Dynamically rendered vector QR containing syndromes.
+  * Status bars: Device consistency status, network parameters (Wi-Fi), and proximity indicators.
+  * CTA Override: "MANUAL VERIFICATION" button.
+* **Icons Used**: `arrow_back`, `signal_cellular_alt`, `location_on`, `battery_charging_full`, `home`, `history`, `settings`.
+
+### 3.2.6 searching_for_help
+* **Asset Location**: [searching_for_help/](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/searching_for_help/)
+* **Client Target**: Mobile App
+* **Purpose**: Real-time matching page.
+* **Key Components**:
+  * Status layout: Spinner animation showing "Searching for verified helpers..."
+  * Secondary Action: "Cancel Request" to terminate active episode instantly.
+  * **v2.0 Update**: 5-second GPS Watchdog is actively pinging `POST /api/locations/ping` during this state. GPS status badge visible.
+
+### 3.2.7 nearby_requests
+* **Asset Location**: [nearby_requests/](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/nearby_requests/)
+* **Client Target**: Mobile App
+* **Purpose**: Feed of anonymized open requests for users in "I Can Help" mode — filtered by 5-Pillar Harmlessness Score.
+* **Key Components**:
+  * Proximity Request Cards: Category indicator (e.g. Medical Services), general rough distance (e.g. ~350m), and urgency indicator.
+  * **v2.0 Update**: Cards from quarantined or velocity-flagged senders are hidden by the `BehavioralRiskEngine`.
+  * Actions: "Respond Now", "Offer Support", and "Scan Wider Range (2km+)".
+* **Icons Used**: `arrow_back`, `refresh`, `location_on`, `directions_walk`, `shield`, `medical_services`, `home`, `history`, `settings`.
+
+### 3.2.8 accept_verify
+* **Asset Location**: [accept_verify/](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/accept_verify/)
+* **Client Target**: Mobile App
+* **Purpose**: Helper accepting a request and navigating to the site.
+* **Key Components**:
+  * Proximity map frame and navigation routes.
+  * Status panel: "Arrived at Scene" marker.
+  * Ephemeral messaging panel: "Contact Sarah" quick link.
+
+### 3.2.9 accept_verify_handshake
+* **Asset Location**: [accept_verify_handshake/](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/accept_verify_handshake/)
+* **Client Target**: Mobile App
+* **Purpose**: Executes the SHARP location verification checks.
+* **Key Components**:
+  * Proximity Verification gauges: Signals Wi-Fi beacon matching, device consistency validation, and GPS correlation.
+  * Main CTA: "ISSUE TRUST CAPSULE" enabled upon check resolution.
+  * **v2.0 Update**: "REPORT THREAT" / "PANIC ABORT" button — triggers `POST /api/episodes/:id/threat-abort`. Increments sender's `suspiciousCount`; quarantines on ≥ 2 reports.
+
+### 3.2.10 active_episode_you
+* **Asset Location**: [active_episode_you/](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/active_episode_you/)
+* **Client Target**: Mobile App (Requester view)
+* **Purpose**: Active emergency episode tracking for the request creator.
+* **Key Components**:
+  * Core parameters: Countdown timer for the Trust Capsule, verified badge, and helper proximity marker.
+  * Quick Comms panel: "CHAT" and "CALL" shortcuts.
+  * Completion CTA: "Complete Episode" or "Report Issue".
+  * **v2.0 Update**: GPS Watchdog ping indicator (5s pulse). Guardian SMS status badge ("Guardian Notified" / "Signal Active").
+
+### 3.2.11 active_episode_helper
+* **Asset Location**: [active_episode_helper/](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/active_episode_helper/)
+* **Client Target**: Mobile App (Helper view)
+* **Purpose**: Active tracking dashboard for the responder.
+* **Key Components**:
+  * Proximity maps and route directions.
+  * Trust Capsule expiration countdown.
+  * Core action: "Complete Episode" once safety is established.
+
+### 3.2.12 protocol_feedback
+* **Asset Location**: [protocol_feedback/](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/protocol_feedback/)
+* **Client Target**: Mobile App
+* **Purpose**: Post-episode feedback capturing.
+* **Key Components**:
+  * **v2.0 Update**: Three-way outcome selection: `SAFE_RESOLVED`, `SUSPICIOUS_BEHAVIOR`, `ACTIVE_THREAT`.
+  * Auto-quarantine triggered if outcome logged as `SUSPICIOUS_BEHAVIOR` and sender's `suspiciousCount` reaches ≥ 2.
+  * Submission: "SUBMIT & CLOSE EPISODE" purging local session traces.
+
+### 3.2.13 episode_history
+* **Asset Location**: [episode_history/](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/episode_history/)
+* **Client Target**: Mobile App
+* **Purpose**: Minimal records of previous sessions.
+* **Key Components**:
+  * Logs list: Shows only dates, categories, outcomes (Resolved/Unresolved), and anonymized identifiers. No track logs, names, or addresses.
+  * CTA: "PROVIDE FEEDBACK" or "SUBMIT EVALUATION".
+
+### 3.2.14 settings_governance
+* **Asset Location**: [settings_governance/](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/settings_governance/)
+* **Client Target**: Mobile App
+* **Purpose**: Privacy settings, device key config, and data control board.
+* **Key Components**:
+  * Section buttons: "Privacy & Data Settings", "Device & Key Management", "Witness & Contact Config", "About the Protocol".
+  * Core actions: "Purge Local Logs", "Rotate Device Keys", and "+ Manage" witness contacts.
+  * **v2.0 Update**: "Emergency Guardian" section — add/update guardian full name, phone number, and relationship. Mandatory field; prompts until registered.
+
+### 3.2.15 emergency_mode
+* **Asset Location**: [emergency_mode/](file:///o:/PROJECTS/CONNIFY-APP/App%20UI/emergency_mode/)
+* **Client Target**: Mobile App
+* **Purpose**: Quick-override emergency operations screen.
+* **Key Components**:
+  * CTAs: "EMERGENCY BROADCAST", "CALL EMERGENCY SERVICES", and "START AUDIO RECORDING".
+  * Multi-signal widgets showing environmental status and device key logs.
+  * **v2.0 Update**: Guardian SMS is dispatched immediately on SOS trigger with last MongoDB-stored GPS coordinates.
+
+### 3.2.16 unified_safety_hub
+* **Asset Location**: `Connify/src/screens/UnifiedSafetyHubScreen.tsx`
+* **Client Target**: Mobile App
+* **Purpose**: Centralized command center for safety tools including Fake Call, Emergency Contacts, and Siren.
+* **Key Components**: Grid menu of safety tools, SOS slider, active guardian status, offline sync queue indicator.
+
+### 3.2.17 emergency_contacts
+* **Asset Location**: `Connify/src/screens/EmergencyContactsScreen.tsx`
+* **Client Target**: Mobile App
+* **Purpose**: Manage primary emergency guardians and contacts.
+* **Key Components**: List of assigned guardians, "Add New Contact" FAB.
+
+### 3.2.18 fake_call
+* **Asset Location**: `Connify/src/screens/FakeCallScreen.tsx`
+* **Client Target**: Mobile App
+* **Purpose**: Simulates an incoming call to deter potential threats.
+* **Key Components**: Caller ID configuration, timer delay settings (e.g. 5s, 30s), active call simulation UI.
+
+### 3.2.19 government_emergency_numbers
+* **Asset Location**: `Connify/src/screens/GovernmentEmergencyNumbersScreen.tsx`
+* **Client Target**: Mobile App
+* **Purpose**: Directory of local/national government emergency lines (Police, Ambulance, Fire, Women's Helpline).
+* **Key Components**: Searchable list of numbers with one-tap dialing.
+
+### 3.2.20 offline_emergency
+* **Asset Location**: `Connify/src/screens/OfflineEmergencyScreen.tsx`
+* **Client Target**: Mobile App
+* **Purpose**: Fallback safety operations when device has no internet connectivity.
+* **Key Components**: SMS fallback dispatch to guardians, Bluetooth LE broadcast instructions.
+
+### 3.2.21 women_safety
+* **Asset Location**: `Connify/src/screens/WomenSafetyScreen.tsx`
+* **Client Target**: Mobile App
+* **Purpose**: Specialized safety toolkit.
+* **Key Components**: High-priority SOS dispatch, discreet alerts, trusted guardian rapid sharing.
+
+---
+
+## 3.3 Web Portal / Desktop Landing Pages
+
+### 3.3.1 connify_splash_screen_desktop / refined_splash_screen_desktop
+* **Client Target**: Web / Desktop Landing Portal
+* **Purpose**: Secure entryway and server status splash page.
+
+### 3.3.2 connify_mobile_web / connify_safety_coordination_protocol / connify_trusted_safety_coordination / connify_trustworthy_safety_protocol
+* **Client Target**: Web / Marketing Portal
+* **Purpose**: Landing pages showing how Connify provides "Urgent Serenity" using secure, local coordination.
+* **v2.0 Updates**: Feature pillars now include **5-Pillar Harmlessness Engine**, **5s GPS Watchdog & Guardian SMS**, and **Anonymous → Registered Profile Migration** prominently in the `SafetyProtocolFeatures` section.
+* **Metrics Bar**: `27/27 Tests · 5s GPS Watchdog · 5-Pillar Harmlessness · Ed25519 Signing`.
+
+### 3.3.3 features_governance_connify_safety / protocol_features_connify_safety / how_it_works_connify_protocol / privacy_governance_connify
+* **Client Target**: Web / Trust & Protocol Documentation
+* **Purpose**: Interactive user manuals explaining zero-trust tokens, Bloom filters, 5-Pillar Harmlessness Engine, GPS Watchdog, and outcome logging.
+
+
+================================================================================
+=== FILE: discovery/4_navigation_map.md ===
+================================================================================
+
+# 4. Navigation Map
+
+This document defines the routing configuration, view hierarchy, and navigation flow of the Connify Mobile application.
+
+## 4.1 Mobile Navigation Tree
+
+The application is structured into four primary navigation paths: **Onboarding & Profile Migration stack**, **Main application tabs**, **Transactional workflow overlays** (Requester stack and Helper stack), and the **Guardian Management modal**.
+
+```mermaid
+graph TD
+    Splash[Splash Screen] --> Welcome[Welcome & Permissions]
+    Welcome --> |Firebase Anonymous Auth| AnonSession[Anonymous Session Active]
+    AnonSession --> ProfileUpgrade[Profile & Guardian Setup]
+    ProfileUpgrade --> |POST /api/profile/upgrade| Home[Home Dashboard]
+
+    %% Tab Navigation
+    Home <--> History[Episode History]
+    Home <--> Settings[Settings & Governance]
+    Settings <--> GuardianMgmt[Guardian Management]
+
+    %% Requester Flow Stack
+    Home --> |Guardian Verified ✓| RequestForm[Create Help Request]
+    Home --> |Guardian Missing ✗| GuardianMgmt
+    RequestForm --> VerifyQR[Request Verification QR]
+    VerifyQR --> WaitingMatch[Waiting for Match - GPS Watchdog Active]
+    WaitingMatch --> ActiveRequester[Active Episode - Requester]
+    ActiveRequester --> FeedbackPage[Post-Episode Feedback]
+    FeedbackPage --> Home
+
+    %% Helper Flow Stack
+    Home --> Feed[Nearby Requests Feed - Harmlessness Filtered]
+    Feed --> AcceptScene[Accept & Verify Map]
+    AcceptScene --> ProximityHandshake[SHARP Proximity Handshake]
+    ProximityHandshake --> |Panic Abort| ThreatAbort[Threat Abort - POST /api/episodes/:id/threat-abort]
+    ProximityHandshake --> ActiveHelper[Active Episode - Helper]
+    ThreatAbort --> Feed
+    ActiveHelper --> FeedbackPage
+
+    %% Global Overrides
+    Home -...-> Emergency[Emergency Mode / SOS - Guardian SMS Dispatched]
+    RequestForm -.-> Emergency
+    Feed -.-> Emergency
+    
+    %% Unified Safety Hub (v2.0)
+    Home --> SafetyHub[Unified Safety Hub]
+    SafetyHub --> FakeCall[Fake Call Simulator]
+    SafetyHub --> GovNumbers[Gov Emergency Numbers]
+    SafetyHub --> OfflineMode[Offline Emergency Operations]
+    SafetyHub --> WomenSafety[Women Safety Toolkit]
+    SafetyHub --> EmergencyContacts[Emergency Contacts Management]
+```
+
+---
+
+## 4.2 Route Definitions (React Navigation)
+
+The mobile client leverages `@react-navigation/native-stack` for workflows and `@react-navigation/bottom-tabs` for the main dashboard view structure.
+
+### 4.2.1 Auth / Onboarding Stack (No Session)
+* `Splash`: Initializes Firebase Anonymous Auth silently. Generates Ed25519 key pair stored in hardware-backed secure storage (Keychain / Keystore).
+* `Welcome`: Guidelines, protocol explanations, and system permissions (Location, Notifications, Camera).
+* `HomeSetup`: **[NEW v2.0]** — Profile & Guardian Registration. Calls `POST /api/profile/upgrade`. Upgrade is mandatory before episode creation.
+
+### 4.2.2 Main Tab Navigator (Active Session)
+* `Dashboard`: Main operations center. Contains toggles for Requester / Helper roles. "I NEED HELP" button blocked if no guardian registered.
+* `EpisodeHistory`: Decoupled historical log list showing safe session outcomes.
+* `SettingsGovernance`: Configuration for local keys, witness contacts, and data purge controls. Includes **Guardian Management** subsection.
+
+### 4.2.3 Requester Workflow Stack
+* `CreateHelpRequest`: Form for category selection, urgency level, and approximate location. Backend validates: guardian exists, device not quarantined, velocity trap limit not reached.
+* `RequestVerification`: Renders the time-bound QR code containing BCH syndromes.
+* `WaitingForMatch`: Live WebSocket listener. **5-second GPS Watchdog pings active** (`POST /api/locations/ping`). 15-second signal loss triggers Guardian SMS.
+* `ActiveEpisodeRequester`: Real-time chat, call, capsule countdown. GPS Watchdog status badge visible.
+
+### 4.2.4 Helper Workflow Stack
+* `NearbyRequests`: Filtered feed of open items. **Quarantined or velocity-trapped senders are hidden.**
+* `AcceptVerify`: Helper path mapping routing directions.
+* `AcceptVerifyHandshake`: Scans the QR and executes fuzzy extractor syndrome calculations and local Wi-Fi checks. **[NEW v2.0]** "REPORT THREAT" / "PANIC ABORT" action available — triggers `POST /api/episodes/:id/threat-abort`.
+* `ActiveEpisodeHelper`: Responder dashboard with capsule timer and comms relays.
+
+### 4.2.5 Feedback & Global Modals
+* `ProtocolFeedback`: **[UPDATED v2.0]** Three-way outcome selection: `SAFE_RESOLVED`, `SUSPICIOUS_BEHAVIOR`, `ACTIVE_THREAT`. Auto-quarantine triggered on ≥ 2 suspicious flags.
+* `EmergencyMode`: Global SOS overlay bypasses normal stack. **[v2.0]** Immediately dispatches Guardian SMS with last MongoDB GPS coordinates.
+* `GuardianManagement`: **[NEW v2.0]** Dedicated modal for adding/editing Guardian's full name, phone, and relationship. Mandatory before any episode creation.
+
+### 4.2.6 Unified Safety Hub Stack [NEW v2.0]
+* `UnifiedSafetyHub`: Centralized dashboard for active prevention tools and offline utilities.
+* `FakeCall`: Initiates a simulated incoming call with configurable timers to deter harassment.
+* `GovernmentEmergencyNumbers`: Directory of official local emergency services with one-tap dialing.
+* `OfflineEmergency`: Fallback dispatch via direct SMS and Bluetooth when out of cell range.
+* `WomenSafety`: Focused toolkit for rapid trusted-contact sharing and discreet alerts.
+* `EmergencyContacts`: Manage the list of trusted guardians and secondary emergency contacts.
+
+---
+
+## 4.3 Backend API Route Map (v2.0)
+
+| Route | Method | Auth | Description |
+|---|---|---|---|
+| `POST /api/episodes` | POST | ✓ | Create episode — blocked if quarantined / no guardian / velocity trap |
+| `POST /api/episodes/:id/threat-abort` | POST | ✓ | Responder panic abort — flags sender, increments `suspiciousCount` |
+| `POST /api/outcomes` | POST | ✓ | Log outcome: `SAFE_RESOLVED`, `SUSPICIOUS_BEHAVIOR`, `ACTIVE_THREAT` |
+| `POST /api/locations/ping` | POST | ✓ | 5s atomic GPS overwrite in MongoDB; triggers recovery SMS if signal was lost |
+| `POST /api/locations/guardians` | POST | ✓ | Register / update Guardian record for device |
+| `POST /api/locations/watchdog/scan` | POST | ✓ | Watchdog scan — dispatches Guardian SMS for devices silent for ≥ 15s |
+| `POST /api/profile/upgrade` | POST | ✓ | Upgrade anonymous profile to registered; bind `firebaseUid`; create Guardian |
+| `GET /api/profile` | GET | ✓ | Fetch profile for authenticated device |
+
+
+================================================================================
+=== FILE: discovery/5_user_flow.md ===
+================================================================================
+
+# 5. User Flow
+
+This document details the step-by-step user interactions and state transitions for the core Connify workflows, updated to reflect the v2.0 safety systems.
+
+---
+
+## 5.0 Pre-Session: Anonymous → Registered Profile Migration (NEW v2.0)
+
+```
+[App Launch] ➔ [Firebase Anonymous Auth] ➔ [Ed25519 Key Generation] ➔ [Profile Setup] ➔ [Guardian Registration] ➔ [linkWithCredential()] ➔ [POST /api/profile/upgrade] ➔ [Session Active]
+```
+
+1. **Launch**: App launches — Firebase `signInAnonymously()` is called silently. An anonymous `firebaseUid` is assigned.
+2. **Key Generation**: Device generates an Ed25519 key pair. Public key is registered with the backend (`POST /api/devices/register`). Private key is stored in hardware-backed secure storage (iOS Keychain / Android Keystore).
+3. **Profile Onboarding**: User fills in `firstName`, `lastName`, `phone`, and `email`.
+4. **Guardian Registration (Mandatory)**: User must provide guardian `fullName`, `phone`, and `relationship`. This is enforced — no episodes can be created without it.
+5. **Account Linking**: Client calls Firebase `linkWithCredential(anonymousUser, emailOrPhoneCredential)`. The anonymous UID is preserved — no duplicate account is created.
+6. **Backend Upgrade**: Client calls `POST /api/profile/upgrade` with `firebaseUid`, profile data, and guardian data.
+   - MongoDB `Profile` document: `isAnonymous` set to `false`.
+   - MongoDB `Guardian` document: created and bound to `deviceId`.
+   - Audit log written: `PROFILE_MIGRATED_FROM_ANONYMOUS`.
+7. **Ready**: User proceeds to the Home Dashboard with full episode creation privileges.
+
+---
+
+## 5.1 Requester Journey
+
+```
+[Create Request] ➔ [Backend Validates: Guardian ✓, Not Quarantined ✓, Velocity OK ✓] ➔ [Select Urgency] ➔ [Coarse Location] ➔ [GPS Watchdog Active] ➔ [Generate QR] ➔ [Wait for Match] ➔ [Active Help Stack] ➔ [Submit Feedback & Purge]
+```
+
+1. **Initiation**: Alice opens the app to the **Dashboard** and presses **I NEED HELP**.
+2. **Backend Pre-Checks** (5-Pillar Harmlessness Engine):
+   - Verifies at least 1 guardian is registered (`Guardian.find({ deviceId })`).
+   - Checks device is not quarantined (`isQuarantined: false`).
+   - Checks velocity trap limit: < 3 episodes created in the last 10 minutes.
+3. **Category Selection**: Selects medical, security, transport, or other emergency category.
+4. **Urgency Metric**: Adjusts the scale slider (1 to 5) indicating danger level.
+5. **General Location**: Device captures approximate location coordinates (coarse grid, not exact).
+6. **GPS Watchdog Starts**: Client begins sending `POST /api/locations/ping` every 5 seconds with fresh GPS coordinates. MongoDB atomically overwrites the previous location record.
+7. **Syndrome Verification QR**: System generates a QR containing Alice's location tag syndromes (BCH syndromes) and helper string $y$.
+8. **Broadcasting**: Alice submits and enters the **Searching for Help** state.
+9. **Signal Loss Guard**: If GPS ping is not received for ≥ 15 seconds (phone powered off, Airplane mode, signal blackout):
+   - Backend `LocationWatchdogService` dispatches a **personalized Guardian SMS** with the guardian's name, relationship, Alice's full name, last known MongoDB coordinates, and a live Google Maps link.
+   - On reconnect: a **Signal Recovered SMS** is dispatched immediately with fresh coordinates.
+10. **Connection**: Once matched, the server initializes an ephemeral WebSocket channel. Alice's device verifies Bob's blinded grid cell response.
+11. **Trust Capsule**: A JIT-issued Trust Capsule is minted and signed (Ed25519 JWT).
+12. **Active Assistance**: Alice chats or calls Bob over the secure, time-bound connection.
+13. **Resolution**: Alice clicks **Complete Episode**. The system opens the **Feedback Screen**, purges local session caches, and stores outcome status.
+
+---
+
+## 5.2 Helper Journey
+
+```
+[Active Helper Feed - Harmlessness Filtered] ➔ [Anonymized Request] ➔ [Scan QR Proximity] ➔ [Verify local signals] ➔ [Optional: Panic Abort] ➔ [Decrypt session key K] ➔ [Redeem Capsule] ➔ [Active Comms] ➔ [Feedback & Purge]
+```
+
+1. **Activation**: Bob opens the app, navigates to the dashboard, and toggles **I CAN HELP**.
+2. **Feed Review**: Views anonymized proximity list. **Requests from quarantined or velocity-flagged senders are hidden by the `BehavioralRiskEngine`.** Each card displays rough distance (e.g. `~400m away`), urgency tier, and category.
+3. **Acceptance**: Bob hits **Respond Now** and views navigation directions.
+4. **Meeting & Proximity Handshake**: Bob arrives and scans Alice's QR.
+5. **SHARP Verification**:
+   * Bob's app captures local Wi-Fi beacon frame headers and LTE TC-RNTI messages, converting them to a local Bloom filter.
+   * Applying BCH syndrome error correction (from Alice's QR), the app decrypts the temporary session key $K$.
+   * Bob's app computes blinded grid index $B = \mathcal{H}'(K, b \mathbin{\Vert} \text{"Bob"})$ and submits it.
+6. **Responder Panic Abort (NEW v2.0)**: If Bob detects suspicious or threatening behavior at the scene:
+   * Bob taps **REPORT THREAT** → calls `POST /api/episodes/:id/threat-abort`.
+   * Alice's device `suspiciousCount` is incremented. If ≥ 2, her account is automatically quarantined (`isQuarantined: true`).
+   * Episode is flagged as `SUSPICIOUS_BEHAVIOR` and closed immediately.
+7. **Capsule Issuance**: Server validates response against Alice's record. If verified, issues Bob a short-lived Trust Capsule (Ed25519 JWT) stored in `@react-native-async-storage/async-storage` (metadata) and `expo-secure-store` (signing keys/tokens).
+8. **Active Assistance**: Bob's app enables direct communication channels (ephemeral chat and call).
+9. **Completion**: Bob triggers **Complete Episode** and submits `SAFE_RESOLVED`, `SUSPICIOUS_BEHAVIOR`, or `ACTIVE_THREAT` as the outcome. Token invalidated, channels purged.
+
+---
+
+## 5.3 Emergency Override Flow (SOS Trigger)
+
+```
+[SOS Press] ➔ [Immediate Broadcast] ➔ [Guardian SMS Dispatched with DB Location] ➔ [Emergency Dispatch Alert] ➔ [Log Out-of-band Token]
+```
+
+1. **Trigger**: User presses and holds the **SOS** button on any screen for 3 seconds.
+2. **Override**: Bypasses normal verification queues, immediately broadcasting location coordinates to all verified helpers within a 2km radius.
+3. **Guardian SMS (NEW v2.0)**: Guardian SMS is dispatched immediately with the last GPS coordinates stored in MongoDB and a live Google Maps link.
+4. **Dispatch**: (Optional) Sends out an automated notification hook to municipal emergency dispatch services.
+5. **Logging**: Outcome Logging stores a high-risk category indicator.
+
+---
+
+## 5.4 GPS Watchdog & Signal Recovery Flow (NEW v2.0)
+
+```
+[Active Session] ➔ [5s GPS Ping → MongoDB Atomic Overwrite] ➔ [Signal Lost ≥ 15s] ➔ [Guardian SMS with DB Coordinates] ➔ [Signal Regained] ➔ [Recovery SMS with New DB Coordinates]
+```
+
+1. Every 5 seconds, device sends `POST /api/locations/ping` with fresh `latitude`, `longitude`, `accuracy`.
+2. MongoDB `DeviceLocation` record is atomically overwritten (previous record deleted upon new data received).
+3. If no ping received for ≥ 15 seconds (`signalLostAlertSent: false`, `lastPingAt < cutoff`):
+   * `LocationWatchdogService.checkSignalLossAndNotifyGuardians()` fires.
+   * Guardian SMS dispatched: reads coordinates directly from MongoDB (never hardcoded). Contains user's full name, guardian's relationship, last known GPS coordinates, and a live Google Maps link.
+   * `retryCount` incremented. No limit on retries.
+4. When signal returns (any time — 15 seconds, 1 hour, or after power-off):
+   * Fresh GPS ping arrives → MongoDB updated.
+   * **Signal Recovered SMS** dispatched immediately with new coordinates from MongoDB.
+
+---
+
+## 5.5 Unified Safety Hub Utilities Flow (NEW v2.0)
+
+```
+[Dashboard] ➔ [Safety Hub] ➔ [Select Tool: Fake Call / Offline Mode / Women Safety] ➔ [Execute Utility]
+```
+
+1. **Access**: User navigates to the Unified Safety Hub from the main dashboard.
+2. **Emergency Contacts Management**: User can dynamically add or remove trusted secondary contacts.
+3. **Fake Call Simulator**: User configures caller ID and sets a timer (e.g., 5s, 30s). An incoming call simulation is triggered to deter harassment.
+4. **Offline Emergency Mode**: If cellular data is lost, user can execute direct SMS dispatch to pre-configured guardians and initialize local Bluetooth LE broadcasts.
+5. **Women Safety Toolkit**: specialized sub-tools for discreet SOS triggering without visual/audio indicators.
+
+---
+
+## 5.6 State Machine Transition Map (Updated v2.0)
+
+```mermaid
+stateDiagram-v2
+    [*] --> AnonymousSession : Firebase signInAnonymously()
+    AnonymousSession --> ProfileMigration : linkWithCredential() + POST /api/profile/upgrade
+    ProfileMigration --> Ready : isAnonymous = false, Guardian registered
+    Ready --> Pending : Create Episode (Guardian ✓, Not Quarantined ✓, Velocity OK ✓)
+    Pending --> Searching : Broadcast Request (GPS Watchdog Active)
+    Searching --> Matched : Helper Responds
+    Matched --> ProximityVerification : QR Scan & SHARP Handshake
+    ProximityVerification --> Active : Handshake Success (Capsule Issued)
+    ProximityVerification --> ThreatAborted : Responder Panic Abort (suspiciousCount++)
+    ProximityVerification --> Cancelled : Handshake Failed / Timeout
+    Active --> Completed : Episode Complete (SAFE_RESOLVED / SUSPICIOUS_BEHAVIOR / ACTIVE_THREAT)
+    Active --> Expired : TTL Reached
+    Active --> Revoked : Abuse Flag / Manual Revocation
+    ThreatAborted --> [*]
+    Completed --> [*]
+    Expired --> [*]
+    Revoked --> [*]
+    Cancelled --> [*]
+```
+
+
+================================================================================
+=== FILE: discovery/6_folder_structure.md ===
+================================================================================
+
+# 6. Folder Structure
+
+This document outlines the current workspace organization and the planned folder structure for the frontend client app, backend gateway, and documentation files.
+
+## 6.1 Current Workspace Organization
+
+```
+CONNIFY-APP/
+├── App UI/               # Visual design mockups & tailwind specification sheets
+│   ├── accept_verify/
+│   ├── dashboard/
+│   ├── new_help_request/
+│   └── ... (27 screen spec folders)
+├── Connify/              # React Native Mobile Application (CLI)
+│   ├── android/          # Native Android studio project files
+│   ├── ios/              # Native iOS Xcode project files
+│   ├── src/              # Application source (screens, components, services, stores)
+│   ├── App.tsx           # Entry application component
+│   ├── index.js          # Entry application bundle index
+│   └── package.json      # React Native dependencies
+├── backend/              # Fastify API Service (MongoDB Atlas + Mongoose)
+│   ├── src/              # Backend TypeScript source (see §6.3)
+│   ├── tests/            # Integration test suites (27/27 passing)
+│   └── package.json      # Fastify dependencies
+├── Instantsite/          # Vite + React web landing page
+│   ├── src/
+│   │   ├── components/   # SafetyProtocolFeatures, HowItWorks, etc.
+│   │   └── App.tsx       # Landing page root
+│   └── package.json
+├── discovery/            # Phase 1–18 discovery & documentation deliverables
+│   ├── 1_project_analysis_report.md
+│   ├── 2_asset_inventory.md
+│   ├── 3_screen_inventory.md
+│   ├── 4_navigation_map.md
+│   ├── 5_user_flow.md
+│   ├── 6_folder_structure.md
+│   ├── 7_phases_and_completion.md
+│   └── Connify_System_Architecture.md
+├── LICENSE               # MIT License
+└── README.md             # Systems overview & specifications
+```
+
+---
+
+## 6.2 Mobile Client Internal Structure (`Connify/src/`)
+
+```
+Connify/src/
+├── assets/                 # Static asset directories
+│   ├── images/             # PNG / JPEG layout components
+│   ├── icons/              # Scalable Vector Graphics (SVG)
+│   ├── fonts/              # Custom typeface families (Plus Jakarta Sans, Space Grotesk)
+│   └── animations/         # Lottie JSON files for loader/spinner animations
+├── components/             # Reusable UI component modules
+│   ├── common/             # Modals, loading indicators, dividers
+│   ├── buttons/            # Standard, outline, SOS buttons
+│   ├── cards/              # Episode status cards, nearby request cards
+│   ├── inputs/             # Urgency sliders, category selectors, form fields
+│   ├── modals/             # EmergencyCountdownModal, AcceptorVerificationModal [v2.0]
+│   └── layout/             # Safe area wrappers, keyboard scroll views
+├── navigation/             # Routing stack, tab bar configurations
+│   ├── AppNavigator.ts     # Root switcher (Onboarding vs Main Application)
+│   ├── TabNavigator.ts     # Bottom tab bar setup (Dashboard, History, Settings)
+│   └── StackNavigators.ts  # Requester, Helper, and Profile migration sub-stacks
+│   ├── screens/                # State-aware screen components
+│   │   ├── Onboarding/         # Welcome, Permissions, Setup
+│   │   ├── Profile/            # ProfileUpgradeScreen, GuardianRegistrationScreen [v2.0]
+│   │   ├── Requester/          # CreateRequest, RequestVerification, Searching
+│   │   ├── Helper/             # NearbyRequests, AcceptVerify, ProximityVerification
+│   │   ├── ActiveEpisode/      # RequesterActive, HelperActive
+│   │   ├── Feedback/           # FeedbackScreen (SAFE_RESOLVED / SUSPICIOUS_BEHAVIOR / ACTIVE_THREAT)
+│   │   ├── Settings/           # SettingsScreen, HistoryScreen
+│   │   ├── Governance/         # GovernanceScreen [v2.0]
+│   │   ├── UnifiedSafetyHubScreen.tsx               # Unified Safety Hub [NEW v2.0]
+│   │   ├── EmergencyContactsScreen.tsx              # Emergency Contacts [NEW v2.0]
+│   │   ├── FakeCallScreen.tsx                       # Fake Call Simulator [NEW v2.0]
+│   │   ├── GovernmentEmergencyNumbersScreen.tsx     # Government Numbers [NEW v2.0]
+│   │   ├── OfflineEmergencyScreen.tsx               # Offline Emergency Operations [NEW v2.0]
+│   │   └── WomenSafetyScreen.tsx                    # Women Safety Toolkit [NEW v2.0]
+├── services/               # API clients and background tasks
+│   ├── api/                # Axios configuration, interceptors, auth relays
+│   │   ├── locationApi.ts  # POST /api/locations/ping (5s GPS watchdog) [v2.0]
+│   │   ├── profileApi.ts   # POST /api/profile/upgrade [v2.0]
+│   │   └── episodeApi.ts   # Episode CRUD + threat-abort [v2.0]
+│   └── UserVerificationService.ts  # Ed25519 signing, challenge nonce verification [v2.0]
+├── stores/                 # Zustand state stores
+│   ├── episodeStore.ts     # Episode lifecycle state machine
+│   ├── locationStore.ts    # GPS watchdog ping state [v2.0]
+│   └── authStore.ts        # Firebase Auth state & anonymous→registered transition [v2.0]
+├── hooks/                  # Custom React Hooks (e.g. useLocation, useSocket, useGPSWatchdog)
+├── utils/                  # Cryptographic math functions, date formats
+│   ├── sharp.ts            # BCH syndrome calculations and grid index blinding
+│   └── helpers.ts          # Validation & text operations
+├── constants/              # Key names, limits, configuration definitions
+├── contexts/               # Custom React contexts (Theme, Socket connections)
+├── theme/                  # Design Tokens & variables
+│   ├── colors.ts           # Material 3 hex specifications
+│   ├── typography.ts       # Size, family, weight config
+│   └── spacing.ts          # Padding & borders layout constants
+└── storage/                # Storage interfaces (AsyncStorage, SecureStore)
+```
+
+---
+
+## 6.3 Backend Structure (`backend/src/`)
+
+```
+backend/src/
+├── config/                 # Environment validation & DB credentials
+├── controllers/            # Request handlers
+│   ├── EpisodeController.ts     # Episode creation, threat-abort, lifecycle
+│   ├── OutcomeController.ts     # Outcome logging: SAFE_RESOLVED / SUSPICIOUS_BEHAVIOR / ACTIVE_THREAT
+│   ├── LocationController.ts    # GPS ping, guardian registration, watchdog scan [v2.0]
+│   └── ProfileController.ts     # Anonymous → Registered profile upgrade [v2.0]
+├── middleware/             # Rate limit rules, JWT validations
+│   └── authenticate.ts          # Ed25519 JWT verification
+├── models/                 # Mongoose schemas & TypeScript interfaces
+│   ├── index.ts                  # Device, Episode, Profile, Outcome, AuditLog
+│   ├── Guardian.ts               # Guardian model: userFullName, fullName, phone, relationship [v2.0]
+│   └── DeviceLocation.ts         # 5s atomic GPS record: latitude, longitude, lastPingAt, signalLostAlertSent [v2.0]
+├── routes/                 # Fastify route endpoint registrations
+│   ├── episodes.ts               # POST /api/episodes, POST /api/episodes/:id/threat-abort
+│   ├── outcomes.ts               # POST /api/outcomes
+│   ├── locations.ts              # POST /api/locations/ping|guardians|watchdog/scan [v2.0]
+│   └── profileRoutes.ts          # POST /api/profile, POST /api/profile/upgrade [v2.0]
+├── services/               # Core business logic & safety engines
+│   ├── BehavioralRiskEngine.ts   # 5-Pillar harmlessness scoring, velocity detection, quarantine [v2.0]
+│   ├── LocationWatchdogService.ts # 5s atomic GPS, 15s signal loss, Guardian SMS, recovery [v2.0]
+│   └── KeyService.ts             # Ed25519 key management, JWT signing
+├── types/                  # TypeScript interface definitions
+├── utils/                  # Logging & audit functions
+│   └── audit.ts                  # writeAuditLog — cryptographic audit trail
+└── app.ts                  # Fastify application builder & route registration
+```
+
+---
+
+## 6.4 Test Suite Structure (`backend/tests/`)
+
+```
+backend/tests/
+├── adminAuth.test.ts
+├── allEndpoints.test.ts
+├── CapsuleController.test.ts
+├── deviceChallenge.test.ts
+├── deviceRegistration.test.ts
+├── e2eJourney.test.ts
+├── harmlessnessSystem.test.ts
+├── locationWatchdog.test.ts
+├── profileMigration.test.ts
+└── symmetricVerificationPipeline.test.ts
+```
+
+**Total: All tests passing (100%)**
+
+
+================================================================================
+=== FILE: discovery/7_phases_and_completion.md ===
+================================================================================
+
+# 7. Phase Identification & Completion Guide
+
+This document defines the goals, deliverables, specific completion/acceptance criteria, and status tracking for all 15 implementation phases of the **Connify** project.
+
+---
+
+## 7.1 Phase Status & Completion Tracker
+
+| Phase | Title | Focus Area | Status | Acceptance Criteria |
+|---|---|---|---|---|
+| **1** | **Project Discovery** | Analyze workspace layout and source code templates. | **COMPLETED** | Folder inventory documented; asset registry created. |
+| **2** | **Screen Identification** | Catalog UI mockups, buttons, inputs, icons, and themes. | **COMPLETED** | All 27 screens in `App UI` registered and parsed. |
+| **3** | **Application Flow** | Chart mobile navigation and user workflows. | **COMPLETED** | Route structures mapped; interactive state transitions defined. |
+| **4** | **Tech Stack Initialization** | Set up libraries, configurations, and core scripts. | **COMPLETED** | Zero Expo boilerplate; CLI setup builds locally. |
+| **5** | **Project Structure** | Organize directories under `src/`. | **COMPLETED** | Planned structure matching §6 generated and validated. |
+| **6** | **Design System** | Export tokens, theme configs, colors, and layout metrics. | **COMPLETED** | Custom font bindings and tailwind configurations mapped. |
+| **7** | **UI Replication** | Build components and screens. | **COMPLETED** | Highly accurate layout replication; zero inline styling. |
+| **8** | **State Management** | Coordinate session context and local storage rules. | **COMPLETED** | Zustand state machine hooks managing active episode tokens. |
+| **9** | **Backend Architecture** | Deploy/integrate Fastify framework and keys management. | **COMPLETED** | API routes configured and listening locally/remote. |
+| **10** | **API Layer** | Connect client to Fastify using secure Axios interceptors. | **COMPLETED** | Automatic refresh, error retries, and timeout rules verified. |
+| **11** | **Authentication** | Establish device registration and verification paths. | **COMPLETED** | Firebase auth and Ed25519 keys generated and verified. |
+| **12** | **Database Design** | MongoDB Atlas models, 2dsphere indexes, and location atomics. | **COMPLETED** | `Device`, `Episode`, `Profile`, `Guardian`, `DeviceLocation`, `Outcome`, `AuditLog` schemas operational. |
+| **13** | **Documentation** | Build instructions, guides, and API specifications. | **COMPLETED** | `discovery/` folder updated; architecture doc, phase tracker, and project report reflect v2.0 systems. |
+| **14** | **Android Build** | Build and signing setup for production apps. | *Pending* | Android package compiles to clean release target (AAB/APK). |
+| **15** | **Quality & Integration Tests** | Execute code sanity checks, lint validation, and tests. | **COMPLETED** | **All integration tests passing (100%)** across all 10 suites. Zero lint errors. |
+| **16** | **5-Pillar Harmlessness System** | Behavioral risk scoring, velocity trap detection, responder panic abort, auto-quarantine. | **COMPLETED** | 6/6 tests passing in `harmlessnessSystem.test.ts`. |
+| **17** | **5-Second GPS Watchdog & Guardian SMS** | Atomic location pings, 15s signal loss detection, unbounded recovery, personalized SMS alerts. | **COMPLETED** | 6/6 tests passing in `locationWatchdog.test.ts`. Guardian SMS reads coordinates directly from MongoDB. |
+| **18** | **Anonymous → Registered Profile Migration** | Firebase `linkWithCredential` integration, mandatory guardian enforcement, `POST /api/profile/upgrade`. | **COMPLETED** | 5/5 tests passing in `profileMigration.test.ts`. `isAnonymous: false` verified in MongoDB. |
+ 
+---
+
+## 7.2 Phase Detailed Acceptance Standards
+
+### Phase 4: Tech Stack Initialization
+* **Input**: Existing bare React Native project.
+* **Completion Checklist**:
+  * Execute command dependencies setup (axios, react-navigation, safe-area, reanimated, etc.).
+  * Run build test targeting simulator to confirm library configuration compatibility.
+
+### Phase 5: Project Structure
+* **Input**: Root directories.
+* **Completion Checklist**:
+  * Create `src/` subdirectories (`components`, `screens`, `navigation`, `services`, `hooks`, `utils`, `theme`, etc.).
+  * Refactor target entrypoint files (`index.js` and `App.tsx`) to route through `src/`.
+
+### Phase 6: Design System
+* **Input**: Visual tokens in [3_screen_inventory.md](file:///o:/PROJECTS/CONNIFY-APP/discovery/3_screen_inventory.md).
+* **Completion Checklist**:
+  * Implement `src/theme/colors.js`, `src/theme/typography.js`, and `src/theme/spacing.js`.
+  * Validate custom typeface rendering.
+
+### Phase 7: UI Replication
+* **Input**: 27 screen mockups under `App UI`.
+* **Completion Checklist**:
+  * Write reusable components: Standard Button, SOS Button, Proximity Card, Dialogue Modals.
+  * Construct views with zero inline styling.
+
+### Phase 8: State Management
+* **Input**: Client state specifications.
+* **Completion Checklist**:
+  * Bind authentication credentials, theme status, and active websocket channels.
+  * Verify token persistence across reboots.
+
+### Phase 9: Backend Architecture
+* **Input**: Express/Fastify node servers.
+* **Completion Checklist**:
+  * Integrate Fastify router, WebSocket handlers, and BullMQ task managers.
+  * Deploy server environment on Render or simulate locally.
+
+### Phase 10: API Layer
+* **Input**: Central client API service.
+* **Completion Checklist**:
+  * Configure Axios with timeout (e.g. 10000ms), auto-retries, and interceptors for JIT Trust Capsules.
+
+### Phase 11: Authentication
+* **Input**: Cryptographic rules.
+* **Completion Checklist**:
+  * Setup Ed25519 signing keys inside Keychain/Keystore.
+  * Ensure private keys never leak to plaintext local storage.
+
+### Phase 12: Database Design
+* **Input**: Mongoose schemas and TypeScript interfaces.
+* **Completion Checklist**:
+  * Implement MongoDB models (`Device`, `Episode`, `Profile`, `Guardian`, `DeviceLocation`, `Outcome`, `AuditLog`).
+  * Verify spatial index performance on `2dsphere` location fields.
+
+### Phase 13: Documentation
+* **Input**: Finished code modules.
+* **Completion Checklist**:
+  * Compile clean developer logs, api schemas, and server setup manuals.
+
+### Phase 14: Android Build
+* **Input**: Gradle configurations.
+* **Completion Checklist**:
+  * Set up release signing keys and verify that `gradlew assembleRelease` outputs a signed APK.
+
+### Phase 15: Quality
+* **Input**: Production-ready codebase.
+* **Completion Checklist**:
+  * Scan for dead links, orphan components, or duplicate assets.
+  * Verify full end-to-end user flows.
+
+
+================================================================================
+=== FILE: discovery/Connify_System_Architecture.md ===
+================================================================================
+
+��#   C O N N I F Y      S y s t e m   A r c h i t e c t u r e   &   A p p   S p e c i f i c a t i o n  
+  
+ - - -  
+  
+ # #   1 .   A r c h i t e c t u r e   P h i l o s o p h y  
+  
+ C o n n i f y   i s   n o t   j u s t   a n   a p p      i t ' s   a   * * p r o t o c o l   i m p l e m e n t e d   a s   a n   a p p * * .   T h e   a r c h i t e c t u r e   b o r r o w s   d i r e c t l y   f r o m   z e r o - t r u s t   i d e n t i t y   p a t t e r n s   u s e d   i n   a g e n t i c   A I   s y s t e m s   ( D I D s ,   V e r i f i a b l e   C r e d e n t i a l s ,   J u s t - I n - T i m e   c r e d e n t i a l s ,   Z e r o - K n o w l e d g e   P r o o f s )   b u t   s i m p l i f i e s   t h e m   f o r   h u m a n - t o - h u m a n ,   c o n s u m e r - g r a d e   u s e   u s i n g   t h e   * * S H A R P   p r o t o c o l * *   f o r   p r i v a c y - p r e s e r v i n g   p r o x i m i t y   v e r i f i c a t i o n :  
+  
+ |   Z e r o - T r u s t   A g e n t i c   C o n c e p t   |   C o n n i f y   E q u i v a l e n t   |   S H A R P   P r o t o c o l   I n t e g r a t i o n   |  
+ | - - - | - - - | - - - |  
+ |   D e c e n t r a l i z e d   I d e n t i f i e r   ( D I D )   |   * * E p i s o d e   I D * *   |   E p h e m e r a l   r e q u e s t   i d e n t i f i e r   ( U U I D v 4 )   t h a t   i s o l a t e s   t r a n s a c t i o n a l   i d e n t i t y   |  
+ |   V e r i f i a b l e   C r e d e n t i a l   ( V C )   |   * * T r u s t   C a p s u l e * *   |   E d 2 5 5 1 9 - s i g n e d   J W T   a u t h o r i z i n g   s i n g l e - u s e   t e m p o r a r y   c o n t a c t   |  
+ |   J u s t - I n - T i m e   ( J I T )   V C   i s s u a n c e   |   * * J I T   C a p s u l e   I s s u a n c e * *   |   T h e   T r u s t   C a p s u l e   i s   m i n t e d   o n l y   a f t e r   t h e   S H A R P   h a n d s h a k e   s u c c e e d s   |  
+ |   Z e r o - K n o w l e d g e   P r o o f   ( s e l e c t i v e   d i s c l o s u r e )   |   * * S e l e c t i v e   D i s c l o s u r e   &   B l i n d i n g * *   |   R e v e a l s   u r g e n c y / c a t e g o r y   p r e - m a t c h ;   B o b   b l i n d s   h i s   g r i d   i n d e x   $ b $   u s i n g   k e y   $ K $   |  
+ |   A g e n t   N a m e   S e r v i c e   ( A N S )   d i s c o v e r y   |   * * H e l p e r   M a t c h   E n g i n e * *   |   C o a r s e - g r a i n e d   l o c a t i o n   f i l t e r i n g   ( P o s t G I S )   t o   f i n d   n e a r b y   c a n d i d a t e s   |  
+ |   G l o b a l   S e s s i o n   A u t h o r i t y   +   R e v o c a t i o n   |   * * E p i s o d e   L i f e c y c l e   M a n a g e r * *   |   R e d i s - b a c k e d   s i n g l e - u s e   c h e c k o u t s   a n d   a b s o l u t e   t i m e o u t s   |  
+ |   A u d i t   l o g g i n g   b y   D I D   |   * * O u t c o m e   L o g g i n g   M o d u l e * *   |   D e c o u p l e d ,   i d e n t i t y - f r e e   l o g g i n g   o f   c o m p l e t i o n   o u t c o m e s   |  
+ |   * * P r o x i m i t y   v e r i f i c a t i o n   /   H a n d s h a k e * *   |   * * S H A R P   V e r i f i c a t i o n   H a n d s h a k e * *   |   C l i e n t - s i d e   e n v i r o n m e n t a l   B l o o m   f i l t e r s   &   B C H   s y n d r o m e   k e y   r e c o n s t r u c t i o n   |  
+  
+ - - -  
+  
+ # #   2 .   H i g h - L e v e l   S y s t e m   A r c h i t e c t u r e  
+  
+ ` ` `  
+ % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %% 
+ %                                                C L I E N T   L A Y E R                                                             % 
+ %      R e a c t   N a t i v e   /   E x p o   ( i O S   &   A n d r o i d )     +     N e x t . j s   ( W e b   P o r t a l )       % 
+ %      -   R e q u e s t e r   A p p   V i e w       -   H e l p e r   A p p   V i e w       -   A d m i n / A u d i t   V i e w     % 
+ % % % % % % % % % % % % % % % %,% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %,% % % % % % % % % % % % % % % % % %% 
+                                 %    H T T P S / T L S   +   W e b S o c k e t   ( e p h e m e r a l   c h a n n e l )               % 
+ % % % % % % % % % % % % % % % %�% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %�% % % % % % % % % % % % % % % % % %% 
+ %                                          A P I   G A T E W A Y   /   B F F   L A Y E R                                               % 
+ %                  N o d e . j s   ( E x p r e s s / F a s t i f y )      r e q u e s t   r o u t i n g ,                           % 
+ %                  r a t e   l i m i t i n g ,   s e s s i o n   t o k e n   v a l i d a t i o n                                     % 
+ % % % % % % % % % % % % % % % %,% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %,% % % % % % % % % % % % % % % % % %% 
+                                 %                                                                % 
+ % % % % % % % % % % % % % % % %�% % % % % % % % % % % % % % %%      % % % % % % % % % % % % % %�% % % % % % % % % % % % % % % % % %% 
+ %    L A Y E R   1 :   I D E N T I T Y   &   E P I S O D E     %      %    L A Y E R   2 :   S H A R P   V E R I F I C A T I O N       % 
+ %    -   E p i s o d e   C r e a t i o n   S e r v i c e       %      %    -   E n v i r o n m e n t a l   S i g n a l   T a g         % 
+ %    -   E p i s o d e   I D   R e g i s t r y                 %      %    -   B l o o m   F i l t e r   G e n e r a t o r             % 
+ %    -   E x p i r y   &   L i f e c y c l e   M a n a g e r   %      %    -   B C H   S y n d r o m e   K e y   E x c h a n g e       % 
+ %                                                                %      %    -   O b l i v i o u s   P r o x i m i t y   H a n d s h a k e % 
+ % % % % % % % % % % % % % % % %,% % % % % % % % % % % % % % % %%      %    -   G r i d   I n d e x   B l i n d i n g   M o d u l e     % 
+                                 %                                        % % % % % % % % % % % % % %,% % % % % % % % % % % % % % % % % %% 
+                                 %                                                                    % 
+ % % % % % % % % % % % % % % % %�% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %�% % % % % % % % % % % % % % % %% 
+ %                            L A Y E R   3 :   S E L E C T I V E   D I S C L O S U R E   E N G I N E                                   % 
+ %      D e t e r m i n e s   m i n i m u m   d a t a   h e l p e r   n e e d s   t o   s e e   ( c a t e g o r y ,   u r g e n c y ,   % 
+ %      g e n e r a l   l o c a t i o n   r a d i u s )      n e v e r   f u l l   i d e n t i t y / a d d r e s s / h i s t o r y     % 
+ % % % % % % % % % % % % % % % %,% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %% 
+                                 % 
+ % % % % % % % % % % % % % % % %�% % % % % % % % % % % % % % % %% 
+ %            L A Y E R   4 :   T R U S T   C A P S U L E   S E R V I C E                           % 
+ %    -   V a l i d a t e s   B o b ' s   b l i n d e d   g r i d   c e l l   r e s p o n s e     % 
+ %    -   B i n d s :   1   r e q u e s t   +   1   h e l p e r   +   1   t i m e   w i n d o w     % 
+ %    -   S i g n s   c a p s u l e   ( E d 2 5 5 1 9   k e y   p a i r )                           % 
+ %    -   E n f o r c e s   s i n g l e - u s e   +   a u t o - e x p i r y   v i a   R e d i s     % 
+ % % % % % % % % % % % % % % % %,% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %% 
+                                 % 
+ % % % % % % % % % % % % % % % %�% % % % % % % % % % % % % % % % % % % % % % %%      % % % % % % % % % % % % % % % % % % % % % % % % % % %% 
+ %    L A Y E R   5 :   H E L P E R   M A T C H   E N G I N E                   %      %  L A Y E R   6 :   E P H E M E R A L   C O M M S   % 
+ %        b a s e d   m a t c h i n g                                           %      %        c h a n n e l   p e r   e p i s o d e       % 
+ %    -   P u s h e s   m a t c h   t o   n e a r b y   h e l p e r s           %      %    -   A u t o - d e s t r u c t s   o n           % 
+ %                                                                                %      %        c a p s u l e   e x p i r y                 % 
+ % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %%      % % % % % % % % % % % % % % % % % % % % % % % % % % %% 
+                                 % 
+ % % % % % % % % % % % % % % % %�% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %% 
+ %        L A Y E R   7 :   O U T C O M E   L O G G I N G   ( M i n i m a l   A u d i t )               % 
+ %    S t o r e s   O N L Y :   s u c c e s s / f a i l ,   c a t e g o r y ,   r i s k   l e v e l ,   % 
+ %    c o m p l e t e d - w i t h i n - w i n d o w   ( y e s / n o )      n o   i d e n t i t y ,     % 
+ %    n o   l o c a t i o n   t r a i l ,   n o   m e s s a g e   c o n t e n t                         % 
+ % % % % % % % % % % % % % % % %,% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %% 
+                                 % 
+ % % % % % % % % % % % % % % % %�% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %% 
+ %                            D A T A   L A Y E R                                                       % 
+ %    -   E n c r y p t e d - a t - r e s t   D B   ( e p i s o d e   m e t a d a t a   o n l y )       % 
+ %    -   E p h e m e r a l   k e y - v a l u e   s t o r e   ( a c t i v e   c a p s u l e s )         % 
+ %    -   N o   p e r s i s t e n t   i d e n t i t y   g r a p h   /   n o   f u l l   p r o f i l e s % 
+ % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %% 
+ ` ` `  
+  
+ - - -  
+  
+ # #   3 .   C o r e   S e r v i c e s   ( B a c k e n d )  
+  
+ |   S e r v i c e   |   R e s p o n s i b i l i t y   |   N o t e s   |  
+ | - - - | - - - | - - - |  
+ |   * * E p i s o d e   S e r v i c e * *   |   C r e a t e s / t r a c k s   h e l p - r e q u e s t   l i f e c y c l e   |   E a c h   e p i s o d e   =   o n e   D I D - l i k e   u n i q u e   I D   |  
+ |   * * V e r i f i c a t i o n   S e r v i c e * *   |   E x e c u t e s   t h e   S H A R P   h a n d s h a k e .   |   M a n a g e s   e n v i r o n m e n t a l   B l o o m   f i l t e r s   &   B C H   s y n d r o m e s ,   a n d   v e r i f i e s   B o b ' s   b l i n d e d   g r i d   c e l l   r e s p o n s e   |  
+ |   * * D i s c l o s u r e   S e r v i c e * *   |   F i l t e r s   d a t a   s h o w n   t o   h e l p e r   |   R u l e - b a s e d ,   c o u l d   e v o l v e   t o   Z K P - b a s e d   p r o o f s   |  
+ |   * * T r u s t   C a p s u l e   S e r v i c e * *   |   I s s u e s ,   s i g n s ,   e x p i r e s   t o k e n s   |   J I T - i s s u a n c e      o n l y   a f t e r   S H A R P   v e r i f i c a t i o n   p a s s e s   |  
+ |   * * M a t c h i n g   S e r v i c e * *   |   F i n d s   n e a r b y   c a n d i d a t e   h e l p e r s   |   C o a r s e   l o c a t i o n   f i l t e r i n g   u s i n g   P o s t G I S   r a d i u s   c h e c k s   |  
+ |   * * C o m m s   R e l a y * *   |   E p h e m e r a l   m e s s a g i n g / c a l l i n g   |   C h a n n e l   d i e s   w h e n   c a p s u l e   e x p i r e s   |  
+ |   * * O u t c o m e   S e r v i c e * *   |   M i n i m a l   f e e d b a c k   l o g g i n g   |   D e c o u p l e d   f r o m   i d e n t i t y      p r i v a c y   b y   d e s i g n   |  
+ |   * * R e v o c a t i o n / E x p i r y   W o r k e r * *   |   K i l l s   c a p s u l e s / s e s s i o n s   o n   t i m e o u t   o r   a b u s e   f l a g   |   E q u i v a l e n t   t o   " g l o b a l   l o g o u t "   p a t t e r n   |  
+  
+ - - -  
+  
+ # #   4 .   T h r e a t   M i t i g a t i o n   M a p p e d   t o   A r c h i t e c t u r e  
+  
+ |   T h r e a t   |   A r c h i t e c t u r a l   C o n t r o l   |  
+ | - - - | - - - |  
+ |   F a k e   r e q u e s t s   |   S H A R P   V e r i f i c a t i o n   S e r v i c e   ( E n v i r o n m e n t a l   l o c a t i o n   t a g s   c o n t a i n i n g   e n t r o p y   >   6 4   b i t s   t o   p r e v e n t   f o r g e r y )   |  
+ |   S p o o f e d   l o c a t i o n   |   M u l t i - s i g n a l   e n v i r o n m e n t a l   t a g s   ( W i - F i   f r a m e   h e a d e r s   &   L T E   c o n t r o l   m e s s a g e s   l i k e   T C - R N T I ) ,   p r e v e n t i n g   G P S   s p o o f i n g   a p p s   |  
+ |   M a l i c i o u s   h e l p e r s   |   I d e n t i t y   e x p o s u r e   d e l a y e d   u n t i l   c a p s u l e   i s s u a n c e   |  
+ |   R e p l a y   a t t a c k s   |   C a p s u l e   b o u n d   t o   1   r e q u e s t / 1   h e l p e r / 1   t i m e   w i n d o w   a n d   s i n g l e - u s e   R e d i s   N X   l o c k   |  
+ |   S u r v e i l l a n c e   c r e e p   |   O u t c o m e   S e r v i c e   s t o r e s   m i n i m a l ,   n o n - i d e n t i f y i n g   d a t a   o n l y   |  
+  
+  
+ - - -  
+  
+ # #   5 .   A p p   P a g e s   &   F e a t u r e s  
+  
+ # # #   A .   O n b o a r d i n g   &   A c c e s s  
+ * * P a g e :   W e l c o m e   /   G e t   S t a r t e d * *  
+ -   M i n i m a l   s i g n - u p   ( p h o n e   n u m b e r   o r   d e v i c e - b o u n d   k e y ,   n o   h e a v y   K Y C )  
+ -   B r i e f   p r o t o c o l   e x p l a i n e r   ( " o n e - t i m e   t r u s t ,   n o t   a   p r o f i l e " )  
+ -   P e r m i s s i o n   r e q u e s t s :   l o c a t i o n ,   c a m e r a   ( Q R ) ,   n o t i f i c a t i o n s  
+  
+ * * P a g e :   H o m e   D a s h b o a r d * *  
+ -   T o g g l e :   " I   n e e d   h e l p "   v s   " I   c a n   h e l p   n e a r b y "  
+ -   A c t i v e   e p i s o d e   s t a t u s   c a r d   ( i f   a n y )  
+ -   Q u i c k - a c c e s s   e m e r g e n c y   m o d e   b u t t o n  
+  
+ - - -  
+  
+ # # #   B .   R e q u e s t e r   F l o w  
+  
+ * * P a g e :   C r e a t e   H e l p   R e q u e s t * *  
+ -   C a t e g o r y   s e l e c t o r   ( m e d i c a l ,   t r a n s p o r t ,   g e n e r a l ,   e m e r g e n c y )  
+ -   U r g e n c y   s l i d e r  
+ -   S h o r t   c o n t e x t   f i e l d   ( a u t o - l i m i t e d   t o   p r e v e n t   o v e r s h a r i n g )  
+ -   C o a r s e   l o c a t i o n   c a p t u r e   ( a p p r o x i m a t e   g r i d   c e l l ,   n o t   e x a c t   c o o r d i n a t e s )  
+  
+ * * P a g e :   R e q u e s t   V e r i f i c a t i o n * *  
+ -   G e n e r a t e s   t i m e - b o u n d   Q R   c o d e   c o n t a i n i n g   A l i c e ' s   l o c a t i o n   t a g   s y n d r o m e s   ( B C H )   a n d   h e l p e r   s t r i n g   $ y $  
+ -   S h o w s   d e v i c e - c o n s i s t e n c y   s t a t u s  
+ -   O p t i o n a l   " a d d   a   w i t n e s s "   ( n e a r b y   t r u s t e d   c o n t a c t   c o n f i r m s )  
+  
+ * * P a g e :   W a i t i n g   f o r   M a t c h * *  
+ -   L i v e   s t a t u s :   s e a r c h i n g   �!  m a t c h e d   �!  c a p s u l e   i s s u e d  
+ -   C a n c e l   b u t t o n   ( k i l l s   e p i s o d e   i n s t a n t l y )  
+  
+ * * P a g e :   A c t i v e   E p i s o d e   ( R e q u e s t e r   V i e w ) * *  
+ -   E p h e m e r a l   c h a t / c a l l   w i t h   m a t c h e d   h e l p e r  
+ -   C o u n t d o w n   t i m e r   t o   c a p s u l e   e x p i r y  
+ -   " M a r k   c o m p l e t e "   /   " R e p o r t   i s s u e "   b u t t o n s  
+  
+ * * P a g e :   F e e d b a c k * *  
+ -   B i n a r y   s u c c e s s / f a i l u r e  
+ -   C a t e g o r y   c o n f i r m a t i o n  
+ -   N o   f r e e - t e x t   p e r s o n a l   c o m m e n t a r y   s t o r e d   b e y o n d   t h i s  
+  
+ - - -  
+  
+ # # #   C .   H e l p e r   F l o w  
+  
+ * * P a g e :   N e a r b y   R e q u e s t s   F e e d * *  
+ -   L i s t   o f   a n o n y m i z e d ,   d i s c l o s u r e - f i l t e r e d   r e q u e s t s   ( c a t e g o r y   +   u r g e n c y   +   r o u g h   d i s t a n c e   o n l y )  
+ -   N o   r e q u e s t e r   i d e n t i t y   s h o w n   p r e - m a t c h  
+  
+ * * P a g e :   A c c e p t   &   V e r i f y * *  
+ -   S c a n s   r e q u e s t e r ' s   Q R  
+ -   C a p t u r e s   n e a r b y   W i - F i   f r a m e   h e a d e r s   a n d   L T E   c o n t r o l   m e s s a g e s   ( T C - R N T I )   t o   c o n s t r u c t   l o c a l   l o c a t i o n   t a g   B l o o m   f i l t e r  
+ -   R e c o n s t r u c t s   s e s s i o n   k e y   $ K $   v i a   B C H   s y n d r o m e   d e c o d i n g ,   a n d   s u b m i t s   b l i n d e d   g r i d   c e l l   i n d e x   $ B   =   \ m a t h c a l { H } ' ( K ,   b   \ m a t h b i n { \ V e r t }   \ t e x t { " B o b " } ) $  
+ -   T r u s t   C a p s u l e   i s s u e d   o n l y   a f t e r   v e r i f i c a t i o n   c h e c k s   p a s s  
+  
+ * * P a g e :   A c t i v e   E p i s o d e   ( H e l p e r   V i e w ) * *  
+ -   R e v e a l s   o n l y   t h e   m i n i m u m   i n f o   n e e d e d   t o   c o m p l e t e   t h e   t a s k  
+ -   E p h e m e r a l   c o m m s   c h a n n e l  
+ -   C a p s u l e   c o u n t d o w n   v i s i b l e  
+  
+ * * P a g e :   C o m p l e t i o n   &   F e e d b a c k * *  
+ -   C o n f i r m s   t a s k   o u t c o m e  
+ -   C a p s u l e   a u t o - i n v a l i d a t e s ,   c h a n n e l   c l o s e s  
+  
+  
+ - - -  
+  
+ # # #   D .   T r u s t   &   S a f e t y   L a y e r   ( S h a r e d )  
+  
+ * * P a g e :   E m e r g e n c y   /   H i g h - S t a k e s   M o d e * *  
+ -   S t r e a m l i n e d   f l o w   f o r   s c e n a r i o s   l i k e   t h e   o x y g e n - c o n c e n t r a t o r   b l a c k o u t   c a s e  
+ -   P r i o r i t y   m a t c h i n g   +   f a s t e r   v e r i f i c a t i o n   t h r e s h o l d s  
+ -   O p t i o n a l   a u t o - a l e r t   t o   l o c a l   e m e r g e n c y   s e r v i c e s  
+  
+ * * P a g e :   E p i s o d e   H i s t o r y   ( M i n i m a l ) * *  
+ -   S h o w s   o n l y   p a s t   e p i s o d e   o u t c o m e s   ( s u c c e s s / f a i l ,   c a t e g o r y )      n e v e r   f u l l   c h a t   l o g s   o r   h e l p e r / r e q u e s t e r   i d e n t i t i e s  
+ -   N o   p e r s i s t e n t   r e p u t a t i o n   s c o r e   e x p o s e d   t o   o t h e r   u s e r s   ( a v o i d s   s u r v e i l l a n c e - s t y l e   p r o f i l i n g )  
+  
+ - - -  
+  
+ # # #   E .   S e t t i n g s   &   G o v e r n a n c e  
+  
+ * * P a g e :   P r i v a c y   &   D a t a * *  
+ -   E x p l a i n s   e x a c t l y   w h a t ' s   l o g g e d   ( o u t c o m e   d a t a   o n l y )  
+ -   D a t a   d e l e t i o n   /   e p i s o d e   p u r g e   c o n t r o l s  
+  
+ * * P a g e :   D e v i c e   &   S e c u r i t y * *  
+ -   M a n a g e   d e v i c e - b o u n d   k e y s  
+ -   W i t n e s s   c o n t a c t   m a n a g e m e n t  
+  
+ * * P a g e :   A b o u t   t h e   P r o t o c o l * *  
+ -   E x p l a i n s   e p i s o d e - b o u n d   t r u s t   m o d e l   t o   b u i l d   u s e r   u n d e r s t a n d i n g / t r u s t  
+  
+ - - -  
+  
+ # #   6 .   P h a s e d   B u i l d   A l i g n m e n t  
+  
+ |   P h a s e   |   A r c h i t e c t u r e   F o c u s   |   A p p   P a g e s   E n a b l e d   |  
+ | - - - | - - - | - - - |  
+ |   * * P h a s e   1 * *   |   E p i s o d e   S e r v i c e ,   b a s i c   S H A R P   h a n d s h a k e   ( W i - F i   f r a m e   h e a d e r   t a g s ,   m a n u a l   Q R   c h e c k )   |   C r e a t e   R e q u e s t ,   V e r i f i c a t i o n ,   W a i t i n g   f o r   M a t c h ,   A c t i v e   E p i s o d e   ( b a s i c )   |  
+ |   * * P h a s e   2 * *   |   D e v i c e - b o u n d   c h e c k s ,   L T E   c o n t r o l   s i g n a l s ,   B C H   s y n d r o m e   c o d i n g ,   a u t o m a t i c   p r o x i m i t y   c h e c k   |   E n h a n c e d   V e r i f i c a t i o n ,   c o u n t d o w n   t i m e r s   |  
+ |   * * P h a s e   3 * *   |   S e l e c t i v e   D i s c l o s u r e   E n g i n e ,   g r i d   c e l l   b l i n d i n g ,   P o s t G I S   c o a r s e   m a t c h i n g   |   N e a r b y   R e q u e s t s   F e e d   f i l t e r i n g ,   E m e r g e n c y   M o d e   |  
+ |   * * P h a s e   4 * *   |   P r i v a c y   r e f i n e m e n t ,   o u t c o m e - b a s e d   m a t c h i n g   t u n i n g   |   E p i s o d e   H i s t o r y ,   P r i v a c y   &   D a t a   s e t t i n g s   |  
+  
+  
+ - - -  
+  
+ # #   7 .   D e t a i l e d   T e c h   S t a c k  
+  
+ A   n o t e   o n   f e a s i b i l i t y   f i r s t :   t h e   o r i g i n a l   p r o p o s a l   l a n g u a g e   ( D I D s ,   V e r i f i a b l e   C r e d e n t i a l s ,   Z K P s )   i s   u s e f u l   a s   a   * * c o n c e p t u a l   m o d e l * * ,   b u t   a   r e a l   b l o c k c h a i n - b a s e d   D I D / V C   s t a c k   i s   u n n e c e s s a r y   o v e r h e a d   f o r   a   c o n s u m e r   s a f e t y   a p p   a n d   w o u l d   a d d   l a t e n c y ,   c o s t ,   a n d   c o m p l e x i t y   w i t h   n o   r e a l   b e n e f i t   a t   M V P   s c a l e .   B e l o w   i s   w h a t ' s   a c t u a l l y   b u i l d a b l e ,   w i t h   t h e   " p r o t o c o l "   i d e a s   i m p l e m e n t e d   a s   * * p l a i n   s i g n e d   t o k e n s   a n d   s e r v e r - s i d e   r u l e s * *   r a t h e r   t h a n   D L T   i n f r a s t r u c t u r e .   A   p a t h   t o   t r u e   D I D / Z K P   i s   n o t e d   a t   t h e   e n d   f o r   l a t e r   p h a s e s ,   i f   e v e r   j u s t i f i e d .  
+  
+ # # #   7 . 1   M o b i l e   C l i e n t   ( R e a c t   N a t i v e   +   E x p o )  
+ T h e   m o b i l e   c l i e n t   i s   b u i l t   a s   a   n a t i v e   a p p l i c a t i o n   u s i n g   * * R e a c t   N a t i v e   a n d   t h e   E x p o   S D K * * ,   t a r g e t i n g   i O S   a n d   A n d r o i d .   T h i s   p r o v i d e s   n a t i v e   p e r f o r m a n c e ,   n a t i v e   U I   r e n d e r i n g   ( r a t h e r   t h a n   W e b V i e w s ) ,   a n d   s e a m l e s s   a c c e s s   t o   h a r d w a r e   s e c u r i t y   m o d u l e s   l i k e   K e y c h a i n / K e y s t o r e .  
+  
+ |   C o m p o n e n t   |   T e c h n o l o g y   |   W h y   |  
+ | - - - | - - - | - - - |  
+ |   M o b i l e   F r a m e w o r k   |   * * R e a c t   N a t i v e   ( E x p o ) * *   |   C r o s s - p l a t f o r m   n a t i v e   a p p l i c a t i o n   f r a m e w o r k   f o r   i O S   a n d   A n d r o i d   |  
+ |   S t a t e   M a n a g e m e n t   |   * * Z u s t a n d * *   |   M i n i m a l   b o i l e r p l a t e ,   l i g h t w e i g h t   s t a t e   m a n a g e m e n t   t h a t   s c a l e s   e a s i l y   |  
+ |   U I / S t y l i n g   |   * * N a t i v e W i n d * *   o r   * * S t y l e S h e e t * *   |   T a i l o r e d   U I   s t y l e s ;   N a t i v e W i n d   a l l o w s   T a i l w i n d - l i k e   s y n t a x   i n   R e a c t   N a t i v e   |  
+ |   Q R   C o d e   G e n e r a t i o n   |   ` r e a c t - n a t i v e - q r c o d e - s v g `   |   R e n d e r s   v e c t o r   Q R   c o d e s   q u i c k l y   i n   R e a c t   N a t i v e   |  
+ |   Q R   C o d e   S c a n n i n g   |   ` e x p o - c a m e r a `   |   H i g h - a c c u r a c y   n a t i v e   c a m e r a   a c c e s s   f o r   f a s t ,   r e l i a b l e   Q R   v e r i f i c a t i o n   |  
+ |   G e o l o c a t i o n   |   ` e x p o - l o c a t i o n `   |   Q u e r i e s   h i g h - p r e c i s i o n   d e v i c e   G P S ,   f a l l s   b a c k   t o   c e l l / W i - F i   p o s i t i o n i n g   |  
+ |   P u s h   N o t i f i c a t i o n s   |   ` e x p o - n o t i f i c a t i o n s `   |   I n t e r f a c e s   w i t h   i O S   A P N s   a n d   A n d r o i d   F C M   v i a   E A S   |  
+ |   S e c u r e   S t o r a g e   ( S e n s i t i v e )   |   ` e x p o - s e c u r e - s t o r e `   |   A c c e s s e s   i O S   K e y c h a i n   a n d   A n d r o i d   K e y s t o r e   f o r   E d 2 5 5 1 9   s i g n i n g   k e y s   a n d   d e v i c e   f i n g e r p r i n t s   |  
+ |   L o c a l   S t o r a g e   ( N o n - s e n s i t i v e ) |   ` @ r e a c t - n a t i v e - a s y n c - s t o r a g e / a s y n c - s t o r a g e `   |   S i m p l e ,   p e r s i s t e n t   k e y - v a l u e   s t o r e   f o r   a p p   s e t t i n g s / c a c h i n g   |  
+ |   R e a l - t i m e   C o m m s   |   ` s o c k e t . i o - c l i e n t `   |   S t a n d a r d   W e b S o c k e t s   c l i e n t   t o   c o m m u n i c a t e   w i t h   F a s t i f y   S o c k e t . I O   s e r v e r   |  
+  
+  
+  
+ # # #   7 . 2   F r o n t e n d   ( W e b      A d m i n / A u d i t   P o r t a l )  
+ |   C o m p o n e n t   |   T e c h n o l o g y   |   W h y   |  
+ | - - - | - - - | - - - |  
+ |   F r a m e w o r k   |   * * N e x t . j s   1 4 +   ( A p p   R o u t e r ) * *   |   S S R   f o r   a d m i n   d a s h b o a r d s ,   g o o d   D X   |  
+ |   U I   |   * * T a i l w i n d   C S S   +   s h a d c n / u i * *   |   F a s t ,   a c c e s s i b l e   c o m p o n e n t s   |  
+ |   C h a r t s   ( a u d i t / o p s   d a s h b o a r d s )   |   * * R e c h a r t s * *   |   L i g h t w e i g h t ,   s u f f i c i e n t   f o r   o p s   m e t r i c s   |  
+  
+ # # #   7 . 3   B a c k e n d   /   A P I  
+ |   C o m p o n e n t   |   T e c h n o l o g y   |   W h y   |  
+ | - - - | - - - | - - - |  
+ |   R u n t i m e   |   * * N o d e . j s   2 0   L T S * *   |   M a t c h e s   t e a m ' s   s t a c k ,   m a t u r e   e c o s y s t e m   |  
+ |   A P I   f r a m e w o r k   |   * * F a s t i f y * *   ( p r e f e r r e d   o v e r   E x p r e s s   f o r   t h i s )   |   B u i l t - i n   s c h e m a   v a l i d a t i o n ,   b e t t e r   t h r o u g h p u t   f o r   r e a l - t i m e - h e a v y   a p p   |  
+ |   L a n g u a g e   |   * * T y p e S c r i p t * *   |   T y p e   s a f e t y   a c r o s s   e p i s o d e / c a p s u l e   s t a t e   m a c h i n e s      i m p o r t a n t   g i v e n   t h e   c o r r e c t n e s s   r e q u i r e m e n t s   ( s i n g l e - u s e ,   e x p i r y )   |  
+ |   A P I   c o n t r a c t   |   * * O p e n A P I   3   +   Z o d   s c h e m a s * *   |   E n f o r c e d   r e q u e s t / r e s p o n s e   v a l i d a t i o n   |  
+ |   B a c k g r o u n d   j o b s   |   * * B u l l M Q   ( R e d i s - b a c k e d ) * *   |   C a p s u l e   e x p i r y   s w e e p s ,   r e v o c a t i o n   p r o p a g a t i o n ,   m a t c h   t i m e o u t s   |  
+ |   R e a l - t i m e   l a y e r   |   * * S o c k e t . I O   ( s e r v e r ) * *   w i t h   R e d i s   a d a p t e r   |   H a n d l e s   e p h e m e r a l   c h a t   r o o m s   s c o p e d   p e r   e p i s o d e ;   R e d i s   a d a p t e r   n e e d e d   o n c e   y o u   r u n   > 1   s e r v e r   i n s t a n c e   |  
+  
+ # # #   7 . 4   D a t a   L a y e r  
+ |   C o m p o n e n t   |   T e c h n o l o g y   |   W h y   |  
+ | - - - | - - - | - - - |  
+ |   P r i m a r y   D B   |   * * M o n g o D B   A t l a s * *   |   D o c u m e n t   f l e x i b i l i t y   a n d   ` 2 d s p h e r e `   i n d e x e s   f o r   g e o s p a t i a l   q u e r i e s   ( s e e   � 7 . 6 ,   � 8 . 1 )   |  
+ |   O D M   |   * * M o n g o o s e * *   |   S c h e m a   v a l i d a t i o n ,   t y p e - s a f e   q u e r i e s ,   a n d   r i c h   m i d d l e w a r e   s u p p o r t   |  
+ |   E p h e m e r a l / s e s s i o n   s t o r e   |   * * R e n d e r   K e y   V a l u e * *   ( R e d i s - c o m p a t i b l e ,   V a l k e y   8 )   |   A c t i v e   c a p s u l e s ,   r a t e   l i m i t s ,   S o c k e t . I O   p u b / s u b ,   B u l l M Q   q u e u e s      s a m e   r e g i o n   a s   t h e   A P I   s e r v i c e   t o   k e e p   l a t e n c y   l o w   |  
+ |   E n c r y p t i o n   a t   r e s t   |   * * M o n g o D B   A t l a s   b u i l t - i n   e n c r y p t i o n * *   |   M i n i m i z e s   b l a s t   r a d i u s   i f   D B   i s   b r e a c h e d   |  
+ |   D a t a   r e t e n t i o n   |   R e n d e r   * * C r o n   J o b * *   p u r g e s   e p i s o d e / l o c a t i o n   d a t a   p o s t - e x p i r y ;   o n l y   o u t c o m e   s u m m a r y   r o w s   p e r s i s t   l o n g - t e r m   |   M a t c h e s   t h e   " m i n i m a l   o u t c o m e   l o g g i n g "   d e s i g n   g o a l   |  
+  
+ # # #   7 . 5   I d e n t i t y ,   V e r i f i c a t i o n   &   " T r u s t   C a p s u l e "   C r y p t o g r a p h y  
+ T h i s   r e p l a c e s   t h e   D I D / V C / D L T   f r a m i n g   w i t h   a   r e a l i s t i c ,   a u d i t a b l e   e q u i v a l e n t   b a s e d   o n   t h e   * * S H A R P   p r o t o c o l * *   f o r   s e c u r e ,   p r i v a t e   p r o x i m i t y   v e r i f i c a t i o n :  
+  
+ |   C o n c e p t   |   R e a l   I m p l e m e n t a t i o n   |  
+ | - - - | - - - |  
+ |   E p i s o d e   I D   ( ~ " D I D " )   |   U U I D v 4   g e n e r a t e d   s e r v e r - s i d e   p e r   r e q u e s t ,   n e v e r   r e u s e d   |  
+ |   T r u s t   C a p s u l e   ( ~ " V C " )   |   * * J W T   s i g n e d   w i t h   E d 2 5 5 1 9 * *   ( v i a   ` j o s e `   o r   ` p a s e t o `   l i b r a r y )      s h o r t   e x p i r y   ( ` e x p `   c l a i m ) ,   s i n g l e - u s e   e n f o r c e d   v i a   R e d i s   k e y   t h a t ' s   d e l e t e d   o n   f i r s t   v a l i d a t i o n   |  
+ |   D e v i c e   c o n s i s t e n c y   c h e c k   |   D e v i c e   f i n g e r p r i n t   ( h a s h e d   h a r d w a r e / i n s t a l l   I D )   s t o r e d   p e r   e p i s o d e ,   c o m p a r e d   o n   c a p s u l e   r e d e m p t i o n   |  
+ |   Q R   t o k e n   /   S y n d r o m e s   |   S h o r t - l i v e d   Q R   c o n t a i n i n g   * * B C H   s y n d r o m e s * *   o f   A l i c e ' s   l o c a t i o n   t a g   B l o o m   f i l t e r   a n d   a   h e l p e r   s t r i n g   $ y $ .   |  
+ |   W i - F i / L T E   L o c a t i o n   T a g   |   B u i l t   c l i e n t - s i d e   b y   c a p t u r i n g   e n v i r o n m e n t a l   s i g n a l s   ( W i - F i   f r a m e   h e a d e r s   a n d   L T E   c o n t r o l   m e s s a g e s   l i k e   T C - R N T I )   a n d   l o a d i n g   t h e m   i n t o   a   1 0 2 4 - b i t   B l o o m   f i l t e r .   |  
+ |   F u z z y   E x t r a c t o r   H a n d s h a k e   |   B o b   r e c o n s t r u c t s   t h e   t e m p o r a r y   s e s s i o n   k e y   $ K $   b y   a p p l y i n g   B C H   s y n d r o m e   d e c o d i n g   t o   h i s   o w n   l o c a t i o n   t a g   B l o o m   f i l t e r .   |  
+ |   F i n e - G r a i n e d   G r i d   C h e c k   |   B o b   s e n d s   a   b l i n d e d   g r i d   i n d e x   $ B   =   \ m a t h c a l { H } ' ( K ,   b   \ m a t h b i n { \ V e r t }   \ t e x t { " B o b " } ) $ .   A l i c e   s e a r c h e s   h e r   n e a r b y   g r i d   c e l l s   t o   f i n d   a   m a t c h ,   v e r i f y i n g   B o b ' s   p r o x i m i t y   w i t h o u t   r e v e a l i n g   e x a c t   l o c a t i o n   t o   t h e   s e r v e r .   |  
+ |   S i g n i n g   k e y s   |   * * E d 2 5 5 1 9   k e y   p a i r   p e r   s e r v e r   e n v i r o n m e n t * * ,   s t o r e d   i n   a   s e c r e t s   m a n a g e r   ( A W S   K M S   /   G C P   S e c r e t   M a n a g e r ) ,   r o t a t e d   p e r i o d i c a l l y   |  
+ |   S e l e c t i v e   d i s c l o s u r e   |   S e r v e r - s i d e   f i l t e r i n g   +   g r i d   b l i n d i n g      o n l y   c o a r s e   r e g i o n   s h o w n   p r e - m a t c h ,   e x a c t   p r o x i m i t y   v e r i f i e d   p r i v a t e l y   b y   A l i c e .   |  
+  
+ >   * * W h y   n o t   r e a l   Z K P s / D I D s   a t   M V P : * *   T h e y   r e q u i r e   e i t h e r   a   p e r m i s s i o n e d   l e d g e r   ( o p s   o v e r h e a d ,   n o   r e a l   d e c e n t r a l i z a t i o n   b e n e f i t   f o r   a   s i n g l e - c o m p a n y   a p p )   o r   h e a v y   c l i e n t - s i d e   c r y p t o   l i b r a r i e s   t h a t   h u r t   m o b i l e   p e r f o r m a n c e   a n d   a d d   U X   f r i c t i o n   ( k e y   b a c k u p / r e c o v e r y   b e c o m e s   a   s u p p o r t   n i g h t m a r e ) .   T h e   S H A R P   p r o t o c o l ' s   c o m b i n a t i o n   o f   B l o o m   f i l t e r s ,   B C H   s y n d r o m e s ,   a n d   g r i d   c e l l   b l i n d i n g   a c h i e v e s   s t r o n g   l o c a t i o n   p r i v a c y   ( o b l i v i o u s   s e r v e r )   a n d   u n f o r g e a b l e   p r o x i m i t y   c h e c k s   w i t h   m i n i m a l   m o b i l e   c o m p u t a t i o n a l   o v e r h e a d .  
+  
+  
+ # # #   7 . 6   I n f r a s t r u c t u r e   &   H o s t i n g      R e n d e r  
+  
+ V e r i f i e d   a g a i n s t   R e n d e r ' s   c u r r e n t   d o c u m e n t a t i o n   ( n o t   a s s u m e d )      t h e   m a p p i n g   b e l o w   u s e s   R e n d e r ' s   a c t u a l   s e r v i c e   t y p e s :  
+  
+ |   C o m p o n e n t   |   R e n d e r   S e r v i c e   |   W h y   /   V e r i f i e d   D e t a i l   |  
+ | - - - | - - - | - - - |  
+ |   A P I   s e r v e r   ( F a s t i f y / N o d e )   |   * * W e b   S e r v i c e * *   |   G i t - p u s h   d e p l o y ,   a u t o   T L S   o n   c u s t o m   d o m a i n s ,   a u t o s c a l i n g   o n   p a i d   p l a n s .   W e b   S e r v i c e s   s u p p o r t   i n b o u n d   W e b S o c k e t   c o n n e c t i o n s   n a t i v e l y      c o n f i r m e d   n o   e n f o r c e d   m a x   c o n n e c t i o n   d u r a t i o n   ( R e n d e r   r e c o m m e n d s   p i n g / p o n g   k e e p a l i v e ,   s i n c e   i n s t a n c e s   c a n   s t i l l   r e s t a r t   o n   d e p l o y s / m a i n t e n a n c e )   |  
+ |   R e a l - t i m e   c h a t   ( S o c k e t . I O )   |   S a m e   * * W e b   S e r v i c e * * ,   o r   a   d e d i c a t e d   o n e   |   R u n s   o n   t h e   s a m e   l o n g - l i v e d   i n s t a n c e   m o d e l      t h i s   i s   e x a c t l y   t h e   p e r s i s t e n t - c o n n e c t i o n   u s e   c a s e   R e n d e r   i s   b u i l t   f o r ,   u n l i k e   s e r v e r l e s s   p l a t f o r m s   w h e r e   W e b S o c k e t s   a r e   t i e d   t o   f u n c t i o n   l i f e c y c l e s   |  
+ |   P r i m a r y   d a t a b a s e   |   * * M o n g o D B   A t l a s * *   |   U t i l i z e s   ` 2 d s p h e r e `   i n d e x e s   f o r   g e o s p a t i a l   q u e r i e s   i n   � 8 . 1 .   I n t e g r a t e d   w i t h   R e n d e r   s e r v i c e s   s e c u r e l y .   |  
+ |   R e d i s   /   s e s s i o n   s t o r e   |   * * R e n d e r   K e y   V a l u e * *   |   R e d i s - c o m p a t i b l e   ( r u n s   V a l k e y   8   o n   n e w   i n s t a n c e s      a   d r o p - i n - c o m p a t i b l e   f o r k ,   w o r k s   f i n e   w i t h   ` i o r e d i s ` / ` b u l l m q ` ) ;   u s e d   f o r   c a p s u l e   s i n g l e - u s e   l o c k s ,   r a t e   l i m i t i n g ,   S o c k e t . I O   p u b / s u b   a d a p t e r   |  
+ |   B a c k g r o u n d   j o b s   ( B u l l M Q   w o r k e r s )   |   * * B a c k g r o u n d   W o r k e r * *   |   P u r p o s e - b u i l t   f o r   e x a c t l y   t h i s :   c o n t i n u o u s l y   p o l l i n g   a   R e d i s - b a c k e d   q u e u e   w i t h   n o   H T T P   i n t e r f a c e      m a t c h e s   t h e   c a p s u l e - e x p i r y   s w e e p   a n d   r e v o c a t i o n - p r o p a g a t i o n   j o b s   d e s c r i b e d   i n   � 3   |  
+ |   S c h e d u l e d   p u r g e   j o b   ( d a t a   r e t e n t i o n ,   � 8 . 1 )   |   * * C r o n   J o b * *   |   R e n d e r   c r o n   j o b s   s u p p o r t   r u n s   u p   t o   1 2   h o u r s      c o m f o r t a b l y   e n o u g h   f o r   a   n i g h t l y   r e t e n t i o n / p u r g e   t a s k   |  
+ |   A d m i n / a u d i t   w e b   p o r t a l   ( N e x t . j s )   |   * * S t a t i c   S i t e * *   ( i f   e x p o r t e d   s t a t i c a l l y )   o r   * * W e b   S e r v i c e * *   ( i f   y o u   n e e d   S S R )   |   S t a t i c   S i t e   g i v e s   y o u   R e n d e r ' s   C D N   f o r   f r e e ;   o n l y   u s e   a   W e b   S e r v i c e   h e r e   i f   t h e   a d m i n   p o r t a l   n e e d s   s e r v e r - s i d e   r e n d e r i n g   |  
+ |   S e c r e t s   ( s i g n i n g   k e y s ,   D B   c r e d e n t i a l s )   |   * * R e n d e r   E n v i r o n m e n t   V a r i a b l e s   ( m a r k e d   s e c r e t )   /   S e c r e t   F i l e s * *   |   R e n d e r   d o e s n ' t   o f f e r   a n   A W S   K M S / H S M   e q u i v a l e n t      f o r   t h e   E d 2 5 5 1 9   s i g n i n g   k e y ,   s t o r e   i t   a s   a   s e c r e t   e n v i r o n m e n t   v a r i a b l e   o r   S e c r e t   F i l e ,   g e n e r a t e d   o n c e   a t   p r o v i s i o n i n g   t i m e   a n d   r o t a t e d   m a n u a l l y .   I f   t r u e   h a r d w a r e - b a c k e d   k e y   c u s t o d y   b e c o m e s   a   c o m p l i a n c e   r e q u i r e m e n t   l a t e r ,   t h a t   w o u l d   n e e d   a n   e x t e r n a l   K M S   ( e . g . ,   A W S   K M S )   c a l l e d   f r o m   t h e   R e n d e r   s e r v i c e ,   n o t   s o m e t h i n g   R e n d e r   i t s e l f   p r o v i d e s   |  
+ |   L o g s / m e t r i c s   |   R e n d e r ' s   b u i l t - i n   l o g   s t r e a m   +   m e t r i c s   d a s h b o a r d ,   * * p l u s   S e n t r y * *   f o r   e r r o r   t r a c k i n g   |   R e n d e r ' s   n a t i v e   t o o l i n g   c o v e r s   b a s i c   o p s   v i s i b i l i t y ;   S e n t r y   i s   s t i l l   w o r t h   a d d i n g   f o r   s t r u c t u r e d   e r r o r   t r a c k i n g / a l e r t i n g ,   s i n c e   t h a t ' s   o u t s i d e   R e n d e r ' s   b u i l t - i n   s c o p e   |  
+ |   C I   |   * * G i t H u b   A c t i o n s * *   f o r   t e s t s / l i n t i n g   b e f o r e   m e r g e ,   R e n d e r ' s   n a t i v e   G i t   a u t o - d e p l o y   f o r   t h e   a c t u a l   d e p l o y   s t e p   |   R e n d e r   d e p l o y s   d i r e c t l y   f r o m   a   c o n n e c t e d   G i t H u b   r e p o      y o u   d o n ' t   n e e d   a   s e p a r a t e   d e p l o y   p i p e l i n e ,   j u s t   g a t e   m e r g e s   w i t h   C I   c h e c k s   |  
+  
+ * * P r a c t i c a l   c o n s t r a i n t s   w o r t h   k n o w i n g   b e f o r e   c o m m i t t i n g   t o   R e n d e r : * *  
+ -   * * R e g i o n   s e l e c t i o n   m a t t e r s   m o r e   t h a n   u s u a l : * *   R e n d e r ' s   r e g i o n s   a r e   l i m i t e d   ( e . g . ,   O r e g o n ,   O h i o ,   V i r g i n i a ,   F r a n k f u r t ,   S i n g a p o r e ) .   Y o u r   W e b   S e r v i c e ,   M o n g o D B   A t l a s   c l u s t e r ,   a n d   K e y   V a l u e   i n s t a n c e   s h o u l d   a l l   b e   p r o v i s i o n e d   i n   t h e   * * s a m e   r e g i o n * *      c r o s s - r e g i o n   h o p s   a d d   l a t e n c y   t o   e v e r y   D B / R e d i s   c a l l ,   w h i c h   m a t t e r s   h e r e   s i n c e   c a p s u l e   v e r i f i c a t i o n   i s   l a t e n c y - s e n s i t i v e   ( u s e r s   a r e   s t a n d i n g   t h e r e   w a i t i n g   f o r   a   Q R   s c a n   t o   r e s o l v e ) .  
+ -   * * M u l t i - i n s t a n c e   W e b S o c k e t s : * *   i f   y o u   e v e r   a u t o s c a l e   t h e   A P I   t o   m u l t i p l e   i n s t a n c e s ,   a   c l i e n t   i s   * * n o t   g u a r a n t e e d   t o   r e c o n n e c t   t o   t h e   s a m e   i n s t a n c e * *   a f t e r   a   d i s r u p t i o n      t h i s   i s   e x a c t l y   w h y   t h e   R e d i s   a d a p t e r   f o r   S o c k e t . I O   ( a l r e a d y   s p e c i f i e d   i n   � 7 . 3 )   i s   n o t   o p t i o n a l   o n c e   y o u   s c a l e   p a s t   o n e   i n s t a n c e .  
+ -   * * N o   b u i l t - i n   H S M : * *   i f   a   f u t u r e   c o m p l i a n c e   r e q u i r e m e n t   ( e . g . ,   p a r t n e r i n g   w i t h   a   g o v e r n m e n t / N G O   b o d y   p e r   � 7 . 8 )   d e m a n d s   h a r d w a r e - b a c k e d   k e y   c u s t o d y ,   R e n d e r   a l o n e   w o n ' t   s a t i s f y   t h a t      y o u ' d   b o l t   o n   a n   e x t e r n a l   K M S   a t   t h a t   p o i n t ,   n o t   b e f o r e .  
+  
+  
+ # # #   7 . 7   S e c u r i t y   H a r d e n i n g   S p e c i f i c s  
+ -   * * R a t e   l i m i t i n g : * *   ` @ f a s t i f y / r a t e - l i m i t `   b a c k e d   b y   R e d i s      p r e v e n t s   Q R / c a p s u l e   b r u t e - f o r c i n g .  
+ -   * * T L S   e v e r y w h e r e : * *   e n f o r c e d   v i a   l o a d   b a l a n c e r ;   n o   p l a i n t e x t   t r a n s p o r t   e v e r .  
+ -   * * A u d i t   l o g   s i g n i n g : * *   e a c h   o u t c o m e   l o g   e n t r y   h a s h e d   ( S H A - 2 5 6 )   a n d   c h a i n e d   t o   t h e   p r e v i o u s   e n t r y ' s   h a s h   ( s i m p l e   h a s h - c h a i n ,   n o t   a   b l o c k c h a i n )   s o   t a m p e r i n g   i s   d e t e c t a b l e   w i t h o u t   D L T   o v e r h e a d .  
+ -   * * A b u s e / k i l l - s w i t c h : * *   R e d i s   f l a g   p e r   e p i s o d e   I D   c h e c k e d   b y   t h e   S o c k e t . I O   g a t e w a y   o n   e v e r y   m e s s a g e      e q u i v a l e n t   t o   t h e   " g l o b a l   s e s s i o n   r e v o c a t i o n "   p a t t e r n ,   w i t h o u t   n e e d i n g   a   d i s t r i b u t e d   s e s s i o n   a u t h o r i t y .  
+  
+ # # #   7 . 8   R e a l i s t i c   L a t e r - P h a s e   O p t i o n s   ( n o t   M V P )  
+ I f   C o n n i f y   s c a l e s   i n t o   a   m u l t i - o r g a n i z a t i o n   o r   c r o s s - p l a t f o r m   p r o t o c o l   ( e . g . ,   l i c e n s e d   t o   N G O s ,   c i t i e s ,   o t h e r   a p p s ) ,   * t h e n *   r e a l   D I D s / V C s   b e c o m e   j u s t i f i e d :  
+ -   ` d i d : w e b `   ( s i m p l e s t ,   n o   l e d g e r   r e q u i r e d )   i s s u e d   p e r   o r g a n i z a t i o n a l   p a r t n e r ,   n o t   p e r   u s e r  
+ -   W 3 C   V e r i f i a b l e   C r e d e n t i a l s   f o r   c r o s s - o r g   t r u s t   ( e . g . ,   a   c i t y   e m e r g e n c y   s e r v i c e   v e r i f y i n g   a   p a r t n e r   a p p ' s   e p i s o d e s )  
+ -   T h i s   s h o u l d   o n l y   b e   p u r s u e d   o n c e   t h e r e ' s   a   g e n u i n e   m u l t i - p a r t y   t r u s t   b o u n d a r y      n o t   f o r   a   s i n g l e - v e n d o r   c o n s u m e r   a p p .  
+  
+ - - -  
+  
+ # #   8 .   D a t a b a s e   A r c h i t e c t u r e   ( D e t a i l e d )  
+  
+ D a t a b a s e   c h o i c e   i s   * * b a c k e n d - a g n o s t i c   t o   h o w   y o u   b u i l t   t h e   f r o n t e n d * *      M o n g o D B / R e d i s   w o r k   t h e   s a m e   w h e t h e r   t h e   c l i e n t   i s   R e a c t   N a t i v e / E x p o ,   a   p l a i n   w e b   a p p ,   o r   a   C a p a c i t o r - w r a p p e d   a p p .   S i n c e   y o u ' v e   s e t t l e d   o n   * * R e n d e r * *   f o r   h o s t i n g   ( � 7 . 6 ) ,   t h e   s e r v e r - s i d e   l a y e r   b e l o w   i s   s p e c i f i c a l l y   * * M o n g o D B   A t l a s * *   a n d   * * R e n d e r   K e y   V a l u e * * .   W h a t   * d o e s *   c h a n g e   b e c a u s e   o f   t h e   R e a c t   N a t i v e   a p p r o a c h   i s   t h e   * * c l i e n t - s i d e   l o c a l   s t o r a g e   l a y e r * * ,   c o v e r e d   i n   � 8 . 2 .  
+  
+ # # #   8 . 1   S e r v e r - S i d e   D a t a b a s e   ( S o u r c e   o f   T r u t h )  
+  
+ * * M o n g o D B   A t l a s * *   s e r v e s   a s   t h e   p r i m a r y   s t o r e .   T h e   s t a t e   m a c h i n e   t r a n s i t i o n s   ( e p i s o d e   �!  c a p s u l e   �!  o u t c o m e )   a r e   m a n a g e d   t h r o u g h   M o n g o o s e   a p p l i c a t i o n - l e v e l   v a l i d a t i o n s .   G e o s p a t i a l   q u e r i e s   u t i l i z e   M o n g o D B ' s   ` 2 d s p h e r e `   i n d e x e s ,   a v o i d i n g   t h e   n e e d   f o r   c o m p l e x   P o s t G I S   s e t u p .  
+  
+ * * C o r e   s c h e m a   ( s i m p l i f i e d   M o n g o o s e   d e f i n i t i o n s ) : * *  
+  
+ ` ` ` t y p e s c r i p t  
+ / /    % %  D e v i c e   M o d e l    % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
+ c o n s t   D e v i c e S c h e m a   =   n e w   S c h e m a ( {  
+     d e v i c e F i n g e r p r i n t H a s h :   {   t y p e :   S t r i n g ,   r e q u i r e d :   t r u e ,   u n i q u e :   t r u e   } ,  
+     p u b l i c K e y :   {   t y p e :   S t r i n g ,   r e q u i r e d :   t r u e   } ,  
+     i s Q u a r a n t i n e d :   {   t y p e :   B o o l e a n ,   d e f a u l t :   f a l s e   } ,  
+     s u s p i c i o u s C o u n t :   {   t y p e :   N u m b e r ,   d e f a u l t :   0   } ,  
+     h a r m l e s s n e s s S c o r e :   {   t y p e :   N u m b e r ,   d e f a u l t :   1 0 0   } ,  
+     c r e a t e d A t :   {   t y p e :   D a t e ,   d e f a u l t :   D a t e . n o w   } ,  
+ } ) ;  
+  
+ / /    % %  E p i s o d e   M o d e l    % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
+ c o n s t   E p i s o d e S c h e m a   =   n e w   S c h e m a ( {  
+     r e q u e s t e r D e v i c e I d :   {   t y p e :   S c h e m a . T y p e s . O b j e c t I d ,   r e f :   ' D e v i c e ' ,   r e q u i r e d :   t r u e   } ,  
+     c a t e g o r y :   {   t y p e :   S t r i n g ,   r e q u i r e d :   t r u e   } ,  
+     u r g e n c y :   {   t y p e :   N u m b e r ,   r e q u i r e d :   t r u e   } ,  
+     s t a t u s :   {   t y p e :   S t r i n g ,   d e f a u l t :   ' p e n d i n g '   } ,  
+     l a t i t u d e :   {   t y p e :   N u m b e r ,   r e q u i r e d :   t r u e   } ,  
+     l o n g i t u d e :   {   t y p e :   N u m b e r ,   r e q u i r e d :   t r u e   } ,  
+     l o c a t i o n :   {  
+         t y p e :   {   t y p e :   S t r i n g ,   e n u m :   [ ' P o i n t ' ] ,   d e f a u l t :   ' P o i n t '   } ,  
+         c o o r d i n a t e s :   {   t y p e :   [ N u m b e r ] ,   r e q u i r e d :   f a l s e   } ,   / /   [ l o n g i t u d e ,   l a t i t u d e ]  
+     } ,  
+     r a d i u s M e t e r s :   {   t y p e :   N u m b e r ,   d e f a u l t :   5 0 0   } ,  
+     c r e a t e d A t :   {   t y p e :   D a t e ,   d e f a u l t :   D a t e . n o w   } ,  
+     e x p i r e s A t :   {   t y p e :   D a t e ,   r e q u i r e d :   t r u e   } ,  
+ } ) ;  
+ E p i s o d e S c h e m a . i n d e x ( {   l o c a t i o n :   ' 2 d s p h e r e '   } ) ;  
+  
+ / /    % %  C a p s u l e   M o d e l    % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
+ c o n s t   C a p s u l e S c h e m a   =   n e w   S c h e m a ( {  
+     e p i s o d e I d :   {   t y p e :   S c h e m a . T y p e s . O b j e c t I d ,   r e f :   ' E p i s o d e ' ,   r e q u i r e d :   t r u e   } ,  
+     h e l p e r D e v i c e I d :   {   t y p e :   S c h e m a . T y p e s . O b j e c t I d ,   r e f :   ' D e v i c e ' ,   r e q u i r e d :   t r u e   } ,  
+     s i g n e d T o k e n H a s h :   {   t y p e :   S t r i n g ,   r e q u i r e d :   t r u e   } ,  
+     s t a t u s :   {   t y p e :   S t r i n g ,   d e f a u l t :   ' i s s u e d '   } ,   / /   i s s u e d / r e d e e m e d / e x p i r e d / r e v o k e d  
+     i s s u e d A t :   {   t y p e :   D a t e ,   d e f a u l t :   D a t e . n o w   } ,  
+     e x p i r e s A t :   {   t y p e :   D a t e ,   r e q u i r e d :   t r u e   } ,  
+ } ) ;  
+  
+ / /    % %  O u t c o m e   M o d e l    % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
+ c o n s t   O u t c o m e S c h e m a   =   n e w   S c h e m a ( {  
+     e p i s o d e I d :   {   t y p e :   S c h e m a . T y p e s . O b j e c t I d ,   r e f :   ' E p i s o d e ' ,   r e q u i r e d :   t r u e   } ,  
+     r e s u l t :   {   t y p e :   S t r i n g ,   r e q u i r e d :   t r u e   } ,   / /   s u c c e s s / f a i l u r e  
+     c a t e g o r y :   {   t y p e :   S t r i n g ,   r e q u i r e d :   t r u e   } ,  
+     c o m p l e t e d I n W i n d o w :   {   t y p e :   B o o l e a n ,   r e q u i r e d :   t r u e   } ,  
+     c r e a t e d A t :   {   t y p e :   D a t e ,   d e f a u l t :   D a t e . n o w   } ,  
+ } ) ;  
+  
+ / /    % %  A u d i t L o g   M o d e l    % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
+ c o n s t   A u d i t L o g S c h e m a   =   n e w   S c h e m a ( {  
+     e v e n t T y p e :   {   t y p e :   S t r i n g ,   r e q u i r e d :   t r u e   } ,  
+     e p i s o d e I d :   {   t y p e :   S c h e m a . T y p e s . O b j e c t I d ,   r e f :   ' E p i s o d e '   } ,  
+     p r e v H a s h :   {   t y p e :   S t r i n g ,   r e q u i r e d :   t r u e   } ,  
+     e n t r y H a s h :   {   t y p e :   S t r i n g ,   r e q u i r e d :   t r u e   } ,  
+     c r e a t e d A t :   {   t y p e :   D a t e ,   d e f a u l t :   D a t e . n o w   } ,  
+ } ) ;  
+ ` ` `  
+  
+ * * K e y   t e c h n i c a l   d e c i s i o n s : * *  
+ |   D e c i s i o n   |   R e a s o n i n g   |  
+ | - - - | - - - |  
+ |   ` l o c a t i o n :   {   t y p e :   ' P o i n t ' ,   c o o r d i n a t e s :   [ . . . ]   } `   |   I n i t i a l   c o a r s e   f i l t e r i n g   u s e s   M o n g o D B ' s   ` $ n e a r `   a n d   ` $ g e o W i t h i n `   o p e r a t o r s   o v e r   a   ` 2 d s p h e r e `   i n d e x   t o   b r o a d c a s t   m a t c h i n g   n o t i f i c a t i o n s      e x a c t   p r o x i m i t y   i s   s u b s e q u e n t l y   v a l i d a t e d   p r i v a t e l y   v i a   S H A R P .   |  
+ |   S p a t i a l   i n d e x   |   ` E p i s o d e S c h e m a . i n d e x ( {   l o c a t i o n :   ' 2 d s p h e r e '   } ) ; `      r e q u i r e d   f o r   M o n g o D B   r a d i u s   q u e r i e s   t o   s t a y   f a s t   a s   e p i s o d e   v o l u m e   g r o w s   |  
+ |   B C H   S y n d r o m e s   &   H e l p e r   S t r i n g   y   |   S t o r e d   i n   ` e p i s o d e s `   d o c u m e n t   t o   a l l o w   m a t c h e d   h e l p e r s   t o   p e r f o r m   l o c a l   f u z z y   e x t r a c t o r   r e c o n s t r u c t i o n   o f   t h e   s e s s i o n   k e y   $ K $ .   |  
+ |   O b j e c t I d s   a n d   R e f s   |   E n s u r e s   e f f i c i e n t   J O I N - l i k e   p o p u l a t e d   q u e r i e s ,   a l t h o u g h   t h e   s t a t e   m a c h i n e   i s   e n f o r c e d   i n   t h e   ` E p i s o d e C o n t r o l l e r ` .   |  
+ |   ` s i g n e d _ t o k e n _ h a s h `   n o t   t h e   t o k e n   |   E v e n   i f   t h e   D B   i s   b r e a c h e d ,   t h e   a c t u a l   b e a r e r   t o k e n   ( J W T )   c a n ' t   b e   e x t r a c t e d   a n d   r e p l a y e d   |  
+  
+ * * E p h e m e r a l / s e s s i o n   s t o r e      R e n d e r   K e y   V a l u e   ( R e d i s - c o m p a t i b l e ) : * *  
+ -   A c t i v e   c a p s u l e   s i n g l e - u s e   l o c k :   ` S E T   c a p s u l e : { i d }   u s e d   N X   E X   { t t l } `      a t o m i c ,   s o   t w o   s i m u l t a n e o u s   r e d e m p t i o n   a t t e m p t s   c a n ' t   b o t h   s u c c e e d   ( s o l v e s   t h e   d o u b l e - s p e n d   p r o b l e m   f o r   a   s i n g l e - u s e   t o k e n ) .   T h i s   w o r k s   i d e n t i c a l l y   o n   R e n d e r   K e y   V a l u e   s i n c e   i t ' s   R e d i s - p r o t o c o l - c o m p a t i b l e   ( V a l k e y   8   u n d e r   t h e   h o o d   o n   n e w   i n s t a n c e s )  
+ -   R a t e   l i m i t i n g   c o u n t e r s   ( p e r   d e v i c e ,   p e r   I P )  
+ -   S o c k e t . I O   p u b / s u b   a d a p t e r   +   B u l l M Q   j o b   q u e u e s   ( e x p i r y   s w e e p s ,   m a t c h   t i m e o u t s )      r u n   t h e   B u l l M Q   c o n s u m e r s   a s   a   R e n d e r   * * B a c k g r o u n d   W o r k e r * * ,   n o t   i n s i d e   t h e   W e b   S e r v i c e ,   s o   a   q u e u e   b a c k l o g   c a n ' t   s t a r v e   i n c o m i n g   H T T P / W e b S o c k e t   t r a f f i c  
+  
+ * * R e t e n t i o n / p u r g e   j o b : * *  
+ A   s c h e d u l e d   w o r k e r   ( B u l l M Q   c r o n   j o b )   d e l e t e s   ` e p i s o d e s . c o a r s e _ l o c a t i o n `   a n d   a n y   t r a n s i e n t   v e r i f i c a t i o n   d a t a   o n c e   ` s t a t u s   =   c o m p l e t e d / e x p i r e d ` ,   r e t a i n i n g   o n l y   t h e   ` o u t c o m e s `   r o w   l o n g - t e r m .   T h i s   o p e r a t i o n a l i z e s   t h e   " m i n i m a l   o u t c o m e   l o g g i n g "   p r i n c i p l e   r a t h e r   t h a n   j u s t   s t a t i n g   i t   a s   a   p o l i c y .  
+  
+  
+ - - -  
+  
+ # # #   8 . 2   C l i e n t - S i d e   L o c a l   S t o r a g e   ( R e a c t   N a t i v e   /   E x p o   A p p )  
+  
+ T h i s   i s   t h e   p a r t   t h a t   c h a n g e s   b e c a u s e   o f   y o u r   b u i l d   a p p r o a c h .   A   R e a c t   N a t i v e   a p p   r u n s   y o u r   J a v a S c r i p t   c o d e   d i r e c t l y ,   r e n d e r i n g   n a t i v e   U I   c o m p o n e n t s   i n s t e a d   o f   r u n n i n g   i n s i d e   a   n a t i v e   W e b V i e w .   T h a t   m e a n s   s t a n d a r d   b r o w s e r   s t o r a g e   A P I s   l i k e   ` l o c a l S t o r a g e `   o r   ` I n d e x e d D B `   a r e   u n a v a i l a b l e .   I n s t e a d ,   w e   u s e   n a t i v e   s t o r a g e   w r a p p e r s .   C r u c i a l l y ,   s e n s i t i v e   k e y s   m u s t   u s e   h a r d w a r e - b a c k e d   s e c u r e   s t o r a g e ,   a s   s t o r i n g   s i g n i n g   k e y s   i n   p l a i n   t e x t   i s   a   r e a l   s e c u r i t y   g a p .  
+  
+ |   S t o r a g e   n e e d   |   C o r r e c t   c h o i c e   |   W h y   |  
+ | - - - | - - - | - - - |  
+ |   U I   s t a t e ,   d r a f t   f o r m   d a t a ,   f i l t e r   p r e f e r e n c e s   |   ` @ r e a c t - n a t i v e - a s y n c - s t o r a g e / a s y n c - s t o r a g e `   |   N o n - s e n s i t i v e ,   f i n e   t o   l o s e   o n   a p p   r e i n s t a l l   |  
+ |   C a c h e d   r e a d - o n l y   d a t a   ( e p i s o d e   h i s t o r y   l i s t   f o r   o f f l i n e   v i e w i n g )   |   ` e x p o - s q l i t e `   o r   a   S Q L i t e   w r a p p e r   |   S t r u c t u r e d ,   q u e r y a b l e ,   w o r k s   o f f l i n e   f o r   * * r e a d - o n l y * *   d i s p l a y   |  
+ |   D e v i c e   k e y   p a i r   ( E d 2 5 5 1 9   p r i v a t e   k e y )   |   ` e x p o - s e c u r e - s t o r e `   |   * * N e v e r * *   u s e   p l a i n t e x t   ` A s y n c S t o r a g e `      p r i v a t e   k e y s   m u s t   b e   s t o r e d   i n   i O S   K e y c h a i n   o r   A n d r o i d   K e y s t o r e ,   w h i c h   a r e   h a r d w a r e - b a c k e d   a n d   s e c u r e   a g a i n s t   b a s i c   s y s t e m   c o m p r o m i s e   |  
+ |   D e v i c e   f i n g e r p r i n t   /   v e r i f i c a t i o n   t o k e n   |   ` e x p o - s e c u r e - s t o r e `   |   I t ' s   p r e s e n t e d   d u r i n g   c a p s u l e   r e d e m p t i o n      i f   i t   l e a k s ,   a n   a t t a c k e r   c a n   i m p e r s o n a t e   t h e   d e v i c e   i n   t h e   v e r i f i c a t i o n   h a n d s h a k e   |  
+  
+ * * W h y   t h i s   m a t t e r s   c o n c r e t e l y   f o r   C o n n i f y : * *   t h e   " d e v i c e   c o n s i s t e n c y   c h e c k "   i n   t h e   T h r e a t   M o d e l   ( � 4 )   i s   o n l y   m e a n i n g f u l   i f   t h e   k e y   i t   r e l i e s   o n   c a n ' t   b e   t r i v i a l l y   c o p i e d   o f f   t h e   d e v i c e .   I f   t h a t   k e y   s i t s   i n   u n e n c r y p t e d   l o c a l   s t o r a g e ,   i t   i s   e x t r a c t a b l e   w i t h   b a s i c   t o o l i n g   o n   a   c o m p r o m i s e d   o r   r o o t e d   d e v i c e .   K e y s t o r e / K e y c h a i n - b a c k e d   s t o r a g e   r e q u i r e s   h a r d w a r e - l e v e l   c o m p r o m i s e   o r   d e v i c e   u n l o c k   c l e a r a n c e   t o   e x t r a c t ,   w h i c h   i s   t h e   s e c u r i t y   g u a r a n t e e   t h e   a r c h i t e c t u r e   i s   c l a i m i n g   t o   p r o v i d e .  
+  
+ * * N o   o f f l i n e   p a t h   f o r   c a p s u l e   i s s u a n c e / r e d e m p t i o n      b y   d e s i g n ,   n o t   l i m i t a t i o n : * *  
+ S i n g l e - u s e   e n f o r c e m e n t   ( � 8 . 1 ,   R e d i s   ` S E T   N X ` )   r e q u i r e s   a   s e r v e r   r o u n d - t r i p   a s   t h e   s i n g l e   s o u r c e   o f   t r u t h .   I f   c a p s u l e   v a l i d a t i o n   w e r e   d o n e   c l i e n t - s i d e   a g a i n s t   l o c a l l y   c a c h e d   s t a t e ,   t w o   d e v i c e s   c o u l d   e a c h   i n d e p e n d e n t l y   " v a l i d a t e "   t h e   s a m e   c a p s u l e   w h i l e   b o t h   o f f l i n e ,   a n d   b o t h   p r o c e e d      a   c l a s s i c   d o u b l e - s p e n d   p r o b l e m .   S o :   c a c h e   r e a d - o n l y   d a t a   o f f l i n e   f r e e l y ;   n e v e r   l e t   t h e   v e r i f i c a t i o n / c a p s u l e   f l o w   d e g r a d e   t o   a n   o f f l i n e   m o d e .  
+  
+ - - -  
+  
+ # # #   8 . 3   R e a c t   N a t i v e   +   E x p o   B u i l d   P i p e l i n e   ( E A S )      P r a c t i c a l   N o t e s  
+  
+ S i n c e   y o u   a r e   u s i n g   a   n a t i v e   d e v e l o p m e n t   e n v i r o n m e n t   w i t h   E x p o :  
+  
+ 1 .   * * D e v e l o p m e n t   &   T e s t i n g : * *   U s e   E x p o   G o   f o r   r a p i d   p r o t o t y p i n g   d u r i n g   l o c a l   d e v e l o p m e n t ,   o r   b u i l d   a   c u s t o m   d e v e l o p m e n t   c l i e n t   ( ` n p x   e x p o   r u n : a n d r o i d `   /   ` n p x   e x p o   r u n : i o s ` )   w h e n   n a t i v e   c o n f i g u r a t i o n   c h a n g e s   a r e   r e q u i r e d .  
+ 2 .   * * E A S   B u i l d   &   U p d a t e : * *   L e v e r a g e   E x p o   A p p l i c a t i o n   S e r v i c e s   ( E A S )   f o r   c l o u d   b u i l d s   ( ` e a s   b u i l d ` )   a n d   O v e r - T h e - A i r   ( O T A )   u p d a t e s   ( ` e a s   u p d a t e ` ) ,   a v o i d i n g   t h e   n e e d   t o   c o n f i g u r e   c o m p l e x   X c o d e   a n d   A n d r o i d   S t u d i o   e n v i r o n m e n t s   l o c a l l y .  
+ 3 .   * * C r e d e n t i a l s   M a n a g e m e n t : * *   F i r e b a s e   c o n f i g u r a t i o n   ( ` g o o g l e - s e r v i c e s . j s o n `   f o r   A n d r o i d   a n d   ` G o o g l e S e r v i c e - I n f o . p l i s t `   f o r   i O S )   s h o u l d   b e   r e f e r e n c e d   i n   ` a p p . j s o n `   u n d e r   ` e x p o . a n d r o i d . g o o g l e S e r v i c e s F i l e `   a n d   ` e x p o . i o s . g o o g l e S e r v i c e s F i l e `   s o   E x p o   h a n d l e s   c o m p i l a t i o n   a u t o m a t i c a l l y .  
+ 4 .   * * P e r m i s s i o n s   C o n f i g u r a t i o n : * *   S y s t e m   p e r m i s s i o n s   ( c a m e r a ,   l o c a t i o n ,   n o t i f i c a t i o n s )   a r e   s p e c i f i e d   i n   t h e   ` a p p . j s o n `   /   ` a p p . c o n f i g . j s `   p l u g i n s   a r r a y   ( e . g . ,   ` e x p o - c a m e r a ` ,   ` e x p o - l o c a t i o n ` ) .   E x p o   C o n f i g   P l u g i n s   g e n e r a t e   t h e   c o r r e c t   n a t i v e   c o n f i g u r a t i o n   f i l e s   d u r i n g   t h e   p r e b u i l d   p h a s e .  
+ 5 .   * * B a c k g r o u n d   e x e c u t i o n   &   S o c k e t   l i f e c y c l e : * *   R e a c t   N a t i v e   J S   t h r e a d s   a r e   s u s p e n d e d   b y   t h e   O S   w h e n   t h e   a p p   i s   b a c k g r o u n d e d .   S o c k e t . I O   c o n n e c t i o n s   w i l l   d r o p .   A l w a y s   u s e   n a t i v e   A P N s / F C M   p u s h   n o t i f i c a t i o n s   ( ` e x p o - n o t i f i c a t i o n s ` )   a s   t h e   p r i m a r y   w a k e - u p   a n d   a l e r t   c h a n n e l ,   a n d   r e c o n n e c t / s y n c   s o c k e t   s t a t e   w h e n   t h e   a p p   r e g a i n s   f o c u s   u s i n g   s t a n d a r d   R e a c t   N a t i v e   ` A p p S t a t e `   l i s t e n e r s .  
+ 6 .   * * M e t r o   B u n d l e r   c o n f i g u r a t i o n : * *   M e t r o   s e r v e s   J S   b u n d l e s   t o   R e a c t   N a t i v e .   E n s u r e   c o n f i g u r a t i o n   i n   ` m e t r o . c o n f i g . j s `   s u p p o r t s   r e s o l v i n g   s t a n d a r d   n p m   d e p e n d e n c i e s .  
+  
+ - - -  
+  
+ * T h i s   d o c u m e n t   s y n t h e s i z e s   t h e   C o n n i f y   p r o p o s a l   a r c h i t e c t u r e   w i t h   z e r o - t r u s t   i d e n t i t y   p a t t e r n s   ( e p i s o d e - a s - i d e n t i t y ,   c a p s u l e - a s - c r e d e n t i a l ,   J I T   i s s u a n c e ,   s e l e c t i v e   d i s c l o s u r e )   a d a p t e d   f o r   a   c o n s u m e r   s a f e t y   c o n t e x t   r a t h e r   t h a n   a   m u l t i - a g e n t   A I   s y s t e m ,   a n d   r e f l e c t s   a   R e a c t   N a t i v e   +   E x p o   m o b i l e   a p p l i c a t i o n   f o r   i O S   a n d   A n d r o i d   d e p l o y m e n t . *  
+  
+ - - -  
+  
+ # #   T e c h   S t a c k  
+  
+ # # #   W e b   P o r t a l   ( F r o n t e n d )  
+ -   N e x t . j s   ( A p p   R o u t e r )  
+ -   T a i l w i n d   C S S   +   s h a d c n / u i  
+ -   R e c h a r t s  
+  
+ # # #   M o b i l e   C l i e n t   ( R e a c t   N a t i v e )  
+ -   R e a c t   N a t i v e   a n d   E x p o   S D K  
+ -   Z u s t a n d   ( S t a t e   M a n a g e m e n t )  
+ -   e x p o - c a m e r a   ( Q R   C o d e   S c a n n i n g )  
+ -   e x p o - l o c a t i o n   ( G e o l o c a t i o n )  
+ -   e x p o - n o t i f i c a t i o n s   ( P u s h   N o t i f i c a t i o n s )  
+ -   e x p o - s e c u r e - s t o r e   ( H a r d w a r e - b a c k e d   S e c u r e   S t o r a g e )  
+ -   @ r e a c t - n a t i v e - a s y n c - s t o r a g e / a s y n c - s t o r a g e   ( L o c a l   S t o r a g e )  
+ -   s o c k e t . i o - c l i e n t   ( R e a l - t i m e   C o m m s )  
+  
+ # # #   B a c k e n d   a n d   A P I s  
+ -   N o d e . j s   w i t h   F a s t i f y   a n d   T y p e S c r i p t  
+ -   O p e n A P I   3   a n d   Z o d  
+ -   S o c k e t . I O   c l i e n t / s e r v e r  
+ -   B u l l M Q  
+  
+ # # #   D a t a   a n d   S t o r a g e  
+ -   M o n g o D B   A t l a s   w i t h   M o n g o o s e  
+ -   R e d i s - c o m p a t i b l e   K e y   V a l u e   s t o r e  
+ -   M o n g o D B   b u i l t - i n   e n c r y p t i o n  
+  
+ # # #   S e c u r i t y   a n d   I n f r a s t r u c t u r e  
+ -   J W T   s i g n e d   w i t h   E d 2 5 5 1 9  
+ -   R a t e   l i m i t i n g ,   T L S ,   a n d   s e c u r e   s t o r a g e   f o r   d e v i c e   k e y s  
+ -   R e n d e r   W e b   S e r v i c e ,   M o n g o D B   A t l a s ,   R e n d e r   K e y   V a l u e ,   B a c k g r o u n d   W o r k e r ,   a n d   C r o n   J o b  
+  
+ - - -  
+  
+ # #   D e v e l o p e r s  
+  
+ |   T e a m   M e m b e r   |   P r i m a r y   R o l e   |   R e s p o n s i b i l i t i e s   |  
+ | - - - | - - - | - - - |  
+ |   * * G o d f r e y   T   R * *   |   L e a d   S o f t w a r e   E n g i n e e r   &   S y s t e m   A r c h i t e c t   |   D e s i g n   t h e   o v e r a l l   p r o t o c o l   a r c h i t e c t u r e ,   b a c k e n d   s e r v i c e s ,   t r u s t   c a p s u l e   l i f e c y c l e ,   A P I   c o n t r a c t s ,   s e c u r i t y   a r c h i t e c t u r e ,   a u t h e n t i c a t i o n   f l o w ,   s y s t e m   i n t e g r a t i o n ,   d e p l o y m e n t   s t r a t e g y ,   a n d   o v e r a l l   e n g i n e e r i n g   d e c i s i o n s .   C o o r d i n a t e   i m p l e m e n t a t i o n   a c r o s s   m o d u l e s .   |  
+ |   * * H a r i   P r a k a s h   A * *   |   F r o n t e n d   E n g i n e e r ,   U X / U I   &   P r o d u c t   E x p e r i e n c e   L e a d   |   D e s i g n   t h e   u s e r   j o u r n e y ,   R e a c t   N a t i v e / E x p o   f r o n t e n d ,   p r o t o t y p e   s c r e e n s ,   t r u s t   f l o w   v i s u a l i z a t i o n ,   s e l e c t i v e   d i s c l o s u r e   i n t e r f a c e ,   Q R   i n t e r a c t i o n   e x p e r i e n c e ,   b r a n d i n g ,   p r e s e n t a t i o n   a s s e t s ,   a n d   u s a b i l i t y   i m p r o v e m e n t s .   |  
+ |   * * G r i s h   N a r a y a n a n   S * *   |   A I ,   S e c u r i t y   &   V e r i f i c a t i o n   S y s t e m s   E n g i n e e r   |   D e s i g n   a n d   i m p l e m e n t   t h e   N e e d   V e r i f i c a t i o n   E n g i n e ,   c o n t e x t u a l   v e r i f i c a t i o n   l o g i c ,   t r u s t   s c o r i n g   e x p e r i m e n t s ,   A I - a s s i s t e d   f r a u d   d e t e c t i o n ,   d e v i c e   c o n s i s t e n c y   v a l i d a t i o n ,   W i - F i / G P S   v e r i f i c a t i o n   p i p e l i n e ,   c r y p t o g r a p h i c   t o k e n   v a l i d a t i o n ,   a n d   f u t u r e   i n t e l l i g e n t   m a t c h i n g   a l g o r i t h m s .   |  
+ 
+
+================================================================================
+=== FILE: discovery/ui_analysis_result.json ===
+================================================================================
+
+[
+  {
+    "folderName": "accept_verify",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify Safety - Accept &amp; Verify",
+    "icons": [
+      "arrow_back",
+      "location_on",
+      "description",
+      "gpp_maybe",
+      "home",
+      "history",
+      "settings"
+    ],
+    "buttons": [
+      "arrow_back",
+      "EMERGENCY",
+      "ARRIVED AT SCENE",
+      "Contact Sarah"
+    ],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 9
+  },
+  {
+    "folderName": "accept_verify_handshake",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Identity Verification | Connify",
+    "icons": [],
+    "buttons": [
+      "emergency",
+      "Success",
+      "Error",
+      "ISSUE TRUST CAPSULE"
+    ],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 6
+  },
+  {
+    "folderName": "active_episode_helper",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify Safety - Active Episode",
+    "icons": [
+      "arrow_back",
+      "call",
+      "chat",
+      "near_me",
+      "verified_user",
+      "home",
+      "history",
+      "settings"
+    ],
+    "buttons": [
+      "arrow_back",
+      "EMERGENCY",
+      "call",
+      "chat",
+      "Complete Episode"
+    ],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 12
+  },
+  {
+    "folderName": "active_episode_you",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify Safety - Active Episode",
+    "icons": [
+      "arrow_back",
+      "history",
+      "chat",
+      "call",
+      "verified_user",
+      "share_location"
+    ],
+    "buttons": [
+      "arrow_back",
+      "EMERGENCY",
+      "chat\nCHAT",
+      "call\nCALL",
+      "Complete Episode",
+      "Report Issue"
+    ],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 8
+  },
+  {
+    "folderName": "connify_mobile_home",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify | Safety Coordinated by Those Nearby",
+    "icons": [
+      "emergency",
+      "record_voice_over",
+      "volunteer_activism",
+      "verified_user",
+      "location_off",
+      "history_toggle_off",
+      "lock",
+      "stars",
+      "notification_important",
+      "history",
+      "settings"
+    ],
+    "buttons": [
+      "Get Started",
+      "Learn More",
+      "Start My Safety Profile"
+    ],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 15
+  },
+  {
+    "folderName": "connify_mobile_web",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify | Urgent Serenity",
+    "icons": [],
+    "buttons": [
+      "Get Started",
+      "security\nSTART SESSION",
+      "location_on\nLIVE MAP",
+      "sos",
+      "apps\n\nDownload on the\nApp Store",
+      "play_books\n\nGet it on\nGoogle Play",
+      "shield"
+    ],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 16
+  },
+  {
+    "folderName": "connify_safety_coordination_protocol",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify | Safety Coordinated by those Nearby",
+    "icons": [
+      "add_location_alt",
+      "verified_user",
+      "handshake",
+      "arrow_forward",
+      "touch_app",
+      "radio_button_checked"
+    ],
+    "buttons": [
+      "Get Started",
+      "Get Started",
+      "Join as Helper",
+      "View Local Alerts arrow_forward",
+      "Download Now"
+    ],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 9
+  },
+  {
+    "folderName": "connify_splash_screen_desktop",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify | Initializing Safety Network",
+    "icons": [
+      "verified_user",
+      "gpp_maybe",
+      "satellite_alt"
+    ],
+    "buttons": [],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 5
+  },
+  {
+    "folderName": "connify_splash_screen_mobile",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify | Secure Entry",
+    "icons": [],
+    "buttons": [],
+    "inputs": [],
+    "colors": {
+      "on-tertiary": "#ffffff",
+      "surface-bright": "#f9f9f9",
+      "background": "#f9f9f9",
+      "surface-dim": "#dadada",
+      "surface-container-high": "#e8e8e8",
+      "on-tertiary-container": "#f8f7ff",
+      "on-primary-fixed-variant": "#930100",
+      "primary": "#b60100",
+      "on-primary-fixed": "#410000",
+      "tertiary-fixed": "#dae2ff",
+      "surface-container-highest": "#e2e2e2",
+      "on-error-container": "#93000a",
+      "on-secondary-container": "#636451",
+      "surface-container": "#eeeeee",
+      "tertiary": "#0051c6",
+      "tertiary-container": "#0068f8",
+      "secondary-fixed": "#e4e4cc",
+      "on-secondary": "#ffffff",
+      "surface-tint": "#c00000",
+      "on-background": "#1b1b1b",
+      "tertiary-fixed-dim": "#b1c5ff",
+      "on-secondary-fixed-variant": "#474836",
+      "primary-container": "#e50000",
+      "error-container": "#ffdad6",
+      "inverse-surface": "#303030",
+      "on-surface": "#1b1b1b",
+      "primary-fixed-dim": "#ffb4a8",
+      "on-surface-variant": "#5f3f3a",
+      "on-primary-container": "#fff6f4",
+      "inverse-on-surface": "#f1f1f1",
+      "primary-fixed": "#ffdad4",
+      "on-error": "#ffffff",
+      "error": "#ba1a1a",
+      "outline": "#946e68",
+      "secondary-container": "#e1e1c9",
+      "outline-variant": "#e9bcb5",
+      "on-secondary-fixed": "#1b1d0e",
+      "surface-variant": "#e2e2e2",
+      "surface": "#f9f9f9",
+      "on-primary": "#ffffff",
+      "surface-container-low": "#f3f3f3",
+      "on-tertiary-fixed": "#001847",
+      "on-tertiary-fixed-variant": "#0040a0",
+      "inverse-primary": "#ffb4a8",
+      "secondary": "#5e604d",
+      "secondary-fixed-dim": "#c8c8b0",
+      "surface-container-lowest": "#ffffff"
+    },
+    "iconCount": 2
+  },
+  {
+    "folderName": "connify_trusted_safety_coordination",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify | Urgent Serenity in Every Step",
+    "icons": [
+      "menu",
+      "verified_user",
+      "location_on",
+      "emergency",
+      "send_to_mobile",
+      "verified",
+      "handshake",
+      "check_circle",
+      "check_circle",
+      "check_circle",
+      "check_circle",
+      "check_circle",
+      "check_circle",
+      "shield_person"
+    ],
+    "buttons": [
+      "Get Started",
+      "menu",
+      "Get Started",
+      "Join as Helper",
+      "Learn More",
+      "Start a Request",
+      "Become a Helper",
+      "Download App",
+      "Request a Demo"
+    ],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 15
+  },
+  {
+    "folderName": "connify_trustworthy_safety_protocol",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify | Urgent Serenity Safety Protocol",
+    "icons": [
+      "verified_user",
+      "arrow_forward",
+      "menu",
+      "account_circle",
+      "my_location",
+      "add_alert",
+      "fact_check",
+      "radar",
+      "qr_code_scanner",
+      "qr_code_2"
+    ],
+    "buttons": [
+      "Get Started",
+      "Start Safe Session arrow_forward",
+      "View Safety Network",
+      "SOS",
+      "Apply as Verified Helper",
+      "Download Connify",
+      "Partner with Us"
+    ],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 11
+  },
+  {
+    "folderName": "dashboard",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify Safety Dashboard",
+    "icons": [],
+    "buttons": [
+      "EMERGENCY",
+      "I NEED HELP",
+      "I CAN HELP",
+      "check_circle I'M SAFE",
+      "add +5 MIN",
+      "sos\nHOLD TO TRIGGER"
+    ],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 15
+  },
+  {
+    "folderName": "emergency_mode",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify Safety | Emergency Mode",
+    "icons": [
+      "distance",
+      "call",
+      "mic",
+      "home",
+      "history",
+      "settings"
+    ],
+    "buttons": [
+      "arrow_back",
+      "EMERGENCY",
+      "emergency_share\nEMERGENCY BROADCAST",
+      "call\n                CALL EMERGENCY SERVICES",
+      "mic\n                START AUDIO RECORDING"
+    ],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 13
+  },
+  {
+    "folderName": "episode_history",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify Safety - Episode History",
+    "icons": [
+      "arrow_back",
+      "location_on",
+      "verified_user",
+      "check_circle",
+      "star",
+      "lock_open",
+      "home",
+      "emergency_share",
+      "history",
+      "settings"
+    ],
+    "buttons": [
+      "arrow_back",
+      "EMERGENCY",
+      "PROVIDE FEEDBACK",
+      "YES",
+      "NO",
+      "SUBMIT EVALUATION"
+    ],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 16
+  },
+  {
+    "folderName": "features_governance_connify_safety",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify | Safety Protocol &amp; Features",
+    "icons": [
+      "emergency_share",
+      "do_not_disturb_on",
+      "key_visualizer",
+      "check_circle",
+      "check_circle",
+      "check_circle",
+      "gavel"
+    ],
+    "buttons": [
+      "Get Started",
+      "Initialize Protocol",
+      "View Case Studies"
+    ],
+    "inputs": [],
+    "colors": {
+      "on-surface-variant": "#5f3f3a",
+      "error": "#ba1a1a",
+      "on-tertiary": "#ffffff",
+      "secondary": "#5e604d",
+      "on-tertiary-container": "#f8f7ff",
+      "on-primary-container": "#fff6f4",
+      "on-background": "#1b1b1b",
+      "tertiary": "#0051c6",
+      "surface-container-high": "#e8e8e8",
+      "outline": "#946e68",
+      "secondary-fixed-dim": "#c8c8b0",
+      "on-primary-fixed": "#410000",
+      "tertiary-fixed-dim": "#b1c5ff",
+      "on-surface": "#1b1b1b",
+      "surface-container-highest": "#e2e2e2",
+      "surface-tint": "#c00000",
+      "on-tertiary-fixed-variant": "#0040a0",
+      "background": "#f9f9f9",
+      "surface-bright": "#f9f9f9",
+      "inverse-surface": "#303030",
+      "on-secondary-fixed": "#1b1d0e",
+      "on-secondary-container": "#636451",
+      "surface-container": "#eeeeee",
+      "surface-dim": "#dadada",
+      "primary-fixed-dim": "#ffb4a8",
+      "on-error-container": "#93000a",
+      "tertiary-fixed": "#dae2ff",
+      "primary": "#b60100",
+      "surface-container-low": "#f3f3f3",
+      "on-secondary-fixed-variant": "#474836",
+      "primary-container": "#e50000",
+      "outline-variant": "#e9bcb5",
+      "error-container": "#ffdad6",
+      "on-secondary": "#ffffff",
+      "on-primary-fixed-variant": "#930100",
+      "surface-variant": "#e2e2e2",
+      "tertiary-container": "#0068f8",
+      "secondary-container": "#e1e1c9",
+      "primary-fixed": "#ffdad4",
+      "inverse-primary": "#ffb4a8",
+      "surface-container-lowest": "#ffffff",
+      "on-primary": "#ffffff",
+      "surface": "#f9f9f9",
+      "on-tertiary-fixed": "#001847",
+      "inverse-on-surface": "#f1f1f1",
+      "on-error": "#ffffff",
+      "secondary-fixed": "#e4e4cc"
+    },
+    "iconCount": 9
+  },
+  {
+    "folderName": "how_it_works_connify_protocol",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify | How It Works &amp; Protocol",
+    "icons": [
+      "menu",
+      "key",
+      "timer",
+      "shield_person",
+      "notifications_paused",
+      "check_circle",
+      "check_circle",
+      "check_circle",
+      "shield"
+    ],
+    "buttons": [
+      "Get Started",
+      "menu",
+      "Explore Protocol",
+      "Download App",
+      "Get Started Free",
+      "View Whitepaper"
+    ],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 11
+  },
+  {
+    "folderName": "nearby_requests",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify Nearby Requests",
+    "icons": [
+      "arrow_back",
+      "refresh",
+      "location_on",
+      "directions_walk",
+      "location_on",
+      "shield",
+      "location_on",
+      "medical_services",
+      "location_on",
+      "home",
+      "history",
+      "settings"
+    ],
+    "buttons": [
+      "EMERGENCY",
+      "refresh",
+      "Respond Now",
+      "View Details",
+      "Offer Support",
+      "Respond Now",
+      "Scan Wider Range (2km+)"
+    ],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 16
+  },
+  {
+    "folderName": "new_help_request",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify | Create Help Request",
+    "icons": [],
+    "buttons": [
+      "arrow_back",
+      "EMERGENCY",
+      "medical_services\nMedical",
+      "security\nSecurity",
+      "local_taxi\nTransport",
+      "more_horiz\nOther",
+      "rss_feed\n                BROADCAST REQUEST"
+    ],
+    "inputs": [
+      {
+        "type": "range",
+        "placeholder": ""
+      }
+    ],
+    "colors": {},
+    "iconCount": 14
+  },
+  {
+    "folderName": "privacy_governance_connify",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Privacy &amp; Governance | Connify",
+    "icons": [
+      "fingerprint_off",
+      "stay_primary_portrait",
+      "history_toggle_off"
+    ],
+    "buttons": [
+      "Get Started",
+      "REVIEW DATA CONTROLS",
+      "DOWNLOAD THE APP",
+      "VISIT TRUST CENTER"
+    ],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 5
+  },
+  {
+    "folderName": "protocol_features_connify_safety",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify | Features & Governance",
+    "icons": [
+      "fingerprint",
+      "arrow_forward",
+      "qr_code_2",
+      "arrow_forward",
+      "timer",
+      "check_circle",
+      "shield",
+      "settings_suggest",
+      "sync_alt",
+      "admin_panel_settings"
+    ],
+    "buttons": [
+      "Get Started",
+      "Review Security Settings",
+      "Download for iOS",
+      "Android App"
+    ],
+    "inputs": [],
+    "colors": {
+      "on-secondary-container": "#636451",
+      "on-background": "#1b1b1b",
+      "primary-fixed": "#ffdad4",
+      "surface-dim": "#dadada",
+      "surface-container-high": "#e8e8e8",
+      "secondary-fixed": "#e4e4cc",
+      "on-primary": "#ffffff",
+      "surface-container-low": "#f3f3f3",
+      "surface-container": "#eeeeee",
+      "on-primary-fixed": "#410000",
+      "on-tertiary-fixed": "#001847",
+      "on-secondary-fixed-variant": "#474836",
+      "on-error": "#ffffff",
+      "secondary-container": "#e1e1c9",
+      "on-primary-container": "#fff6f4",
+      "error-container": "#ffdad6",
+      "surface-container-highest": "#e2e2e2",
+      "primary-fixed-dim": "#ffb4a8",
+      "surface-tint": "#c00000",
+      "on-tertiary": "#ffffff",
+      "outline": "#946e68",
+      "secondary-fixed-dim": "#c8c8b0",
+      "outline-variant": "#e9bcb5",
+      "primary-container": "#e50000",
+      "on-tertiary-fixed-variant": "#0040a0",
+      "surface-container-lowest": "#ffffff",
+      "surface": "#f9f9f9",
+      "surface-bright": "#f9f9f9",
+      "on-surface": "#1b1b1b",
+      "tertiary-fixed": "#dae2ff",
+      "secondary": "#5e604d",
+      "on-primary-fixed-variant": "#930100",
+      "tertiary-fixed-dim": "#b1c5ff",
+      "primary": "#b60100",
+      "on-surface-variant": "#5f3f3a",
+      "inverse-primary": "#ffb4a8",
+      "error": "#ba1a1a",
+      "tertiary-container": "#0068f8",
+      "on-secondary-fixed": "#1b1d0e",
+      "tertiary": "#0051c6",
+      "surface-variant": "#e2e2e2",
+      "on-error-container": "#93000a",
+      "inverse-surface": "#303030",
+      "inverse-on-surface": "#f1f1f1",
+      "on-secondary": "#ffffff",
+      "on-tertiary-container": "#f8f7ff",
+      "background": "#f9f9f9"
+    },
+    "iconCount": 14
+  },
+  {
+    "folderName": "protocol_feedback",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify - Post-Episode Feedback",
+    "icons": [
+      "shield",
+      "sentiment_satisfied",
+      "sentiment_dissatisfied"
+    ],
+    "buttons": [
+      "sentiment_satisfied\nYES",
+      "sentiment_dissatisfied\nNO",
+      "SUBMIT &amp; CLOSE EPISODE"
+    ],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 6
+  },
+  {
+    "folderName": "refined_splash_screen_desktop",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify | Initializing Safety Network",
+    "icons": [
+      "verified_user",
+      "gpp_maybe",
+      "satellite_alt"
+    ],
+    "buttons": [],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 5
+  },
+  {
+    "folderName": "safety_core",
+    "hasHtml": false,
+    "hasPng": false,
+    "title": "",
+    "icons": [],
+    "buttons": [],
+    "inputs": [],
+    "colors": {}
+  },
+  {
+    "folderName": "searching_for_help",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify Safety - Waiting for Match",
+    "icons": [],
+    "buttons": [
+      "arrow_back",
+      "EMERGENCY",
+      "Cancel Request"
+    ],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 8
+  },
+  {
+    "folderName": "settings_governance",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify Safety | Settings &amp; Governance",
+    "icons": [],
+    "buttons": [
+      "arrow_back",
+      "EMERGENCY",
+      "+ Manage"
+    ],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 27
+  },
+  {
+    "folderName": "verify_identity",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify Safety - Request Verification",
+    "icons": [
+      "arrow_back",
+      "signal_cellular_alt",
+      "location_on",
+      "battery_charging_full",
+      "home",
+      "history",
+      "settings"
+    ],
+    "buttons": [
+      "EMERGENCY",
+      "",
+      "MANUAL VERIFICATION"
+    ],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 9
+  },
+  {
+    "folderName": "welcome_to_connify",
+    "hasHtml": true,
+    "hasPng": true,
+    "title": "Connify | Welcome",
+    "icons": [
+      "emergency_share",
+      "group",
+      "share_location",
+      "location_on",
+      "notifications_active",
+      "arrow_forward",
+      "sync",
+      "arrow_forward"
+    ],
+    "buttons": [
+      "GET STARTED\n            arrow_forward"
+    ],
+    "inputs": [
+      {
+        "type": "checkbox",
+        "placeholder": ""
+      },
+      {
+        "type": "checkbox",
+        "placeholder": ""
+      }
+    ],
+    "colors": {},
+    "iconCount": 10
+  },
+  {
+    "folderName": "unified_safety_hub",
+    "hasHtml": false,
+    "hasPng": false,
+    "title": "Unified Safety Hub",
+    "icons": ["security", "phone", "volume_up", "warning"],
+    "buttons": ["EMERGENCY CONTACTS", "FAKE CALL", "GOVERNMENT NUMBERS", "OFFLINE MODE", "WOMEN SAFETY"],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 4
+  },
+  {
+    "folderName": "emergency_contacts",
+    "hasHtml": false,
+    "hasPng": false,
+    "title": "Emergency Contacts",
+    "icons": ["person_add", "phone"],
+    "buttons": ["ADD NEW CONTACT"],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 2
+  },
+  {
+    "folderName": "fake_call",
+    "hasHtml": false,
+    "hasPng": false,
+    "title": "Fake Call Simulator",
+    "icons": ["call", "timer"],
+    "buttons": ["START CALL IN 5S", "START CALL IN 30S", "CANCEL"],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 2
+  },
+  {
+    "folderName": "government_emergency_numbers",
+    "hasHtml": false,
+    "hasPng": false,
+    "title": "Government Emergency Numbers",
+    "icons": ["local_police", "local_hospital", "local_fire_department"],
+    "buttons": ["CALL"],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 3
+  },
+  {
+    "folderName": "offline_emergency",
+    "hasHtml": false,
+    "hasPng": false,
+    "title": "Offline Emergency",
+    "icons": ["wifi_off", "bluetooth", "sms"],
+    "buttons": ["DISPATCH SMS SOS"],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 3
+  },
+  {
+    "folderName": "women_safety",
+    "hasHtml": false,
+    "hasPng": false,
+    "title": "Women Safety",
+    "icons": ["female", "share_location", "volume_up"],
+    "buttons": ["DISCREET ALERT", "SHARE LIVE LOCATION"],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 3
+  }
+]
+
+================================================================================
+=== FILE: README.md ===
+================================================================================
+
+# CONNIFY — System Architecture & App Specification
+
+---
+
+## 1. Architecture Philosophy
+
+Connify is not just an app — it's a **protocol implemented as an app**. The architecture borrows directly from zero-trust identity patterns used in agentic AI systems (DIDs, Verifiable Credentials, Just-In-Time credentials, Zero-Knowledge Proofs) but simplifies them for human-to-human, consumer-grade use using the **SHARP protocol** for privacy-preserving proximity verification:
+
+| Zero-Trust Agentic Concept | Connify Equivalent | SHARP Protocol Integration |
+|---|---|---|
+| Decentralized Identifier (DID) | **Episode ID** | Ephemeral request identifier (UUIDv4) that isolates transactional identity |
+| Verifiable Credential (VC) | **Trust Capsule** | Ed25519-signed JWT authorizing single-use temporary contact |
+| Just-In-Time (JIT) VC issuance | **JIT Capsule Issuance** | The Trust Capsule is minted only after the SHARP handshake succeeds |
+| Zero-Knowledge Proof (selective disclosure) | **Selective Disclosure & Blinding** | Reveals urgency/category pre-match; Bob blinds his grid index $b$ using key $K$ |
+| Agent Name Service (ANS) discovery | **Helper Match Engine** | Coarse-grained location filtering (PostGIS) to find nearby candidates |
+| Global Session Authority + Revocation | **Episode Lifecycle Manager** | Redis-backed single-use checkouts and absolute timeouts |
+| Audit logging by DID | **Outcome Logging Module** | Decoupled, identity-free logging of completion outcomes |
+| **Proximity verification / Handshake** | **SHARP Verification Handshake** | Client-side environmental Bloom filters & BCH syndrome key reconstruction |
+
+---
+
+## 2. High-Level System Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        CLIENT LAYER                              │
+│   React Native / Expo (iOS & Android)  +  Next.js (Web Portal)   │
+│   - Requester App View   - Helper App View   - Admin/Audit View  │
+└───────────────┬───────────────────────────────┬─────────────────┘
+                │  HTTPS/TLS + WebSocket (ephemeral channel)       │
+┌───────────────▼───────────────────────────────▼─────────────────┐
+│                     API GATEWAY / BFF LAYER                       │
+│         Node.js (Express/Fastify) — request routing,             │
+│         rate limiting, session token validation                  │
+└───────────────┬───────────────────────────────┬─────────────────┘
+                │                                │
+┌───────────────▼──────────────┐   ┌─────────────▼─────────────────┐
+│  LAYER 1: IDENTITY & EPISODE  │   │  LAYER 2: SHARP VERIFICATION   │
+│  - Episode Creation Service   │   │  - Environmental Signal Tag    │
+│  - Episode ID Registry        │   │  - Bloom Filter Generator      │
+│  - Expiry & Lifecycle Manager │   │  - BCH Syndrome Key Exchange   │
+│                                │   │  - Oblivious Proximity Handshake│
+└───────────────┬───────────────┘   │  - Grid Index Blinding Module  │
+                │                    └─────────────┬─────────────────┘
+                │                                  │
+┌───────────────▼──────────────────────────────────▼───────────────┐
+│              LAYER 3: SELECTIVE DISCLOSURE ENGINE                 │
+│   Determines minimum data helper needs to see (category, urgency, │
+│   general location radius) — never full identity/address/history  │
+└───────────────┬─────────────────────────────────────────────────┘
+                │
+┌───────────────▼───────────────┐
+│      LAYER 4: TRUST CAPSULE SERVICE             │
+│  - Validates Bob's blinded grid cell response  │
+│  - Binds: 1 request + 1 helper + 1 time window  │
+│  - Signs capsule (Ed25519 key pair)             │
+│  - Enforces single-use + auto-expiry via Redis  │
+└───────────────┬─────────────────────────────────┘
+                │
+┌───────────────▼──────────────────────┐   ┌──────────────────────────┐
+│  LAYER 5: HELPER MATCH ENGINE         │   │ LAYER 6: EPHEMERAL COMMS │
+│    based matching                     │   │    channel per episode   │
+│  - Pushes match to nearby helpers     │   │  - Auto-destructs on     │
+│                                        │   │    capsule expiry        │
+└────────────────────────────────────────┘   └──────────────────────────┘
+                │
+┌───────────────▼─────────────────────────────────┐
+│    LAYER 7: OUTCOME LOGGING (Minimal Audit)       │
+│  Stores ONLY: success/fail, category, risk level, │
+│  completed-within-window (yes/no) — no identity,  │
+│  no location trail, no message content            │
+└───────────────┬─────────────────────────────────┘
+                │
+┌───────────────▼─────────────────────────────────┐
+│              DATA LAYER                           │
+│  - Encrypted-at-rest DB (episode metadata only)   │
+│  - Ephemeral key-value store (active capsules)    │
+│  - No persistent identity graph / no full profiles│
+└───────────────────────────────────────────────────┘
+```
+
+---
+
+## 3. Core Services (Backend)
+
+| Service | Responsibility | Notes |
+|---|---|---|
+| **Episode Service** | Creates/tracks help-request lifecycle | Each episode = one DID-like unique ID |
+| **Verification Service** | Executes the SHARP handshake. | Manages environmental Bloom filters & BCH syndromes, and verifies Bob's blinded grid cell response |
+| **Disclosure Service** | Filters data shown to helper | Rule-based, could evolve to ZKP-based proofs |
+| **Trust Capsule Service** | Issues, signs, expires tokens | JIT-issuance — only after SHARP verification passes |
+| **Matching Service** | Finds nearby candidate helpers | Coarse location filtering using PostGIS radius checks |
+| **Comms Relay** | Ephemeral messaging/calling | Channel dies when capsule expires |
+| **Outcome Service** | Minimal feedback logging | Decoupled from identity — privacy by design |
+| **Revocation/Expiry Worker** | Kills capsules/sessions on timeout or abuse flag | Equivalent to "global logout" pattern |
+
+---
+
+## 4. Threat Mitigation Mapped to Architecture
+
+| Threat | Architectural Control |
+|---|---|
+| Fake requests | SHARP Verification Service (Environmental location tags containing entropy > 64 bits to prevent forgery) |
+| Spoofed location | Multi-signal environmental tags (Wi-Fi frame headers & LTE control messages like TC-RNTI), preventing GPS spoofing apps |
+| Malicious helpers | Identity exposure delayed until capsule issuance |
+| Replay attacks | Capsule bound to 1 request/1 helper/1 time window and single-use Redis NX lock |
+| Surveillance creep | Outcome Service stores minimal, non-identifying data only |
+
+
+---
+
+## 5. App Pages & Features
+
+### A. Onboarding & Access
+**Page: Welcome / Get Started**
+- Minimal sign-up (phone number or device-bound key, no heavy KYC)
+- Brief protocol explainer ("one-time trust, not a profile")
+- Permission requests: location, camera (QR), notifications
+
+**Page: Home Dashboard**
+- Toggle: "I need help" vs "I can help nearby"
+- Active episode status card (if any)
+- Quick-access emergency mode button
+
+---
+
+### B. Requester Flow
+
+**Page: Create Help Request**
+- Category selector (medical, transport, general, emergency)
+- Urgency slider
+- Short context field (auto-limited to prevent oversharing)
+- Coarse location capture (approximate grid cell, not exact coordinates)
+
+**Page: Request Verification**
+- Generates time-bound QR code containing Alice's location tag syndromes (BCH) and helper string $y$
+- Shows device-consistency status
+- Optional "add a witness" (nearby trusted contact confirms)
+
+**Page: Waiting for Match**
+- Live status: searching → matched → capsule issued
+- Cancel button (kills episode instantly)
+
+**Page: Active Episode (Requester View)**
+- Ephemeral chat/call with matched helper
+- Countdown timer to capsule expiry
+- "Mark complete" / "Report issue" buttons
+
+**Page: Feedback**
+- Binary success/failure
+- Category confirmation
+- No free-text personal commentary stored beyond this
+
+---
+
+### C. Helper Flow
+
+**Page: Nearby Requests Feed**
+- List of anonymized, disclosure-filtered requests (category + urgency + rough distance only)
+- No requester identity shown pre-match
+
+**Page: Accept & Verify**
+- Scans requester's QR
+- Captures nearby Wi-Fi frame headers and LTE control messages (TC-RNTI) to construct local location tag Bloom filter
+- Reconstructs session key $K$ via BCH syndrome decoding, and submits blinded grid cell index $B = \mathcal{H}'(K, b \mathbin{\Vert} \text{"Bob"})$
+- Trust Capsule issued only after verification checks pass
+
+**Page: Active Episode (Helper View)**
+- Reveals only the minimum info needed to complete the task
+- Ephemeral comms channel
+- Capsule countdown visible
+
+**Page: Completion & Feedback**
+- Confirms task outcome
+- Capsule auto-invalidates, channel closes
+
+
+---
+
+### D. Trust & Safety Layer (Shared)
+
+**Page: Emergency / High-Stakes Mode**
+- Streamlined flow for scenarios like the oxygen-concentrator blackout case
+- Priority matching + faster verification thresholds
+- Optional auto-alert to local emergency services
+
+**Page: Episode History (Minimal)**
+- Shows only past episode outcomes (success/fail, category) — never full chat logs or helper/requester identities
+- No persistent reputation score exposed to other users (avoids surveillance-style profiling)
+
+---
+
+### E. Settings & Governance
+
+**Page: Privacy & Data**
+- Explains exactly what's logged (outcome data only)
+- Data deletion / episode purge controls
+
+**Page: Device & Security**
+- Manage device-bound keys
+- Witness contact management
+
+**Page: About the Protocol**
+- Explains episode-bound trust model to build user understanding/trust
+
+---
+
+## 6. Phased Build Alignment
+
+| Phase | Architecture Focus | App Pages Enabled |
+|---|---|---|
+| **Phase 1** | Episode Service, basic SHARP handshake (Wi-Fi frame header tags, manual QR check) | Create Request, Verification, Waiting for Match, Active Episode (basic) |
+| **Phase 2** | Device-bound checks, LTE control signals, BCH syndrome coding, automatic proximity check | Enhanced Verification, countdown timers |
+| **Phase 3** | Selective Disclosure Engine, grid cell blinding, PostGIS coarse matching | Nearby Requests Feed filtering, Emergency Mode |
+| **Phase 4** | Privacy refinement, outcome-based matching tuning | Episode History, Privacy & Data settings |
+
+
+---
+
+## 7. Detailed Tech Stack
+
+A note on feasibility first: the original proposal language (DIDs, Verifiable Credentials, ZKPs) is useful as a **conceptual model**, but a real blockchain-based DID/VC stack is unnecessary overhead for a consumer safety app and would add latency, cost, and complexity with no real benefit at MVP scale. Below is what's actually buildable, with the "protocol" ideas implemented as **plain signed tokens and server-side rules** rather than DLT infrastructure. A path to true DID/ZKP is noted at the end for later phases, if ever justified.
+
+### 7.1 Mobile Client (React Native + Expo)
+The mobile client is built as a native application using **React Native and the Expo SDK**, targeting iOS and Android. This provides native performance, native UI rendering (rather than WebViews), and seamless access to hardware security modules like Keychain/Keystore.
+
+| Component | Technology | Why |
+|---|---|---|
+| Mobile Framework | **React Native (Expo)** | Cross-platform native application framework for iOS and Android |
+| State Management | **Zustand** | Minimal boilerplate, lightweight state management that scales easily |
+| UI/Styling | **NativeWind** or **StyleSheet** | Tailored UI styles; NativeWind allows Tailwind-like syntax in React Native |
+| QR Code Generation | `react-native-qrcode-svg` | Renders vector QR codes quickly in React Native |
+| QR Code Scanning | `expo-camera` | High-accuracy native camera access for fast, reliable QR verification |
+| Geolocation | `expo-location` | Queries high-precision device GPS, falls back to cell/Wi-Fi positioning |
+| Push Notifications | `expo-notifications` | Interfaces with iOS APNs and Android FCM via EAS |
+| Secure Storage (Sensitive) | `expo-secure-store` | Accesses iOS Keychain and Android Keystore for Ed25519 signing keys and device fingerprints |
+| Local Storage (Non-sensitive)| `@react-native-async-storage/async-storage` | Simple, persistent key-value store for app settings/caching |
+| Real-time Comms | `socket.io-client` | Standard WebSockets client to communicate with Fastify Socket.IO server |
+
+
+
+### 7.2 Frontend (Web — Admin/Audit Portal)
+| Component | Technology | Why |
+|---|---|---|
+| Framework | **Next.js 14+ (App Router)** | SSR for admin dashboards, good DX |
+| UI | **Tailwind CSS + shadcn/ui** | Fast, accessible components |
+| Charts (audit/ops dashboards) | **Recharts** | Lightweight, sufficient for ops metrics |
+
+### 7.3 Backend / API
+| Component | Technology | Why |
+|---|---|---|
+| Runtime | **Node.js 20 LTS** | Matches team's stack, mature ecosystem |
+| API framework | **Fastify** (preferred over Express for this) | Built-in schema validation, better throughput for real-time-heavy app |
+| Language | **TypeScript** | Type safety across episode/capsule state machines — important given the correctness requirements (single-use, expiry) |
+| API contract | **OpenAPI 3 + Zod schemas** | Enforced request/response validation |
+| Background jobs | **BullMQ (Redis-backed)** | Capsule expiry sweeps, revocation propagation, match timeouts |
+| Real-time layer | **Socket.IO (server)** with Redis adapter | Handles ephemeral chat rooms scoped per episode; Redis adapter needed once you run >1 server instance |
+
+### 7.4 Data Layer
+| Component | Technology | Why |
+|---|---|---|
+| Primary DB | **MongoDB Atlas** | Document flexibility and `2dsphere` indexes for geospatial queries (see §7.6, §8.1) |
+| ODM | **Mongoose** | Schema validation, type-safe queries, and rich middleware support |
+| Ephemeral/session store | **Render Key Value** (Redis-compatible, Valkey 8) | Active capsules, rate limits, Socket.IO pub/sub, BullMQ queues — same region as the API service to keep latency low |
+| Encryption at rest | **MongoDB Atlas built-in encryption** | Minimizes blast radius if DB is breached |
+| Data retention | Render **Cron Job** purges episode/location data post-expiry; only outcome summary rows persist long-term | Matches the "minimal outcome logging" design goal |
+
+### 7.5 Identity, Verification & "Trust Capsule" Cryptography
+This replaces the DID/VC/DLT framing with a realistic, auditable equivalent based on the **SHARP protocol** for secure, private proximity verification:
+
+| Concept | Real Implementation |
+|---|---|
+| Episode ID (~"DID") | UUIDv4 generated server-side per request, never reused |
+| Trust Capsule (~"VC") | **JWT signed with Ed25519** (via `jose` or `paseto` library) — short expiry (`exp` claim), single-use enforced via Redis key that's deleted on first validation |
+| Device consistency check | Device fingerprint (hashed hardware/install ID) stored per episode, compared on capsule redemption |
+| QR token / Syndromes | Short-lived QR containing **BCH syndromes** of Alice's location tag Bloom filter and a helper string $y$. |
+| Wi-Fi/LTE Location Tag | Built client-side by capturing environmental signals (Wi-Fi frame headers and LTE control messages like TC-RNTI) and loading them into a 1024-bit Bloom filter. |
+| Fuzzy Extractor Handshake | Bob reconstructs the temporary session key $K$ by applying BCH syndrome decoding to his own location tag Bloom filter. |
+| Fine-Grained Grid Check | Bob sends a blinded grid index $B = \mathcal{H}'(K, b \mathbin{\Vert} \text{"Bob"})$. Alice searches her nearby grid cells to find a match, verifying Bob's proximity without revealing exact location to the server. |
+| Signing keys | **Ed25519 key pair per server environment**, stored in a secrets manager (AWS KMS / GCP Secret Manager), rotated periodically |
+| Selective disclosure | Server-side filtering + grid blinding — only coarse region shown pre-match, exact proximity verified privately by Alice. |
+
+> **Why not real ZKPs/DIDs at MVP:** They require either a permissioned ledger (ops overhead, no real decentralization benefit for a single-company app) or heavy client-side crypto libraries that hurt mobile performance and add UX friction (key backup/recovery becomes a support nightmare). The SHARP protocol's combination of Bloom filters, BCH syndromes, and grid cell blinding achieves strong location privacy (oblivious server) and unforgeable proximity checks with minimal mobile computational overhead.
+
+
+### 7.6 Infrastructure & Hosting — Render
+
+Verified against Render's current documentation (not assumed) — the mapping below uses Render's actual service types:
+
+| Component | Render Service | Why / Verified Detail |
+|---|---|---|
+| API server (Fastify/Node) | **Web Service** | Git-push deploy, auto TLS on custom domains, autoscaling on paid plans. Web Services support inbound WebSocket connections natively — confirmed no enforced max connection duration (Render recommends ping/pong keepalive, since instances can still restart on deploys/maintenance) |
+| Real-time chat (Socket.IO) | Same **Web Service**, or a dedicated one | Runs on the same long-lived instance model — this is exactly the persistent-connection use case Render is built for, unlike serverless platforms where WebSockets are tied to function lifecycles |
+| Primary database | **MongoDB Atlas** | Utilizes `2dsphere` indexes for geospatial queries in §8.1. Integrated with Render services securely. |
+| Redis / session store | **Render Key Value** | Redis-compatible (runs Valkey 8 on new instances — a drop-in-compatible fork, works fine with `ioredis`/`bullmq`); used for capsule single-use locks, rate limiting, Socket.IO pub/sub adapter |
+| Background jobs (BullMQ workers) | **Background Worker** | Purpose-built for exactly this: continuously polling a Redis-backed queue with no HTTP interface — matches the capsule-expiry sweep and revocation-propagation jobs described in §3 |
+| Scheduled purge job (data retention, §8.1) | **Cron Job** | Render cron jobs support runs up to 12 hours — comfortably enough for a nightly retention/purge task |
+| Admin/audit web portal (Next.js) | **Static Site** (if exported statically) or **Web Service** (if you need SSR) | Static Site gives you Render's CDN for free; only use a Web Service here if the admin portal needs server-side rendering |
+| Secrets (signing keys, DB credentials) | **Render Environment Variables (marked secret) / Secret Files** | Render doesn't offer an AWS KMS/HSM equivalent — for the Ed25519 signing key, store it as a secret environment variable or Secret File, generated once at provisioning time and rotated manually. If true hardware-backed key custody becomes a compliance requirement later, that would need an external KMS (e.g., AWS KMS) called from the Render service, not something Render itself provides |
+| Logs/metrics | Render's built-in log stream + metrics dashboard, **plus Sentry** for error tracking | Render's native tooling covers basic ops visibility; Sentry is still worth adding for structured error tracking/alerting, since that's outside Render's built-in scope |
+| CI | **GitHub Actions** for tests/linting before merge, Render's native Git auto-deploy for the actual deploy step | Render deploys directly from a connected GitHub repo — you don't need a separate deploy pipeline, just gate merges with CI checks |
+
+**Practical constraints worth knowing before committing to Render:**
+- **Region selection matters more than usual:** Render's regions are limited (e.g., Oregon, Ohio, Virginia, Frankfurt, Singapore). Your Web Service, MongoDB Atlas cluster, and Key Value instance should all be provisioned in the **same region** — cross-region hops add latency to every DB/Redis call, which matters here since capsule verification is latency-sensitive (users are standing there waiting for a QR scan to resolve).
+- **Multi-instance WebSockets:** if you ever autoscale the API to multiple instances, a client is **not guaranteed to reconnect to the same instance** after a disruption — this is exactly why the Redis adapter for Socket.IO (already specified in §7.3) is not optional once you scale past one instance.
+- **No built-in HSM:** if a future compliance requirement (e.g., partnering with a government/NGO body per §7.8) demands hardware-backed key custody, Render alone won't satisfy that — you'd bolt on an external KMS at that point, not before.
+
+
+### 7.7 Security Hardening Specifics
+- **Rate limiting:** `@fastify/rate-limit` backed by Redis — prevents QR/capsule brute-forcing.
+- **TLS everywhere:** enforced via load balancer; no plaintext transport ever.
+- **Audit log signing:** each outcome log entry hashed (SHA-256) and chained to the previous entry's hash (simple hash-chain, not a blockchain) so tampering is detectable without DLT overhead.
+- **Abuse/kill-switch:** Redis flag per episode ID checked by the Socket.IO gateway on every message — equivalent to the "global session revocation" pattern, without needing a distributed session authority.
+
+### 7.8 Realistic Later-Phase Options (not MVP)
+If Connify scales into a multi-organization or cross-platform protocol (e.g., licensed to NGOs, cities, other apps), *then* real DIDs/VCs become justified:
+- `did:web` (simplest, no ledger required) issued per organizational partner, not per user
+- W3C Verifiable Credentials for cross-org trust (e.g., a city emergency service verifying a partner app's episodes)
+- This should only be pursued once there's a genuine multi-party trust boundary — not for a single-vendor consumer app.
+
+---
+
+## 8. Database Architecture (Detailed)
+
+Database choice is **backend-agnostic to how you built the frontend** — MongoDB/Redis work the same whether the client is React Native/Expo, a plain web app, or a Capacitor-wrapped app. Since you've settled on **Render** for hosting (§7.6), the server-side layer below is specifically **MongoDB Atlas** and **Render Key Value**. What *does* change because of the React Native approach is the **client-side local storage layer**, covered in §8.2.
+
+### 8.1 Server-Side Database (Source of Truth)
+
+**MongoDB Atlas** serves as the primary store. The state machine transitions (episode → capsule → outcome) are managed through Mongoose application-level validations. Geospatial queries utilize MongoDB's `2dsphere` indexes, avoiding the need for complex PostGIS setup.
+
+**Core schema (simplified Mongoose definitions):**
+
+```typescript
+// ── Device Model ──────────────────────────────────────────────────────
+const DeviceSchema = new Schema({
+  deviceFingerprintHash: { type: String, required: true, unique: true },
+  publicKey: { type: String, required: true },
+  isQuarantined: { type: Boolean, default: false },
+  suspiciousCount: { type: Number, default: 0 },
+  harmlessnessScore: { type: Number, default: 100 },
+  createdAt: { type: Date, default: Date.now },
+});
+
+// ── Episode Model ─────────────────────────────────────────────────────
+const EpisodeSchema = new Schema({
+  requesterDeviceId: { type: Schema.Types.ObjectId, ref: 'Device', required: true },
+  category: { type: String, required: true },
+  urgency: { type: Number, required: true },
+  status: { type: String, default: 'pending' },
+  latitude: { type: Number, required: true },
+  longitude: { type: Number, required: true },
+  location: {
+    type: { type: String, enum: ['Point'], default: 'Point' },
+    coordinates: { type: [Number], required: false }, // [longitude, latitude]
+  },
+  radiusMeters: { type: Number, default: 500 },
+  createdAt: { type: Date, default: Date.now },
+  expiresAt: { type: Date, required: true },
+});
+EpisodeSchema.index({ location: '2dsphere' });
+
+// ── Capsule Model ─────────────────────────────────────────────────────
+const CapsuleSchema = new Schema({
+  episodeId: { type: Schema.Types.ObjectId, ref: 'Episode', required: true },
+  helperDeviceId: { type: Schema.Types.ObjectId, ref: 'Device', required: true },
+  signedTokenHash: { type: String, required: true },
+  status: { type: String, default: 'issued' }, // issued/redeemed/expired/revoked
+  issuedAt: { type: Date, default: Date.now },
+  expiresAt: { type: Date, required: true },
+});
+
+// ── Outcome Model ─────────────────────────────────────────────────────
+const OutcomeSchema = new Schema({
+  episodeId: { type: Schema.Types.ObjectId, ref: 'Episode', required: true },
+  result: { type: String, required: true }, // success/failure
+  category: { type: String, required: true },
+  completedInWindow: { type: Boolean, required: true },
+  createdAt: { type: Date, default: Date.now },
+});
+
+// ── AuditLog Model ────────────────────────────────────────────────────
+const AuditLogSchema = new Schema({
+  eventType: { type: String, required: true },
+  episodeId: { type: Schema.Types.ObjectId, ref: 'Episode' },
+  prevHash: { type: String, required: true },
+  entryHash: { type: String, required: true },
+  createdAt: { type: Date, default: Date.now },
+});
+```
+
+**Key technical decisions:**
+| Decision | Reasoning |
+|---|---|
+| `location: { type: 'Point', coordinates: [...] }` | Initial coarse filtering uses MongoDB's `$near` and `$geoWithin` operators over a `2dsphere` index to broadcast matching notifications — exact proximity is subsequently validated privately via SHARP. |
+| Spatial index | `EpisodeSchema.index({ location: '2dsphere' });` — required for MongoDB radius queries to stay fast as episode volume grows |
+| BCH Syndromes & Helper String y | Stored in `episodes` document to allow matched helpers to perform local fuzzy extractor reconstruction of the session key $K$. |
+| ObjectIds and Refs | Ensures efficient JOIN-like populated queries, although the state machine is enforced in the `EpisodeController`. |
+| `signed_token_hash` not the token | Even if the DB is breached, the actual bearer token (JWT) can't be extracted and replayed |
+
+**Ephemeral/session store — Render Key Value (Redis-compatible):**
+- Active capsule single-use lock: `SET capsule:{id} used NX EX {ttl}` — atomic, so two simultaneous redemption attempts can't both succeed (solves the double-spend problem for a single-use token). This works identically on Render Key Value since it's Redis-protocol-compatible (Valkey 8 under the hood on new instances)
+- Rate limiting counters (per device, per IP)
+- Socket.IO pub/sub adapter + BullMQ job queues (expiry sweeps, match timeouts) — run the BullMQ consumers as a Render **Background Worker**, not inside the Web Service, so a queue backlog can't starve incoming HTTP/WebSocket traffic
+
+**Retention/purge job:**
+A scheduled worker (BullMQ cron job) deletes `episodes.coarse_location` and any transient verification data once `status = completed/expired`, retaining only the `outcomes` row long-term. This operationalizes the "minimal outcome logging" principle rather than just stating it as a policy.
+
+
+---
+
+### 8.2 Client-Side Local Storage (React Native / Expo App)
+
+This is the part that changes because of your build approach. A React Native app runs your JavaScript code directly, rendering native UI components instead of running inside a native WebView. That means standard browser storage APIs like `localStorage` or `IndexedDB` are unavailable. Instead, we use native storage wrappers. Crucially, sensitive keys must use hardware-backed secure storage, as storing signing keys in plain text is a real security gap.
+
+| Storage need | Correct choice | Why |
+|---|---|---|
+| UI state, draft form data, filter preferences | `@react-native-async-storage/async-storage` | Non-sensitive, fine to lose on app reinstall |
+| Cached read-only data (episode history list for offline viewing) | `expo-sqlite` or a SQLite wrapper | Structured, queryable, works offline for **read-only** display |
+| Device key pair (Ed25519 private key) | `expo-secure-store` | **Never** use plaintext `AsyncStorage` — private keys must be stored in iOS Keychain or Android Keystore, which are hardware-backed and secure against basic system compromise |
+| Device fingerprint / verification token | `expo-secure-store` | It's presented during capsule redemption — if it leaks, an attacker can impersonate the device in the verification handshake |
+
+**Why this matters concretely for Connify:** the "device consistency check" in the Threat Model (§4) is only meaningful if the key it relies on can't be trivially copied off the device. If that key sits in unencrypted local storage, it is extractable with basic tooling on a compromised or rooted device. Keystore/Keychain-backed storage requires hardware-level compromise or device unlock clearance to extract, which is the security guarantee the architecture is claiming to provide.
+
+**No offline path for capsule issuance/redemption — by design, not limitation:**
+Single-use enforcement (§8.1, Redis `SET NX`) requires a server round-trip as the single source of truth. If capsule validation were done client-side against locally cached state, two devices could each independently "validate" the same capsule while both offline, and both proceed — a classic double-spend problem. So: cache read-only data offline freely; never let the verification/capsule flow degrade to an offline mode.
+
+---
+
+### 8.3 React Native + Expo Build Pipeline (EAS) — Practical Notes
+
+Since you are using a native development environment with Expo:
+
+1. **Development & Testing:** Use Expo Go for rapid prototyping during local development, or build a custom development client (`npx expo run:android` / `npx expo run:ios`) when native configuration changes are required.
+2. **EAS Build & Update:** Leverage Expo Application Services (EAS) for cloud builds (`eas build`) and Over-The-Air (OTA) updates (`eas update`), avoiding the need to configure complex Xcode and Android Studio environments locally.
+3. **Credentials Management:** Firebase configuration (`google-services.json` for Android and `GoogleService-Info.plist` for iOS) should be referenced in `app.json` under `expo.android.googleServicesFile` and `expo.ios.googleServicesFile` so Expo handles compilation automatically.
+4. **Permissions Configuration:** System permissions (camera, location, notifications) are specified in the `app.json` / `app.config.js` plugins array (e.g., `expo-camera`, `expo-location`). Expo Config Plugins generate the correct native configuration files during the prebuild phase.
+5. **Background execution & Socket lifecycle:** React Native JS threads are suspended by the OS when the app is backgrounded. Socket.IO connections will drop. Always use native APNs/FCM push notifications (`expo-notifications`) as the primary wake-up and alert channel, and reconnect/sync socket state when the app regains focus using standard React Native `AppState` listeners.
+6. **Metro Bundler configuration:** Metro serves JS bundles to React Native. Ensure configuration in `metro.config.js` supports resolving standard npm dependencies.
+
+---
+
+*This document synthesizes the Connify proposal architecture with zero-trust identity patterns (episode-as-identity, capsule-as-credential, JIT issuance, selective disclosure) adapted for a consumer safety context rather than a multi-agent AI system, and reflects a React Native + Expo mobile application for iOS and Android deployment.*
+
+---
+
+## Tech Stack
+
+### Web Portal (Frontend)
+- Next.js (App Router)
+- Tailwind CSS + shadcn/ui
+- Recharts
+
+### Mobile Client (React Native)
+- React Native and Expo SDK
+- Zustand (State Management)
+- expo-camera (QR Code Scanning)
+- expo-location (Geolocation)
+- expo-notifications (Push Notifications)
+- expo-secure-store (Hardware-backed Secure Storage)
+- @react-native-async-storage/async-storage (Local Storage)
+- socket.io-client (Real-time Comms)
+
+### Backend and APIs
+- Node.js with Fastify and TypeScript
+- OpenAPI 3 and Zod
+- Socket.IO client/server
+- BullMQ
+
+### Data and Storage
+- MongoDB Atlas with Mongoose
+- Redis-compatible Key Value store
+- MongoDB built-in encryption
+
+### Security and Infrastructure
+- JWT signed with Ed25519
+- Rate limiting, TLS, and secure storage for device keys
+- Render Web Service, MongoDB Atlas, Render Key Value, Background Worker, and Cron Job
+
+---
+
+## Developers
+
+| Team Member | Primary Role | Responsibilities |
+|---|---|---|
+| **Godfrey T R** | Lead Software Engineer & System Architect | Design the overall protocol architecture, backend services, trust capsule lifecycle, API contracts, security architecture, authentication flow, system integration, deployment strategy, and overall engineering decisions. Coordinate implementation across modules. |
+| **Hari Prakash A** | Frontend Engineer, UX/UI & Product Experience Lead | Design the user journey, React Native/Expo frontend, prototype screens, trust flow visualization, selective disclosure interface, QR interaction experience, branding, presentation assets, and usability improvements. |
+| **Grish Narayanan S** | AI, Security & Verification Systems Engineer | Design and implement the Need Verification Engine, contextual verification logic, trust scoring experiments, AI-assisted fraud detection, device consistency validation, Wi-Fi/GPS verification pipeline, cryptographic token validation, and future intelligent matching algorithms. |

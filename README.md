@@ -259,10 +259,10 @@ The mobile client is built as a native application using **React Native and the 
 ### 7.4 Data Layer
 | Component | Technology | Why |
 |---|---|---|
-| Primary DB | **PostgreSQL 16 on Render Postgres** | Relational integrity matters here (episode → capsule → outcome is a strict state machine); Render Postgres confirmed supports the `postgis` extension needed for proximity queries (see §7.6, §8.1) |
-| ORM | **Prisma** | Type-safe queries, migrations |
+| Primary DB | **MongoDB Atlas** | Document flexibility and `2dsphere` indexes for geospatial queries (see §7.6, §8.1) |
+| ODM | **Mongoose** | Schema validation, type-safe queries, and rich middleware support |
 | Ephemeral/session store | **Render Key Value** (Redis-compatible, Valkey 8) | Active capsules, rate limits, Socket.IO pub/sub, BullMQ queues — same region as the API service to keep latency low |
-| Encryption at rest | **pgcrypto** (Postgres extension, also confirmed supported on Render Postgres) for any location/context fields | Minimizes blast radius if DB is breached |
+| Encryption at rest | **MongoDB Atlas built-in encryption** | Minimizes blast radius if DB is breached |
 | Data retention | Render **Cron Job** purges episode/location data post-expiry; only outcome summary rows persist long-term | Matches the "minimal outcome logging" design goal |
 
 ### 7.5 Identity, Verification & "Trust Capsule" Cryptography
@@ -291,7 +291,7 @@ Verified against Render's current documentation (not assumed) — the mapping be
 |---|---|---|
 | API server (Fastify/Node) | **Web Service** | Git-push deploy, auto TLS on custom domains, autoscaling on paid plans. Web Services support inbound WebSocket connections natively — confirmed no enforced max connection duration (Render recommends ping/pong keepalive, since instances can still restart on deploys/maintenance) |
 | Real-time chat (Socket.IO) | Same **Web Service**, or a dedicated one | Runs on the same long-lived instance model — this is exactly the persistent-connection use case Render is built for, unlike serverless platforms where WebSockets are tied to function lifecycles |
-| Primary database | **Render Postgres** | Confirmed supports `CREATE EXTENSION postgis` (required for the `GEOGRAPHY`/`GIST` proximity queries in §8.1) — extension availability depends on Postgres version, so pin to a version where PostGIS is confirmed supported when provisioning |
+| Primary database | **MongoDB Atlas** | Utilizes `2dsphere` indexes for geospatial queries in §8.1. Integrated with Render services securely. |
 | Redis / session store | **Render Key Value** | Redis-compatible (runs Valkey 8 on new instances — a drop-in-compatible fork, works fine with `ioredis`/`bullmq`); used for capsule single-use locks, rate limiting, Socket.IO pub/sub adapter |
 | Background jobs (BullMQ workers) | **Background Worker** | Purpose-built for exactly this: continuously polling a Redis-backed queue with no HTTP interface — matches the capsule-expiry sweep and revocation-propagation jobs described in §3 |
 | Scheduled purge job (data retention, §8.1) | **Cron Job** | Render cron jobs support runs up to 12 hours — comfortably enough for a nightly retention/purge task |
@@ -301,7 +301,7 @@ Verified against Render's current documentation (not assumed) — the mapping be
 | CI | **GitHub Actions** for tests/linting before merge, Render's native Git auto-deploy for the actual deploy step | Render deploys directly from a connected GitHub repo — you don't need a separate deploy pipeline, just gate merges with CI checks |
 
 **Practical constraints worth knowing before committing to Render:**
-- **Region selection matters more than usual:** Render's regions are limited (e.g., Oregon, Ohio, Virginia, Frankfurt, Singapore). Your Web Service, Postgres, and Key Value instance should all be provisioned in the **same region** — cross-region hops add latency to every DB/Redis call, which matters here since capsule verification is latency-sensitive (users are standing there waiting for a QR scan to resolve).
+- **Region selection matters more than usual:** Render's regions are limited (e.g., Oregon, Ohio, Virginia, Frankfurt, Singapore). Your Web Service, MongoDB Atlas cluster, and Key Value instance should all be provisioned in the **same region** — cross-region hops add latency to every DB/Redis call, which matters here since capsule verification is latency-sensitive (users are standing there waiting for a QR scan to resolve).
 - **Multi-instance WebSockets:** if you ever autoscale the API to multiple instances, a client is **not guaranteed to reconnect to the same instance** after a disruption — this is exactly why the Redis adapter for Socket.IO (already specified in §7.3) is not optional once you scale past one instance.
 - **No built-in HSM:** if a future compliance requirement (e.g., partnering with a government/NGO body per §7.8) demands hardware-backed key custody, Render alone won't satisfy that — you'd bolt on an external KMS at that point, not before.
 
@@ -322,82 +322,79 @@ If Connify scales into a multi-organization or cross-platform protocol (e.g., li
 
 ## 8. Database Architecture (Detailed)
 
-Database choice is **backend-agnostic to how you built the frontend** — Postgres/Redis work the same whether the client is React Native/Expo, a plain web app, or a Capacitor-wrapped app. Since you've settled on **Render** for hosting (§7.6), the server-side layer below is specifically **Render Postgres** and **Render Key Value**. What *does* change because of the React Native approach is the **client-side local storage layer**, covered in §8.2.
+Database choice is **backend-agnostic to how you built the frontend** — MongoDB/Redis work the same whether the client is React Native/Expo, a plain web app, or a Capacitor-wrapped app. Since you've settled on **Render** for hosting (§7.6), the server-side layer below is specifically **MongoDB Atlas** and **Render Key Value**. What *does* change because of the React Native approach is the **client-side local storage layer**, covered in §8.2.
 
 ### 8.1 Server-Side Database (Source of Truth)
 
-**PostgreSQL 16 on Render Postgres** remains the right primary store: the episode → capsule → outcome flow is a strict state machine with foreign-key relationships and uniqueness constraints (a capsule must map to exactly one episode and be usable exactly once) — this is a textbook relational-integrity problem. Render Postgres has confirmed support for `CREATE EXTENSION postgis`, so the geospatial coarse filtering below is provisionable as-is.
+**MongoDB Atlas** serves as the primary store. The state machine transitions (episode → capsule → outcome) are managed through Mongoose application-level validations. Geospatial queries utilize MongoDB's `2dsphere` indexes, avoiding the need for complex PostGIS setup.
 
-**Core schema (simplified):**
+**Core schema (simplified Mongoose definitions):**
 
-```sql
--- Devices, not "user accounts" — matches the minimal-identity design goal
-CREATE TABLE devices (
-  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  device_fingerprint_hash TEXT NOT NULL UNIQUE,  -- SHA-256 of device-bound secret, never raw ID
-  public_key        TEXT NOT NULL,               -- Ed25519 public key, private key never leaves device
-  phone_hash        TEXT,                        -- optional, hashed, only if phone verification is used
-  created_at        TIMESTAMPTZ DEFAULT now(),
-  last_seen_at      TIMESTAMPTZ
-);
+```typescript
+// ── Device Model ──────────────────────────────────────────────────────
+const DeviceSchema = new Schema({
+  deviceFingerprintHash: { type: String, required: true, unique: true },
+  publicKey: { type: String, required: true },
+  isQuarantined: { type: Boolean, default: false },
+  suspiciousCount: { type: Number, default: 0 },
+  harmlessnessScore: { type: Number, default: 100 },
+  createdAt: { type: Date, default: Date.now },
+});
 
--- One row per help request
-CREATE TABLE episodes (
-  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  requester_device_id UUID NOT NULL REFERENCES devices(id),
-  category          TEXT NOT NULL,               -- medical, transport, general, emergency
-  urgency           SMALLINT NOT NULL,            -- 1-5
-  status            TEXT NOT NULL DEFAULT 'pending', -- pending/matched/active/completed/expired/cancelled
-  coarse_location   GEOGRAPHY(Point, 4326),       -- PostGIS type for coarse-grained candidate matching
-  radius_meters     INTEGER NOT NULL DEFAULT 500,
-  bch_syndromes     TEXT,                        -- BCH syndromes for location tag error-correction (SHARP)
-  helper_string_y   TEXT,                        -- helper string y for session key derivation
-  created_at        TIMESTAMPTZ DEFAULT now(),
-  expires_at        TIMESTAMPTZ NOT NULL
-);
+// ── Episode Model ─────────────────────────────────────────────────────
+const EpisodeSchema = new Schema({
+  requesterDeviceId: { type: Schema.Types.ObjectId, ref: 'Device', required: true },
+  category: { type: String, required: true },
+  urgency: { type: Number, required: true },
+  status: { type: String, default: 'pending' },
+  latitude: { type: Number, required: true },
+  longitude: { type: Number, required: true },
+  location: {
+    type: { type: String, enum: ['Point'], default: 'Point' },
+    coordinates: { type: [Number], required: false }, // [longitude, latitude]
+  },
+  radiusMeters: { type: Number, default: 500 },
+  createdAt: { type: Date, default: Date.now },
+  expiresAt: { type: Date, required: true },
+});
+EpisodeSchema.index({ location: '2dsphere' });
 
--- One row per issued trust capsule (episode may have multiple attempts, only one active)
-CREATE TABLE capsules (
-  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  episode_id        UUID NOT NULL REFERENCES episodes(id),
-  helper_device_id  UUID NOT NULL REFERENCES devices(id),
-  signed_token_hash TEXT NOT NULL,                -- hash of the issued JWT, not the token itself
-  blinded_grid_cell TEXT,                        -- Bob's blinded grid cell index (H'(K, b || "Bob"))
-  status            TEXT NOT NULL DEFAULT 'issued', -- issued/redeemed/expired/revoked
-  issued_at         TIMESTAMPTZ DEFAULT now(),
-  expires_at        TIMESTAMPTZ NOT NULL,
-  redeemed_at       TIMESTAMPTZ
-);
+// ── Capsule Model ─────────────────────────────────────────────────────
+const CapsuleSchema = new Schema({
+  episodeId: { type: Schema.Types.ObjectId, ref: 'Episode', required: true },
+  helperDeviceId: { type: Schema.Types.ObjectId, ref: 'Device', required: true },
+  signedTokenHash: { type: String, required: true },
+  status: { type: String, default: 'issued' }, // issued/redeemed/expired/revoked
+  issuedAt: { type: Date, default: Date.now },
+  expiresAt: { type: Date, required: true },
+});
 
--- Minimal outcome record — deliberately decoupled from full episode detail
-CREATE TABLE outcomes (
-  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  episode_id        UUID NOT NULL REFERENCES episodes(id),
-  result            TEXT NOT NULL,                -- success/failure
-  category          TEXT NOT NULL,
-  risk_level        SMALLINT,
-  completed_in_window BOOLEAN NOT NULL,
-  created_at        TIMESTAMPTZ DEFAULT now()
-);
+// ── Outcome Model ─────────────────────────────────────────────────────
+const OutcomeSchema = new Schema({
+  episodeId: { type: Schema.Types.ObjectId, ref: 'Episode', required: true },
+  result: { type: String, required: true }, // success/failure
+  category: { type: String, required: true },
+  completedInWindow: { type: Boolean, required: true },
+  createdAt: { type: Date, default: Date.now },
+});
 
--- Hash-chained audit log (tamper-evident, not a blockchain)
-CREATE TABLE audit_log (
-  id                BIGSERIAL PRIMARY KEY,
-  event_type        TEXT NOT NULL,
-  episode_id        UUID REFERENCES episodes(id),
-  prev_hash         TEXT NOT NULL,
-  entry_hash        TEXT NOT NULL,                -- SHA-256(prev_hash + event_data)
-  created_at        TIMESTAMPTZ DEFAULT now()
-);
+// ── AuditLog Model ────────────────────────────────────────────────────
+const AuditLogSchema = new Schema({
+  eventType: { type: String, required: true },
+  episodeId: { type: Schema.Types.ObjectId, ref: 'Episode' },
+  prevHash: { type: String, required: true },
+  entryHash: { type: String, required: true },
+  createdAt: { type: Date, default: Date.now },
+});
 ```
 
 **Key technical decisions:**
 | Decision | Reasoning |
 |---|---|
-| `GEOGRAPHY(Point, 4326)` via **PostGIS extension** | Initial coarse filtering (finding candidate helpers "within 500m") uses `ST_DWithin` to broadcast matching notifications — exact proximity is subsequently validated privately via SHARP. |
-| Spatial index | `CREATE INDEX ON episodes USING GIST (coarse_location);` — required for PostGIS radius queries to stay fast as episode volume grows |
-| BCH Syndromes & Helper String y | Stored in `episodes` table to allow matched helpers to perform local fuzzy extractor reconstruction of the session key $K$. |
-| Foreign keys + status enums as `TEXT` with `CHECK` constraints | Enforces the state machine at the DB level, not just in application code — reduces risk of an invalid state (e.g., a "redeemed but not issued" capsule) ever existing |
+| `location: { type: 'Point', coordinates: [...] }` | Initial coarse filtering uses MongoDB's `$near` and `$geoWithin` operators over a `2dsphere` index to broadcast matching notifications — exact proximity is subsequently validated privately via SHARP. |
+| Spatial index | `EpisodeSchema.index({ location: '2dsphere' });` — required for MongoDB radius queries to stay fast as episode volume grows |
+| BCH Syndromes & Helper String y | Stored in `episodes` document to allow matched helpers to perform local fuzzy extractor reconstruction of the session key $K$. |
+| ObjectIds and Refs | Ensures efficient JOIN-like populated queries, although the state machine is enforced in the `EpisodeController`. |
 | `signed_token_hash` not the token | Even if the DB is breached, the actual bearer token (JWT) can't be extracted and replayed |
 
 **Ephemeral/session store — Render Key Value (Redis-compatible):**
@@ -470,14 +467,14 @@ Since you are using a native development environment with Expo:
 - BullMQ
 
 ### Data and Storage
-- PostgreSQL with PostGIS
+- MongoDB Atlas with Mongoose
 - Redis-compatible Key Value store
-- pgcrypto encryption
+- MongoDB built-in encryption
 
 ### Security and Infrastructure
 - JWT signed with Ed25519
 - Rate limiting, TLS, and secure storage for device keys
-- Render Web Service, Render Postgres, Render Key Value, Background Worker, and Cron Job
+- Render Web Service, MongoDB Atlas, Render Key Value, Background Worker, and Cron Job
 
 ---
 

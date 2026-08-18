@@ -40,6 +40,14 @@ graph TD
     Home -...-> Emergency[Emergency Mode / SOS - Guardian SMS Dispatched]
     RequestForm -.-> Emergency
     Feed -.-> Emergency
+    
+    %% Unified Safety Hub (v2.0)
+    Home --> SafetyHub[Unified Safety Hub]
+    SafetyHub --> FakeCall[Fake Call Simulator]
+    SafetyHub --> GovNumbers[Gov Emergency Numbers]
+    SafetyHub --> OfflineMode[Offline Emergency Operations]
+    SafetyHub --> WomenSafety[Women Safety Toolkit]
+    SafetyHub --> EmergencyContacts[Emergency Contacts Management]
 ```
 
 ---
@@ -74,6 +82,14 @@ The mobile client leverages `@react-navigation/native-stack` for workflows and `
 * `ProtocolFeedback`: **[UPDATED v2.0]** Three-way outcome selection: `SAFE_RESOLVED`, `SUSPICIOUS_BEHAVIOR`, `ACTIVE_THREAT`. Auto-quarantine triggered on ≥ 2 suspicious flags.
 * `EmergencyMode`: Global SOS overlay bypasses normal stack. **[v2.0]** Immediately dispatches Guardian SMS with last MongoDB GPS coordinates.
 * `GuardianManagement`: **[NEW v2.0]** Dedicated modal for adding/editing Guardian's full name, phone, and relationship. Mandatory before any episode creation.
+
+### 4.2.6 Unified Safety Hub Stack [NEW v2.0]
+* `UnifiedSafetyHub`: Centralized dashboard for active prevention tools and offline utilities.
+* `FakeCall`: Initiates a simulated incoming call with configurable timers to deter harassment.
+* `GovernmentEmergencyNumbers`: Directory of official local emergency services with one-tap dialing.
+* `OfflineEmergency`: Fallback dispatch via direct SMS and Bluetooth when out of cell range.
+* `WomenSafety`: Focused toolkit for rapid trusted-contact sharing and discreet alerts.
+* `EmergencyContacts`: Manage the list of trusted guardians and secondary emergency contacts.
 
 ---
 

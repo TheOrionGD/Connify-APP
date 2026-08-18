@@ -68,22 +68,15 @@ const TabBarIcon = ({ focused, routeName, colors }: TabBarIconProps) => {
   const activeColor = isSafetyHub ? '#EC4899' : colors.primary;
 
   return (
-    <View
-      style={[
-        styles.iconContainer,
-        focused ? [styles.iconFocused, { backgroundColor: activeBgColor }] : styles.iconUnfocused,
-      ]}
-    >
+    <View style={styles.iconContainer}>
       <Icon
         name={iconName}
-        size={focused ? 24 : 22}
+        size={24}
         color={focused ? activeColor : colors.onSurfaceVariant}
       />
-      {focused && (
-        <Text style={[styles.iconText, { color: activeColor }]}>
-          {label}
-        </Text>
-      )}
+      <Text style={[styles.iconText, { color: focused ? activeColor : colors.onSurfaceVariant }]}>
+        {label}
+      </Text>
     </View>
   );
 };
@@ -98,19 +91,20 @@ function MainTabs() {
         tabBarShowLabel: false,
         tabBarStyle: {
           backgroundColor: colors.surfaceContainerLowest,
-          borderTopWidth: 0,
-          position: 'absolute',
-          bottom: 16,
-          left: 16,
-          right: 16,
-          borderRadius: 32,
+          borderTopWidth: 1,
+          borderTopColor: colors.outline,
           height: 64,
           elevation: 8,
           shadowColor: '#000',
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.15,
-          shadowRadius: 12,
-          paddingBottom: 0,
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
+          paddingBottom: 8,
+          paddingTop: 8,
+        },
+        tabBarItemStyle: {
+          justifyContent: 'center',
+          alignItems: 'center',
         },
         // eslint-disable-next-line react/no-unstable-nested-components
         tabBarIcon: ({ focused }) => (
@@ -194,22 +188,13 @@ const styles = StyleSheet.create({
     marginHorizontal: 0,
   },
   iconContainer: {
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 20,
-  },
-  iconFocused: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-  },
-  iconUnfocused: {
-    padding: 8,
   },
   iconText: {
-    marginLeft: 6,
+    marginTop: 4,
     fontFamily: 'SpaceGrotesk-Bold',
-    fontSize: 10,
+    fontSize: 9,
     fontWeight: '700',
   },
 });

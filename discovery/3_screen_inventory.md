@@ -162,6 +162,42 @@ Across the design templates, the active design token palette uses the Material 3
   * Multi-signal widgets showing environmental status and device key logs.
   * **v2.0 Update**: Guardian SMS is dispatched immediately on SOS trigger with last MongoDB-stored GPS coordinates.
 
+### 3.2.16 unified_safety_hub
+* **Asset Location**: `Connify/src/screens/UnifiedSafetyHubScreen.tsx`
+* **Client Target**: Mobile App
+* **Purpose**: Centralized command center for safety tools including Fake Call, Emergency Contacts, and Siren.
+* **Key Components**: Grid menu of safety tools, SOS slider, active guardian status, offline sync queue indicator.
+
+### 3.2.17 emergency_contacts
+* **Asset Location**: `Connify/src/screens/EmergencyContactsScreen.tsx`
+* **Client Target**: Mobile App
+* **Purpose**: Manage primary emergency guardians and contacts.
+* **Key Components**: List of assigned guardians, "Add New Contact" FAB.
+
+### 3.2.18 fake_call
+* **Asset Location**: `Connify/src/screens/FakeCallScreen.tsx`
+* **Client Target**: Mobile App
+* **Purpose**: Simulates an incoming call to deter potential threats.
+* **Key Components**: Caller ID configuration, timer delay settings (e.g. 5s, 30s), active call simulation UI.
+
+### 3.2.19 government_emergency_numbers
+* **Asset Location**: `Connify/src/screens/GovernmentEmergencyNumbersScreen.tsx`
+* **Client Target**: Mobile App
+* **Purpose**: Directory of local/national government emergency lines (Police, Ambulance, Fire, Women's Helpline).
+* **Key Components**: Searchable list of numbers with one-tap dialing.
+
+### 3.2.20 offline_emergency
+* **Asset Location**: `Connify/src/screens/OfflineEmergencyScreen.tsx`
+* **Client Target**: Mobile App
+* **Purpose**: Fallback safety operations when device has no internet connectivity.
+* **Key Components**: SMS fallback dispatch to guardians, Bluetooth LE broadcast instructions.
+
+### 3.2.21 women_safety
+* **Asset Location**: `Connify/src/screens/WomenSafetyScreen.tsx`
+* **Client Target**: Mobile App
+* **Purpose**: Specialized safety toolkit.
+* **Key Components**: High-priority SOS dispatch, discreet alerts, trusted guardian rapid sharing.
+
 ---
 
 ## 3.3 Web Portal / Desktop Landing Pages

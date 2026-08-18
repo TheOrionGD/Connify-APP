@@ -38,9 +38,9 @@ export default function CreateRequestScreen({ navigation }: any) {
   const { colors } = useTheme();
   const startRequest = useEpisodeStore((state) => state.startRequest);
   const { latitude, longitude } = useLocationStore();
-  const [selectedCategory, setSelectedCategory] = useState<CategoryType | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<CategoryType | null>('General SOS');
   const [urgency, setUrgency] = useState<number>(3);
-  const [context, setContext] = useState('');
+  const [context, setContext] = useState('I need immediate assistance at my current location.');
   const [loading, setLoading] = useState(false);
 
   const categories: { name: CategoryType; icon: string }[] = [
@@ -236,13 +236,14 @@ export default function CreateRequestScreen({ navigation }: any) {
           <View style={styles.urgencyRow}>
             {[1, 2, 3, 4, 5].map((val) => {
               const isSelected = val === urgency;
+              const isCriticalSelected = isSelected && val === 5;
               return (
                 <TouchableOpacity
                   key={val}
                   style={[
                     styles.urgencyPill,
                     { backgroundColor: colors.surfaceContainerLowest, borderColor: colors.outline },
-                    isSelected ? { backgroundColor: colors.primary, borderColor: colors.primary } : null,
+                    isSelected ? { backgroundColor: isCriticalSelected ? '#EF4444' : colors.primary, borderColor: isCriticalSelected ? '#EF4444' : colors.primary } : null,
                   ]}
                   onPress={() => setUrgency(val)}
                 >

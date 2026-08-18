@@ -72,10 +72,16 @@ These files contain the academic, mathematical, and architectural background con
 
 ## 2.5 Integration Test Suites (v2.0)
 
-| Test Suite | Path | Tests | Status |
-|---|---|---|---|
-| `symmetricVerificationPipeline.test.ts` | `backend/tests/` | 10 | ✅ PASSED |
-| `harmlessnessSystem.test.ts` | `backend/tests/` | 6 | ✅ PASSED |
-| `locationWatchdog.test.ts` | `backend/tests/` | 6 | ✅ PASSED |
-| `profileMigration.test.ts` | `backend/tests/` | 5 | ✅ PASSED |
-| **Total** | | **27** | **✅ 100%** |
+| Test Suite | Path | Status |
+|---|---|---|
+| `adminAuth.test.ts` | `backend/tests/` | ✅ PASSED |
+| `allEndpoints.test.ts` | `backend/tests/` | ✅ PASSED |
+| `CapsuleController.test.ts` | `backend/tests/` | ✅ PASSED |
+| `deviceChallenge.test.ts` | `backend/tests/` | ✅ PASSED |
+| `deviceRegistration.test.ts` | `backend/tests/` | ✅ PASSED |
+| `e2eJourney.test.ts` | `backend/tests/` | ✅ PASSED |
+| `harmlessnessSystem.test.ts` | `backend/tests/` | ✅ PASSED |
+| `locationWatchdog.test.ts` | `backend/tests/` | ✅ PASSED |
+| `profileMigration.test.ts` | `backend/tests/` | ✅ PASSED |
+| `symmetricVerificationPipeline.test.ts` | `backend/tests/` | ✅ PASSED |
+| **Total** | | **✅ 100%** |

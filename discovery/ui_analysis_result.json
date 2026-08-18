@@ -748,5 +748,71 @@
     ],
     "colors": {},
     "iconCount": 10
+  },
+  {
+    "folderName": "unified_safety_hub",
+    "hasHtml": false,
+    "hasPng": false,
+    "title": "Unified Safety Hub",
+    "icons": ["security", "phone", "volume_up", "warning"],
+    "buttons": ["EMERGENCY CONTACTS", "FAKE CALL", "GOVERNMENT NUMBERS", "OFFLINE MODE", "WOMEN SAFETY"],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 4
+  },
+  {
+    "folderName": "emergency_contacts",
+    "hasHtml": false,
+    "hasPng": false,
+    "title": "Emergency Contacts",
+    "icons": ["person_add", "phone"],
+    "buttons": ["ADD NEW CONTACT"],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 2
+  },
+  {
+    "folderName": "fake_call",
+    "hasHtml": false,
+    "hasPng": false,
+    "title": "Fake Call Simulator",
+    "icons": ["call", "timer"],
+    "buttons": ["START CALL IN 5S", "START CALL IN 30S", "CANCEL"],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 2
+  },
+  {
+    "folderName": "government_emergency_numbers",
+    "hasHtml": false,
+    "hasPng": false,
+    "title": "Government Emergency Numbers",
+    "icons": ["local_police", "local_hospital", "local_fire_department"],
+    "buttons": ["CALL"],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 3
+  },
+  {
+    "folderName": "offline_emergency",
+    "hasHtml": false,
+    "hasPng": false,
+    "title": "Offline Emergency",
+    "icons": ["wifi_off", "bluetooth", "sms"],
+    "buttons": ["DISPATCH SMS SOS"],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 3
+  },
+  {
+    "folderName": "women_safety",
+    "hasHtml": false,
+    "hasPng": false,
+    "title": "Women Safety",
+    "icons": ["female", "share_location", "volume_up"],
+    "buttons": ["DISCREET ALERT", "SHARE LIVE LOCATION"],
+    "inputs": [],
+    "colors": {},
+    "iconCount": 3
   }
 ]
