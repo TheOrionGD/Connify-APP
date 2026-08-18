@@ -12,6 +12,7 @@ import {
   Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from '../../theme';
 import { useAuthStore } from '../../stores/authStore';
@@ -25,6 +26,7 @@ export default function SettingsScreen({ navigation }: any) {
   const [googleLoading, setGoogleLoading] = useState(false);
 
   const isDarkMode = themeMode === 'dark';
+  const tabBarHeight = useBottomTabBarHeight();
 
   // Derive display name cleanly based on explicit user anonymization and profile setup state
   const isAnonymous = user?.isAnonymous ?? false;
@@ -92,7 +94,7 @@ export default function SettingsScreen({ navigation }: any) {
         />
       </View>
 
-      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={[styles.container, { paddingBottom: tabBarHeight + 16 }]} showsVerticalScrollIndicator={false}>
         {/* Profile Card */}
         <View style={[styles.profileCard, { backgroundColor: colors.surfaceContainerLowest, borderColor: colors.outline }]}>
           <View style={styles.profileHeader}>

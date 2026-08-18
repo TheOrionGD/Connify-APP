@@ -433,8 +433,8 @@ export const useAuthStore = create<AuthState>()(
           const currentProfile = get().userProfile;
           
           const nameParts = (user.displayName || '').split(' ');
-          const firstName = nameParts[0] || currentProfile?.firstName || 'Google';
-          const lastName = nameParts.slice(1).join(' ') || currentProfile?.lastName || 'User';
+          const firstName = currentProfile?.firstName || nameParts[0] || 'Google';
+          const lastName = currentProfile?.lastName || nameParts.slice(1).join(' ') || 'User';
           
           try {
             const upsertRes = await profileApi.upsertProfile({

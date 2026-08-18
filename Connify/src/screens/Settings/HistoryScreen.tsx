@@ -6,6 +6,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { theme, useTheme } from '../../theme';
 import { StandardCard } from '../../components/cards/StandardCard';
@@ -24,13 +25,27 @@ export default function HistoryScreen({ navigation }: any) {
   const { colors } = useTheme();
   // Real history storage (empty until user creates/resolves real episodes)
   const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
+  const tabBarHeight = useBottomTabBarHeight();
 
   useEffect(() => {
     const loadHistory = async () => {
       try {
         const historyStr = await AsyncStorage.getItem('CONNIFY_EPISODE_HISTORY');
         if (historyStr) {
-          setHistoryItems(JSON.parse(historyStr));
+          const parsed = JSON.parse(historyStr) as HistoryItem[];
+          
+          // Implement cache invalidation for stale mock/fixture data
+          const validItems = parsed.filter(item => {
+            const itemStr = JSON.stringify(item).toLowerCase();
+            return !itemStr.includes('dr.') && !itemStr.includes('provider');
+          });
+          
+          if (validItems.length !== parsed.length) {
+            // Update cache if stale items were removed
+            await AsyncStorage.setItem('CONNIFY_EPISODE_HISTORY', JSON.stringify(validItems));
+          }
+          
+          setHistoryItems(validItems);
         }
       } catch (err) {
         console.warn('Failed to load local history:', err);
@@ -50,7 +65,7 @@ export default function HistoryScreen({ navigation }: any) {
         <Icon name="security" size={22} color={colors.onBackground} />
       </View>
 
-      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={[styles.container, { paddingBottom: tabBarHeight + 16 }]} showsVerticalScrollIndicator={false}>
         <View style={styles.titleSection}>
           <Text style={[styles.mainTitle, { color: colors.onBackground }]}>Cryptographic Audit Trail</Text>
           <Text style={[styles.subtitle, { color: colors.onSurfaceVariant }]}>

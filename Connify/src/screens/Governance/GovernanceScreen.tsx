@@ -9,6 +9,7 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { theme, useTheme } from '../../theme';
@@ -20,6 +21,7 @@ import { StandardButton } from '../../components/buttons/StandardButton';
 export default function GovernanceScreen({ navigation }: any) {
   const { colors } = useTheme();
   const { deviceId, ensureDeviceId } = useAuthStore();
+  const tabBarHeight = useBottomTabBarHeight();
 
   const [loadingStats, setLoadingStats] = useState(false);
   const [dashboardData, setDashboardData] = useState<any>(null);
@@ -132,7 +134,7 @@ export default function GovernanceScreen({ navigation }: any) {
         </TouchableOpacity>
       </View>
 
-      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={[styles.container, { paddingBottom: tabBarHeight + 16 }]} showsVerticalScrollIndicator={false}>
         {/* Core Guarantee Card */}
         <View style={[styles.heroCard, { backgroundColor: colors.surfaceContainerLowest, borderColor: colors.outline }]}>
           <Icon name="verified-user" size={36} color={colors.primary} />

@@ -81,7 +81,17 @@ export default function NearbyRequestsScreen({ navigation }: any) {
       try {
         const cached = await AsyncStorage.getItem('CACHED_NEARBY_FEED');
         if (cached) {
-          setRequests(JSON.parse(cached));
+          const parsed = JSON.parse(cached) as HelpRequest[];
+          const validCached = parsed.filter(req => {
+            const reqStr = JSON.stringify(req).toLowerCase();
+            return !reqStr.includes('dr.') && !reqStr.includes('provider');
+          });
+          
+          if (validCached.length !== parsed.length) {
+            await AsyncStorage.setItem('CACHED_NEARBY_FEED', JSON.stringify(validCached));
+          }
+          
+          setRequests(validCached);
           setIsOfflineCache(true);
         }
       } catch (err) {
@@ -95,7 +105,7 @@ export default function NearbyRequestsScreen({ navigation }: any) {
     try {
       const res = await episodeApi.getNearbyEpisodes(latitude, longitude, 10000);
       if (res.success && res.data && res.data.length > 0) {
-        const apiRequests: HelpRequest[] = res.data.map((ep: any) => ({
+        const rawRequests: HelpRequest[] = res.data.map((ep: any) => ({
           id: ep.id,
           category: ep.category ? (ep.category.charAt(0).toUpperCase() + ep.category.slice(1) + ' Request') : 'Emergency Request',
           icon: getCategoryIcon(ep.category),
@@ -104,6 +114,13 @@ export default function NearbyRequestsScreen({ navigation }: any) {
           timeAgo: 'Live Broadcast',
           details: `Zero-trust proximity verification required. Tap Offer Support to initialize cryptographic handshake.`,
         }));
+        
+        // Filter out any backend fixture data containing mock doctor/provider info
+        const apiRequests = rawRequests.filter(req => {
+          const reqStr = JSON.stringify(req).toLowerCase();
+          return !reqStr.includes('dr.') && !reqStr.includes('provider');
+        });
+        
         setRequests(apiRequests);
         // Save to cache
         AsyncStorage.setItem('CACHED_NEARBY_FEED', JSON.stringify(apiRequests)).catch(e => console.warn('Cache save failed', e));
@@ -117,7 +134,17 @@ export default function NearbyRequestsScreen({ navigation }: any) {
       try {
         const cached = await AsyncStorage.getItem('CACHED_NEARBY_FEED');
         if (cached) {
-          setRequests(JSON.parse(cached));
+          const parsed = JSON.parse(cached) as HelpRequest[];
+          const validCached = parsed.filter(req => {
+            const reqStr = JSON.stringify(req).toLowerCase();
+            return !reqStr.includes('dr.') && !reqStr.includes('provider');
+          });
+          
+          if (validCached.length !== parsed.length) {
+            await AsyncStorage.setItem('CACHED_NEARBY_FEED', JSON.stringify(validCached));
+          }
+          
+          setRequests(validCached);
           setIsOfflineCache(true);
         } else {
           setRequests([]);

@@ -9,6 +9,7 @@ import {
   Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from '../theme';
 import { useLocationStore } from '../stores/locationStore';
@@ -36,6 +37,7 @@ export default function UnifiedSafetyHubScreen({ navigation }: any) {
   const [fakeTimer, setFakeTimer] = useState<number>(0);
   const [queueCount, setQueueCount] = useState(0);
   const [contacts, setContacts] = useState<EmergencyContact[]>([]);
+  const tabBarHeight = useBottomTabBarHeight();
 
   // Parse guardian details from userProfile
   let guardianData: { name: string; phone: string; relationship: string } | null = null;
@@ -171,7 +173,7 @@ export default function UnifiedSafetyHubScreen({ navigation }: any) {
         </View>
       </View>
 
-      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={[styles.container, { paddingBottom: tabBarHeight + 16 }]} showsVerticalScrollIndicator={false}>
         {/* Panic Alarm Siren */}
         <TouchableOpacity
           style={[styles.sirenCard, { backgroundColor: sirenActive ? '#EF4444' : colors.surfaceContainerLowest, borderColor: colors.primary }]}

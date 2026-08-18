@@ -9,6 +9,7 @@ import {
   Vibration,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useTheme, actionColors } from '../../theme';
 import { SOSButton } from '../../components/buttons/SOSButton';
 import { StandardCard } from '../../components/cards/StandardCard';
@@ -45,6 +46,8 @@ export default function DashboardScreen({ navigation }: any) {
     completeEpisode,
     tickCountdown,
   } = useEpisodeStore();
+
+  const tabBarHeight = useBottomTabBarHeight();
 
   useEffect(() => {
     startWatchingLocation();
@@ -115,13 +118,19 @@ export default function DashboardScreen({ navigation }: any) {
         </View>
         <TouchableOpacity
           style={styles.emergencyBadge}
-          onPress={() => navigation.navigate('EmergencySOS')}
+          onPress={() => {
+            if (currentState !== 'active') {
+              startRequest('Security', 5, 'Emergency SOS Triggered', latitude || 0, longitude || 0);
+              useEpisodeStore.getState().activateEpisode('local-sos-channel', 5);
+            }
+            navigation.navigate('EmergencySOS');
+          }}
         >
           <Text style={styles.emergencyBadgeText}>EMERGENCY</Text>
         </TouchableOpacity>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={[styles.scrollContainer, { paddingBottom: tabBarHeight + 16 }]} showsVerticalScrollIndicator={false}>
         {/* Role Toggle Switcher */}
         <Animated.View entering={FadeInDown.duration(400).delay(100)} style={[styles.roleContainer, { backgroundColor: colors.surfaceContainerLowest, borderColor: colors.outline }]}>
           <TouchableOpacity

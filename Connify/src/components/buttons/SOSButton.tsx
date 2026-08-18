@@ -273,7 +273,9 @@ const styles = StyleSheet.create({
     fontSize: 52,
     color: '#FFFFFF',
     letterSpacing: 2,
-    textShadow: '0px 2px 4px rgba(0, 0, 0, 0.4)',
+    textShadowColor: 'rgba(0, 0, 0, 0.4)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   holdBadge: {
     backgroundColor: 'rgba(0, 0, 0, 0.3)',
