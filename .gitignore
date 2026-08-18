@@ -224,3 +224,11 @@ env/
 # 9. App Builds
 # ------------------------------------------------------------------------------
 *.apk
+
+# Keystores
+Connify/android/app/connify-release-key*
+*.jks
+*.keystore
+
+# Discovery Images
+discovery/image*.png
