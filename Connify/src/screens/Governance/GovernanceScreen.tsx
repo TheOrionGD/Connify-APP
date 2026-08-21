@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   StyleSheet,
   Text,
@@ -30,7 +30,7 @@ export default function GovernanceScreen({ navigation }: any) {
   const [verifyingDevice, setVerifyingDevice] = useState(false);
   const [deviceVerified, setDeviceVerified] = useState<boolean | null>(null);
 
-  const fetchLiveGovernanceData = async () => {
+  const fetchLiveGovernanceData = useCallback(async () => {
     setLoadingStats(true);
     try {
       let currentDevId = deviceId;
@@ -60,12 +60,19 @@ export default function GovernanceScreen({ navigation }: any) {
     } finally {
       setLoadingStats(false);
     }
-  };
+  }, [deviceId, ensureDeviceId]);
 
   useEffect(() => {
     fetchLiveGovernanceData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [fetchLiveGovernanceData]);
+
+  // Add focus listener to refresh data whenever tab is viewed
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      fetchLiveGovernanceData();
+    });
+    return unsubscribe;
+  }, [navigation, fetchLiveGovernanceData]);
 
   const handleDeviceChallengeVerify = async () => {
     setVerifyingDevice(true);
@@ -152,29 +159,29 @@ export default function GovernanceScreen({ navigation }: any) {
             <ActivityIndicator color={colors.primary} size="small" style={{ padding: 12 }} />
           ) : (
             <>
-              <View style={styles.statsRow}>
-                <View style={styles.statBox}>
+              <View style={styles.statsGrid}>
+                <View style={[styles.statsCard, { backgroundColor: colors.surfaceContainerLowest, borderColor: colors.outline }]}>
                   <Text style={[styles.statNum, { color: colors.onBackground }]}>
                     {userEpisodesCount}
                   </Text>
                   <Text style={[styles.statLabel, { color: colors.onSurfaceVariant }]}>YOUR EPISODES</Text>
                 </View>
 
-                <View style={styles.statBox}>
+                <View style={[styles.statsCard, { backgroundColor: colors.surfaceContainerLowest, borderColor: colors.outline }]}>
                   <Text style={[styles.statNum, { color: colors.onBackground }]}>
                     {networkEpisodesCount}
                   </Text>
                   <Text style={[styles.statLabel, { color: colors.onSurfaceVariant }]}>NETWORK TOTAL</Text>
                 </View>
 
-                <View style={styles.statBox}>
+                <View style={[styles.statsCard, { backgroundColor: colors.surfaceContainerLowest, borderColor: colors.outline }]}>
                   <Text style={[styles.statNum, { color: colors.onBackground }]}>
                     {displaySuccessRate}%
                   </Text>
                   <Text style={[styles.statLabel, { color: colors.onSurfaceVariant }]}>SUCCESS RATE</Text>
                 </View>
 
-                <View style={styles.statBox}>
+                <View style={[styles.statsCard, { backgroundColor: colors.surfaceContainerLowest, borderColor: colors.outline }]}>
                   <Text style={[styles.statNum, { color: auditChainData?.isChainValid !== false ? '#10B981' : '#EF4444' }]}>
                     {auditChainData?.isChainValid !== false ? 'VALID' : 'FAILED'}
                   </Text>
@@ -338,6 +345,15 @@ const styles = StyleSheet.create({
     borderWidth: theme.spacing.borderWidthLight,
     borderRadius: theme.spacing.radiusDefault,
     padding: 14,
+    gap: 8,
+    width: '48%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
     gap: 12,
   },
   statsRow: {

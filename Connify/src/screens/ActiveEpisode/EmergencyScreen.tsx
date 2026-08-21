@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { theme, actionColors } from '../../theme';
+import { theme, actionColors, useTheme } from '../../theme';
 import { useEpisodeStore } from '../../stores/episodeStore';
 import { StandardButton } from '../../components/buttons/StandardButton';
 import { DialogueModal } from '../../components/common/DialogueModal';
@@ -19,6 +19,7 @@ import { socketService } from '../../services/socketService';
 import { capsuleApi } from '../../services/api/capsuleApi';
 
 export default function EmergencyScreen({ navigation }: any) {
+  const { colors } = useTheme();
   const {
     currentState,
     timeLeft,
@@ -89,8 +90,8 @@ export default function EmergencyScreen({ navigation }: any) {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.header}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: actionColors.actionRed, borderBottomColor: actionColors.actionRed }]}>
         <Icon
           name="arrow-back"
           size={24}
@@ -121,14 +122,14 @@ export default function EmergencyScreen({ navigation }: any) {
         {/* Timer Box */}
         <Animated.View entering={FadeInDown.duration(400).delay(200)}>
           <GradientView
-            colors={['#161C2E', '#090D16']}
-            style={styles.timerCard}
+            colors={[colors.surfaceContainer, colors.surface]}
+            style={[styles.timerCard, { borderColor: colors.outline }]}
           >
-            <Text style={styles.timerLabel}>SAFE TIME REMAINING</Text>
-            <Text style={styles.timerText}>{formatTime(timeLeft)}</Text>
-            <TouchableOpacity style={styles.extendPill} onPress={() => extendTime(5)}>
-              <Icon name="add-alarm" size={18} color={theme.colors.onBackground} />
-              <Text style={styles.extendText}>EXTEND +5 MINUTES</Text>
+            <Text style={[styles.timerLabel, { color: colors.onSurfaceVariant }]}>SAFE TIME REMAINING</Text>
+            <Text style={[styles.timerText, { color: colors.onBackground }]}>{formatTime(timeLeft)}</Text>
+            <TouchableOpacity style={[styles.extendPill, { backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline }]} onPress={() => extendTime(5)}>
+              <Icon name="add-alarm" size={18} color={colors.onBackground} />
+              <Text style={[styles.extendText, { color: colors.onBackground }]}>EXTEND +5 MINUTES</Text>
             </TouchableOpacity>
           </GradientView>
         </Animated.View>
@@ -136,14 +137,14 @@ export default function EmergencyScreen({ navigation }: any) {
         {/* Proximity Verification Quick Action */}
         <Animated.View entering={FadeInDown.duration(400).delay(300)}>
           <GradientView
-            colors={['#1E2638', '#0E1320']}
-            style={styles.actionCard}
+            colors={[colors.surfaceContainer, colors.surface]}
+            style={[styles.actionCard, { borderColor: colors.outline }]}
           >
             <View style={styles.actionHeader}>
-              <Icon name="qr-code-scanner" size={24} color={theme.colors.primary} />
-              <Text style={styles.actionTitle}>Identity Verification Handshake</Text>
+              <Icon name="qr-code-scanner" size={24} color={colors.primary} />
+              <Text style={[styles.actionTitle, { color: colors.onBackground }]}>Identity Verification Handshake</Text>
             </View>
-            <Text style={styles.actionSub}>
+            <Text style={[styles.actionSub, { color: colors.onSurfaceVariant }]}>
               Perform zero-trust QR or cryptographic handshake when responder arrives.
             </Text>
             <TouchableOpacity
@@ -163,26 +164,26 @@ export default function EmergencyScreen({ navigation }: any) {
         {/* Offline Fallback Modules */}
         <Animated.View entering={FadeInDown.duration(400).delay(400)}>
           <GradientView
-            colors={['#1E2638', '#0E1320']}
-            style={styles.actionCard}
+            colors={[colors.surfaceContainer, colors.surface]}
+            style={[styles.actionCard, { borderColor: colors.outline }]}
           >
             <View style={styles.actionHeader}>
-              <Icon name="wifi-off" size={24} color="#94A3B8" />
-              <Text style={styles.actionTitle}>Offline Fallback Options</Text>
+              <Icon name="wifi-off" size={24} color={colors.onSurfaceVariant} />
+              <Text style={[styles.actionTitle, { color: colors.onBackground }]}>Offline Fallback Options</Text>
             </View>
             <TouchableOpacity
-              style={[styles.handshakeButton, { backgroundColor: '#161C2E', borderColor: 'rgba(255, 255, 255, 0.12)' }]}
+              style={[styles.handshakeButton, { backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline }]}
               onPress={() => navigation.navigate('GovernmentEmergencyNumbers')}
             >
               <Icon name="local-police" size={16} color="#3B82F6" />
-              <Text style={[styles.handshakeButtonText, { color: '#FFFFFF' }]}>GOVERNMENT AUTHORITIES</Text>
+              <Text style={[styles.handshakeButtonText, { color: colors.onBackground }]}>GOVERNMENT AUTHORITIES</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.handshakeButton, { backgroundColor: '#161C2E', borderColor: 'rgba(255, 255, 255, 0.12)', marginTop: 8 }]}
+              style={[styles.handshakeButton, { backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline, marginTop: 8 }]}
               onPress={() => navigation.navigate('EmergencyContacts')}
             >
               <Icon name="contact-phone" size={16} color="#10B981" />
-              <Text style={[styles.handshakeButtonText, { color: '#FFFFFF' }]}>PERSONAL CONTACTS</Text>
+              <Text style={[styles.handshakeButtonText, { color: colors.onBackground }]}>PERSONAL CONTACTS</Text>
             </TouchableOpacity>
           </GradientView>
         </Animated.View>
@@ -214,7 +215,6 @@ export default function EmergencyScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#050506',
   },
   header: {
     height: 56,
@@ -222,9 +222,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: theme.spacing.containerPadding,
-    backgroundColor: '#DC2626',
     borderBottomWidth: 1,
-    borderBottomColor: '#EF4444',
   },
   headerTitle: {
     fontFamily: theme.fontFamilies.technical.bold,
@@ -277,7 +275,6 @@ const styles = StyleSheet.create({
   },
   timerCard: {
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
     borderRadius: 16,
     padding: 20,
     alignItems: 'center',
@@ -286,22 +283,18 @@ const styles = StyleSheet.create({
   timerLabel: {
     fontFamily: theme.fontFamilies.technical.bold,
     fontSize: 12,
-    color: '#94A3B8',
     letterSpacing: 1.2,
   },
   timerText: {
     fontFamily: theme.fontFamilies.technical.bold,
     fontSize: 48,
-    color: '#FFFFFF',
     fontWeight: '800',
   },
   extendPill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#161C2E',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.12)',
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 20,
@@ -309,11 +302,9 @@ const styles = StyleSheet.create({
   extendText: {
     fontFamily: theme.fontFamilies.technical.bold,
     fontSize: 12,
-    color: '#FFFFFF',
   },
   actionCard: {
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
     borderRadius: 16,
     padding: 18,
     gap: 12,
@@ -326,18 +317,14 @@ const styles = StyleSheet.create({
   actionTitle: {
     fontFamily: theme.fontFamilies.primary.bold,
     fontSize: 15,
-    color: '#FFFFFF',
   },
   actionSub: {
     fontFamily: theme.fontFamilies.secondary.regular,
     fontSize: 13,
-    color: '#94A3B8',
     lineHeight: 18,
   },
   handshakeButton: {
-    backgroundColor: actionColors.actionRed,
     borderWidth: 1,
-    borderColor: '#EF4444',
     paddingVertical: 14,
     borderRadius: 12,
     flexDirection: 'row',
@@ -347,7 +334,6 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   handshakeButtonText: {
-    color: actionColors.actionButtonText,
     fontFamily: theme.fontFamilies.technical.bold,
     fontSize: 12,
     letterSpacing: 0.5,

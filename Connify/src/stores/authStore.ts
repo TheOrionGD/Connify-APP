@@ -429,13 +429,12 @@ export const useAuthStore = create<AuthState>()(
           }
           await get().fetchProfile();
 
-          // Sync Google profile data if missing
+          // Always sync Google profile data (displayName, email) to database.
+          // The API requires both names, so single-word display names use User as a fallback.
+          const nameParts = (user.displayName || 'Google User').trim().split(/\s+/);
+          const firstName = nameParts[0] || 'Google';
+          const lastName = nameParts.slice(1).join(' ') || 'User';
           const currentProfile = get().userProfile;
-          
-          const nameParts = (user.displayName || '').split(' ');
-          const firstName = currentProfile?.firstName || nameParts[0] || 'Google';
-          const lastName = currentProfile?.lastName || nameParts.slice(1).join(' ') || 'User';
-          
           try {
             const upsertRes = await profileApi.upsertProfile({
               firstName,
@@ -447,6 +446,9 @@ export const useAuthStore = create<AuthState>()(
               isAnonymous: user.isAnonymous,
             });
             if (upsertRes.success) {
+              if (upsertRes.data) {
+                set({ userProfile: upsertRes.data, hasCompletedProfile: true });
+              }
               await get().fetchProfile();
             }
           } catch (err) {

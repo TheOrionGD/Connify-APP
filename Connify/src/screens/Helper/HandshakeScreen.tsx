@@ -35,6 +35,15 @@ import SignalFlow from '../../components/animations/SignalFlow';
 import LayeredSuccess from '../../components/animations/LayeredSuccess';
 import Animated, { useSharedValue, useAnimatedStyle, withSequence, withTiming } from 'react-native-reanimated';
 
+/** Pure JS UUIDv4 generator — no native crypto module required */
+const generateUUIDv4 = (): string => {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+};
+
 const encodeBase64Url = (str: string) => {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
     let result = '';
@@ -95,7 +104,7 @@ export default function HandshakeScreen({ route, navigation }: any) {
       const payload = {
         episodeId,
         requesterDeviceId: deviceId,
-        nonce: crypto.randomUUID(),
+        nonce: generateUUIDv4(),
         exp: Math.floor(Date.now() / 1000) + 90
       };
       

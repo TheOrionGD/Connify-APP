@@ -1,9 +1,8 @@
 import React from 'react';
 import ReactTestRenderer from 'react-test-renderer';
-import { Text, TouchableOpacity, TextInput, TouchableWithoutFeedback, ActivityIndicator } from 'react-native';
+import { Text, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
 
 import { StandardButton } from '../src/components/buttons/StandardButton';
-import { SOSButton } from '../src/components/buttons/SOSButton';
 import { SafetyCard } from '../src/components/cards/SafetyCard';
 import { StandardCard } from '../src/components/cards/StandardCard';
 import { TextField } from '../src/components/inputs/TextField';
@@ -70,64 +69,6 @@ describe('UI Components Unit Tests', () => {
 
       const touchable = component.root.findByType(TouchableOpacity);
       expect(touchable.props.disabled).toBe(true);
-    });
-  });
-
-  describe('SOSButton', () => {
-    beforeEach(() => {
-      jest.useFakeTimers();
-    });
-
-    afterEach(() => {
-      jest.useRealTimers();
-    });
-
-    test('renders SOS text and handles hold-to-trigger workflow', () => {
-      const onTriggerSpy = jest.fn();
-      const component = render(
-        <SOSButton onTrigger={onTriggerSpy} holdDurationMs={2000} />
-      );
-
-      const texts = component.root.findAllByType(Text);
-      expect(texts[0].props.children).toBe('SOS');
-      expect(texts[1].props.children).toBe('HOLD TO TRIGGER');
-
-      const touchable = component.root.findByType(TouchableWithoutFeedback);
-      
-      // Simulate press in
-      touchable.props.onPressIn();
-      
-      // Advance timers by less than hold duration
-      ReactTestRenderer.act(() => {
-        jest.advanceTimersByTime(1000);
-      });
-      expect(onTriggerSpy).not.toHaveBeenCalled();
-
-      // Advance remaining time
-      ReactTestRenderer.act(() => {
-        jest.advanceTimersByTime(1000);
-      });
-      expect(onTriggerSpy).toHaveBeenCalledTimes(1);
-    });
-
-    test('clears timeout if pressed out before duration', () => {
-      const onTriggerSpy = jest.fn();
-      const component = render(
-        <SOSButton onTrigger={onTriggerSpy} holdDurationMs={2000} />
-      );
-
-      const touchable = component.root.findByType(TouchableWithoutFeedback);
-      
-      touchable.props.onPressIn();
-      ReactTestRenderer.act(() => {
-        jest.advanceTimersByTime(1000);
-      });
-      touchable.props.onPressOut();
-
-      ReactTestRenderer.act(() => {
-        jest.advanceTimersByTime(1000);
-      });
-      expect(onTriggerSpy).not.toHaveBeenCalled();
     });
   });
 

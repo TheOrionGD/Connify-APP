@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -37,34 +37,26 @@ type TabBarIconProps = {
 
 const TabBarIcon = ({ focused, routeName, colors }: TabBarIconProps) => {
   let iconName = 'help-outline';
-  let label = '';
   if (routeName === 'Dashboard') { 
     iconName = focused ? 'shield' : 'security'; 
-    label = 'HOME'; 
   }
   else if (routeName === 'SafetyHub') { 
     iconName = focused ? 'health-and-safety' : 'healing'; 
-    label = 'SAFETY'; 
   }
   else if (routeName === 'Respond') { 
     iconName = focused ? 'explore' : 'near-me'; 
-    label = 'RESPOND'; 
   }
   else if (routeName === 'History') { 
     iconName = focused ? 'history' : 'access-time'; 
-    label = 'HISTORY'; 
   }
   else if (routeName === 'Governance') { 
     iconName = focused ? 'gavel' : 'account-balance'; 
-    label = 'GOVERN'; 
   }
   else if (routeName === 'Settings') { 
     iconName = focused ? 'person' : 'person-outline'; 
-    label = 'PROFILE'; 
   }
 
   const isSafetyHub = routeName === 'SafetyHub';
-  const activeBgColor = isSafetyHub ? '#EC489920' : colors.primary + '20';
   const activeColor = isSafetyHub ? '#EC4899' : colors.primary;
 
   return (
@@ -74,9 +66,6 @@ const TabBarIcon = ({ focused, routeName, colors }: TabBarIconProps) => {
         size={24}
         color={focused ? activeColor : colors.onSurfaceVariant}
       />
-      <Text style={[styles.iconText, { color: focused ? activeColor : colors.onSurfaceVariant }]}>
-        {label}
-      </Text>
     </View>
   );
 };
@@ -93,14 +82,14 @@ function MainTabs() {
           backgroundColor: colors.surfaceContainerLowest,
           borderTopWidth: 1,
           borderTopColor: colors.outline,
-          height: 64,
+          height: 56,
           elevation: 8,
           shadowColor: '#000',
           shadowOffset: { width: 0, height: -2 },
           shadowOpacity: 0.1,
           shadowRadius: 4,
-          paddingBottom: 8,
-          paddingTop: 8,
+          paddingBottom: 4,
+          paddingTop: 4,
         },
         tabBarItemStyle: {
           justifyContent: 'center',
@@ -190,6 +179,8 @@ const styles = StyleSheet.create({
   iconContainer: {
     alignItems: 'center',
     justifyContent: 'center',
+    width: 32,
+    height: 32,
   },
   iconText: {
     marginTop: 4,

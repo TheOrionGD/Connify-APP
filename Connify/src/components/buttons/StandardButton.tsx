@@ -7,7 +7,7 @@ import {
   ViewStyle,
   TextStyle,
 } from 'react-native';
-import { theme, actionColors } from '../../theme';
+import { theme, actionColors, useTheme } from '../../theme';
 
 interface StandardButtonProps {
   title: string;
@@ -33,12 +33,53 @@ export const actionButtonStyle = StyleSheet.create({
 export const StandardButton: React.FC<StandardButtonProps> = ({
   title,
   onPress,
+  variant = 'primary',
   disabled = false,
   loading = false,
   style,
   textStyle,
   icon,
 }) => {
+  const { colors } = useTheme();
+
+  // Determine button styles based on variant
+  const getVariantStyles = () => {
+    switch (variant) {
+      case 'primary':
+        return {
+          backgroundColor: actionColors.actionRed,
+          borderColor: '#EF4444',
+          textColor: '#FFFFFF',
+        };
+      case 'secondary':
+        return {
+          backgroundColor: colors.surfaceContainerHigh,
+          borderColor: colors.outline,
+          textColor: colors.onBackground,
+        };
+      case 'dark':
+        return {
+          backgroundColor: '#161C2E',
+          borderColor: '#161C2E',
+          textColor: '#FFFFFF',
+        };
+      case 'outline':
+        return {
+          backgroundColor: 'transparent',
+          borderColor: colors.outline,
+          textColor: colors.onBackground,
+        };
+      default:
+        return {
+          backgroundColor: actionColors.actionRed,
+          borderColor: '#EF4444',
+          textColor: '#FFFFFF',
+        };
+    }
+  };
+
+  const variantStyles = getVariantStyles();
+
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -46,14 +87,17 @@ export const StandardButton: React.FC<StandardButtonProps> = ({
       activeOpacity={0.8}
       style={[
         styles.button,
-        actionButtonStyle.button,
+        {
+          backgroundColor: variantStyles.backgroundColor,
+          borderColor: variantStyles.borderColor,
+        },
         disabled && styles.disabledButton,
         style,
       ]}
     >
       {loading ? (
         <ActivityIndicator
-          color={actionColors.actionButtonText}
+          color={variantStyles.textColor}
           size="small"
         />
       ) : (
@@ -62,7 +106,9 @@ export const StandardButton: React.FC<StandardButtonProps> = ({
           <Text
             style={[
               styles.text,
-              actionButtonStyle.text,
+              {
+                color: variantStyles.textColor,
+              },
               disabled && styles.disabledText,
               icon ? styles.textWithIcon : null,
               textStyle,
@@ -85,11 +131,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: theme.spacing.containerPadding,
     borderWidth: theme.spacing.borderWidthHeavy,
-    borderColor: '#EF4444',
-    backgroundColor: actionColors.actionRed,
   },
   disabledButton: {
-    backgroundColor: actionColors.actionRed,
     opacity: 0.5,
   },
   text: {
@@ -97,10 +140,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     letterSpacing: 0.5,
-    color: actionColors.actionButtonText,
   },
   disabledText: {
-    color: '#000000',
     opacity: 0.7,
   },
   textWithIcon: {

@@ -5,13 +5,10 @@ import {
   View,
   ScrollView,
   TouchableOpacity,
-  Alert,
-  Vibration,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useTheme, actionColors } from '../../theme';
-import { SOSButton } from '../../components/buttons/SOSButton';
 import { StandardCard } from '../../components/cards/StandardCard';
 import { DialogueModal } from '../../components/common/DialogueModal';
 import { ProfileSetupModal } from '../../components/common/ProfileSetupModal';
@@ -41,7 +38,6 @@ export default function DashboardScreen({ navigation }: any) {
   const {
     currentState,
     timeLeft,
-    startRequest,
     extendTime,
     completeEpisode,
     tickCountdown,
@@ -73,22 +69,6 @@ export default function DashboardScreen({ navigation }: any) {
     };
   }, [currentState, tickCountdown]);
 
-  const triggerSOS = () => {
-    if (latitude === null || longitude === null || (latitude === 0 && longitude === 0)) {
-      Alert.alert('Location Resolving', 'Acquiring high-accuracy GPS fix. Please wait a moment before triggering emergency SOS.');
-      return;
-    }
-    Vibration.vibrate([0, 50, 100, 50]); // Subtle haptic pattern
-    setAlertTitle('Emergency Signal Broadcasted');
-    setAlertMessage(
-      'Your emergency alarm has been broadcasted to nearby verified responders and your registered emergency trust contacts.'
-    );
-    setOnAckCallback(() => () => {
-      startRequest('Security', 5, 'Immediate Safety Signal', latitude, longitude);
-    });
-    setAlertVisible(true);
-  };
-
   const handleImSafe = () => {
     completeEpisode();
     if (!hasCompletedProfile) {
@@ -116,18 +96,7 @@ export default function DashboardScreen({ navigation }: any) {
           <Icon name="security" size={24} color={colors.primary} />
           <Text style={[styles.headerText, { color: colors.primary }]}>Connify Safety</Text>
         </View>
-        <TouchableOpacity
-          style={styles.emergencyBadge}
-          onPress={() => {
-            if (currentState !== 'active') {
-              startRequest('Security', 5, 'Emergency SOS Triggered', latitude || 0, longitude || 0);
-              useEpisodeStore.getState().activateEpisode('local-sos-channel', 5);
-            }
-            navigation.navigate('EmergencySOS');
-          }}
-        >
-          <Text style={styles.emergencyBadgeText}>EMERGENCY</Text>
-        </TouchableOpacity>
+        <Icon name="people-outline" size={24} color={colors.primary} />
       </View>
 
       <ScrollView contentContainerStyle={[styles.scrollContainer, { paddingBottom: tabBarHeight + 16 }]} showsVerticalScrollIndicator={false}>
@@ -143,7 +112,7 @@ export default function DashboardScreen({ navigation }: any) {
             <Text
               style={[
                 styles.roleText,
-                activeMode === 'need-help' ? styles.roleTextActive : { color: colors.onSurfaceVariant },
+                activeMode === 'need-help' ? { color: '#FFFFFF' } : { color: colors.onSurfaceVariant },
               ]}
             >
               I NEED HELP
@@ -162,7 +131,7 @@ export default function DashboardScreen({ navigation }: any) {
             <Text
               style={[
                 styles.roleText,
-                activeMode === 'can-help' ? styles.roleTextActive : { color: colors.onSurfaceVariant },
+                activeMode === 'can-help' ? { color: '#FFFFFF' } : { color: colors.onSurfaceVariant },
               ]}
             >
               I CAN HELP
@@ -210,13 +179,13 @@ export default function DashboardScreen({ navigation }: any) {
             {currentState === 'active' ? (
               <Animated.View entering={FadeInDown.duration(400).delay(300)}>
                 <GradientView
-                  colors={['#1E2638', '#0E1320']}
-                  style={[styles.activeSessionCard, { borderWidth: 1, borderColor: colors.borderDark, borderRadius: 16, padding: 16 }]}
+                  colors={[colors.surfaceContainer, colors.surface]}
+                  style={[styles.activeSessionCard, { borderWidth: 1, borderColor: colors.outline, borderRadius: 16, padding: 16 }]}
                 >
                   <View style={styles.cardHeader}>
                     <View style={styles.cardHeaderTitle}>
                       <Icon name="error" size={22} color={colors.primary} />
-                      <Text style={styles.activeSessionText}>ACTIVE EMERGENCY EPISODE</Text>
+                      <Text style={[styles.activeSessionText, { color: colors.primary }]}>ACTIVE EMERGENCY EPISODE</Text>
                     </View>
                     <View style={styles.liveBadgeWrapper}>
                       <View style={styles.pulseContainer}>
@@ -255,11 +224,24 @@ export default function DashboardScreen({ navigation }: any) {
                 </GradientView>
               </Animated.View>
             ) : (
-              <Animated.View entering={FadeInDown.duration(400).delay(300)} style={styles.sosContainer}>
-                <SOSButton onTrigger={triggerSOS} />
-                <Text style={[styles.sosSubtext, { color: colors.onSurfaceVariant }]}>
-                  Press and hold SOS to dispatch emergency signal to nearest volunteer mesh & emergency contacts.
+              <Animated.View
+                entering={FadeInDown.duration(400).delay(300)}
+                style={[styles.connectionHelpContainer, { backgroundColor: colors.surfaceContainerLowest, borderColor: colors.outline }]}
+              >
+                <View style={[styles.connectionHelpIcon, { backgroundColor: colors.surfaceContainerHigh }]}>
+                  <Icon name="people" size={30} color={colors.primary} />
+                </View>
+                <Text style={[styles.connectionHelpTitle, { color: colors.onBackground }]}>Connect with a nearby helper</Text>
+                <Text style={[styles.connectionHelpText, { color: colors.onSurfaceVariant }]}> 
+                  Share what kind of assistance you need and connect with a stranger nearby.
                 </Text>
+                <TouchableOpacity
+                  style={[styles.connectionHelpButton, { backgroundColor: colors.primary }]}
+                  onPress={() => navigation.navigate('CreateRequest')}
+                >
+                  <Text style={styles.connectionHelpButtonText}>REQUEST NEARBY HELP</Text>
+                  <Icon name="arrow-forward" size={18} color="#FFFFFF" />
+                </TouchableOpacity>
               </Animated.View>
             )}
           </>
@@ -267,7 +249,7 @@ export default function DashboardScreen({ navigation }: any) {
         ) : (
           <Animated.View entering={FadeInDown.duration(400).delay(300)}>
             <GradientView
-              colors={['#161C2E', '#090D16']}
+              colors={[colors.surfaceContainer, colors.surface]}
               style={[styles.emptyStateContainer, { borderColor: colors.outline }]}
             >
               <Icon name="radar" size={56} color={colors.onBackground} />
@@ -453,20 +435,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '800',
   },
-  emergencyBadge: {
-    backgroundColor: actionColors.actionRed,
-    paddingHorizontal: 12,
-    paddingVertical: 5,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#EF4444',
-  },
-  emergencyBadgeText: {
-    color: actionColors.actionButtonText,
-    fontFamily: 'SpaceGrotesk-Bold',
-    fontSize: 10,
-    letterSpacing: 0.8,
-  },
   scrollContainer: {
     paddingHorizontal: 16,
     paddingVertical: 16,
@@ -611,16 +579,47 @@ const styles = StyleSheet.create({
     fontFamily: 'SpaceGrotesk-Bold',
     fontSize: 13,
   },
-  sosContainer: {
-    paddingVertical: 16,
+  connectionHelpContainer: {
+    borderWidth: 1,
+    borderRadius: 16,
+    padding: 20,
     alignItems: 'center',
-    gap: 14,
+    gap: 10,
   },
-  sosSubtext: {
+  connectionHelpIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 2,
+  },
+  connectionHelpTitle: {
+    fontFamily: 'WorkSans-Bold',
+    fontSize: 18,
+    textAlign: 'center',
+  },
+  connectionHelpText: {
     fontFamily: 'WorkSans-Regular',
     fontSize: 13,
+    lineHeight: 20,
     textAlign: 'center',
-    paddingHorizontal: 16,
+  },
+  connectionHelpButton: {
+    minHeight: 48,
+    paddingHorizontal: 18,
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 4,
+  },
+  connectionHelpButtonText: {
+    color: '#FFFFFF',
+    fontFamily: 'SpaceGrotesk-Bold',
+    fontSize: 12,
+    letterSpacing: 0.5,
   },
   emptyStateContainer: {
     borderWidth: 1,

@@ -216,20 +216,23 @@ export default function WelcomeScreen({ navigation }: any) {
             <View style={[styles.primaryBentoCard, { backgroundColor: colors.surfaceContainerLowest, borderColor: colors.outline }]}>
               <Icon name="emergency" size={38} color={colors.primary} />
               <Text style={[styles.primaryBentoText, { color: colors.onBackground }]}>
-                Signal for help instantly when you feel unsafe.
+                Request help when you need a nearby connection.
               </Text>
             </View>
 
-            <View style={styles.bentoRightColumn}>
-              <View style={[styles.secondaryBentoCard, { backgroundColor: colors.surfaceContainerLowest, borderColor: colors.outline }]}>
-                <Icon name="groups" size={22} color={colors.onBackground} />
-                <Text style={[styles.secondaryBentoTitle, { color: colors.onBackground }]}>Verified Responders</Text>
-              </View>
+            <View style={[styles.secondaryBentoCard, { backgroundColor: colors.surfaceContainerLowest, borderColor: colors.outline }]}>
+              <Icon name="groups" size={22} color={colors.onBackground} />
+              <Text style={[styles.secondaryBentoTitle, { color: colors.onBackground }]}>Verified Responders</Text>
+            </View>
 
-              <View style={[styles.darkBentoCard, { backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline }]}>
-                <Icon name="radar" size={22} color={colors.primary} />
-                <Text style={[styles.darkBentoTitle, { color: colors.onBackground }]}>Live Coordination</Text>
-              </View>
+            <View style={[styles.darkBentoCard, { backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline }]}>
+              <Icon name="radar" size={22} color={colors.primary} />
+              <Text style={[styles.darkBentoTitle, { color: colors.onBackground }]}>Live Coordination</Text>
+            </View>
+
+            <View style={[styles.secondaryBentoCard, { backgroundColor: colors.surfaceContainerLowest, borderColor: colors.outline }]}>
+              <Icon name="shield" size={22} color={colors.primary} />
+              <Text style={[styles.secondaryBentoTitle, { color: colors.onBackground }]}>Privacy by Design</Text>
             </View>
           </View>
         </View>
@@ -480,11 +483,13 @@ const styles = StyleSheet.create({
   },
   bentoGrid: {
     flexDirection: 'row',
-    height: 170,
-    gap: theme.spacing.inlineGap,
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    rowGap: theme.spacing.inlineGap,
   },
   primaryBentoCard: {
-    flex: 1,
+    width: '48.5%',
+    minHeight: 124,
     backgroundColor: theme.colors.surfaceContainerLowest,
     borderWidth: theme.spacing.borderWidthHeavy,
     borderColor: theme.colors.outline,
@@ -498,12 +503,9 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     color: theme.colors.onBackground,
   },
-  bentoRightColumn: {
-    flex: 1,
-    gap: theme.spacing.inlineGap,
-  },
   secondaryBentoCard: {
-    flex: 1,
+    width: '48.5%',
+    minHeight: 124,
     backgroundColor: theme.colors.surfaceContainerLowest,
     borderWidth: theme.spacing.borderWidthLight,
     borderColor: theme.colors.outline,
@@ -518,7 +520,8 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   darkBentoCard: {
-    flex: 1,
+    width: '48.5%',
+    minHeight: 124,
     backgroundColor: theme.colors.onBackground,
     borderWidth: theme.spacing.borderWidthLight,
     borderColor: theme.colors.outline,

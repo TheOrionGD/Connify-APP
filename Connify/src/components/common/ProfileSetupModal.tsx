@@ -189,6 +189,8 @@ export function ProfileSetupModal({ visible, onComplete }: ProfileSetupModalProp
         medicalNotes: medicalNotesFormatted,
       });
       if (response.success) {
+        // Fetch updated profile data immediately after successful save
+        await useAuthStore.getState().fetchProfile();
         setProfileCompleted();
         onComplete();
       } else {
@@ -533,14 +535,6 @@ export function ProfileSetupModal({ visible, onComplete }: ProfileSetupModalProp
                   </View>
                 </View>
 
-                {devOtpHint && (
-                  <View style={[styles.errorContainer, { backgroundColor: '#FEF08A', borderColor: '#EAB308' }]}>
-                    <Icon name="info" size={18} color="#CA8A04" />
-                    <Text style={[styles.errorText, { color: '#854D0E' }]}>
-                      DEV MODE CODE: {devOtpHint}
-                    </Text>
-                  </View>
-                )}
 
                 {otpSent && (
                   <View style={styles.inputGroup}>
