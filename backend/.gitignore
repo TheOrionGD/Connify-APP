@@ -1,0 +1,6 @@
+node_modules
+# Keep environment variables out of version control
+.env
+
+/generated/prisma
+connify-2026-firebase-adminsdk-fbsvc-0ac0df4f28.json

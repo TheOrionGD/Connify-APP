@@ -1,0 +1,24 @@
+diff --git a/node_modules/react-native-nitro-image/android/build.gradle b/node_modules/react-native-nitro-image/android/build.gradle
+index e166c30..6d94dd1 100644
+--- a/node_modules/react-native-nitro-image/android/build.gradle
++++ b/node_modules/react-native-nitro-image/android/build.gradle
+@@ -146,6 +146,19 @@ dependencies {
+   implementation project(":react-native-nitro-modules")
+ }
+ 
++def copyNitroImageHeaders = {
++  copy {
++    from fileTree('./src/main/cpp').filter { it.isFile() }
++    from fileTree('../cpp/').filter { it.isFile() }
++    from fileTree('../nitrogen/generated/android/c++').filter { it.isFile() }
++    from fileTree('../nitrogen/generated/shared/c++').filter { it.isFile() }
++    include "*.hpp"
++    into "${project.buildDir}/headers/nitroimage/NitroImage/"
++    includeEmptyDirs = false
++  }
++}
++copyNitroImageHeaders()
++
+ tasks.register('prepareHeaders', Copy) {
+   from fileTree('./src/main/cpp').filter { it.isFile() }
+   from fileTree('../cpp/').filter { it.isFile() }

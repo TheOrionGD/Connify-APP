@@ -1,0 +1,6 @@
+{
+  "name": "Connify",
+  "description": "A decentralized, peer-to-peer civilian safety protocol and companion app featuring smart check-in timers, route deviation alerts, localized mesh rescue routing, and box breathing stress calming.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

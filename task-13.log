@@ -1,0 +1,225 @@
+PS O:\PROJECTS\CONNIFY-APP\Connify\android> .\gradlew assembleRelease                     
+Starting a Gradle Daemon, 1 incompatible and 1 stopped Daemons could not be reused, use --status for details
+
+> Configure project :notifee_react-native
+:notifee_react-native @notifee/react-native found at O:\PROJECTS\CONNIFY-APP\Connify\node_modules\@notifee\react-native
+:notifee_react-native package.json found at O:\PROJECTS\CONNIFY-APP\Connify\node_modules\@notifee\react-native\package.json
+:notifee_react-native:version set from package.json: 9.1.8 (9,1,8 - 9001008)
+:notifee_react-native:android.compileSdk using custom value: 36
+:notifee_react-native:android.targetSdk using custom value: 36
+:notifee_react-native:android.minSdk using custom value: 24
+:notifee_react-native:reactNativeAndroidDir O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native
+
+> Configure project :react-native-firebase_app
+:react-native-firebase_app package.json found at O:\PROJECTS\CONNIFY-APP\Connify\node_modules\@react-native-firebase\app\package.json
+:react-native-firebase_app:firebase.bom using default value: 34.15.0
+:react-native-firebase_app:play.play-services-auth using default value: 21.5.0
+:react-native-firebase_app package.json found at O:\PROJECTS\CONNIFY-APP\Connify\node_modules\@react-native-firebase\app\package.json
+:react-native-firebase_app:version set from package.json: 25.1.0 (25,1,0 - 25001000)
+:react-native-firebase_app:android.compileSdk using custom value: 36
+:react-native-firebase_app:android.targetSdk using custom value: 36
+:react-native-firebase_app:android.minSdk using custom value: 24
+:react-native-firebase_app:reactNativeAndroidDir O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native
+
+> Configure project :react-native-firebase_auth
+:react-native-firebase_auth package.json found at O:\PROJECTS\CONNIFY-APP\Connify\node_modules\@react-native-firebase\auth\package.json
+:react-native-firebase_app package.json found at O:\PROJECTS\CONNIFY-APP\Connify\node_modules\@react-native-firebase\app\package.json
+:react-native-firebase_auth:firebase.bom using default value: 34.15.0
+:react-native-firebase_auth package.json found at O:\PROJECTS\CONNIFY-APP\Connify\node_modules\@react-native-firebase\auth\package.json
+:react-native-firebase_auth:version set from package.json: 25.1.0 (25,1,0 - 25001000)
+:react-native-firebase_auth:android.compileSdk using custom value: 36
+:react-native-firebase_auth:android.targetSdk using custom value: 36
+:react-native-firebase_auth:android.minSdk using custom value: 24
+:react-native-firebase_auth:reactNativeAndroidDir O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native
+
+> Configure project :react-native-nitro-image
+[NitroModules] 🔥 NitroImage is boosted by nitro!
+
+> Configure project :react-native-nitro-modules
+[NitroModules] 🔥 Your app is boosted by nitro modules!
+
+> Configure project :react-native-video
+Kotlin version is correct: 1.9.24
+AndroidX version is correct: 1.9.3
+useExoplayerIMA: false
+useExoplayerSmoothStreaming: true
+useExoplayerDash: true
+useExoplayerHls: true
+useExoplayerRtsp: false
+buildFromSource: false
+
+> Configure project :react-native-vision-camera
+[NitroModules] 🔥 VisionCamera is boosted by nitro!
+Warning: SDK processing. This version only understands SDK XML versions up to 3 but an SDK XML file of version 4 was encountered. This can happen if you use versions of Android Studio and the command-line tools that were released at different times.
+
+> Task :react-native-nitro-image:buildCMakeRelWithDebInfo[arm64-v8a]
+C/C++: ninja: Entering directory `O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-nitro-image\android\.cxx\RelWithDebInfo\5231n2wb\arm64-v8a'
+C/C++: O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-nitro-image/nitrogen/generated/shared/c++/views/HybridNitroImageViewComponent.cpp:82:35: warning: 'RawPropsParser' is deprecated [-Wdeprecated-declarations]
+C/C++:    82 |                                   react::RawPropsParser(/* enableJsiParser */ true)) {}
+C/C++:       |                                   ^
+C/C++: C:/Users/godfr/.gradle/caches/8.13/transforms/92d2409485f18733f71ab40347233399/transformed/react-android-0.86.0-release/prefab/modules/reactnative/include/react/renderer/core/RawPropsParser.h:31:5: note: 'RawPropsParser' has been explicitly marked deprecated here
+C/C++:    31 |   [[deprecated]] explicit RawPropsParser(bool /* ignored */) : RawPropsParser() {}
+C/C++:       |     ^
+C/C++: 1 warning generated.
+
+> Task :react-native-nitro-image:buildCMakeRelWithDebInfo[armeabi-v7a]
+C/C++: ninja: Entering directory `O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-nitro-image\android\.cxx\RelWithDebInfo\5231n2wb\armeabi-v7a'
+C/C++: O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-nitro-image/nitrogen/generated/shared/c++/views/HybridNitroImageViewComponent.cpp:82:35: warning: 'RawPropsParser' is deprecated [-Wdeprecated-declarations]
+C/C++:    82 |                                   react::RawPropsParser(/* enableJsiParser */ true)) {}
+C/C++:       |                                   ^
+C/C++: C:/Users/godfr/.gradle/caches/8.13/transforms/92d2409485f18733f71ab40347233399/transformed/react-android-0.86.0-release/prefab/modules/reactnative/include/react/renderer/core/RawPropsParser.h:31:5: note: 'RawPropsParser' has been explicitly marked deprecated here
+C/C++:    31 |   [[deprecated]] explicit RawPropsParser(bool /* ignored */) : RawPropsParser() {}
+C/C++:       |     ^
+C/C++: 1 warning generated.
+
+> Task :react-native-nitro-image:buildCMakeRelWithDebInfo[x86]
+C/C++: ninja: Entering directory `O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-nitro-image\android\.cxx\RelWithDebInfo\5231n2wb\x86'
+C/C++: O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-nitro-image/nitrogen/generated/shared/c++/views/HybridNitroImageViewComponent.cpp:82:35: warning: 'RawPropsParser' is deprecated [-Wdeprecated-declarations]
+C/C++:    82 |                                   react::RawPropsParser(/* enableJsiParser */ true)) {}
+C/C++:       |                                   ^
+C/C++: C:/Users/godfr/.gradle/caches/8.13/transforms/92d2409485f18733f71ab40347233399/transformed/react-android-0.86.0-release/prefab/modules/reactnative/include/react/renderer/core/RawPropsParser.h:31:5: note: 'RawPropsParser' has been explicitly marked deprecated here
+C/C++:    31 |   [[deprecated]] explicit RawPropsParser(bool /* ignored */) : RawPropsParser() {}
+C/C++:       |     ^
+C/C++: 1 warning generated.
+
+> Task :react-native-nitro-image:buildCMakeRelWithDebInfo[x86_64]
+C/C++: ninja: Entering directory `O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-nitro-image\android\.cxx\RelWithDebInfo\5231n2wb\x86_64'
+C/C++: O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-nitro-image/nitrogen/generated/shared/c++/views/HybridNitroImageViewComponent.cpp:82:35: warning: 'RawPropsParser' is deprecated [-Wdeprecated-declarations]
+C/C++:    82 |                                   react::RawPropsParser(/* enableJsiParser */ true)) {}
+C/C++:       |                                   ^
+C/C++: C:/Users/godfr/.gradle/caches/8.13/transforms/92d2409485f18733f71ab40347233399/transformed/react-android-0.86.0-release/prefab/modules/reactnative/include/react/renderer/core/RawPropsParser.h:31:5: note: 'RawPropsParser' has been explicitly marked deprecated here
+C/C++:    31 |   [[deprecated]] explicit RawPropsParser(bool /* ignored */) : RawPropsParser() {}
+C/C++:       |     ^
+C/C++: 1 warning generated.
+
+> Task :react-native-worklets:buildCMakeRelWithDebInfo[arm64-v8a][worklets]
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.arm64-v8a\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-worklets\android\build\intermediates\cxx\RelWithDebInfo\1k393r2f\obj\arm64-v8a\libreactnative.so' failed. Doing a slower copy instead.
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.arm64-v8a\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-worklets\android\build\intermediates\cxx\RelWithDebInfo\1k393r2f\obj\arm64-v8a\libreactnative.so' failed. Doing a slower copy instead.
+
+> Task :react-native-worklets:buildCMakeRelWithDebInfo[armeabi-v7a][worklets]
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.armeabi-v7a\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-worklets\android\build\intermediates\cxx\RelWithDebInfo\1k393r2f\obj\armeabi-v7a\libreactnative.so' failed. Doing a slower copy instead.
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.armeabi-v7a\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-worklets\android\build\intermediates\cxx\RelWithDebInfo\1k393r2f\obj\armeabi-v7a\libreactnative.so' failed. Doing a slower copy instead.
+
+> Task :react-native-worklets:buildCMakeRelWithDebInfo[x86][worklets]
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.x86\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-worklets\android\build\intermediates\cxx\RelWithDebInfo\1k393r2f\obj\x86\libreactnative.so' failed. Doing a slower copy instead.
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.x86\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-worklets\android\build\intermediates\cxx\RelWithDebInfo\1k393r2f\obj\x86\libreactnative.so' failed. Doing a slower copy instead.
+
+> Task :react-native-worklets:buildCMakeRelWithDebInfo[x86_64][worklets]
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.x86_64\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-worklets\android\build\intermediates\cxx\RelWithDebInfo\1k393r2f\obj\x86_64\libreactnative.so' failed. Doing a slower copy instead.
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.x86_64\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-worklets\android\build\intermediates\cxx\RelWithDebInfo\1k393r2f\obj\x86_64\libreactnative.so' failed. Doing a slower copy instead.
+
+> Task :react-native-vision-camera:buildCMakeRelWithDebInfo[arm64-v8a]
+C/C++: ninja: Entering directory `O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-vision-camera\android\.cxx\RelWithDebInfo\286m6r83\arm64-v8a'
+C/C++: O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-vision-camera/nitrogen/generated/shared/c++/HybridZoomGestureControllerSpec.cpp:17:41: warning: unused parameter 'prototype' [-Wunused-parameter]
+C/C++:    17 |     registerHybrids(this, [](Prototype& prototype) {
+C/C++:       |                                         ^
+C/C++: 1 warning generated.
+C/C++: O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-vision-camera/nitrogen/generated/shared/c++/HybridTapToFocusGestureControllerSpec.cpp:17:41: warning: unused parameter 'prototype' [-Wunused-parameter]
+C/C++:    17 |     registerHybrids(this, [](Prototype& prototype) {
+C/C++:       |                                         ^
+C/C++: 1 warning generated.
+C/C++: O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-vision-camera/nitrogen/generated/shared/c++/HybridCameraPreviewOutputSpec.cpp:17:41: warning: unused parameter 'prototype' [-Wunused-parameter]
+C/C++:    17 |     registerHybrids(this, [](Prototype& prototype) {
+C/C++:       |                                         ^
+C/C++: 1 warning generated.
+
+> Task :react-native-vision-camera:buildCMakeRelWithDebInfo[armeabi-v7a]
+C/C++: ninja: Entering directory `O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-vision-camera\android\.cxx\RelWithDebInfo\286m6r83\armeabi-v7a'
+C/C++: O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-vision-camera/nitrogen/generated/shared/c++/HybridTapToFocusGestureControllerSpec.cpp:17:41: warning: unused parameter 'prototype' [-Wunused-parameter]
+C/C++:    17 |     registerHybrids(this, [](Prototype& prototype) {
+C/C++:       |                                         ^
+C/C++: 1 warning generated.
+C/C++: O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-vision-camera/nitrogen/generated/shared/c++/HybridZoomGestureControllerSpec.cpp:17:41: warning: unused parameter 'prototype' [-Wunused-parameter]
+C/C++:    17 |     registerHybrids(this, [](Prototype& prototype) {
+C/C++:       |                                         ^
+C/C++: 1 warning generated.
+C/C++: O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-vision-camera/nitrogen/generated/shared/c++/HybridCameraPreviewOutputSpec.cpp:17:41: warning: unused parameter 'prototype' [-Wunused-parameter]
+C/C++:    17 |     registerHybrids(this, [](Prototype& prototype) {
+C/C++:       |                                         ^
+C/C++: 1 warning generated.
+
+> Task :react-native-vision-camera:buildCMakeRelWithDebInfo[x86]
+C/C++: ninja: Entering directory `O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-vision-camera\android\.cxx\RelWithDebInfo\286m6r83\x86'
+C/C++: O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-vision-camera/nitrogen/generated/shared/c++/HybridTapToFocusGestureControllerSpec.cpp:17:41: warning: unused parameter 'prototype' [-Wunused-parameter]
+C/C++:    17 |     registerHybrids(this, [](Prototype& prototype) {
+C/C++:       |                                         ^
+C/C++: 1 warning generated.
+C/C++: O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-vision-camera/nitrogen/generated/shared/c++/HybridZoomGestureControllerSpec.cpp:17:41: warning: unused parameter 'prototype' [-Wunused-parameter]
+C/C++:    17 |     registerHybrids(this, [](Prototype& prototype) {
+C/C++:       |                                         ^
+C/C++: 1 warning generated.
+C/C++: O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-vision-camera/nitrogen/generated/shared/c++/HybridCameraPreviewOutputSpec.cpp:17:41: warning: unused parameter 'prototype' [-Wunused-parameter]
+C/C++:    17 |     registerHybrids(this, [](Prototype& prototype) {
+C/C++:       |                                         ^
+C/C++: 1 warning generated.
+
+> Task :react-native-vision-camera:buildCMakeRelWithDebInfo[x86_64]
+C/C++: ninja: Entering directory `O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-vision-camera\android\.cxx\RelWithDebInfo\286m6r83\x86_64'
+C/C++: O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-vision-camera/nitrogen/generated/shared/c++/HybridTapToFocusGestureControllerSpec.cpp:17:41: warning: unused parameter 'prototype' [-Wunused-parameter]
+C/C++:    17 |     registerHybrids(this, [](Prototype& prototype) {
+C/C++:       |                                         ^
+C/C++: 1 warning generated.
+C/C++: O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-vision-camera/nitrogen/generated/shared/c++/HybridZoomGestureControllerSpec.cpp:17:41: warning: unused parameter 'prototype' [-Wunused-parameter]
+C/C++:    17 |     registerHybrids(this, [](Prototype& prototype) {
+C/C++:       |                                         ^
+C/C++: 1 warning generated.
+C/C++: O:/PROJECTS/CONNIFY-APP/Connify/node_modules/react-native-vision-camera/nitrogen/generated/shared/c++/HybridCameraPreviewOutputSpec.cpp:17:41: warning: unused parameter 'prototype' [-Wunused-parameter]
+C/C++:    17 |     registerHybrids(this, [](Prototype& prototype) {
+C/C++:       |                                         ^
+C/C++: 1 warning generated.
+
+> Task :react-native-reanimated:buildCMakeRelWithDebInfo[arm64-v8a][reanimated]
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.arm64-v8a\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-reanimated\android\build\intermediates\cxx\RelWithDebInfo\133f1u13\obj\arm64-v8a\libreactnative.so' failed. Doing a slower copy instead.
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.arm64-v8a\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-reanimated\android\build\intermediates\cxx\RelWithDebInfo\133f1u13\obj\arm64-v8a\libreactnative.so' failed. Doing a slower copy instead.
+
+> Task :react-native-reanimated:buildCMakeRelWithDebInfo[armeabi-v7a][reanimated]
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.armeabi-v7a\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-reanimated\android\build\intermediates\cxx\RelWithDebInfo\133f1u13\obj\armeabi-v7a\libreactnative.so' failed. Doing a slower copy instead.
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.armeabi-v7a\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-reanimated\android\build\intermediates\cxx\RelWithDebInfo\133f1u13\obj\armeabi-v7a\libreactnative.so' failed. Doing a slower copy instead.
+
+> Task :react-native-reanimated:buildCMakeRelWithDebInfo[x86][reanimated]
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.x86\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-reanimated\android\build\intermediates\cxx\RelWithDebInfo\133f1u13\obj\x86\libreactnative.so' failed. Doing a slower copy instead.
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.x86\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-reanimated\android\build\intermediates\cxx\RelWithDebInfo\133f1u13\obj\x86\libreactnative.so' failed. Doing a slower copy instead.
+
+> Task :react-native-reanimated:buildCMakeRelWithDebInfo[x86_64][reanimated]
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.x86_64\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-reanimated\android\build\intermediates\cxx\RelWithDebInfo\133f1u13\obj\x86_64\libreactnative.so' failed. Doing a slower copy instead.
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.x86_64\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\node_modules\react-native-reanimated\android\build\intermediates\cxx\RelWithDebInfo\133f1u13\obj\x86_64\libreactnative.so' failed. Doing a slower copy instead.
+
+> Task :app:buildCMakeRelWithDebInfo[arm64-v8a]
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.arm64-v8a\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\android\app\build\intermediates\cxx\RelWithDebInfo\2v1b1c39\obj\arm64-v8a\libreactnative.so' failed. Doing a slower copy instead.
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.arm64-v8a\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\android\app\build\intermediates\cxx\RelWithDebInfo\2v1b1c39\obj\arm64-v8a\libreactnative.so' failed. Doing a slower copy instead.
+
+> Task :app:buildCMakeRelWithDebInfo[armeabi-v7a]
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.armeabi-v7a\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\android\app\build\intermediates\cxx\RelWithDebInfo\2v1b1c39\obj\armeabi-v7a\libreactnative.so' failed. Doing a slower copy instead.
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.armeabi-v7a\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\android\app\build\intermediates\cxx\RelWithDebInfo\2v1b1c39\obj\armeabi-v7a\libreactnative.so' failed. Doing a slower copy instead.
+
+> Task :app:buildCMakeRelWithDebInfo[x86]
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.x86\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\android\app\build\intermediates\cxx\RelWithDebInfo\2v1b1c39\obj\x86\libreactnative.so' failed. Doing a slower copy instead.
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.x86\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\android\app\build\intermediates\cxx\RelWithDebInfo\2v1b1c39\obj\x86\libreactnative.so' failed. Doing a slower copy instead.
+
+> Task :app:buildCMakeRelWithDebInfo[x86_64]
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.x86_64\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\android\app\build\intermediates\cxx\RelWithDebInfo\2v1b1c39\obj\x86_64\libreactnative.so' failed. Doing a slower copy instead.    
+C/C++: Hard link from 'C:\Users\godfr\.gradle\caches\8.13\transforms\92d2409485f18733f71ab40347233399\transformed\react-android-0.86.0-release\prefab\modules\reactnative\libs\android.x86_64\libreactnative.so' to 'O:\PROJECTS\CONNIFY-APP\Connify\android\app\build\intermediates\cxx\RelWithDebInfo\2v1b1c39\obj\x86_64\libreactnative.so' failed. Doing a slower copy instead.    
+
+> Task :app:createBundleReleaseJsAndAssets
+=================================================================================================
+From React Native 0.73, your project's Metro config should extend '@react-native/metro-config'
+or it will fail to build. Please copy the template at:
+https://github.com/react-native-community/template/blob/main/template/metro.config.js
+This warning will be removed in future (https://github.com/facebook/metro/issues/1018).
+=================================================================================================
+Copying 26 asset files
+Done copying assets
+
+[Incubating] Problems report is available at: file:///O:/PROJECTS/CONNIFY-APP/Connify/android/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.13/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 10m 33s
+1371 actionable tasks: 90 executed, 1281 up-to-date        
+PS O:\PROJECTS\CONNIFY-APP\Connify\android>

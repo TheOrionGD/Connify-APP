@@ -1,0 +1,45 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "src/assets/fonts/PlusJakartaSans-Bold.ttf",
+      "sha1": "725f9514c93b5356230588f805f771d2c8381487"
+    },
+    {
+      "path": "src/assets/fonts/PlusJakartaSans-Medium.ttf",
+      "sha1": "a76cf945a2ffeff98027dfd401b656c6273bff46"
+    },
+    {
+      "path": "src/assets/fonts/PlusJakartaSans-Regular.ttf",
+      "sha1": "39007600414c4de958463f14eb3f59d775621303"
+    },
+    {
+      "path": "src/assets/fonts/PlusJakartaSans-SemiBold.ttf",
+      "sha1": "24953bebc61acd5caa5be521dd319772444f8b24"
+    },
+    {
+      "path": "src/assets/fonts/SpaceGrotesk-Bold.ttf",
+      "sha1": "67efb4ef3ed7c1ee01235a74f32e4b71c2ba461f"
+    },
+    {
+      "path": "src/assets/fonts/SpaceGrotesk-Medium.ttf",
+      "sha1": "c5220cfeafacff06b0adbaf2376d9ccb5fbfd751"
+    },
+    {
+      "path": "src/assets/fonts/SpaceGrotesk-Regular.ttf",
+      "sha1": "43a68e8043d1369cffb9a5ffe2c17735cee80095"
+    },
+    {
+      "path": "src/assets/fonts/WorkSans-Bold.ttf",
+      "sha1": "94d5ba3140b9ed0545a1932079766d773c561341"
+    },
+    {
+      "path": "src/assets/fonts/WorkSans-Medium.ttf",
+      "sha1": "82bda02084975bb8b5d91343f8cd03e1f11a6c95"
+    },
+    {
+      "path": "src/assets/fonts/WorkSans-Regular.ttf",
+      "sha1": "72ee4d03b08ade5506112ec8f32c718a8c976039"
+    }
+  ]
+}
