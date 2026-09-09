@@ -51,6 +51,7 @@ import { capsuleApi } from '../../services/api/capsuleApi';
 import SignalFlow from '../../components/animations/SignalFlow';
 import LayeredSuccess from '../../components/animations/LayeredSuccess';
 import Animated, { useSharedValue, useAnimatedStyle, withSequence, withTiming } from 'react-native-reanimated';
+import { EmergencyChatModal } from '../../components/chat/EmergencyChatModal';
 
 /** Sub-component to safely encapsulate camera scanning hooks only when rendered (Helper mode) */
 function CameraScanner({
@@ -196,6 +197,21 @@ export default function HandshakeScreen({ route, navigation }: any) {
   const [scanned, setScanned] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [showChatModal, setShowChatModal] = useState(false);
+  const [elapsedTime, setElapsedTime] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setElapsedTime((prev) => prev + 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatTime = (secs: number) => {
+    const m = Math.floor(secs / 60);
+    const s = secs % 60;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
 
   // Feature 10 & Feature 15 Modals
   const [showDuressModal, setShowDuressModal] = useState(false);
@@ -239,9 +255,19 @@ export default function HandshakeScreen({ route, navigation }: any) {
   }, [isRequester, expiryTimer]);
 
   useEffect(() => {
-    if (!episodeId) return;
+    const activeEp = episodeId || useEpisodeStore.getState().episodeId;
+    if (!activeEp) return;
+
+    if (!socketService.isConnected()) {
+      socketService.connect();
+    }
+
+    socketService.joinEpisode(activeEp, (err) => {
+      if (err) console.warn('[HandshakeScreen] Failed to join socket room:', err);
+    });
+
     const unsubCancelled = socketService.onEpisodeCancelled(({ episodeId: cancelledId }) => {
-      if (cancelledId === episodeId) {
+      if (cancelledId === activeEp) {
         Alert.alert('Broadcast Cancelled', 'The emergency request was cancelled by the requester.');
         useEpisodeStore.getState().resetEpisode();
         navigation.navigate('Main');
@@ -395,8 +421,23 @@ export default function HandshakeScreen({ route, navigation }: any) {
           color={theme.colors.onBackground}
           onPress={() => navigation.goBack()}
         />
-        <Text style={styles.headerTitle}>IDENTITY & PROXIMITY HANDSHAKE</Text>
-        <Icon name="verified-user" size={24} color={theme.colors.primary} />
+        <View style={{ alignItems: 'center' }}>
+          <Text style={styles.headerTitle}>IDENTITY & PROXIMITY HANDSHAKE</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 }}>
+            <Icon name="timer" size={11} color="#EF4444" />
+            <Text style={{ fontFamily: theme.fontFamilies.technical.bold, fontSize: 10, color: '#EF4444' }}>
+              SESSION: {formatTime(elapsedTime)}
+            </Text>
+          </View>
+        </View>
+        <TouchableOpacity
+          style={styles.headerChatBtn}
+          onPress={() => setShowChatModal(true)}
+          activeOpacity={0.7}
+        >
+          <Icon name="chat" size={16} color="#3B82F6" />
+          <Text style={styles.headerChatText}>LIVE CHAT</Text>
+        </TouchableOpacity>
       </View>
 
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
@@ -443,6 +484,17 @@ export default function HandshakeScreen({ route, navigation }: any) {
                 </Text>
               </TouchableOpacity>
             ) : null}
+
+            <TouchableOpacity
+              style={styles.enrouteChatBtn}
+              onPress={() => setShowChatModal(true)}
+              activeOpacity={0.8}
+            >
+              <Icon name="chat" size={18} color="#FFFFFF" />
+              <Text style={styles.enrouteChatBtnText}>
+                OPEN EN-ROUTE LIVE CHAT
+              </Text>
+            </TouchableOpacity>
           </View>
         )}
 
@@ -491,15 +543,38 @@ export default function HandshakeScreen({ route, navigation }: any) {
                 <View style={styles.qrContainer}>
                   <QRCode value={qrToken} size={210} />
                 </View>
-                <View style={styles.timerBadge}>
-                  <Icon name="timer" size={16} color={theme.colors.primary} />
-                  <Text style={styles.timerText}>
+                <View
+                  style={[
+                    styles.timerBadge,
+                    expiryTimer <= 15 ? styles.timerBadgeWarning : null,
+                  ]}
+                >
+                  <Icon
+                    name="timer"
+                    size={16}
+                    color={expiryTimer <= 15 ? '#EF4444' : theme.colors.primary}
+                  />
+                  <Text
+                    style={[
+                      styles.timerText,
+                      expiryTimer <= 15 ? { color: '#EF4444', fontWeight: 'bold' } : null,
+                    ]}
+                  >
                     TOKEN VALID: <Text style={{ fontWeight: 'bold' }}>{expiryTimer}s</Text>
+                    {expiryTimer === 0 ? ' (EXPIRED)' : ''}
                   </Text>
                   <TouchableOpacity onPress={generateQrToken} style={styles.refreshBtn}>
-                    <Icon name="refresh" size={16} color={theme.colors.primary} />
+                    <Icon name="refresh" size={16} color={expiryTimer <= 15 ? '#EF4444' : theme.colors.primary} />
                   </TouchableOpacity>
                 </View>
+                <TouchableOpacity
+                  style={styles.requesterChatBtn}
+                  onPress={() => setShowChatModal(true)}
+                  activeOpacity={0.8}
+                >
+                  <Icon name="chat" size={16} color="#3B82F6" />
+                  <Text style={styles.requesterChatBtnText}>OPEN EN-ROUTE LIVE CHAT</Text>
+                </TouchableOpacity>
               </View>
             ) : (
               <ActivityIndicator size="large" color={theme.colors.primary} style={styles.loadingIndicator} />
@@ -720,6 +795,22 @@ export default function HandshakeScreen({ route, navigation }: any) {
           navigation.replace('EmergencyRequest');
         }}
       />
+
+      <EmergencyChatModal
+        visible={showChatModal}
+        onClose={() => setShowChatModal(false)}
+        episodeId={episodeId || useEpisodeStore.getState().episodeId || ''}
+        counterpartyName={
+          isRequester
+            ? (useEpisodeStore.getState().responderInfo?.helperDeviceId
+                ? `Volunteer (${useEpisodeStore.getState().responderInfo?.helperDeviceId.substring(0, 6)})`
+                : 'Approaching Responder')
+            : (decodedPayload?.requesterDeviceId
+                ? `Requester (${decodedPayload.requesterDeviceId.substring(0, 6)})`
+                : 'Emergency Requester')
+        }
+        role={isRequester ? 'requester' : 'responder'}
+      />
     </SafeAreaView>
   );
 }
@@ -817,6 +908,10 @@ const styles = StyleSheet.create({
     marginTop: 12,
     borderWidth: 1,
     borderColor: theme.colors.outline,
+  },
+  timerBadgeWarning: {
+    backgroundColor: '#FEE2E2',
+    borderColor: '#EF4444',
   },
   timerText: {
     fontFamily: theme.fontFamilies.technical.medium,
@@ -1005,5 +1100,61 @@ const styles = StyleSheet.create({
   },
   loadingIndicator: {
     margin: 40,
+  },
+  headerChatBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    backgroundColor: 'rgba(59, 130, 246, 0.12)',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(59, 130, 246, 0.3)',
+  },
+  headerChatText: {
+    fontFamily: theme.fontFamilies.technical.bold,
+    fontSize: 10,
+    color: '#3B82F6',
+    letterSpacing: 0.5,
+  },
+  enrouteChatBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#2563EB',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    width: '100%',
+    marginTop: 8,
+    borderWidth: 1,
+    borderColor: '#60A5FA',
+  },
+  enrouteChatBtnText: {
+    color: '#FFFFFF',
+    fontFamily: theme.fontFamilies.technical.bold,
+    fontSize: 12,
+    letterSpacing: 0.5,
+  },
+  requesterChatBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 10,
+    marginTop: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(59, 130, 246, 0.25)',
+  },
+  requesterChatBtnText: {
+    color: '#3B82F6',
+    fontFamily: theme.fontFamilies.technical.bold,
+    fontSize: 11,
+    letterSpacing: 0.5,
   },
 });

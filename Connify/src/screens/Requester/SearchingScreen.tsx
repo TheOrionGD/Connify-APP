@@ -39,6 +39,20 @@ export default function SearchingScreen({ navigation }: any) {
     longitude?: number;
   } | null>(null);
   const [showChatModal, setShowChatModal] = React.useState(false);
+  const [elapsedTime, setElapsedTime] = React.useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setElapsedTime((prev) => prev + 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatTime = (secs: number) => {
+    const m = Math.floor(secs / 60);
+    const s = secs % 60;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
 
   const pulse1 = useSharedValue(0);
   const pulse2 = useSharedValue(0);
@@ -195,6 +209,10 @@ export default function SearchingScreen({ navigation }: any) {
         <Text style={styles.headerTitle}>
           {responderState?.isEnRoute ? 'RESPONDER EN ROUTE' : 'SEARCHING FOR RESPONDERS'}
         </Text>
+        <View style={styles.headerTimerBadge}>
+          <Icon name="timer" size={13} color="#EF4444" />
+          <Text style={styles.headerTimerText}>{formatTime(elapsedTime)}</Text>
+        </View>
       </View>
 
       <View style={styles.content}>
@@ -260,6 +278,10 @@ export default function SearchingScreen({ navigation }: any) {
               {responderState?.isEnRoute ? 'RESPONDER APPROACHING' : 'SCANNING P2P MESH...'}
             </Text>
           </View>
+          <View style={styles.detailRow}>
+            <Text style={[styles.detailLabel, { color: colors.onSurfaceVariant }]}>ELAPSED TIME:</Text>
+            <Text style={[styles.detailValue, { color: '#EF4444' }]}>{formatTime(elapsedTime)}</Text>
+          </View>
         </View>
       </View>
 
@@ -321,6 +343,24 @@ const styles = StyleSheet.create({
     color: '#EF4444',
     letterSpacing: 1.5,
     fontWeight: '700',
+  },
+  headerTimerBadge: {
+    position: 'absolute',
+    right: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.25)',
+  },
+  headerTimerText: {
+    fontFamily: theme.fontFamilies.technical.bold,
+    fontSize: 11,
+    color: '#EF4444',
   },
   content: {
     flex: 1,
