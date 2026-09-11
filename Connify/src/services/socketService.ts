@@ -38,6 +38,40 @@ export interface EpisodeExpiredPayload {
   message: string;
 }
 
+export interface IncomingCallPayload {
+  episodeId: string;
+  callerDeviceId: string;
+  callerName: string;
+  role: string;
+  timestamp: string;
+}
+
+export interface CallAcceptedPayload {
+  episodeId: string;
+  acceptedBy: string;
+  timestamp: string;
+}
+
+export interface CallRejectedPayload {
+  episodeId: string;
+  rejectedBy: string;
+  reason?: string;
+  timestamp: string;
+}
+
+export interface CallEndedPayload {
+  episodeId: string;
+  endedBy: string;
+  duration?: number;
+  timestamp: string;
+}
+
+export interface CallSignalPayload {
+  episodeId: string;
+  senderDeviceId: string;
+  signalData: any;
+}
+
 export const socketService = {
   /**
    * Connect to the Socket.IO server.
@@ -360,5 +394,175 @@ export const socketService = {
         }
       }
     );
+  },
+
+  /**
+   * Initiate a real-time VoIP audio call to counterparties in the active episode room.
+   */
+  initiateCall(
+    episodeId: string,
+    callerName?: string,
+    role?: 'requester' | 'responder',
+    callback?: (error?: string) => void
+  ): void {
+    if (!socket?.connected) {
+      callback?.('Socket not connected. Cannot initiate call.');
+      return;
+    }
+
+    socket.emit(
+      'call_initiate',
+      { episodeId, callerName, role },
+      (res: { success: boolean; error?: string }) => {
+        if (res.success) {
+          callback?.();
+        } else {
+          console.warn('[Socket] Failed to initiate call:', res.error);
+          callback?.(res.error);
+        }
+      }
+    );
+  },
+
+  /**
+   * Accept an incoming VoIP call.
+   */
+  acceptCall(
+    episodeId: string,
+    callback?: (error?: string) => void
+  ): void {
+    if (!socket?.connected) {
+      callback?.('Socket not connected.');
+      return;
+    }
+
+    socket.emit('call_accept', { episodeId }, (res: { success: boolean; error?: string }) => {
+      if (res.success) {
+        callback?.();
+      } else {
+        callback?.(res.error);
+      }
+    });
+  },
+
+  /**
+   * Reject or decline an incoming VoIP call.
+   */
+  rejectCall(
+    episodeId: string,
+    reason?: string,
+    callback?: (error?: string) => void
+  ): void {
+    if (!socket?.connected) {
+      callback?.('Socket not connected.');
+      return;
+    }
+
+    socket.emit('call_reject', { episodeId, reason }, (res: { success: boolean; error?: string }) => {
+      if (res.success) {
+        callback?.();
+      } else {
+        callback?.(res.error);
+      }
+    });
+  },
+
+  /**
+   * End an active VoIP call.
+   */
+  endCall(
+    episodeId: string,
+    duration?: number,
+    callback?: (error?: string) => void
+  ): void {
+    if (!socket?.connected) {
+      callback?.('Socket not connected.');
+      return;
+    }
+
+    socket.emit('call_end', { episodeId, duration }, (res: { success: boolean; error?: string }) => {
+      if (res.success) {
+        callback?.();
+      } else {
+        callback?.(res.error);
+      }
+    });
+  },
+
+  /**
+   * Send WebRTC / audio frame signaling payload.
+   */
+  sendCallSignal(
+    episodeId: string,
+    signalData: any,
+    callback?: (error?: string) => void
+  ): void {
+    if (!socket?.connected) {
+      callback?.('Socket not connected.');
+      return;
+    }
+
+    socket.emit('call_signal', { episodeId, signalData }, (res: { success: boolean; error?: string }) => {
+      if (res.success) {
+        callback?.();
+      } else {
+        callback?.(res.error);
+      }
+    });
+  },
+
+  /**
+   * Listen for incoming calls from counterparties.
+   */
+  onIncomingCall(handler: (data: IncomingCallPayload) => void): () => void {
+    if (!socket) return () => {};
+    socket.on('incoming_call', handler);
+    return () => {
+      socket?.off('incoming_call', handler);
+    };
+  },
+
+  /**
+   * Listen for counterparty accepting call.
+   */
+  onCallAccepted(handler: (data: CallAcceptedPayload) => void): () => void {
+    if (!socket) return () => {};
+    socket.on('call_accepted', handler);
+    return () => {
+      socket?.off('call_accepted', handler);
+    };
+  },
+
+  /**
+   * Listen for call rejection or busy signal.
+   */
+  onCallRejected(handler: (data: CallRejectedPayload) => void): () => void {
+    if (!socket) return () => {};
+    socket.on('call_rejected', handler);
+    return () => {
+      socket?.off('call_rejected', handler);
+    };
+  },
+
+  /**
+   * Listen for call termination by peer.
+   */
+  onCallEnded(handler: (data: CallEndedPayload) => void): () => void {
+    if (!socket) return () => {};
+    socket.on('call_ended', handler);
+    return () => {
+      socket?.off('call_ended', handler);
+    };
+  },
+
+  /**
+   * Listen for audio signaling messages.
+   */
+  onCallSignal(handler: (data: CallSignalPayload) => void): () => void {
+    if (!socket) return () => {};
+    socket.on('call_signal', handler);
+    return () => {
+      socket?.off('call_signal', handler);
+    };
   },
 };

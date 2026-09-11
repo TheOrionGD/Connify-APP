@@ -20,6 +20,8 @@ import { capsuleApi } from '../../services/api/capsuleApi';
 import { NotificationService } from '../../services/NotificationService';
 import { useRewardStore } from '../../stores/rewardStore';
 import { EmergencyChatModal } from '../../components/chat/EmergencyChatModal';
+import { EmergencyCallModal } from '../../components/call/EmergencyCallModal';
+import { useCallStore } from '../../stores/callStore';
 
 export default function EmergencyScreen({ navigation }: any) {
   const { colors } = useTheme();
@@ -35,8 +37,10 @@ export default function EmergencyScreen({ navigation }: any) {
   const isResponder = userRole === 'responder';
   const [modalVisible, setModalVisible] = useState(false);
   const [showChatModal, setShowChatModal] = useState(false);
+  const [showCallModal, setShowCallModal] = useState(false);
   const secondaryResponders = useEpisodeStore((state) => state.secondaryResponders);
   const [_participantCount, setParticipantCount] = useState(1);
+  const { startOutgoingCall, receiveIncomingCall } = useCallStore();
 
   useEffect(() => {
     NotificationService.notifyEpisodeStarted(15).catch(() => null);
@@ -84,15 +88,22 @@ export default function EmergencyScreen({ navigation }: any) {
       navigation.replace('Main');
     });
 
+    const unsubIncomingCall = socketService.onIncomingCall((data) => {
+      if (data.episodeId === episodeId) {
+        receiveIncomingCall(data.episodeId, data.callerName, data.role);
+        setShowCallModal(true);
+      }
+    });
+
     return () => {
       unsubJoined();
       unsubLeft();
       unsubExpired();
       unsubCancelled();
+      unsubIncomingCall();
       socketService.leaveEpisode(episodeId);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [episodeId, isResponder, userRole]);
+  }, [episodeId, isResponder, userRole, receiveIncomingCall]);
 
   const handleResolve = async () => {
     completeEpisode();
@@ -266,13 +277,32 @@ export default function EmergencyScreen({ navigation }: any) {
             <Text style={[styles.actionSub, { color: colors.onSurfaceVariant }]}>
               Encrypted, zero-trace P2P direct chat channel active with counterparty while en-route.
             </Text>
-            <TouchableOpacity
-              onPress={() => setShowChatModal(true)}
-              style={[styles.handshakeButton, { backgroundColor: '#3B82F6', borderColor: '#3B82F6' }]}
-            >
-              <Icon name="forum" size={18} color="#FFFFFF" />
-              <Text style={[styles.handshakeButtonText, { color: '#FFFFFF' }]}>LAUNCH EN-ROUTE CHAT</Text>
-            </TouchableOpacity>
+            <View style={{ flexDirection: 'row', gap: 8, marginTop: 4 }}>
+              <TouchableOpacity
+                onPress={() => {
+                  const targetName = isResponder ? 'Distress Requester' : 'Approaching Responder';
+                  startOutgoingCall(episodeId || '', targetName, isResponder ? 'responder' : 'requester');
+                  socketService.initiateCall(
+                    episodeId || '',
+                    isResponder ? 'Volunteer Responder' : 'Emergency Requester',
+                    isResponder ? 'responder' : 'requester'
+                  );
+                  setShowCallModal(true);
+                }}
+                style={[styles.handshakeButton, { flex: 1, backgroundColor: '#059669', borderColor: '#10B981' }]}
+              >
+                <Icon name="call" size={18} color="#FFFFFF" />
+                <Text style={[styles.handshakeButtonText, { color: '#FFFFFF' }]}>VOICE CALL</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => setShowChatModal(true)}
+                style={[styles.handshakeButton, { flex: 1, backgroundColor: '#3B82F6', borderColor: '#3B82F6' }]}
+              >
+                <Icon name="forum" size={18} color="#FFFFFF" />
+                <Text style={[styles.handshakeButtonText, { color: '#FFFFFF' }]}>LIVE CHAT</Text>
+              </TouchableOpacity>
+            </View>
           </GradientView>
         </Animated.View>
 
@@ -426,6 +456,22 @@ export default function EmergencyScreen({ navigation }: any) {
       <EmergencyChatModal
         visible={showChatModal}
         onClose={() => setShowChatModal(false)}
+        onStartCall={() => {
+          setShowChatModal(false);
+          setShowCallModal(true);
+        }}
+        episodeId={episodeId || ''}
+        counterpartyName={isResponder ? 'Distress Requester' : 'Approaching Responder'}
+        role={isResponder ? 'responder' : 'requester'}
+      />
+
+      <EmergencyCallModal
+        visible={showCallModal}
+        onClose={() => setShowCallModal(false)}
+        onOpenChat={() => {
+          setShowCallModal(false);
+          setShowChatModal(true);
+        }}
         episodeId={episodeId || ''}
         counterpartyName={isResponder ? 'Distress Requester' : 'Approaching Responder'}
         role={isResponder ? 'responder' : 'requester'}

@@ -1,19 +1,23 @@
-# CONNIFY: Zero-Knowledge Decentralized Civilian Safety & Peer-to-Peer Emergency Mesh
+# CONNIFY: Decentralized Zero-Knowledge Connection Protocol Between Strangers & Peer-to-Peer Community Mesh
 
 > **Production System, Cryptographic Protocol & Full-Stack Monorepo Architectural Specification**  
 > **Repository Target**: `TheOrionGD/Connify-APP`  
+> **Core Mission**: *Connify is not just an emergency app—at its foundation, Connify is a decentralized protocol for connecting strangers in physical proximity.*  
 > **Monorepo Workspaces**:
 > - `backend`: Fastify 5 + TypeScript + MongoDB (Prisma & Mongoose) + Socket.IO + Ed25519 / TweetNaCl
-> - `Connify`: React Native 0.86.0 + TypeScript + Expo Metro + Zustand + Notifee + VisionCamera + Keypair Keystore
-> - `Instantsite`: Vite + React 19 + Tailwind CSS v4 + Motion + Three.js Operations & Governance Portal
-> - `patent`: SHARP Protocol (Galois Field $\text{GF}(2^4)$ $\text{BCH}(15,7)$ Spatial Matching Engine)
+> - `Connify`: React Native 0.86.0 + React 19 + TypeScript + Expo Metro (Android / iOS / Web) + Zustand 5 + Notifee + VisionCamera + Hardware Keypair Keystore
+> - `patent`: SHARP Protocol (Galois Field $\text{GF}(2^4)$ $\text{BCH}(15,7)$ Spatial Matching Engine & Patent Specifications)
 
 ---
 
 ## Table of Contents
-1. [System Overview & Problem Statement](#1-system-overview--problem-statement)
+1. [Core Philosophy & System Overview](#1-core-philosophy--system-overview)
+   - [1.1 The Core Thesis: Safe Connection Between Strangers](#11-the-core-thesis-safe-connection-between-strangers)
+   - [1.2 The Stranger Trust & Privacy-Accuracy Paradox](#12-the-stranger-trust--privacy-accuracy-paradox)
+   - [1.3 The Connify Architecture for Peer-to-Peer Connection](#13-the-connify-architecture-for-peer-to-peer-connection)
 2. [Monorepo Architectural Blueprint](#2-monorepo-architectural-blueprint)
 3. [Cryptographic Foundation: The SHARP Protocol](#3-cryptographic-foundation-the-sharp-protocol)
+   - [3.1 Mathematical Mechanics of Zero-Knowledge Proximity](#31-mathematical-mechanics-of-zero-knowledge-proximity)
 4. [Backend Service Architecture (`backend`)](#4-backend-service-architecture-backend)
    - [4.1 Lifecycle & Startup Sequence](#41-lifecycle--startup-sequence)
    - [4.2 Data Models & Persistence Invariants](#42-data-models--persistence-invariants)
@@ -24,63 +28,102 @@
    - [5.2 Behavioral Risk & Anti-Luring Engine](#52-behavioral-risk--anti-luring-engine)
    - [5.3 Socket.IO Ephemeral Real-Time Mesh Architecture](#53-socketio-ephemeral-real-time-mesh-architecture)
    - [5.4 Hash-Chained Tamper-Evident Audit Ledger](#54-hash-chained-tamper-evident-audit-ledger)
-6. [Mobile Client Architecture (`Connify`)](#6-mobile-client-architecture-connify)
+6. [Mobile & Multi-Platform Client Architecture (`Connify`)](#6-mobile--multi-platform-client-architecture-connify)
    - [6.1 Native Hardware Modules & Keypair Derivation](#61-native-hardware-modules--keypair-derivation)
    - [6.2 State Management (Zustand Stores)](#62-state-management-zustand-stores)
-   - [6.3 The 18 Operational Mobile Screens](#63-the-18-operational-mobile-screens)
-   - [6.4 The 22 Emergency Distress Categories](#64-the-22-emergency-distress-categories)
+   - [6.3 The 25 Operational Application Screens](#63-the-25-operational-application-screens)
+   - [6.4 The 22 Peer Request & Assistance Categories](#64-the-22-peer-request--assistance-categories)
    - [6.5 Offline Resilience & Transaction Queue](#65-offline-resilience--transaction-queue)
    - [6.6 Covert Duress, Stalled Responders & Safety Checks](#66-covert-duress-stalled-responders--safety-checks)
+   - [6.7 Android Home & Lock Screen Widget Integration](#67-android-home--lock-screen-widget-integration)
 7. [Auxiliary Utilities & Engine Systems](#7-auxiliary-utilities--engine-systems)
    - [7.1 AI Hazard Cross-Verification Service](#71-ai-hazard-cross-verification-service)
    - [7.2 Standardized Emergency SMS Formatter](#72-standardized-emergency-sms-formatter)
    - [7.3 Cryptographic Incident Audit Report Generator](#73-cryptographic-incident-audit-report-generator)
-8. [Web Operations & Governance Portal (`Instantsite`)](#8-web-operations--governance-portal-instantsite)
-   - [8.1 Live Administrative Command Center](#81-live-administrative-command-center)
-   - [8.2 Cardiac Vagal Calming (Box Breathing Engine)](#82-cardiac-vagal-calming-box-breathing-engine)
-   - [8.3 Interactive Simulation & Governance Explorer](#83-interactive-simulation--governance-explorer)
-9. [Development Workflow & Environment Configuration](#9-development-workflow--environment-configuration)
-   - [9.1 Prerequisites & Tooling](#91-prerequisites--tooling)
-   - [9.2 Environment Variables Configuration](#92-environment-variables-configuration)
-   - [9.3 Installation & Startup Commands](#93-installation--startup-commands)
-10. [Automated Testing Frameworks](#10-automated-testing-frameworks)
-    - [10.1 Backend Test Suites](#101-backend-test-suites)
-    - [10.2 Mobile Test Suites](#102-mobile-test-suites)
-11. [Release Engineering & Version Synchronization](#11-release-engineering--version-synchronization)
-12. [Security, Privacy & Regulatory Compliance](#12-security-privacy--regulatory-compliance)
-13. [Monorepo Dependency Matrix](#13-monorepo-dependency-matrix)
-14. [License](#14-license)
+8. [Development Workflow & Environment Configuration](#8-development-workflow--environment-configuration)
+   - [8.1 Prerequisites & Tooling](#81-prerequisites--tooling)
+   - [8.2 Environment Variables Configuration](#82-environment-variables-configuration)
+   - [8.3 Installation & Startup Commands](#83-installation--startup-commands)
+9. [Automated Testing Frameworks](#9-automated-testing-frameworks)
+   - [9.1 Backend Test Suites](#91-backend-test-suites)
+   - [9.2 Mobile & Client Test Suites](#92-mobile--client-test-suites)
+10. [Release Engineering & Version Synchronization](#10-release-engineering--version-synchronization)
+11. [Security, Privacy & Regulatory Compliance](#11-security-privacy--regulatory-compliance)
+12. [Monorepo Dependency Matrix](#12-monorepo-dependency-matrix)
+13. [License](#13-license)
 
 ---
 
-## 1. System Overview & Problem Statement
+## 1. Core Philosophy & System Overview
 
-**Connify** is an open-source, zero-trust civilian safety protocol and decentralized emergency response ecosystem. It enables citizens in distress to discover, authenticate, and coordinate physical assistance with nearby volunteer peers and pre-designated emergency guardians without disclosing raw geolocation data to a central entity.
+### 1.1 The Core Thesis: Safe Connection Between Strangers
 
-### 1.1 The Privacy-Accuracy Paradox in Existing Safety Infrastructure
-Modern emergency monitoring tools and SOS applications require users to continuously transmit plaintext Global Positioning System (GPS) latitude and longitude coordinates to centralized cloud servers. This traditional pattern introduces critical vulnerabilities:
-1. **Physical Tracking & Mass Surveillance Exposure**: A central database holding continuous coordinates becomes an attractive target for bad actors, stalkers, and rogue state surveillance.
-2. **The Coordinate Jitter Paradox**: Attempting to protect user location by standard hashing (e.g., $\text{SHA-256}(\text{latitude} \parallel \text{longitude})$) fails completely. Mobile GPS sensors experience natural spatial drift (atmospheric diffraction, multipath signal reflection, clock drift). A minor shift of 5 meters produces a completely different cryptographic digest:
-   $$\text{SHA-256}(12.97159, 77.59456) \ne \text{SHA-256}(12.97163, 77.59460)$$
-   Traditional exact hashing prevents spatial proximity matching.
-3. **Predatory Luring & Physical Counterparty Ambush**: Without rigorous behavioral evaluation and hardware authentication, bad actors can manufacture fake emergency broadcasts to lure unsuspecting civilian responders into hazardous physical traps.
-4. **Subterranean & Network Blackout Failures**: Conventional mobile applications lock up or lose critical state when mobile cellular data disconnects in subterranean transit networks, parking basements, or remote dead zones.
+At its core, **Connify is a decentralized protocol for connecting strangers in physical proximity**. 
 
-### 1.2 The Connify Technical Solution
-Connify solves these problems through an integrated architecture:
-- **Zero-Knowledge Proximity Discovery (The SHARP Protocol)**: Converts continuous coordinates into a 9-cell grid neighborhood, encodes them into a 1024-bit Bloom filter, and applies $\text{BCH}(15,7)$ error-correcting codes over Galois Field $\text{GF}(2^4)$ arithmetic. Clients transmit only parity syndromes and blinded hashes. Approaching responders use the parity bytes to mathematically correct sensor drift and reconstruct the spatial vector on their own device.
+In modern urban environments, thousands of human beings walk past each other every day, isolated by digital silos. When someone is stranded with a flat tire, searching for a lost child, navigating an unfamiliar neighborhood at night, seeking transport in an emergency, or facing an acute crisis, the fastest and most capable source of support is almost always a **nearby stranger**.
+
+However, reaching out to strangers in the real world is fraught with friction, distrust, and danger. Connify eliminates this barrier by building an **ad-hoc, zero-knowledge human mesh network**:
+
+```
+                       ┌─────────────────────────────────────────┐
+                       │           THE CONNIFY MESH              │
+                       │     (Connection Between Strangers)      │
+                       └────────────────────┬────────────────────┘
+                                            │
+        ┌───────────────────────────────────┼───────────────────────────────────┐
+        ▼                                   ▼                                   ▼
+┌───────────────────────┐       ┌───────────────────────┐       ┌───────────────────────┐
+│   EVERYDAY MUTUAL     │       │   SITUATIONAL TRUST   │       │   HIGH-URGENCY        │
+│   COMMUNITY AID       │       │   & SAFE ESCORTS      │       │   PEER ASSISTANCE     │
+├───────────────────────┤       ├───────────────────────┤       ├───────────────────────┤
+│ • Stranded & breakdown│       │ • Safe companion walk │       │ • Medical emergencies │
+│ • Transport & rides   │       │ • Danger spot alerts  │       │ • Panic & harassment  │
+│ • Lost child / senior │       │ • Timed journey guard │       │ • Fire / disaster     │
+│ • Blood & med supply  │       │ • Witness attestation │       │ • Offline SMS mesh    │
+└───────────────────────┘       └───────────────────────┘       └───────────────────────┘
+```
+
+Connify enables two nearby strangers to:
+1. **Discover Each Other Without Disclosing Location**: Match within a local geographic radius without broadcasting raw coordinates to a central database or to potential stalkers.
+2. **Authenticate the Rendezvous Instantly**: Perform a zero-trust cryptographic QR handshake using hardware-bound Ed25519 keypairs.
+3. **Mint Just-In-Time (JIT) Trust Capsules**: Create short-lived, verifiable peer connections that grant temporary communication and coordination privileges without sharing phone numbers, real names, or permanent identities.
+4. **Build Decentralized Trust Scores**: Reward positive interactions with XP, Trust Badges, and reputation tokens while autonomously quarantining malicious actors.
+
+---
+
+### 1.2 The Stranger Trust & Privacy-Accuracy Paradox
+
+Connecting strangers in physical space presents two fundamental paradoxes:
+
+#### Paradox 1: The Stranger Trust Paradox (Anti-Luring & Safety)
+Without verifiable identity and behavioral evaluation, bad actors can exploit peer-to-peer networks to manufacture fake requests, luring well-meaning strangers into secluded or dangerous physical traps. Connify solves this through:
+- **Hardware-Derived Ed25519 Node Identity**: Cryptographically locks identity to the device hardware keystore.
+- **Dynamic Behavioral Risk Engine**: Enforces velocity caps ($>2$ broadcasts in 10 minutes), requires mandatory emergency guardians on file, tracks resolution ratios, and applies reputation penalties.
+- **Bystander Witness Attestations**: Allows third-party bystanders to co-sign the physical encounter.
+
+#### Paradox 2: The Coordinate Jitter & Privacy Paradox
+Traditional matching algorithms require transmitting plaintext GPS coordinates $(lat, lng)$ to a central cloud server, exposing users to continuous physical tracking and mass surveillance.
+Attempting to hide coordinates using standard cryptographic hashes ($\text{SHA-256}(lat \parallel lng)$) fails due to natural mobile sensor drift ($5\text{ m}$ drift breaks exact hash matching):
+$$\text{SHA-256}(12.97159, 77.59456) \ne \text{SHA-256}(12.97163, 77.59460)$$
+
+---
+
+### 1.3 The Connify Architecture for Peer-to-Peer Connection
+
+Connify solves the privacy-accuracy paradox through an integrated mathematical and cryptographic pipeline:
+- **Zero-Knowledge Proximity Discovery (The SHARP Protocol)**: Converts coordinates into a 9-cell spatial neighborhood, encodes them into a 1024-bit Bloom filter, and applies $\text{BCH}(15,7)$ error-correcting codes over Galois Field $\text{GF}(2^4)$ arithmetic. Clients transmit only parity syndromes and blinded hashes. Approaching responders use the parity bytes to mathematically correct sensor drift and reconstruct the spatial vector on their own device.
 - **Hardware-Derived Identity**: Mobile clients deterministically derive an Ed25519 public/private keypair and a 64-character SHA-256 device fingerprint using `DeviceInfo.getUniqueId()` and a persistent installation UUID. Keys are locked within Android Keystore / iOS Keychain.
-- **Just-In-Time (JIT) Trust Capsules**: Emergency access grants are minted as short-lived (2-hour TTL) Ed25519-signed JSON Web Signatures (JWS) via `jose`. The central server stores only the SHA-256 digest of the token; the bearer token never resides in the database.
+- **Just-In-Time (JIT) Trust Capsules**: Emergency and mutual aid access grants are minted as short-lived (2-hour TTL) Ed25519-signed JSON Web Signatures (JWS) via `jose`. The central server stores only the SHA-256 digest of the token; the bearer token never resides in the database.
 - **Watchdog Signal-Loss Daemon**: An autonomous background daemon scans active sessions every 10 seconds. If a device stops transmitting telemetry for $\ge 15$ seconds, the server automatically triggers push alerts via Firebase Cloud Messaging (FCM) and transactional emails via Brevo to all registered emergency guardians, complete with last-known Google Maps coordinates.
 - **Append-Only Hash-Chained Audit Ledger**: All lifecycle transitions are chained cryptographically using $H_n = \text{SHA-256}(H_{n-1} \parallel \text{EventType} \parallel \text{EpisodeID})$.
 - **Behavioral Harmlessness Risk Engine**: Prevents predatory luring by dynamically capping accounts that broadcast $>2$ episodes within 10 minutes, penalizing uncompleted episodes, and strictly enforcing mandatory guardian registration prior to broadcast.
-- **Dual-Mode Offline Synchronization**: If offline, emergency transactions are queued locally with expiry timestamps. When network returns, the queue flushes chronologically. Users can also fall back to 1-tap cellular SMS alerts containing offline satellite GPS coordinates.
+- **Dual-Mode Offline Synchronization & Widget Bridges**: If offline, emergency transactions are queued locally with expiry timestamps. When network returns, the queue flushes chronologically. Users can also fall back to 1-tap cellular SMS alerts containing offline satellite GPS coordinates or trigger emergency modes from Android native widgets.
 
 ---
 
 ## 2. Monorepo Architectural Blueprint
 
-The codebase is organized as a monorepo consisting of four major sub-projects:
+The codebase is organized as a high-performance monorepo:
 
 ```
 o:\PROJECTS\CONNIFY-APP\
@@ -104,42 +147,51 @@ o:\PROJECTS\CONNIFY-APP\
 │   ├── package.json               # Backend dependencies (v3.7.5)
 │   └── tsconfig.json              # TypeScript compiler configuration
 │
-├── Connify/                       # React Native Mobile Client Application
+├── Connify/                       # React Native Multi-Platform Client (Android / iOS / Web)
 │   ├── android/                   # Native Android project, Gradle build system, ProGuard
 │   ├── ios/                       # Native iOS Xcode project & Podfile
-│   ├── assets/                    # Typography, imagery, and sound assets
+│   ├── assets/                    # Typography, imagery, Lottie, and sound assets
 │   ├── patches/                   # Hotfixes applied via patch-package
 │   ├── src/
-│   │   ├── components/            # UI atoms, modals, radar maps, animations, chat
+│   │   ├── components/            # UI atoms, animations, buttons, cards, chat, inputs, modals, map
+│   │   ├── data/                  # Static emergency data & local registries
 │   │   ├── navigation/            # Bottom tab bar & native stack screen navigators
-│   │   ├── screens/               # 18 operational screens across requester/helper flows
-│   │   ├── services/              # Biometrics, Keychain, Socket.IO, Geolocation, Queue
+│   │   ├── screens/               # 25 operational screens across requester, helper & safety flows
+│   │   │   ├── ActiveEpisode/     # EmergencyScreen (live incident, countdown, chat, escort)
+│   │   │   ├── Feedback/          # FeedbackScreen (incident outcome, photo verification, audit)
+│   │   │   ├── Governance/        # GovernanceScreen, ProtocolExplainerScreen, WitnessContactsScreen
+│   │   │   ├── Hazard/            # HazardMapScreen (community risk map, AI verification)
+│   │   │   ├── Helper/            # NearbyRequestsScreen, HandshakeScreen (QR scan & JIT capsule)
+│   │   │   ├── Onboarding/        # SplashScreen, WelcomeScreen, GoogleAuthSuccessScreen, OnboardingScreen
+│   │   │   ├── Requester/         # DashboardScreen, CreateRequestScreen, SearchingScreen
+│   │   │   ├── SafetyGuard/       # TimedSafetyGuardScreen (quiet journey countdown)
+│   │   │   ├── Settings/          # SettingsScreen, HistoryScreen, FrequentLocationsScreen
+│   │   │   ├── EmergencyContactsScreen.tsx
+│   │   │   ├── FakeCallScreen.tsx
+│   │   │   ├── GovernmentEmergencyNumbersScreen.tsx
+│   │   │   ├── OfflineEmergencyScreen.tsx
+│   │   │   ├── UnifiedSafetyHubScreen.tsx
+│   │   │   └── WomenSafetyScreen.tsx
+│   │   ├── services/              # Biometrics, Keychain, Socket.IO, Geolocation, Queue, Widget Sync
 │   │   │   └── api/               # Axios API wrappers with interceptors
-│   │   ├── stores/                # Zustand state stores (Auth, Episode, Hazard, Rewards)
+│   │   ├── stores/                # Zustand state stores (Auth, Episode, Hazard, Location, Reward, Theme, Frequent)
 │   │   ├── theme/                 # Design tokens, color palettes, typography scale
-│   │   ├── types/                 # Frontend interfaces
-│   │   └── utils/                 # Pure JS SHARP protocol, phone normalizer, report generator
-│   ├── __tests__/                 # Jest component & unit test suites
+│   │   ├── types/                 # Shared frontend TypeScript interfaces
+│   │   ├── utils/                 # Pure JS SHARP protocol, phone normalizer, report generator, SMS
+│   │   └── widgets/               # Android Widget Bridge & Synchronization Service
+│   ├── __tests__/                 # Jest component & unit test suites (11 test suites)
 │   ├── bump_version.js            # Monorepo version synchronizer across all packages
 │   ├── package.json               # Mobile dependencies (v3.7.5, React Native 0.86.0)
-│   └── react-native.config.js     # Native asset and vector icon vector linkage
-│
-├── Instantsite/                   # Operations, Governance & Web Demonstration Portal
-│   ├── public/                    # Web assets & demo video layers
-│   ├── src/
-│   │   ├── components/            # Interactive protocol explainers, admin portal, APK download
-│   │   ├── App.tsx                # Single-page smooth scroll coordinator & toast engine
-│   │   ├── main.tsx               # React 19 DOM entrypoint
-│   │   ├── types.ts               # Web page routing enum & data types
-│   │   └── index.css              # Tailwind CSS v4 styling rules
-│   ├── package.json               # Vite + React 19 dependencies (v3.7.2)
-│   └── vite.config.ts             # Vite build & Tailwind plugin pipeline
+│   └── react-native.config.js     # Native asset and vector icon linkage
 │
 ├── patent/                        # Patent Specification & Mathematical Foundations
 │   ├── sharp_protocol_patent.md   # Legal & technical patent specification
 │   ├── patent_analysis.md         # Deep claim breakdown & sequence charts
+│   ├── patent_specification.txt   # Formal patent text document
 │   ├── custom_invented_algorithm_code.txt # Standalone reference implementation of SHARP
-│   └── cpm_algorithm_analysis.xlsx # Benchmark data on error-correction convergence
+│   ├── existing_algorithm_code.txt # Prior-art baseline comparison
+│   ├── cpm_algorithm_analysis.xlsx # Critical Path Method benchmark data
+│   └── cpm_real_gantt_chart.xlsx  # Mathematical convergence & latency validation
 │
 ├── run_emulator.bat               # Android emulator launch helper
 ├── run_emulator.ps1               # PowerShell emulator runner script
@@ -153,25 +205,25 @@ o:\PROJECTS\CONNIFY-APP\
 
 ## 3. Cryptographic Foundation: The SHARP Protocol
 
-The **Syndrome-Based Error-Correction Spatial Matching (SHARP)** engine operates over Galois Field arithmetic to solve the GPS noise problem in zero-knowledge location matching.
+The **Syndrome-Based Error-Correction Spatial Matching (SHARP)** engine operates over Galois Field arithmetic to solve the GPS noise problem in zero-knowledge location matching between strangers.
 
 ```mermaid
 sequenceDiagram
     autonumber
-    participant A as Requester (Device A)
+    participant A as Requester (Stranger A)
     participant S as Fastify Central Node
-    participant B as Volunteer Responder (Device B)
+    participant B as Volunteer Peer (Stranger B)
 
     Note over A: 1. Sample GPS (lat, lng)<br/>2. Round coordinates to 3 decimal places<br/>3. Compute 9-cell spatial neighborhood
     Note over A: 4. Vectorize cells into 1024-bit Bloom filter (4x FNV-1a)<br/>5. Slice into 146x 7-bit blocks (m7)<br/>6. BCH(15,7) over GF(2^4) -> Extract 8-bit Parity Syndromes<br/>7. Blind cells: SHA-256(SessionKey : CellID : Role)
     A->>S: POST /api/episodes (Syndromes Hex + Blinded Hashes)<br/>[Raw coordinates are never sent]
-    S->>B: Socket.IO /feed -> Broadcast New Episode (Syndromes + Blinded Hashes)
+    S->>B: Socket.IO /feed -> Broadcast New Request (Syndromes + Blinded Hashes)
     Note over B: 8. Sample local GPS<br/>9. Generate local 1024-bit Bloom filter<br/>10. Combine local 7-bit blocks with received 8-bit syndromes<br/>11. BCH Decode over GF(2^4) -> Fix bit flips caused by GPS noise<br/>12. Reconstruct Requester Bloom filter & match blinded hashes
     B->>S: POST /api/capsules/issue (Scanned Requester QR Token + Proof)
     S-->>B: Return JIT Trust Capsule Token (2h TTL)
 ```
 
-### 3.1 Mathematical Mechanics
+### 3.1 Mathematical Mechanics of Zero-Knowledge Proximity
 
 #### 1. Galois Field $\text{GF}(2^4)$ Definition
 The field contains 16 elements generated by the primitive polynomial:
@@ -206,7 +258,7 @@ $$\Delta = (S_1 \cdot S_3) \oplus (S_2 \cdot S_2)$$
 - Chien search identifies the root locations $x \in \text{GF}(2^4)$ where $1 \oplus \Lambda_1 x \oplus \Lambda_2 x^2 = 0$, and flips the corrupted bits in $r_{15}$.
 
 #### 4. Spatial Discretization & Vectorization
-- Continuous coordinates $(lat, lng)$ are truncated to 3 decimal places ($~111\text{ m}$ precision at equator).
+- Continuous coordinates $(lat, lng)$ are truncated to 3 decimal places ($\approx 111\text{ m}$ precision at equator).
 - A 9-grid neighborhood is synthesized:
   $$\mathcal{N} = \{ (lat_0 + dx \cdot 0.001, lng_0 + dy \cdot 0.001) \mid dx, dy \in \{-1, 0, 1\} \}$$
 - Each cell is hashed 4 times via 32-bit FNV-1a:
@@ -225,7 +277,7 @@ The backend service is powered by Fastify 5 and TypeScript, structured with sepa
 graph TD
     subgraph Client Requests
         M[Connify React Native App]
-        W[Instantsite Web Portal]
+        W[Connify Expo Web App]
     end
 
     subgraph Fastify Gateway
@@ -391,7 +443,7 @@ Defined in `backend/prisma/schema.prisma` and mirrored in Mongoose schemas (`bac
 #### Episodes (`/api/episodes`)
 | Method | Endpoint | Auth | Description & Request Validation |
 | :--- | :--- | :--- | :--- |
-| `POST` | `/api/episodes` | Device Session | Creates an emergency broadcast. Checks `BehavioralRiskEngine.assertEligibilityForEpisodeTrigger`. Body: `{ category, urgency (1-5), latitude, longitude, radiusMeters, blindedGridSigs, helperValidationKey, gridCellsJson, isDuress? }`. |
+| `POST` | `/api/episodes` | Device Session | Creates an assistance or emergency broadcast. Checks `BehavioralRiskEngine.assertEligibilityForEpisodeTrigger`. Body: `{ category, urgency (1-5), latitude, longitude, radiusMeters, blindedGridSigs, helperValidationKey, gridCellsJson, isDuress? }`. |
 | `GET` | `/api/episodes/nearby` | Device Session | Finds active episodes via `$geoWithin` spherical geometry. Query: `latitude`, `longitude`, `radiusMeters`. Returns filtered metadata with relative distances in meters. |
 | `GET` | `/api/episodes/:id` | Device Session | Retrieves single episode status, TTL expiry, and blinded SHARP parameters. |
 | `PATCH` | `/api/episodes/:id/cancel` | Device Session | Cancels episode. Enforces owner authorization (`requesterDeviceId === sub`). Broadcasts `episode_cancelled` to room and feed. |
@@ -400,7 +452,7 @@ Defined in `backend/prisma/schema.prisma` and mirrored in Mongoose schemas (`bac
 #### Capsules (`/api/capsules`)
 | Method | Endpoint | Auth | Description & Request Validation |
 | :--- | :--- | :--- | :--- |
-| `POST` | `/api/capsules/issue` | Device Session | Issues a 2-hour JIT Trust Capsule. Cryptographically verifies requester QR token signature and checks for nonce reuse. Body: `{ episodeId, helperDeviceId, verificationData: { qrToken, blindedGridCell } }`. Persists SHA-256 hash of token. |
+| `POST` | `/api/capsules/issue` | Device Session | Issues a 2-hour JIT Trust Capsule between two strangers. Cryptographically verifies requester QR token signature and checks for nonce reuse. Body: `{ episodeId, helperDeviceId, verificationData: { qrToken, blindedGridCell } }`. Persists SHA-256 hash of token. |
 | `POST` | `/api/capsules/redeem` | Device Session | Verifies capsule token JWS signature via `KeyService`. Atomically transitions capsule from `issued` to `redeemed` and episode to `active`. |
 | `POST` | `/api/capsules/:id/revoke` | Device Session | Revokes an issued capsule. Updates state to `revoked`. Writes `CAPSULE_REVOKED` to audit ledger. |
 | `POST` | `/api/capsules/verify-qr` | Device Session | Standalone verification endpoint checking Ed25519 signature and validity of a QR token without consuming the nonce. |
@@ -489,7 +541,7 @@ Located in `backend/src/services/LocationWatchdogService.ts`, this service opera
   - Resets `signalLostAlertSent = false`.
 
 ### 5.2 Behavioral Risk & Anti-Luring Engine
-Located in `backend/src/services/BehavioralRiskEngine.ts`, this engine evaluates device behavior before permitting an emergency broadcast:
+Located in `backend/src/services/BehavioralRiskEngine.ts`, this engine evaluates device behavior before permitting a broadcast to strangers:
 1. **Mandatory Guardian Check (`assertMandatoryGuardian`)**:
    - Queries `Guardian.countDocuments({ deviceId })`. If 0, searches profile `medicalNotes` for auto-heal data. If still 0, rejects request with `GUARDIAN_REQUIRED`.
 2. **Velocity & Luring Detection**:
@@ -559,14 +611,14 @@ Located in `backend/src/utils/audit.ts` and `backend/src/routes/admin.ts`:
 
 ---
 
-## 6. Mobile Client Architecture (`Connify`)
+## 6. Mobile & Multi-Platform Client Architecture (`Connify`)
 
-The React Native application is built on React Native 0.86.0 and React 19, utilizing Zustand for local state management, React Navigation 7 for routing, and native hardware integrations via specialized native libraries.
+The client application is built on React Native 0.86.0 and React 19 with full cross-platform capabilities (Android, iOS, and Expo Web), utilizing Zustand for state management, React Navigation 7 for routing, and native hardware integrations.
 
 ### 6.1 Native Hardware Modules & Keypair Derivation
 - **Hardware Keystore Binding (`react-native-keychain`)**: Securely stores the derived Ed25519 keypair within Android Keystore or iOS Keychain under service name `'connify.ed25519.keypair'`, protected by `Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY`.
 - **Biometric Sensors (`react-native-biometrics`)**: Prompts Touch ID, Face ID, or Android BiometricPrompt prior to high-stakes actions like broadcasting distress signals or accepting rescue tasks.
-- **Vision Camera (`react-native-vision-camera`)**: Drives the viewfinder in `HandshakeScreen.tsx` for real-time QR code scanning.
+- **Vision Camera (`react-native-vision-camera`)**: Drives the viewfinder in `HandshakeScreen.tsx` for real-time QR code scanning with ML Kit barcode recognition fallback.
 - **Geolocation Provider (`react-native-geolocation-service`)**: Interfaces with native Android LocationServices and iOS CoreLocation providers for high-accuracy positioning.
 - **Background Notifications (`@notifee/react-native`)**: Creates high-importance Android notification channels (`AndroidImportance.HIGH`) with custom sound and vibration profiles.
 - **Embedded Web View (`react-native-webview`)**: Renders embedded interactive Leaflet maps with zero external Google Maps API key requirements.
@@ -596,7 +648,7 @@ The React Native application is built on React Native 0.86.0 and React 19, utili
 
 #### 4. `hazardStore.ts`
 - Manages local safety danger spots and user reports.
-- Integrates with `aiHazardService` to cross-reference reported hazards against online databases.
+- Integrates with `aiHazardService` to cross-reference reported hazards against online municipal databases and lighting grids.
 
 #### 5. `rewardStore.ts`
 - Tracks gamification state: XP points, Trust Score (0.0–5.0), Trust Tokens, and unlocked badges.
@@ -604,60 +656,81 @@ The React Native application is built on React Native 0.86.0 and React 19, utili
 #### 6. `frequentLocationsStore.ts`
 - Manages user-configured safe locations ('Home Sanctuary', 'Tech Campus', 'Fitness Hub') with geofenced coordinates.
 
+#### 7. `themeStore.ts`
+- Manages dynamic light, dark, and high-contrast OLED black themes.
+
 ---
 
-### 6.3 The 18 Operational Mobile Screens
+### 6.3 The 25 Operational Application Screens
 
 ```
-Main Navigation Structure
-├── SplashScreen
-├── WelcomeScreen
-├── GoogleAuthSuccessScreen
-├── Main (Bottom Tab Navigator)
-│   ├── DashboardScreen
-│   ├── UnifiedSafetyHubScreen
-│   ├── NearbyRequestsScreen
-│   ├── HistoryScreen
-│   └── SettingsScreen
-├── CreateRequestScreen
-├── SearchingScreen
-├── HandshakeScreen
-├── EmergencyScreen
-├── FeedbackScreen
-├── EmergencyContactsScreen
-├── GovernmentEmergencyNumbersScreen
-├── WomenSafetyScreen
-├── OfflineEmergencyScreen
-├── FrequentLocationsScreen
-├── HazardMapScreen
-├── TimedSafetyGuardScreen
-└── FakeCallScreen
+Navigation Architecture
+├── Onboarding & Authentication
+│   ├── SplashScreen (Bootstrap & Keypair Check)
+│   ├── WelcomeScreen (OAuth / OTP / Guest Hub)
+│   ├── GoogleAuthSuccessScreen (OAuth Sync Verification)
+│   └── OnboardingScreen (Interactive Safety Guide)
+│
+├── Main Tab Navigation
+│   ├── DashboardScreen (Circular Radar Visualizer & Connect with Strangers)
+│   ├── UnifiedSafetyHubScreen (Master Safety Console & Siren)
+│   ├── NearbyRequestsScreen (Volunteer Incident Discovery Feed)
+│   ├── HistoryScreen (Cryptographic Audit Trail)
+│   └── SettingsScreen (Profile, Guardians, Themes, Account Deletion)
+│
+├── Requester & Peer Connection Workflow
+│   ├── CreateRequestScreen (22-Category Assistance & Biometric Gate)
+│   ├── SearchingScreen (Active Radar Polling & Swarm Listeners)
+│   ├── HandshakeScreen (QR Scanners & JIT Capsule Issuance)
+│   ├── EmergencyScreen (Active Incident, Countdown & P2P Chat)
+│   └── FeedbackScreen (Post-Incident Audit & Photo Verification)
+│
+├── Safety Hub & Rapid Interventions
+│   ├── WomenSafetyScreen (1-Tap Sirens & SOS SMS)
+│   ├── OfflineEmergencyScreen (Cellular SMS Distress Dispatch)
+│   ├── FakeCallScreen (Configurable Incoming Exit Call Engine)
+│   ├── EmergencyContactsScreen (Guardian Management & Keychain Sync)
+│   ├── GovernmentEmergencyNumbersScreen (National Hotlines 112/100/1091)
+│   └── TimedSafetyGuardScreen (Quiet Journey Countdown Watcher)
+│
+├── Hazard Intelligence & Community Safety
+│   └── HazardMapScreen (Community Danger Spots & AI Cross-Verification)
+│
+└── Governance, Audits & Decentralized Protocols
+    ├── GovernanceScreen (Decentralized Parameters & Trust Engine)
+    ├── ProtocolExplainerScreen (Galois Field BCH Math Explainer)
+    └── WitnessContactsScreen (Bystander Witness Attestations)
 ```
 
 1. **`SplashScreen.tsx`**: Bootstraps device credentials, checks connectivity, initializes notification channels, and routes to `Welcome` or `Main`.
 2. **`WelcomeScreen.tsx`**: Multi-mode authentication hub supporting Google OAuth, email/password, 7-digit email OTP, or guest mode.
 3. **`GoogleAuthSuccessScreen.tsx`**: Onboarding screen confirming profile data sync from Google accounts.
-4. **`DashboardScreen.tsx`**: Primary user dashboard featuring a dynamic circular radar visualizer, 1-tap quick SOS trigger, system status telemetry, and active safety timer counters.
-5. **`UnifiedSafetyHubScreen.tsx`**: Unified protection console with a high-decibel audible panic alarm, 1-tap offline GPS emergency SMS dispatching, primary guardian call/SMS/WhatsApp triggers, national hotlines, and instant exit call scheduling.
-6. **`CreateRequestScreen.tsx`**: Emergency broadcast configuration supporting 22 distress categories, urgency selection (1–5), biometric authentication, and SHARP Bloom filter syndrome generation.
-7. **`SearchingScreen.tsx`**: Radar screen displaying live status while polling for volunteer responders and listening for socket acceptance.
-8. **`NearbyRequestsScreen.tsx`**: Proximity discovery feed for volunteer responders, displaying nearby distress episodes with distance in meters and urgency ratings.
-9. **`HandshakeScreen.tsx`**: Rendezvous verification screen. Requesters display an Ed25519-signed QR code with a 90-second nonce; helpers scan the code using the camera to issue the JIT Trust Capsule. Supports Covert Duress PIN input and Bystander Witness Attestation signing.
-10. **`EmergencyScreen.tsx`**: Active incident screen featuring a 15-minute countdown clock, encrypted P2P chat, stalled responder detection, and safe escort tracking mode.
-11. **`FeedbackScreen.tsx`**: Post-incident screen recording resolution status, risk levels (1–5), photographic verification, and audit report generation.
-12. **`HistoryScreen.tsx`**: Local audit trail showing past emergency broadcasts and cryptographic proofs.
-13. **`SettingsScreen.tsx`**: Configuration center for editing profiles, linking Google accounts, managing guardians, switching themes, and submitting account deletion requests.
-14. **`EmergencyContactsScreen.tsx`**: Interface for adding and removing emergency contacts, stored securely in `react-native-keychain`.
-15. **`GovernmentEmergencyNumbersScreen.tsx`**: Direct dial directory for emergency services (112, 100, 102, 108, 1091, 181, 1930).
-16. **`WomenSafetyScreen.tsx`**: Quick-access safety screen with audible sirens and 1-tap emergency SMS broadcasting.
-17. **`OfflineEmergencyScreen.tsx`**: Fallback screen for cellular SMS-based distress broadcasts when mobile data is unavailable.
-18. **`FakeCallScreen.tsx`**: Simulates realistic incoming calls from configurable contacts ('Mom', 'Dad', 'Safety Dispatch', 'Office Guard') with customizable delays (instant, 5s, 15s, 30s) to assist users in discreetly exiting hazardous situations.
-19. **`TimedSafetyGuardScreen.tsx`**: Quiet journey countdown timer. Users specify destination and duration. If the user fails to check in before the timer reaches zero, automatic SMS and push notifications are dispatched to emergency contacts.
-20. **`HazardMapScreen.tsx`**: Community risk map. Users report danger spots, which are evaluated by the AI Hazard Verification Engine (`aiHazardService`) against municipal logs and lighting grid feeds.
+4. **`OnboardingScreen.tsx`**: Interactive multi-step explainer illustrating zero-knowledge location privacy and responder rendezvous.
+5. **`DashboardScreen.tsx`**: Primary user dashboard featuring a dynamic circular radar visualizer, 1-tap quick SOS trigger, "Connect with a Nearby Helper" launcher, system status telemetry, and active safety timer counters.
+6. **`UnifiedSafetyHubScreen.tsx`**: Unified protection console with a high-decibel audible panic alarm, 1-tap offline GPS emergency SMS dispatching, primary guardian call/SMS/WhatsApp triggers, national hotlines, and instant exit call scheduling.
+7. **`CreateRequestScreen.tsx`**: Broadcast configuration supporting 22 peer request categories across mutual aid, medical, transport, and safety with urgency ratings (1–5) and SHARP Bloom filter generation.
+8. **`SearchingScreen.tsx`**: Radar screen displaying live status while polling for nearby volunteer peers and listening for socket acceptance.
+9. **`NearbyRequestsScreen.tsx`**: Proximity discovery feed for volunteer responders, displaying nearby distress episodes with distance in meters and urgency ratings.
+10. **`HandshakeScreen.tsx`**: Rendezvous verification screen between two strangers. Requesters display an Ed25519-signed QR code with a 90-second nonce; helpers scan the code using the camera to issue the JIT Trust Capsule. Supports Covert Duress PIN input and Bystander Witness Attestation signing.
+11. **`EmergencyScreen.tsx`**: Active incident screen featuring a 15-minute countdown clock, encrypted P2P chat, stalled responder detection, and safe escort tracking mode.
+12. **`FeedbackScreen.tsx`**: Post-incident screen recording resolution status, risk levels (1–5), photographic verification, and audit report generation.
+13. **`HistoryScreen.tsx`**: Local audit trail showing past emergency broadcasts and cryptographic proofs.
+14. **`SettingsScreen.tsx`**: Configuration center for editing profiles, linking Google accounts, managing guardians, switching themes, and submitting account deletion requests.
+15. **`EmergencyContactsScreen.tsx`**: Interface for adding and removing emergency contacts, stored securely in `react-native-keychain`.
+16. **`GovernmentEmergencyNumbersScreen.tsx`**: Direct dial directory for emergency services (112, 100, 102, 108, 1091, 181, 1930).
+17. **`WomenSafetyScreen.tsx`**: Quick-access safety screen with audible sirens and 1-tap emergency SMS broadcasting.
+18. **`OfflineEmergencyScreen.tsx`**: Fallback screen for cellular SMS-based distress broadcasts when mobile data is unavailable.
+19. **`FakeCallScreen.tsx`**: Simulates realistic incoming calls from configurable contacts ('Mom', 'Dad', 'Safety Dispatch', 'Office Guard') with customizable delays (instant, 5s, 15s, 30s) to assist users in discreetly exiting hazardous situations.
+20. **`TimedSafetyGuardScreen.tsx`**: Quiet journey countdown timer. Users specify destination and duration. If the user fails to check in before the timer reaches zero, automatic SMS and push notifications are dispatched to emergency contacts.
+21. **`HazardMapScreen.tsx`**: Community risk map. Users report danger spots, which are evaluated by the AI Hazard Verification Engine (`aiHazardService`) against municipal logs and lighting grid feeds.
+22. **`FrequentLocationsScreen.tsx`**: Manages user-configured safe geofences (e.g., Home, University, Office).
+23. **`GovernanceScreen.tsx`**: Interactive governance overview detailing protocol trust scores, community validators, and decentralized parameters.
+24. **`ProtocolExplainerScreen.tsx`**: In-app educational module breaking down Bloom filter spatial indexing and Peterson-Gorenstein-Zierler decoding.
+25. **`WitnessContactsScreen.tsx`**: Direct management screen for designated bystander witnesses providing secondary rendezvous attestations.
 
 ---
 
-### 6.4 The 22 Emergency Distress Categories
+### 6.4 The 22 Peer Request & Assistance Categories
 Defined in `Connify/src/screens/Requester/CreateRequestScreen.tsx`:
 
 | Category Name | Icon Name | Description | Backend Mapped Category |
@@ -667,7 +740,7 @@ Defined in `Connify/src/screens/Requester/CreateRequestScreen.tsx`:
 | **Fire & Explosion** | `local-fire-department` | Active fire outbreak, smoke, or explosion hazard | `emergency` |
 | **Women Safety & Harassment** | `health-and-safety` | SOS panic, stalking, or female safety intervention | `emergency` |
 | **Accident & Collision** | `car-crash` | Road crash, vehicular accident, or injury on transit | `medical` |
-| **Transport & Evacuation** | `local-taxi` | Emergency transport, ambulance, or safe evacuation | `transport` |
+| **Transport & Evacuation** | `local-taxi` | Emergency transport, ride share, or safe evacuation | `transport` |
 | **Disaster & Flood** | `thunderstorm` | Flash flood, storm, earthquake, or severe hazard | `emergency` |
 | **Domestic Violence & Abuse** | `gavel` | Domestic abuse, violent dispute, or protective distress | `emergency` |
 | **Child Emergency & Lost** | `child-care` | Missing child, infant distress, or pediatric emergency | `general` |
@@ -705,6 +778,11 @@ Implemented in `Connify/src/services/OfflineQueueService.ts` and `QueueHandlers.
   In `EmergencyScreen.tsx`, the client tracks the timestamp of the responder's last position update (`lastResponderMovementTime`). If the responder's position does not change for $> 2$ minutes during an active episode, `NotificationService.notifyStalledResponder()` alerts the requester.
 - **Automated Safety Wellness Check (Feature 17)**:
   Five minutes after an emergency episode is marked resolved, the system triggers `NotificationService.notifyWellnessCheckPrompt()` prompting the user to confirm they remain safe.
+
+### 6.7 Android Home & Lock Screen Widget Integration
+Implemented in `Connify/src/widgets/widgetBridge.ts` and `widgetSyncService.ts`:
+- **Native Data Bridge**: Transmits atomic state snapshots (`isActiveEpisode`, `status`, `timeLeft`, `trustScore`, `unreadMessages`) to native Android AppWidget providers.
+- **1-Tap Widget SOS Action**: Allows users to trigger immediate distress broadcasts directly from their Android home screen without unlocking and navigating the UI.
 
 ---
 
@@ -775,43 +853,16 @@ Data Retention    : This local audit record is encrypted on-device. All server-s
 
 ---
 
-## 8. Web Operations & Governance Portal (`Instantsite`)
+## 8. Development Workflow & Environment Configuration
 
-Built using **Vite**, **React 19**, and **Tailwind CSS v4**, `Instantsite` serves as an operational dashboard, architectural reference, and APK distribution portal.
-
-### 8.1 Live Administrative Command Center
-Located in `Instantsite/src/components/AdminPortal.tsx`, this dashboard interfaces with the backend administrative APIs:
-- **System Metrics**: Displays live metrics for active episodes, registered guardian nodes, issued JIT credentials, and overall resolution rates.
-- **Audit Ledger Inspector**: Fetches the complete hash chain from `/api/admin/audit-ledgers`, displaying block height, event types, and validation states.
-- **Tamper Simulation Tools**:
-  - *Simulate Episode*: Triggers `/api/admin/simulate/episode` to generate test incidents.
-  - *Simulate Check-in*: Triggers `/api/admin/simulate/checkin` to test resolution flows.
-  - *Simulate Corruption*: Triggers `/api/admin/simulate/corrupt` to intentionally corrupt an audit entry hash, demonstrating real-time tamper detection.
-  - *Self-Healing Reset*: Triggers `/api/admin/simulate/reset` to recalculate and restore chain continuity.
-  - *Database Wipe*: Purges test data via `/api/admin/wipe-database`.
-
-### 8.2 Cardiac Vagal Calming (Box Breathing Engine)
-Located in `Instantsite/src/components/UrgentSerenity.tsx`, this tool provides guided box breathing for users experiencing acute distress:
-- **Pacing Protocol**: 4 seconds Inhale $\to$ 4 seconds Hold $\to$ 4 seconds Exhale $\to$ 4 seconds Hold.
-- **Visual Feedback**: Utilizes dynamic CSS and SVG scale animations synchronized with the breathing cadence to assist in stabilizing heart rate variability and vagal nerve tone.
-
-### 8.3 Interactive Simulation & Governance Explorer
-- **`SafetyCoordinated.tsx`**: Interactive simulation demonstrating peer responder discovery across variable search radii (50m–5000m).
-- **`SafetyProtocolFeatures.tsx`**: Interactive diagrams explaining Bloom filter partitioning, Galois Field polynomial math, and BCH error correction.
-- **`DownloadApk.tsx`**: Direct APK distribution page displaying SHA-256 release checksums, version tags, and step-by-step installation instructions.
-
----
-
-## 9. Development Workflow & Environment Configuration
-
-### 9.1 Prerequisites & Tooling
-- **Node.js**: $\ge 22.11.0$ (Required by `Connify/package.json`).
-- **Package Managers**: `npm` (v10+), `bun` (supported for `Instantsite`).
+### 8.1 Prerequisites & Tooling
+- **Node.js**: $\ge 22.11.0$ (Required by `Connify/package.json` engines).
+- **Package Managers**: `npm` (v10+).
 - **Database**: MongoDB instance (local or MongoDB Atlas connection string).
 - **Android Development**: Android Studio (SDK Platform 35, Build-Tools 35.0.0, NDK), JDK 17.
 - **iOS Development**: macOS with Xcode 15+ and CocoaPods (for iOS targets).
 
-### 9.2 Environment Variables Configuration
+### 8.2 Environment Variables Configuration
 
 #### Backend (`backend/.env`)
 ```env
@@ -842,14 +893,9 @@ API_BASE_URL=http://10.0.2.2:5000   # Android Emulator host loopback
 # API_BASE_URL=http://localhost:5000 # iOS Simulator or Web development
 ```
 
-#### Web Portal (`Instantsite/.env`)
-```env
-VITE_API_BASE_URL=http://localhost:5000
-```
-
 ---
 
-### 9.3 Installation & Startup Commands
+### 8.3 Installation & Startup Commands
 
 #### 1. Repository Setup
 ```bash
@@ -864,17 +910,11 @@ npm install
 npm run prisma:generate
 ```
 
-#### 3. Mobile Client Initialization
+#### 3. Mobile & Multi-Platform Client Initialization
 ```bash
 cd ../Connify
 npm install
 # Postinstall automatically applies patches via patch-package
-```
-
-#### 4. Web Portal Initialization
-```bash
-cd ../Instantsite
-npm install
 ```
 
 ---
@@ -906,23 +946,17 @@ cd Connify
 npm run android
 ```
 
-*Launch Mobile Web Version*:
+*Launch Web Version (Expo Web)*:
 ```bash
 cd Connify
 npm run web
 ```
 
-*Start Web Portal (Port 3000)*:
-```bash
-cd Instantsite
-npm run dev
-```
-
 ---
 
-## 10. Automated Testing Frameworks
+## 9. Automated Testing Frameworks
 
-### 10.1 Backend Test Suites
+### 9.1 Backend Test Suites
 Executed using the native Node.js test runner and `tsx`:
 ```bash
 cd backend
@@ -941,7 +975,7 @@ npm run test:all
 9. `tests/adminAuth.test.ts`: Verifies authentication on administrative routes.
 10. `tests/e2eJourney.test.ts`: Simulates a complete multi-device emergency lifecycle from broadcast to resolution.
 
-### 10.2 Mobile Test Suites
+### 9.2 Mobile & Client Test Suites
 Executed using Jest:
 ```bash
 cd Connify
@@ -963,11 +997,11 @@ npm test
 
 ---
 
-## 11. Release Engineering & Version Synchronization
+## 10. Release Engineering & Version Synchronization
 
 Monorepo versioning is managed through `Connify/bump_version.js`.
 
-### 11.1 Version Synchronization Script
+### 10.1 Version Synchronization Script
 ```bash
 cd Connify
 npm run bump:patch   # e.g., 3.7.5 -> 3.7.6
@@ -980,7 +1014,7 @@ This script updates four configuration files simultaneously:
 3. `backend/package.json` (`version`)
 4. `Connify/android/app/build.gradle` (increments `versionCode`, updates `versionName`)
 
-### 11.2 Compiling Android Production Releases
+### 10.2 Compiling Android Production Releases
 
 **Build Release APK**:
 ```bash
@@ -996,37 +1030,30 @@ npm run build:android-bundle
 # Outputs: Connify/android/app/build/outputs/bundle/release/app-release.aab
 ```
 
-### 11.3 Building Web Production Assets
-```bash
-cd Instantsite
-npm run build
-# Outputs compiled bundle to Instantsite/dist
-```
-
 ---
 
-## 12. Security, Privacy & Regulatory Compliance
+## 11. Security, Privacy & Regulatory Compliance
 
-### 12.1 Zero-Trace Geolocation Invariants
+### 11.1 Zero-Trace Geolocation Invariants
 - **No Coordinate History**: The central backend never stores location trails or historic routes.
 - **1-Point Sliding Window**: The `DeviceLocation` table maintains only a single, most recent location record per device solely for watchdog timeout detection during active emergencies.
 - **Immediate Post-Incident Deletion**: Once an emergency episode concludes, the active session terminates, socket channels disconnect, and live location streaming halts immediately.
 - **Outcome Anonymity**: The `Outcome` database collection records only the resolution status, category, and completion timeliness. No user identifiers, device hashes, or coordinates are retained.
 
-### 12.2 Replay Attack Prevention
+### 11.2 Replay Attack Prevention
 Every QR token issued during the physical handshake includes a unique UUIDv4 nonce:
 - During `/api/capsules/issue`, the backend checks if the nonce exists in `Episode.usedQrNonces`.
 - If already present, the transaction is rejected with an error.
 - If valid, the nonce is pushed atomically into the `usedQrNonces` array, preventing token replay attacks.
 
-### 12.3 Account & Data Deletion Compliance
+### 11.3 Account & Data Deletion Compliance
 The codebase satisfies **Google Play Console Data Safety** policies and **Apple App Store Guideline 5.1.1(v)**:
 - Users can initiate account deletion directly within `SettingsScreen.tsx` or via the official Google Form detailed in `ACCOUNT_DELETION_GOOGLE_FORM_SETUP.md`.
 - Purges all associated profiles, credentials, emergency guardian relationships, medical notes, and device registrations.
 
 ---
 
-## 13. Monorepo Dependency Matrix
+## 12. Monorepo Dependency Matrix
 
 ### Backend Dependencies (`backend/package.json`)
 - `fastify` (^5.10.0): Core HTTP web framework.
@@ -1040,13 +1067,14 @@ The codebase satisfies **Google Play Console Data Safety** policies and **Apple 
 - `firebase-admin` (^14.1.0): Firebase Admin SDK for authentication and push notifications.
 - `zod` (^4.4.3): Schema validation for environment and API payloads.
 
-### Mobile Dependencies (`Connify/package.json`)
+### Mobile & Multi-Platform Dependencies (`Connify/package.json`)
 - `react` (19.2.3) / `react-native` (0.86.0): Core mobile UI framework.
+- `expo` (^57.0.13) / `react-native-web` (^0.21.2): Multi-platform web & Metro runtime.
 - `@react-navigation/native` (^7.0.14), `@react-navigation/bottom-tabs` (^7.2.0), `@react-navigation/native-stack` (^7.2.0): Routing and navigation.
 - `zustand` (^5.0.14): Client state management.
 - `react-native-keychain` (^10.0.0): Hardware Keychain and Keystore access.
 - `react-native-biometrics` (^3.0.1): Hardware fingerprint and Face ID sensor prompts.
-- `react-native-vision-camera` (^5.2.1): Camera module for QR code scanning.
+- `react-native-vision-camera` (^5.2.1) / `@react-native-ml-kit/barcode-scanning` (^2.0.0): Camera module & barcode parsing.
 - `@notifee/react-native` (^9.1.8): Local emergency notification channels.
 - `react-native-geolocation-service` (^5.3.1): High-accuracy native GPS location provider.
 - `react-native-reanimated` (^4.6.0): Native UI animation engine.
@@ -1057,6 +1085,6 @@ The codebase satisfies **Google Play Console Data Safety** policies and **Apple 
 
 ---
 
-## 14. License
+## 13. License
 
 Distributed under the MIT License. See [LICENSE](file:///o:/PROJECTS/CONNIFY-APP/LICENSE) for full legal text.

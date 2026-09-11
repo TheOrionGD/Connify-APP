@@ -52,6 +52,8 @@ import SignalFlow from '../../components/animations/SignalFlow';
 import LayeredSuccess from '../../components/animations/LayeredSuccess';
 import Animated, { useSharedValue, useAnimatedStyle, withSequence, withTiming } from 'react-native-reanimated';
 import { EmergencyChatModal } from '../../components/chat/EmergencyChatModal';
+import { EmergencyCallModal } from '../../components/call/EmergencyCallModal';
+import { useCallStore } from '../../stores/callStore';
 
 /** Sub-component to safely encapsulate camera scanning hooks only when rendered (Helper mode) */
 function CameraScanner({
@@ -198,7 +200,10 @@ export default function HandshakeScreen({ route, navigation }: any) {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showChatModal, setShowChatModal] = useState(false);
+  const [showCallModal, setShowCallModal] = useState(false);
   const [elapsedTime, setElapsedTime] = useState(0);
+
+  const { startOutgoingCall, receiveIncomingCall } = useCallStore();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -273,8 +278,19 @@ export default function HandshakeScreen({ route, navigation }: any) {
         navigation.navigate('Main');
       }
     });
-    return () => unsubCancelled();
-  }, [episodeId, navigation]);
+
+    const unsubIncomingCall = socketService.onIncomingCall((data) => {
+      if (data.episodeId === activeEp) {
+        receiveIncomingCall(data.episodeId, data.callerName, data.role);
+        setShowCallModal(true);
+      }
+    });
+
+    return () => {
+      unsubCancelled();
+      unsubIncomingCall();
+    };
+  }, [episodeId, navigation, receiveIncomingCall]);
 
   const generateQrToken = async () => {
     try {
@@ -430,14 +446,41 @@ export default function HandshakeScreen({ route, navigation }: any) {
             </Text>
           </View>
         </View>
-        <TouchableOpacity
-          style={styles.headerChatBtn}
-          onPress={() => setShowChatModal(true)}
-          activeOpacity={0.7}
-        >
-          <Icon name="chat" size={16} color="#3B82F6" />
-          <Text style={styles.headerChatText}>LIVE CHAT</Text>
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          <TouchableOpacity
+            style={styles.headerCallBtn}
+            onPress={() => {
+              const activeEp = episodeId || useEpisodeStore.getState().episodeId || '';
+              const targetName = isRequester
+                ? (useEpisodeStore.getState().responderInfo?.helperDeviceId
+                    ? `Volunteer (${useEpisodeStore.getState().responderInfo?.helperDeviceId.substring(0, 6)})`
+                    : 'Approaching Responder')
+                : (decodedPayload?.requesterDeviceId
+                    ? `Requester (${decodedPayload.requesterDeviceId.substring(0, 6)})`
+                    : 'Emergency Requester');
+              startOutgoingCall(activeEp, targetName, isRequester ? 'requester' : 'responder');
+              socketService.initiateCall(
+                activeEp,
+                userProfile?.name || (isRequester ? 'Emergency Requester' : 'Volunteer Responder'),
+                isRequester ? 'requester' : 'responder'
+              );
+              setShowCallModal(true);
+            }}
+            activeOpacity={0.7}
+          >
+            <Icon name="call" size={15} color="#10B981" />
+            <Text style={styles.headerCallText}>CALL</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.headerChatBtn}
+            onPress={() => setShowChatModal(true)}
+            activeOpacity={0.7}
+          >
+            <Icon name="chat" size={15} color="#3B82F6" />
+            <Text style={styles.headerChatText}>CHAT</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
@@ -485,16 +528,37 @@ export default function HandshakeScreen({ route, navigation }: any) {
               </TouchableOpacity>
             ) : null}
 
-            <TouchableOpacity
-              style={styles.enrouteChatBtn}
-              onPress={() => setShowChatModal(true)}
-              activeOpacity={0.8}
-            >
-              <Icon name="chat" size={18} color="#FFFFFF" />
-              <Text style={styles.enrouteChatBtnText}>
-                OPEN EN-ROUTE LIVE CHAT
-              </Text>
-            </TouchableOpacity>
+            <View style={{ flexDirection: 'row', gap: 8, width: '100%', marginTop: 8 }}>
+              <TouchableOpacity
+                style={[styles.enrouteChatBtn, { flex: 1, backgroundColor: '#059669', borderColor: '#34D399', marginTop: 0 }]}
+                onPress={() => {
+                  const activeEp = episodeId || useEpisodeStore.getState().episodeId || '';
+                  const targetName = decodedPayload?.requesterDeviceId
+                    ? `Requester (${decodedPayload.requesterDeviceId.substring(0, 6)})`
+                    : 'Emergency Requester';
+                  startOutgoingCall(activeEp, targetName, 'responder');
+                  socketService.initiateCall(
+                    activeEp,
+                    userProfile?.name || 'Volunteer Responder',
+                    'responder'
+                  );
+                  setShowCallModal(true);
+                }}
+                activeOpacity={0.8}
+              >
+                <Icon name="call" size={16} color="#FFFFFF" />
+                <Text style={styles.enrouteChatBtnText}>VOICE CALL</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.enrouteChatBtn, { flex: 1, marginTop: 0 }]}
+                onPress={() => setShowChatModal(true)}
+                activeOpacity={0.8}
+              >
+                <Icon name="chat" size={16} color="#FFFFFF" />
+                <Text style={styles.enrouteChatBtnText}>LIVE CHAT</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         )}
 
@@ -567,14 +631,37 @@ export default function HandshakeScreen({ route, navigation }: any) {
                     <Icon name="refresh" size={16} color={expiryTimer <= 15 ? '#EF4444' : theme.colors.primary} />
                   </TouchableOpacity>
                 </View>
-                <TouchableOpacity
-                  style={styles.requesterChatBtn}
-                  onPress={() => setShowChatModal(true)}
-                  activeOpacity={0.8}
-                >
-                  <Icon name="chat" size={16} color="#3B82F6" />
-                  <Text style={styles.requesterChatBtnText}>OPEN EN-ROUTE LIVE CHAT</Text>
-                </TouchableOpacity>
+                <View style={{ flexDirection: 'row', gap: 8, width: '100%', marginTop: 10 }}>
+                  <TouchableOpacity
+                    style={[styles.requesterChatBtn, { flex: 1, backgroundColor: 'rgba(16, 185, 129, 0.12)', borderColor: 'rgba(16, 185, 129, 0.3)', marginTop: 0 }]}
+                    onPress={() => {
+                      const activeEp = episodeId || useEpisodeStore.getState().episodeId || '';
+                      const targetName = useEpisodeStore.getState().responderInfo?.helperDeviceId
+                        ? `Volunteer (${useEpisodeStore.getState().responderInfo?.helperDeviceId.substring(0, 6)})`
+                        : 'Approaching Responder';
+                      startOutgoingCall(activeEp, targetName, 'requester');
+                      socketService.initiateCall(
+                        activeEp,
+                        userProfile?.name || 'Emergency Requester',
+                        'requester'
+                      );
+                      setShowCallModal(true);
+                    }}
+                    activeOpacity={0.8}
+                  >
+                    <Icon name="call" size={15} color="#10B981" />
+                    <Text style={[styles.requesterChatBtnText, { color: '#10B981' }]}>VOICE CALL</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[styles.requesterChatBtn, { flex: 1, marginTop: 0 }]}
+                    onPress={() => setShowChatModal(true)}
+                    activeOpacity={0.8}
+                  >
+                    <Icon name="chat" size={15} color="#3B82F6" />
+                    <Text style={styles.requesterChatBtnText}>LIVE CHAT</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             ) : (
               <ActivityIndicator size="large" color={theme.colors.primary} style={styles.loadingIndicator} />
@@ -799,6 +886,30 @@ export default function HandshakeScreen({ route, navigation }: any) {
       <EmergencyChatModal
         visible={showChatModal}
         onClose={() => setShowChatModal(false)}
+        onStartCall={() => {
+          setShowChatModal(false);
+          setShowCallModal(true);
+        }}
+        episodeId={episodeId || useEpisodeStore.getState().episodeId || ''}
+        counterpartyName={
+          isRequester
+            ? (useEpisodeStore.getState().responderInfo?.helperDeviceId
+                ? `Volunteer (${useEpisodeStore.getState().responderInfo?.helperDeviceId.substring(0, 6)})`
+                : 'Approaching Responder')
+            : (decodedPayload?.requesterDeviceId
+                ? `Requester (${decodedPayload.requesterDeviceId.substring(0, 6)})`
+                : 'Emergency Requester')
+        }
+        role={isRequester ? 'requester' : 'responder'}
+      />
+
+      <EmergencyCallModal
+        visible={showCallModal}
+        onClose={() => setShowCallModal(false)}
+        onOpenChat={() => {
+          setShowCallModal(false);
+          setShowChatModal(true);
+        }}
         episodeId={episodeId || useEpisodeStore.getState().episodeId || ''}
         counterpartyName={
           isRequester
@@ -1101,11 +1212,28 @@ const styles = StyleSheet.create({
   loadingIndicator: {
     margin: 40,
   },
+  headerCallBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    backgroundColor: 'rgba(16, 185, 129, 0.12)',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(16, 185, 129, 0.3)',
+  },
+  headerCallText: {
+    fontFamily: theme.fontFamilies.technical.bold,
+    fontSize: 10,
+    color: '#10B981',
+    letterSpacing: 0.5,
+  },
   headerChatBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
-    paddingHorizontal: 10,
+    gap: 4,
+    paddingHorizontal: 8,
     paddingVertical: 5,
     backgroundColor: 'rgba(59, 130, 246, 0.12)',
     borderRadius: 8,

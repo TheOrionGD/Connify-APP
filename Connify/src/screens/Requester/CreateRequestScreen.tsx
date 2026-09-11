@@ -24,6 +24,7 @@ import { useFrequentLocationsStore } from '../../stores/frequentLocationsStore';
 
 
 import { CategoryType } from '../../stores/episodeStore';
+import { getCategoryUrgencyContext } from '../../utils/categoryContexts';
 
 import { BiometricService } from '../../services/biometricService';
 
@@ -33,8 +34,18 @@ export default function CreateRequestScreen({ navigation }: any) {
   const { latitude, longitude } = useLocationStore();
   const [selectedCategory, setSelectedCategory] = useState<CategoryType | null>('General Request');
   const [urgency, setUrgency] = useState<number>(3);
-  const [context, setContext] = useState('I need immediate assistance at my current location.');
+  const [context, setContext] = useState<string>(() => getCategoryUrgencyContext('General Request', 3));
   const [loading, setLoading] = useState(false);
+
+  const handleSelectCategory = (catName: CategoryType) => {
+    setSelectedCategory(catName);
+    setContext(getCategoryUrgencyContext(catName, urgency));
+  };
+
+  const handleSelectUrgency = (level: number) => {
+    setUrgency(level);
+    setContext(getCategoryUrgencyContext(selectedCategory, level));
+  };
 
   const categories: { name: CategoryType; icon: string; description: string }[] = [
     { name: 'Medical Emergency', icon: 'medical-services', description: 'Urgent medical aid, trauma, or cardiac emergency' },
@@ -282,7 +293,7 @@ export default function CreateRequestScreen({ navigation }: any) {
 
         {/* Category Bento Grid */}
         <View style={styles.section}>
-          <Text style={[styles.sectionLabel, { color: colors.onBackground }]}>CATEGORY (12 DISPATCH TYPES)</Text>
+          <Text style={[styles.sectionLabel, { color: colors.onBackground }]}>CATEGORY (22 DISPATCH TYPES)</Text>
           <View style={styles.grid}>
             {categories.map((cat) => {
               const isSelected = selectedCategory === cat.name;
@@ -294,7 +305,7 @@ export default function CreateRequestScreen({ navigation }: any) {
                     { backgroundColor: colors.surfaceContainerLowest, borderColor: colors.outline },
                     isSelected ? { backgroundColor: colors.primary, borderColor: colors.primary } : null,
                   ]}
-                  onPress={() => setSelectedCategory(cat.name)}
+                  onPress={() => handleSelectCategory(cat.name)}
                 >
                   <Icon
                     name={cat.icon}
@@ -334,7 +345,7 @@ export default function CreateRequestScreen({ navigation }: any) {
                     { backgroundColor: colors.surfaceContainerLowest, borderColor: colors.outline },
                     isSelected ? { backgroundColor: isCriticalSelected ? '#EF4444' : colors.primary, borderColor: isCriticalSelected ? '#EF4444' : colors.primary } : null,
                   ]}
-                  onPress={() => setUrgency(val)}
+                  onPress={() => handleSelectUrgency(val)}
                 >
                   <Text
                     style={[

@@ -24,9 +24,12 @@ interface ChatMessage {
   isSelf: boolean;
 }
 
+import { useCallStore } from '../../stores/callStore';
+
 interface EmergencyChatModalProps {
   visible: boolean;
   onClose: () => void;
+  onStartCall?: () => void;
   episodeId: string;
   counterpartyName: string;
   role: 'requester' | 'responder';
@@ -43,12 +46,14 @@ const QUICK_RESPONSES = [
 export function EmergencyChatModal({
   visible,
   onClose,
+  onStartCall,
   episodeId,
   counterpartyName,
   role,
 }: EmergencyChatModalProps) {
   const { colors } = useTheme();
   const userId = useAuthStore((state) => state.user?.uid || state.userProfile?.id || 'user_local');
+  const { callStatus, duration, startOutgoingCall } = useCallStore();
 
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -62,6 +67,22 @@ export function EmergencyChatModal({
   ]);
   const [inputText, setInputText] = useState('');
   const flatListRef = useRef<FlatList>(null);
+
+  const formatDuration = (secs: number) => {
+    const m = Math.floor(secs / 60);
+    const s = secs % 60;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
+
+  const handleTriggerCall = () => {
+    if (callStatus === 'idle' || callStatus === 'ended') {
+      startOutgoingCall(episodeId, counterpartyName, role);
+      socketService.initiateCall(episodeId, counterpartyName, role);
+    }
+    if (onStartCall) {
+      onStartCall();
+    }
+  };
 
   useEffect(() => {
     if (visible && episodeId) {
@@ -142,10 +163,35 @@ export function EmergencyChatModal({
             </Text>
           </View>
 
-          <TouchableOpacity style={styles.iconBtn}>
-            <Icon name="verified-user" size={20} color={colors.primary} />
+          <TouchableOpacity
+            style={[styles.iconBtn, { backgroundColor: 'rgba(16, 185, 129, 0.15)', borderRadius: 20, padding: 8 }]}
+            onPress={handleTriggerCall}
+          >
+            <Icon name="call" size={20} color="#10B981" />
           </TouchableOpacity>
         </View>
+
+        {/* Active Call Floating Status Pill */}
+        {(callStatus === 'connected' || callStatus === 'outgoing') && (
+          <TouchableOpacity
+            style={[
+              styles.activeCallBanner,
+              { backgroundColor: callStatus === 'connected' ? '#064E3B' : '#1E3A8A', borderColor: callStatus === 'connected' ? '#10B981' : '#3B82F6' }
+            ]}
+            onPress={onStartCall}
+            activeOpacity={0.8}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <Icon name="phone-in-talk" size={18} color="#FFFFFF" />
+              <Text style={styles.activeCallBannerText}>
+                {callStatus === 'connected'
+                  ? `VOICE CALL ACTIVE (${formatDuration(duration)}) • TAP TO EXPAND`
+                  : 'CALLING PEER NODE... TAP TO VIEW'}
+              </Text>
+            </View>
+            <Icon name="open-in-full" size={16} color="#FFFFFF" />
+          </TouchableOpacity>
+        )}
 
         {/* Security Alert Banner */}
         <View style={[styles.banner, { backgroundColor: colors.primary + '14', borderColor: colors.primary + '33' }]}>
@@ -253,6 +299,20 @@ const styles = StyleSheet.create({
   iconBtn: { padding: 8 },
   headerTitle: { fontFamily: theme.fontFamilies.primary.bold, fontSize: 16 },
   onlineDot: { width: 8, height: 8, borderRadius: 4 },
+  activeCallBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+  },
+  activeCallBannerText: {
+    fontFamily: theme.fontFamilies.technical.bold,
+    fontSize: 11,
+    color: '#FFFFFF',
+    letterSpacing: 0.5,
+  },
   banner: {
     flexDirection: 'row',
     alignItems: 'center',

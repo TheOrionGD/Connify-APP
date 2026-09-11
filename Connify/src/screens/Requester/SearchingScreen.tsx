@@ -25,6 +25,8 @@ import { CircularRadarMap } from '../../components/common/CircularRadarMap';
 import { useLocationStore } from '../../stores/locationStore';
 import { NotificationService } from '../../services/NotificationService';
 import { EmergencyChatModal } from '../../components/chat/EmergencyChatModal';
+import { EmergencyCallModal } from '../../components/call/EmergencyCallModal';
+import { useCallStore } from '../../stores/callStore';
 import { calculateDistanceMeters } from '../../utils/telemetry';
 
 export default function SearchingScreen({ navigation }: any) {
@@ -39,7 +41,9 @@ export default function SearchingScreen({ navigation }: any) {
     longitude?: number;
   } | null>(null);
   const [showChatModal, setShowChatModal] = React.useState(false);
+  const [showCallModal, setShowCallModal] = React.useState(false);
   const [elapsedTime, setElapsedTime] = React.useState(0);
+  const { startOutgoingCall, receiveIncomingCall } = useCallStore();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -139,6 +143,13 @@ export default function SearchingScreen({ navigation }: any) {
       setResponderState(respInfo);
     });
 
+    const unsubIncomingCall = socketService.onIncomingCall((data) => {
+      if (data.episodeId === episodeId) {
+        receiveIncomingCall(data.episodeId, data.callerName, data.role);
+        setShowCallModal(true);
+      }
+    });
+
     const pollInterval = setInterval(async () => {
       try {
         const epRes = await episodeApi.getEpisode(episodeId);
@@ -174,9 +185,10 @@ export default function SearchingScreen({ navigation }: any) {
       unsubCancelled();
       unsubHelperAccepted();
       unsubResponderLoc();
+      unsubIncomingCall();
       socketService.leaveEpisode(episodeId);
     };
-  }, [episodeId, activateEpisode, navigation, cancelRequest, latitude, longitude]);
+  }, [episodeId, activateEpisode, navigation, cancelRequest, latitude, longitude, receiveIncomingCall]);
 
   const handleGoBack = () => {
     if (navigation.canGoBack()) {
@@ -287,13 +299,27 @@ export default function SearchingScreen({ navigation }: any) {
 
       <View style={[styles.bottomBar, { backgroundColor: colors.background, borderTopColor: colors.outline }]}>
         {responderState?.isEnRoute && (
-          <StandardButton
-            title="OPEN EN-ROUTE LIVE CHAT"
-            onPress={() => setShowChatModal(true)}
-            variant="secondary"
-            style={StyleSheet.flatten([styles.qrButton, { marginBottom: 8, borderColor: '#3B82F6' }])}
-            icon={<Icon name="chat" size={20} color="#3B82F6" />}
-          />
+          <View style={{ flexDirection: 'row', gap: 8, marginBottom: 8 }}>
+            <StandardButton
+              title="VOICE CALL"
+              onPress={() => {
+                const targetName = responderState?.helperDeviceId ? `Volunteer (${responderState.helperDeviceId.substring(0, 6)})` : 'Approaching Responder';
+                startOutgoingCall(episodeId || '', targetName, 'requester');
+                socketService.initiateCall(episodeId || '', 'Emergency Requester', 'requester');
+                setShowCallModal(true);
+              }}
+              variant="secondary"
+              style={StyleSheet.flatten([styles.qrButton, { flex: 1, borderColor: '#10B981', backgroundColor: 'rgba(16, 185, 129, 0.1)' }])}
+              icon={<Icon name="call" size={18} color="#10B981" />}
+            />
+            <StandardButton
+              title="LIVE CHAT"
+              onPress={() => setShowChatModal(true)}
+              variant="secondary"
+              style={StyleSheet.flatten([styles.qrButton, { flex: 1, borderColor: '#3B82F6' }])}
+              icon={<Icon name="chat" size={18} color="#3B82F6" />}
+            />
+          </View>
         )}
         <StandardButton
           title="SHOW MY VERIFICATION QR CODE"
@@ -313,6 +339,22 @@ export default function SearchingScreen({ navigation }: any) {
       <EmergencyChatModal
         visible={showChatModal}
         onClose={() => setShowChatModal(false)}
+        onStartCall={() => {
+          setShowChatModal(false);
+          setShowCallModal(true);
+        }}
+        episodeId={episodeId || ''}
+        counterpartyName={responderState?.helperDeviceId ? `Volunteer (${responderState.helperDeviceId.substring(0, 6)})` : 'Approaching Responder'}
+        role="requester"
+      />
+
+      <EmergencyCallModal
+        visible={showCallModal}
+        onClose={() => setShowCallModal(false)}
+        onOpenChat={() => {
+          setShowCallModal(false);
+          setShowChatModal(true);
+        }}
         episodeId={episodeId || ''}
         counterpartyName={responderState?.helperDeviceId ? `Volunteer (${responderState.helperDeviceId.substring(0, 6)})` : 'Approaching Responder'}
         role="requester"

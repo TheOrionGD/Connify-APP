@@ -197,6 +197,111 @@ export async function initSockets(server: any): Promise<SocketIOServer> {
     });
 
     /**
+     * Real-time VoIP Call Signaling for Handshake & Active Connections
+     */
+    socket.on('call_initiate', async ({ episodeId, callerName, role }, callback) => {
+      try {
+        if (!episodeId) {
+          return callback?.({ success: false, error: 'episodeId is required' });
+        }
+        const roomName = `episode:${episodeId}`;
+        if (!socket.rooms.has(roomName)) {
+          return callback?.({ success: false, error: 'Must join episode room before calling' });
+        }
+
+        console.log(`📞 Call initiated by ${deviceId} (${callerName || role || 'User'}) in ${roomName}`);
+        socket.to(roomName).emit('incoming_call', {
+          episodeId,
+          callerDeviceId: deviceId,
+          callerName: callerName || (role === 'responder' ? 'Volunteer Responder' : 'Emergency Requester'),
+          role: role || 'unknown',
+          timestamp: new Date().toISOString(),
+        });
+
+        callback?.({ success: true });
+      } catch (err: any) {
+        callback?.({ success: false, error: err.message });
+      }
+    });
+
+    socket.on('call_accept', async ({ episodeId }, callback) => {
+      try {
+        if (!episodeId) {
+          return callback?.({ success: false, error: 'episodeId is required' });
+        }
+        const roomName = `episode:${episodeId}`;
+        console.log(`📞 Call accepted by ${deviceId} in ${roomName}`);
+        socket.to(roomName).emit('call_accepted', {
+          episodeId,
+          acceptedBy: deviceId,
+          timestamp: new Date().toISOString(),
+        });
+
+        callback?.({ success: true });
+      } catch (err: any) {
+        callback?.({ success: false, error: err.message });
+      }
+    });
+
+    socket.on('call_reject', async ({ episodeId, reason }, callback) => {
+      try {
+        if (!episodeId) {
+          return callback?.({ success: false, error: 'episodeId is required' });
+        }
+        const roomName = `episode:${episodeId}`;
+        console.log(`📞 Call rejected by ${deviceId} in ${roomName} (reason: ${reason || 'declined'})`);
+        socket.to(roomName).emit('call_rejected', {
+          episodeId,
+          rejectedBy: deviceId,
+          reason: reason || 'declined',
+          timestamp: new Date().toISOString(),
+        });
+
+        callback?.({ success: true });
+      } catch (err: any) {
+        callback?.({ success: false, error: err.message });
+      }
+    });
+
+    socket.on('call_end', async ({ episodeId, duration }, callback) => {
+      try {
+        if (!episodeId) {
+          return callback?.({ success: false, error: 'episodeId is required' });
+        }
+        const roomName = `episode:${episodeId}`;
+        console.log(`📞 Call ended by ${deviceId} in ${roomName} (duration: ${duration || 0}s)`);
+        socket.to(roomName).emit('call_ended', {
+          episodeId,
+          endedBy: deviceId,
+          duration: duration || 0,
+          timestamp: new Date().toISOString(),
+        });
+
+        callback?.({ success: true });
+      } catch (err: any) {
+        callback?.({ success: false, error: err.message });
+      }
+    });
+
+    socket.on('call_signal', async ({ episodeId, signalData }, callback) => {
+      try {
+        if (!episodeId || !signalData) {
+          return callback?.({ success: false, error: 'episodeId and signalData are required' });
+        }
+        const roomName = `episode:${episodeId}`;
+        socket.to(roomName).emit('call_signal', {
+          episodeId,
+          senderDeviceId: deviceId,
+          signalData,
+        });
+
+        callback?.({ success: true });
+      } catch (err: any) {
+        callback?.({ success: false, error: err.message });
+      }
+    });
+
+    /**
      * Explicitly leave the room.
      */
     socket.on('leave_episode', async ({ episodeId }, callback) => {
