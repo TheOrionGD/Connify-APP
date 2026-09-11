@@ -250,6 +250,23 @@ export const socketService = {
   },
 
   /**
+   * Emit cancellation of an episode to the socket server.
+   */
+  cancelEpisode(episodeId: string, callback?: (error?: string) => void): void {
+    if (!socket?.connected) {
+      callback?.('Socket not connected.');
+      return;
+    }
+    socket.emit('cancel_episode', { episodeId }, (res: { success: boolean; error?: string }) => {
+      if (res?.success) {
+        callback?.();
+      } else {
+        callback?.(res?.error);
+      }
+    });
+  },
+
+  /**
    * Register a listener for other participants joining the room.
    * Returns a cleanup function — use inside React useEffect.
    */

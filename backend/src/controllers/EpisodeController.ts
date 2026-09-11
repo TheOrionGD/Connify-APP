@@ -150,7 +150,7 @@ export const EpisodeController = {
           error: { code: 'FORBIDDEN', message: 'You are not the owner of this episode' },
         });
       }
-      if (!['pending', 'matched'].includes(episode.status)) {
+      if (!['pending', 'matched', 'active'].includes(episode.status)) {
         return reply.status(409).send({
           success: false,
           error: {

@@ -14,6 +14,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { theme, useTheme } from '../../theme';
 import { socketService, IncomingMessage } from '../../services/socketService';
 import { useAuthStore } from '../../stores/authStore';
+import { NotificationService } from '../../services/NotificationService';
 
 interface ChatMessage {
   id: string;
@@ -90,6 +91,9 @@ export function EmergencyChatModal({
       socketService.joinEpisode(episodeId);
 
       const handleIncomingMessage = (msg: IncomingMessage) => {
+        if (msg.senderId !== userId) {
+          NotificationService.notifyChatMessageReceived(counterpartyName || 'Responder', msg.message).catch(() => null);
+        }
         setMessages((prev) => [
           ...prev,
           {

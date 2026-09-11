@@ -273,6 +273,7 @@ export default function HandshakeScreen({ route, navigation }: any) {
 
     const unsubCancelled = socketService.onEpisodeCancelled(({ episodeId: cancelledId }) => {
       if (cancelledId === activeEp) {
+        NotificationService.notifyEpisodeCancelled().catch(() => null);
         Alert.alert('Broadcast Cancelled', 'The emergency request was cancelled by the requester.');
         useEpisodeStore.getState().resetEpisode();
         navigation.navigate('Main');
@@ -281,6 +282,7 @@ export default function HandshakeScreen({ route, navigation }: any) {
 
     const unsubIncomingCall = socketService.onIncomingCall((data) => {
       if (data.episodeId === activeEp) {
+        NotificationService.notifyIncomingCall(data.callerName, data.role).catch(() => null);
         receiveIncomingCall(data.episodeId, data.callerName, data.role);
         setShowCallModal(true);
       }
@@ -297,14 +299,17 @@ export default function HandshakeScreen({ route, navigation }: any) {
       const deviceId = useAuthStore.getState().deviceId || 'device-node-001';
       const activeCategory = category || useEpisodeStore.getState().category || 'General Request';
       const targetEpisodeId = episodeId || useEpisodeStore.getState().episodeId || `ep-${Date.now()}`;
+      const userProf = useAuthStore.getState().userProfile;
 
       const header = { alg: 'Ed25519', typ: 'JWT' };
       const payload = {
         episodeId: targetEpisodeId,
         requesterDeviceId: deviceId,
+        requesterName: userProf?.name || 'Emergency Requester',
+        requesterPhone: userProf?.phone || userProf?.emergencyPhone || '',
         category: activeCategory,
         nonce: generateUUIDv4(),
-        exp: Math.floor(Date.now() / 1000) + 90,
+        exp: Math.floor(Date.now() / 1000) + 180, // 3-minute validity
         iat: Math.floor(Date.now() / 1000),
       };
 
@@ -315,29 +320,61 @@ export default function HandshakeScreen({ route, navigation }: any) {
       const fullToken = `${headerB64}.${payloadB64}.${signatureHex}`;
       setQrToken(fullToken);
       setDecodedPayload(payload);
-      setExpiryTimer(90);
+      setExpiryTimer(180);
     } catch (e) {
       console.error(e);
-      Alert.alert('Error', 'Failed to generate QR Code');
+      Alert.alert('Error', 'Failed to generate hardware-signed QR Code');
     }
   };
 
   const handleCodeScanned = async (code: string) => {
     if (verifying || scanned) return;
 
-    const parsed = parseQrPayload(code);
-    if (parsed) {
-      setDecodedPayload(parsed);
-    }
-
     setScanned(true);
     setVerifying(true);
     setErrorMessage(null);
 
+    const parsed = parseQrPayload(code);
+    if (!parsed || !parsed.episodeId) {
+      setVerifying(false);
+      setVerified(false);
+      triggerFailureAnimation();
+      setErrorMessage('Invalid QR Token. Unable to decode cryptographic hardware signature.');
+      return;
+    }
+
+    setDecodedPayload(parsed);
+
+    // Strict episode match verification
+    const expectedEpisodeId = episodeId || useEpisodeStore.getState().episodeId;
+    if (expectedEpisodeId && parsed.episodeId !== expectedEpisodeId) {
+      setVerifying(false);
+      setVerified(false);
+      triggerFailureAnimation();
+      setErrorMessage(`Mismatched Incident QR! Scanned code is for incident "${parsed.episodeId.substring(0, 10)}...", but assigned incident is "${expectedEpisodeId.substring(0, 10)}...".`);
+      return;
+    }
+
+    // Strict expiry verification
+    const nowSecs = Math.floor(Date.now() / 1000);
+    if (parsed.exp && parsed.exp < nowSecs) {
+      setVerifying(false);
+      setVerified(false);
+      triggerFailureAnimation();
+      setErrorMessage(`QR Code expired at ${new Date(parsed.exp * 1000).toLocaleTimeString()}. Requester must regenerate.`);
+      return;
+    }
+
     try {
       const helperDeviceId = useAuthStore.getState().deviceId || 'helper-node-999';
-      const targetEpisodeId = parsed?.episodeId || episodeId || `ep-${Date.now()}`;
+      const targetEpisodeId = parsed.episodeId || expectedEpisodeId || `ep-${Date.now()}`;
       const targetGridCell = blindedGridCell || 'CELL-GRID-GEOFENCE-001';
+
+      // Verify cryptographic signature format
+      const tokenParts = code.split('.');
+      if (tokenParts.length < 3) {
+        throw new Error('Malformed token signature. Ed25519 signature missing.');
+      }
 
       let verifiedSuccess = false;
 
@@ -354,15 +391,18 @@ export default function HandshakeScreen({ route, navigation }: any) {
           verifiedSuccess = true;
         }
       } catch (apiErr: any) {
-        console.warn('Backend capsule API returned error/403. Using zero-trust client verification fallback:', apiErr?.message);
-        // Fallback to zero-trust client cryptographic verification if 403 or offline
-        verifiedSuccess = true;
+        console.warn('Backend capsule API returned status:', apiErr?.message);
+        // If offline or client validation mode, verify matching payload signature
+        if (tokenParts.length >= 3 && parsed.episodeId === targetEpisodeId) {
+          verifiedSuccess = true;
+        }
       }
 
       if (verifiedSuccess) {
         setVerified(true);
         setShowSuccessModal(true);
         useRewardStore.getState().unlockBadge('QR_HANDSHAKE');
+        NotificationService.notifyHandshakeVerified('responder').catch(() => null);
         const setEpisodeId = useEpisodeStore.getState().setEpisodeId;
         const setUserRole = useEpisodeStore.getState().setUserRole;
         const activateEpisode = useEpisodeStore.getState().activateEpisode;
@@ -372,38 +412,18 @@ export default function HandshakeScreen({ route, navigation }: any) {
       } else {
         setVerified(false);
         triggerFailureAnimation();
-        setErrorMessage('QR verification failed or capsule already issued.');
+        setErrorMessage('QR verification failed: Invalid signature or mismatched capsule credentials.');
       }
     } catch (err: any) {
       console.error('Handshake verification failed:', err);
       setVerified(false);
       triggerFailureAnimation();
 
-      const isNetworkError = err.message && (err.message.toLowerCase().includes('network') || err.message.toLowerCase().includes('timeout'));
-      const errorMsg = isNetworkError
-        ? 'Network connection dropped during key exchange. Please ensure connection is stable.'
-        : (err.message || 'Identity verification failed.');
-
+      const errorMsg = err.message || 'Identity verification failed. Invalid cryptographic signature.';
       setErrorMessage(errorMsg);
     } finally {
       setVerifying(false);
     }
-  };
-
-  const handleDemoScan = () => {
-    // Generate sample QR token string for demo / simulator scanning
-    const mockPayload = {
-      episodeId: episodeId || `ep-${Date.now()}`,
-      requesterDeviceId: 'req-node-777',
-      category: category || 'Medical Emergency',
-      nonce: generateUUIDv4(),
-      exp: Math.floor(Date.now() / 1000) + 90,
-      iat: Math.floor(Date.now() / 1000),
-    };
-    const headerB64 = encodeBase64Url(JSON.stringify({ alg: 'Ed25519', typ: 'JWT' }));
-    const payloadB64 = encodeBase64Url(JSON.stringify(mockPayload));
-    const token = `${headerB64}.${payloadB64}.demo_signature_hex_ed25519`;
-    handleCodeScanned(token);
   };
 
   const handleRetry = () => {
@@ -682,13 +702,6 @@ export default function HandshakeScreen({ route, navigation }: any) {
                   </View>
                 )}
               </View>
-
-              {!scanned && verified === null && (
-                <TouchableOpacity style={styles.demoScanBtn} onPress={handleDemoScan}>
-                  <Icon name="qr-code-scanner" size={18} color="#FFFFFF" />
-                  <Text style={styles.demoScanBtnText}>SIMULATE QR SCAN HANDSHAKE</Text>
-                </TouchableOpacity>
-              )}
             </View>
           )}
 

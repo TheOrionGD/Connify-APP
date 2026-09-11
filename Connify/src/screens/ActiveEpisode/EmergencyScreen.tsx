@@ -252,7 +252,7 @@ export default function EmergencyScreen({ navigation }: any) {
             style={[styles.timerCard, { borderColor: colors.outline }]}
           >
             <Text style={[styles.timerLabel, { color: colors.onSurfaceVariant }]}>
-              {isResponder ? 'SESSION WINDOW REMAINING' : 'SAFE TIME REMAINING'}
+              SESSION WINDOW REMAINING
             </Text>
             <Text style={[styles.timerText, { color: colors.onBackground }]}>{formatTime(timeLeft)}</Text>
             <TouchableOpacity style={[styles.extendPill, { backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline }]} onPress={() => extendTime(5)}>

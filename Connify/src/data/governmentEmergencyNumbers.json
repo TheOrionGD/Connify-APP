@@ -1,8 +1,161 @@
 {
+  "INDIA_HELPLINES": [
+    {
+      "category": "National Emergency & First Responders",
+      "items": [
+        {
+          "name": "National Emergency Number",
+          "number": "112",
+          "description": "Unified all-in-one emergency response for Police, Fire, and Ambulance services across India",
+          "icon": "shield",
+          "color": "#DC2626",
+          "priority": true
+        },
+        {
+          "name": "Police Control Room",
+          "number": "100",
+          "description": "Direct police assistance, crime reporting, and emergency patrol intervention",
+          "icon": "local-police",
+          "color": "#2563EB"
+        },
+        {
+          "name": "Fire & Rescue Department",
+          "number": "101",
+          "description": "Active fire outbreak, rescue operations, smoke, gas, and explosion emergency",
+          "icon": "local-fire-department",
+          "color": "#EA580C"
+        },
+        {
+          "name": "Ambulance Medical Transit",
+          "number": "102",
+          "description": "Government basic medical transport and maternal/infant emergency care",
+          "icon": "medical-services",
+          "color": "#16A34A"
+        },
+        {
+          "name": "Disaster & Accident Emergency",
+          "number": "108",
+          "description": "Critical road crash, trauma care, ambulance, and disaster medical emergency response",
+          "icon": "car-crash",
+          "color": "#059669",
+          "priority": true
+        }
+      ]
+    },
+    {
+      "category": "Women Safety & Anti-Harassment",
+      "items": [
+        {
+          "name": "Women In Distress Helpline",
+          "number": "1091",
+          "description": "24x7 immediate emergency police protection and safety assistance for women",
+          "icon": "health-and-safety",
+          "color": "#DB2777",
+          "priority": true
+        },
+        {
+          "name": "Domestic Abuse & Violence Helpline",
+          "number": "181",
+          "description": "Support for women facing domestic violence, legal aid, counselling, and shelter relief",
+          "icon": "home-work",
+          "color": "#9333EA"
+        },
+        {
+          "name": "National Commission for Women (NCW)",
+          "number": "7827170170",
+          "displayNumber": "7827-170-170",
+          "description": "NCW 24x7 helpline for reporting sexual violence, harassment, stalking, and abuse",
+          "icon": "gavel",
+          "color": "#C026D3"
+        },
+        {
+          "name": "Women Power Line",
+          "number": "1090",
+          "description": "Dedicated anti-stalking, harassment deterrence, and women security helpline",
+          "icon": "security",
+          "color": "#E11D48"
+        }
+      ]
+    },
+    {
+      "category": "Child, Cyber & Mental Health Helplines",
+      "items": [
+        {
+          "name": "Childline India (Child Distress)",
+          "number": "1098",
+          "description": "24-hour emergency phone outreach service for children in need of care and protection",
+          "icon": "child-care",
+          "color": "#F59E0B"
+        },
+        {
+          "name": "National Cyber Crime Helpline",
+          "number": "1930",
+          "description": "Immediate reporting for online fraud, cyber stalking, identity theft, and financial crime",
+          "icon": "phonelink-lock",
+          "color": "#0284C7",
+          "priority": true
+        },
+        {
+          "name": "Tele-MANAS Mental Health & Suicide Prevention",
+          "number": "14416",
+          "description": "National tele-mental health programme for psychological crisis and suicide prevention",
+          "icon": "psychology",
+          "color": "#8B5CF6"
+        },
+        {
+          "name": "National Health Helpline (MoHFW)",
+          "number": "18001801104",
+          "displayNumber": "1800-180-1104",
+          "description": "Toll-free healthcare guidance, hospital information, and public health support",
+          "icon": "vaccines",
+          "color": "#0D9488"
+        }
+      ]
+    },
+    {
+      "category": "Government Welfare & Public Schemes",
+      "items": [
+        {
+          "name": "Pradhan Mantri Awas Yojana (Gramin)",
+          "number": "1800116446",
+          "displayNumber": "1800-11-6446",
+          "description": "PMAY-G rural housing scheme beneficiary support and grievance redressal helpline",
+          "icon": "apartment",
+          "color": "#0891B2"
+        },
+        {
+          "name": "Pradhan Mantri Mudra Yojana (PMMY)",
+          "number": "18001801111",
+          "secondaryNumber": "1800110001",
+          "displayNumber": "1800-180-1111 / 1800-11-0001",
+          "description": "Micro-units development and business refinance loan scheme national toll-free",
+          "icon": "account-balance",
+          "color": "#D97706"
+        },
+        {
+          "name": "Atal Pension Yojana (APY)",
+          "number": "1800110069",
+          "displayNumber": "1800-110-069",
+          "description": "National Pension System (PFRDA) retirement security and subscriber services",
+          "icon": "elderly",
+          "color": "#4F46E5"
+        },
+        {
+          "name": "Jeevan Jyoti Bima Yojana (PMJJBY)",
+          "number": "18001801111",
+          "secondaryNumber": "1800110001",
+          "displayNumber": "1800-180-1111 / 1800-110-001",
+          "description": "Life insurance coverage and government financial protection scheme helpline",
+          "icon": "health-and-safety",
+          "color": "#059669"
+        }
+      ]
+    }
+  ],
   "US": { "police": "911", "fire": "911", "ambulance": "911", "general": "911", "women": "1-800-799-7233" },
   "CA": { "police": "911", "fire": "911", "ambulance": "911", "general": "911", "women": "1-800-363-9010" },
   "GB": { "police": "999", "fire": "999", "ambulance": "999", "general": "112", "women": "0808 2000 247" },
-  "IN": { "police": "100", "fire": "101", "ambulance": "102", "general": "112", "disaster": "108", "women": "1091", "domestic": "181" },
+  "IN": { "police": "100", "fire": "101", "ambulance": "102", "general": "112", "disaster": "108", "women": "1091", "domestic": "181", "cyber": "1930", "child": "1098", "mentalHealth": "14416" },
   "AU": { "police": "000", "fire": "000", "ambulance": "000", "general": "000", "women": "1800 737 732" },
   "NZ": { "police": "111", "fire": "111", "ambulance": "111", "general": "111", "women": "0800 733 843" },
   "ZA": { "police": "10111", "fire": "10177", "ambulance": "10177", "general": "112", "women": "0800 150 150" },

@@ -313,6 +313,24 @@ export async function initSockets(server: any): Promise<SocketIOServer> {
     });
 
     /**
+     * Requester cancels the episode in real-time.
+     */
+    socket.on('cancel_episode', async ({ episodeId }, callback) => {
+      try {
+        if (!episodeId) return callback?.({ success: false, error: 'episodeId is required' });
+        const episode = await Episode.findById(episodeId);
+        if (episode) {
+          episode.status = 'cancelled';
+          await episode.save();
+        }
+        broadcastEpisodeCancelled(episodeId);
+        callback?.({ success: true });
+      } catch (err: any) {
+        callback?.({ success: false, error: err.message });
+      }
+    });
+
+    /**
      * Handle incoming continuous location pings from the device.
      */
     socket.on('location_ping', async (payload, callback) => {

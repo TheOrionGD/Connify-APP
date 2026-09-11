@@ -12,8 +12,9 @@ import { StandardCard } from '../../components/cards/StandardCard';
 import { DialogueModal } from '../../components/common/DialogueModal';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useEpisodeStore } from '../../stores/episodeStore';
+import { useAuthStore } from '../../stores/authStore';
 
-import { launchImageLibrary } from 'react-native-image-picker';
+import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
 import { Image } from 'react-native';
 
 import { NotificationService } from '../../services/NotificationService';
@@ -36,18 +37,43 @@ export default function FeedbackScreen({ route, navigation }: any) {
   const [showReportModal, setShowReportModal] = useState(false);
   const [generatedReportText, setGeneratedReportText] = useState('');
 
-  const handlePickPhoto = async () => {
+  const handleCaptureLiveCamera = async () => {
     try {
-      const result = await launchImageLibrary({
+      const result = await launchCamera({
         mediaType: 'photo',
+        cameraType: 'back',
         quality: 0.8,
+        saveToPhotos: false,
       });
       if (result.assets && result.assets.length > 0 && result.assets[0].uri) {
         setTaskPhotoUri(result.assets[0].uri);
       }
     } catch (e) {
-      console.warn('Image picker error:', e);
+      console.warn('Camera capture error:', e);
     }
+  };
+
+  const handlePickPhoto = async () => {
+    RNAlert.alert('Attach Photo Proof', 'Choose how you would like to provide photo proof:', [
+      { text: '📷 Live Camera', onPress: handleCaptureLiveCamera },
+      {
+        text: '🖼️ Gallery',
+        onPress: async () => {
+          try {
+            const result = await launchImageLibrary({
+              mediaType: 'photo',
+              quality: 0.8,
+            });
+            if (result.assets && result.assets.length > 0 && result.assets[0].uri) {
+              setTaskPhotoUri(result.assets[0].uri);
+            }
+          } catch (e) {
+            console.warn('Image picker error:', e);
+          }
+        },
+      },
+      { text: 'Cancel', style: 'cancel' },
+    ]);
   };
 
   const handleSubmit = () => {
@@ -62,12 +88,13 @@ export default function FeedbackScreen({ route, navigation }: any) {
   };
 
   const handleExportReport = () => {
+    const userProf = useAuthStore.getState().userProfile;
     const reportText = generateIncidentAuditReport({
-      episodeId: episodeStoreState.episodeId || `ep-audit-${Date.now()}`,
+      episodeId: episodeStoreState.episodeId || `ep-${Date.now()}`,
       category: episodeStoreState.category || 'General Emergency',
       urgency: episodeStoreState.urgency || 3,
-      userName: 'Safety User',
-      responderDeviceId: episodeStoreState.responderInfo?.helperDeviceId || 'helper-node-verified',
+      userName: userProf?.name || (isResponder ? 'Volunteer Responder' : 'Emergency Requester'),
+      responderDeviceId: episodeStoreState.responderInfo?.helperDeviceId || (isResponder ? (useAuthStore.getState().deviceId || 'Volunteer Node') : 'Verified Volunteer Node'),
       responderRole: 'Verified Community Volunteer Responder',
       startTime: new Date(Date.now() - 900000).toLocaleTimeString(),
       handshakeTime: new Date(Date.now() - 300000).toLocaleTimeString(),
@@ -76,7 +103,7 @@ export default function FeedbackScreen({ route, navigation }: any) {
       witnessCount: episodeStoreState.witnessAttestations.length,
       duressTriggered: episodeStoreState.isDuressActive,
       safeEscortCompleted: episodeStoreState.isSafeEscortActive,
-      verificationHash: '0x_audit_' + Math.random().toString(16).substring(2, 10).toUpperCase(),
+      verificationHash: '0x' + Math.random().toString(16).substring(2, 10).toUpperCase(),
     });
 
     setGeneratedReportText(reportText);
@@ -185,8 +212,8 @@ export default function FeedbackScreen({ route, navigation }: any) {
               </TouchableOpacity>
             </View>
 
-            {/* Feature 18: Volunteer Responder 5-Star Peer Rating & Trust Tokens */}
-            {!isResponder && (
+            {/* Role-Specific Rating */}
+            {!isResponder ? (
               <View style={{ width: '100%', alignItems: 'center', marginTop: 10, gap: 6 }}>
                 <Text style={styles.questionText}>Rate Volunteer Responder Performance:</Text>
                 <View style={{ flexDirection: 'row', gap: 10 }}>
@@ -204,6 +231,27 @@ export default function FeedbackScreen({ route, navigation }: any) {
                   <Icon name="token" size={16} color="#D97706" />
                   <Text style={{ fontFamily: theme.fontFamilies.technical.bold, fontSize: 11, color: '#B45309' }}>
                     +50 Trust Tokens will be awarded to Responder
+                  </Text>
+                </View>
+              </View>
+            ) : (
+              <View style={{ width: '100%', alignItems: 'center', marginTop: 10, gap: 6 }}>
+                <Text style={styles.questionText}>Volunteer Experience & Route Safety Rating:</Text>
+                <View style={{ flexDirection: 'row', gap: 10 }}>
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <TouchableOpacity key={star} onPress={() => setResponderRating(star)}>
+                      <Icon
+                        name={star <= responderRating ? 'star' : 'star-outline'}
+                        size={28}
+                        color={star <= responderRating ? '#10B981' : theme.colors.onSurfaceVariant}
+                      />
+                    </TouchableOpacity>
+                  ))}
+                </View>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#D1FAE5', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, marginTop: 4 }}>
+                  <Icon name="verified" size={16} color="#059669" />
+                  <Text style={{ fontFamily: theme.fontFamilies.technical.bold, fontSize: 11, color: '#065F46' }}>
+                    Volunteer Merit & Community Trust Record Logged
                   </Text>
                 </View>
               </View>
@@ -228,43 +276,45 @@ export default function FeedbackScreen({ route, navigation }: any) {
               ))}
             </View>
 
-            {/* Optional Responder Task Photo Attachment */}
-            {isResponder && (
-              <View style={{ width: '100%', marginTop: 12, alignItems: 'center', gap: 8 }}>
-                <Text style={styles.questionText}>Task Resolution Photo Proof (Optional):</Text>
-                {taskPhotoUri ? (
-                  <View style={{ position: 'relative', width: 120, height: 100, borderRadius: 12, overflow: 'hidden', borderWidth: 1, borderColor: theme.colors.outline }}>
-                    <Image source={{ uri: taskPhotoUri }} style={{ width: '100%', height: '100%' }} />
-                    <TouchableOpacity
-                      style={{ position: 'absolute', top: 4, right: 4, backgroundColor: 'rgba(0,0,0,0.6)', borderRadius: 12, padding: 2 }}
-                      onPress={() => setTaskPhotoUri(null)}
-                    >
-                      <Icon name="close" size={16} color="#FFFFFF" />
-                    </TouchableOpacity>
-                  </View>
-                ) : (
+            {/* Photo Proof Attachment (Live Camera / Gallery) for Both Roles */}
+            <View style={{ width: '100%', marginTop: 12, alignItems: 'center', gap: 8 }}>
+              <Text style={styles.questionText}>
+                {isResponder
+                  ? 'Volunteer Assistance Photo Proof (Optional):'
+                  : 'Resolution / Safe Scene Photo (Optional):'}
+              </Text>
+              {taskPhotoUri ? (
+                <View style={{ position: 'relative', width: 140, height: 110, borderRadius: 12, overflow: 'hidden', borderWidth: 1, borderColor: theme.colors.outline }}>
+                  <Image source={{ uri: taskPhotoUri }} style={{ width: '100%', height: '100%' }} />
                   <TouchableOpacity
-                    style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      gap: 8,
-                      backgroundColor: theme.colors.surfaceContainerHigh,
-                      borderWidth: 1,
-                      borderColor: theme.colors.outline,
-                      paddingVertical: 10,
-                      paddingHorizontal: 16,
-                      borderRadius: 12,
-                    }}
-                    onPress={handlePickPhoto}
+                    style={{ position: 'absolute', top: 4, right: 4, backgroundColor: 'rgba(0,0,0,0.7)', borderRadius: 12, padding: 4 }}
+                    onPress={() => setTaskPhotoUri(null)}
                   >
-                    <Icon name="add-a-photo" size={18} color={theme.colors.primary} />
-                    <Text style={{ fontFamily: theme.fontFamilies.technical.bold, fontSize: 12, color: theme.colors.onBackground }}>
-                      ATTACH PROOF PHOTO
-                    </Text>
+                    <Icon name="close" size={16} color="#FFFFFF" />
                   </TouchableOpacity>
-                )}
-              </View>
-            )}
+                </View>
+              ) : (
+                <TouchableOpacity
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: 8,
+                    backgroundColor: theme.colors.surfaceContainerHigh,
+                    borderWidth: 1,
+                    borderColor: theme.colors.outline,
+                    paddingVertical: 10,
+                    paddingHorizontal: 16,
+                    borderRadius: 12,
+                  }}
+                  onPress={handlePickPhoto}
+                >
+                  <Icon name="photo-camera" size={18} color={theme.colors.primary} />
+                  <Text style={{ fontFamily: theme.fontFamilies.technical.bold, fontSize: 12, color: theme.colors.onBackground }}>
+                    CAPTURE / ATTACH PHOTO PROOF
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
 
             {/* Feature 19: Incident Summary Audit Report Exporter Button */}
             <TouchableOpacity

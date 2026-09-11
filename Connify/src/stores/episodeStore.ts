@@ -201,6 +201,9 @@ export const useEpisodeStore = create<EpisodeState>()(
       cancelRequest: () => {
         const activeId = get().episodeId;
         if (activeId) {
+          const { socketService } = require('../services/socketService');
+          socketService.cancelEpisode(activeId);
+
           const { episodeApi } = require('../services/api/episodeApi');
           episodeApi.cancelEpisode(activeId).catch((err: any) =>
             console.warn('⚠️ Cancel episode API call failed:', err?.message || err)

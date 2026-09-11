@@ -23,6 +23,7 @@ import Animated, {
 import { theme, useTheme } from '../../theme';
 import { useCallStore } from '../../stores/callStore';
 import { socketService } from '../../services/socketService';
+import { NotificationService } from '../../services/NotificationService';
 
 interface EmergencyCallModalProps {
   visible: boolean;
@@ -173,6 +174,7 @@ export function EmergencyCallModal({
 
     const unsubIncoming = socketService.onIncomingCall((data) => {
       if (data.episodeId === episodeId && callStatus === 'idle') {
+        NotificationService.notifyIncomingCall(data.callerName, data.role).catch(() => null);
         receiveIncomingCall(data.episodeId, data.callerName, data.role);
       }
     });
@@ -196,7 +198,9 @@ export function EmergencyCallModal({
 
     const unsubEnded = socketService.onCallEnded((data) => {
       if (data.episodeId === episodeId) {
-        setCallEndedNotice(`Call ended (${formatDuration(data.duration || duration)})`);
+        const durStr = formatDuration(data.duration || duration);
+        NotificationService.notifyCallEnded(durStr).catch(() => null);
+        setCallEndedNotice(`Call ended (${durStr})`);
         endCall();
         setTimeout(() => {
           resetCall();
@@ -236,10 +240,12 @@ export function EmergencyCallModal({
   };
 
   const handleHangUp = () => {
+    const durStr = formatDuration(duration);
     socketService.endCall(episodeId, duration, (err) => {
       if (err) console.warn('[Call] Failed to end call:', err);
     });
-    setCallEndedNotice(`Call ended (${formatDuration(duration)})`);
+    NotificationService.notifyCallEnded(durStr).catch(() => null);
+    setCallEndedNotice(`Call ended (${durStr})`);
     endCall();
     setTimeout(() => {
       resetCall();
@@ -248,14 +254,19 @@ export function EmergencyCallModal({
   };
 
   const handleCellularFallback = () => {
-    if (counterpartyPhone) {
-      Linking.openURL(`tel:${counterpartyPhone}`).catch(() => {
+    const targetPhone = counterpartyPhone || '';
+    if (targetPhone.trim()) {
+      Linking.openURL(`tel:${targetPhone.trim()}`).catch(() => {
         Alert.alert('Dialer Error', 'Could not launch native phone dialer.');
       });
     } else {
       Alert.alert(
-        'Direct Cellular Route',
-        'Direct phone number masked for privacy. SafeNet encrypted VoIP channel is active.'
+        'Direct Phone Call',
+        'Direct phone number is not shared in QR metadata. Would you like to dial National Emergency Services (112)?',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Call 112', onPress: () => Linking.openURL('tel:112').catch(() => null) },
+        ]
       );
     }
   };

@@ -31,7 +31,7 @@ import { calculateDistanceMeters } from '../../utils/telemetry';
 
 export default function SearchingScreen({ navigation }: any) {
   const { colors } = useTheme();
-  const { currentState, cancelRequest, category, urgency, episodeId, activateEpisode, description } = useEpisodeStore();
+  const { currentState, cancelRequest, category, urgency, episodeId, activateEpisode, description, timeLeft, tickCountdown } = useEpisodeStore();
   const { latitude, longitude } = useLocationStore();
   const [responderState, setResponderState] = React.useState<{
     helperDeviceId: string;
@@ -48,9 +48,10 @@ export default function SearchingScreen({ navigation }: any) {
   useEffect(() => {
     const timer = setInterval(() => {
       setElapsedTime((prev) => prev + 1);
+      tickCountdown();
     }, 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, [tickCountdown]);
 
   const formatTime = (secs: number) => {
     const m = Math.floor(secs / 60);
@@ -223,7 +224,7 @@ export default function SearchingScreen({ navigation }: any) {
         </Text>
         <View style={styles.headerTimerBadge}>
           <Icon name="timer" size={13} color="#EF4444" />
-          <Text style={styles.headerTimerText}>{formatTime(elapsedTime)}</Text>
+          <Text style={styles.headerTimerText}>WINDOW: {formatTime(timeLeft)}</Text>
         </View>
       </View>
 
@@ -291,8 +292,12 @@ export default function SearchingScreen({ navigation }: any) {
             </Text>
           </View>
           <View style={styles.detailRow}>
+            <Text style={[styles.detailLabel, { color: colors.onSurfaceVariant }]}>SESSION WINDOW REMAINING:</Text>
+            <Text style={[styles.detailValue, { color: '#EF4444', fontWeight: 'bold' }]}>{formatTime(timeLeft)}</Text>
+          </View>
+          <View style={styles.detailRow}>
             <Text style={[styles.detailLabel, { color: colors.onSurfaceVariant }]}>ELAPSED TIME:</Text>
-            <Text style={[styles.detailValue, { color: '#EF4444' }]}>{formatTime(elapsedTime)}</Text>
+            <Text style={[styles.detailValue, { color: colors.onBackground }]}>{formatTime(elapsedTime)}</Text>
           </View>
         </View>
       </View>
