@@ -28,11 +28,14 @@ build/
 .idea
 .gradle
 local.properties
+gradle.properties
+android/gradle.properties
 *.iml
 *.hprof
 .cxx/
 *.keystore
 !debug.keystore
+connify-release-key*
 .kotlin/
 
 # node.js

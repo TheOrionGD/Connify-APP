@@ -72,4 +72,19 @@ export const aiHazardService = {
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return parseFloat((R * c).toFixed(2));
   },
+
+  /**
+   * Filters a list of hazard items to include ONLY those strictly within a 10 km radius of the user's current GPS location.
+   */
+  filterWithin10KmRadius<T extends { latitude: number; longitude: number }>(
+    hazards: T[],
+    userLat: number,
+    userLng: number
+  ): T[] {
+    if (!userLat || !userLng) return hazards;
+    return hazards.filter((item) => {
+      const dist = this.calculateDistanceKm(userLat, userLng, item.latitude, item.longitude);
+      return dist <= 10.0;
+    });
+  },
 };

@@ -20,6 +20,8 @@ import { StandardButton } from '../components/buttons/StandardButton';
 import * as Keychain from 'react-native-keychain';
 import { normalizePhoneForURI, openWhatsAppContact } from '../utils/phone';
 import { formatEmergencySMSMessage } from '../utils/smsFormatter';
+import InAppNotificationModal from '../components/modals/InAppNotificationModal';
+import { NotificationService } from '../services/NotificationService';
 
 interface EmergencyContact {
   id: string;
@@ -39,7 +41,16 @@ export default function UnifiedSafetyHubScreen({ navigation }: any) {
   const [fakeTimer, setFakeTimer] = useState<number>(0);
   const [queueCount, setQueueCount] = useState(0);
   const [contacts, setContacts] = useState<EmergencyContact[]>([]);
+  const [showNotifModal, setShowNotifModal] = useState(false);
+  const [unreadNotifCount, setUnreadNotifCount] = useState(0);
   const tabBarHeight = useSafeBottomTabBarHeight();
+
+  useEffect(() => {
+    const unsubscribe = NotificationService.subscribeInAppNotifications((items) => {
+      setUnreadNotifCount(items.filter((n) => !n.read).length);
+    });
+    return () => unsubscribe();
+  }, []);
 
   // Parse guardian details from userProfile
   let guardianData: { name: string; phone: string; relationship: string } | null = null;
@@ -171,11 +182,41 @@ export default function UnifiedSafetyHubScreen({ navigation }: any) {
             UNIFIED EMERGENCY & WOMEN SAFETY HUB
           </Text>
         </View>
-        <View style={styles.networkBadge}>
-          <Icon name={isOnline ? 'wifi' : 'wifi-off'} size={14} color={isOnline ? '#059669' : '#EF4444'} />
-          <Text style={[styles.networkBadgeText, { color: isOnline ? '#059669' : '#EF4444' }]}>
-            {isOnline ? 'ONLINE' : 'OFFLINE'}
-          </Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <View style={styles.networkBadge}>
+            <Icon name={isOnline ? 'wifi' : 'wifi-off'} size={14} color={isOnline ? '#059669' : '#EF4444'} />
+            <Text style={[styles.networkBadgeText, { color: isOnline ? '#059669' : '#EF4444' }]}>
+              {isOnline ? 'ONLINE' : 'OFFLINE'}
+            </Text>
+          </View>
+
+          <TouchableOpacity
+            onPress={() => setShowNotifModal(true)}
+            style={{ position: 'relative', padding: 4 }}
+            activeOpacity={0.7}
+          >
+            <Icon name="people-outline" size={24} color={sirenActive ? '#FFFFFF' : colors.primary} />
+            {unreadNotifCount > 0 && (
+              <View
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  right: 0,
+                  backgroundColor: '#EF4444',
+                  borderRadius: 7,
+                  minWidth: 14,
+                  height: 14,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  paddingHorizontal: 2,
+                }}
+              >
+                <Text style={{ color: '#FFFFFF', fontSize: 9, fontWeight: '700' }}>
+                  {unreadNotifCount > 9 ? '9+' : unreadNotifCount}
+                </Text>
+              </View>
+            )}
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -438,6 +479,11 @@ export default function UnifiedSafetyHubScreen({ navigation }: any) {
           />
         </View>
       </ScrollView>
+
+      <InAppNotificationModal
+        visible={showNotifModal}
+        onClose={() => setShowNotifModal(false)}
+      />
     </SafeAreaView>
   );
 }

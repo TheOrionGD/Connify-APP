@@ -112,8 +112,8 @@ export default function LeafletMapView({
       <body>
         <div id="map"></div>
         <script>
-          const userLat = ${userLatitude};
-          const userLng = ${userLongitude};
+          const userLat = (${userLatitude} && ${userLatitude} !== 0) ? ${userLatitude} : 10.7905;
+          const userLng = (${userLongitude} && ${userLongitude} !== 0) ? ${userLongitude} : 78.7047;
           const radius = ${radiusMeters};
           const requests = ${markersJson};
 
@@ -128,20 +128,30 @@ export default function LeafletMapView({
             attribution: '&copy; OpenStreetMap'
           }).addTo(map);
 
-          // User Pinpoint Location Marker
+          // Force map container size recalculation after WebView/DOM render
+          setTimeout(() => {
+            map.invalidateSize();
+            map.setView([userLat, userLng], 14);
+          }, 300);
+
+          window.addEventListener('resize', () => {
+            map.invalidateSize();
+          });
+
+          // User Pinpoint Location Marker (Centered at userLat, userLng)
           const userIcon = L.divIcon({
             className: 'custom-user-marker',
             iconSize: [22, 22],
             iconAnchor: [11, 11]
           });
-          L.marker([userLat, userLng], { icon: userIcon }).addTo(map)
+          const userMarker = L.marker([userLat, userLng], { icon: userIcon }).addTo(map)
             .bindPopup('<b>Your Live GPS Location</b><br/>Lat: ' + userLat.toFixed(4) + ', Lng: ' + userLng.toFixed(4));
 
           // Guard Radius Circle
           L.circle([userLat, userLng], {
             color: '#2563EB',
             fillColor: '#3B82F6',
-            fillOpacity: 0.1,
+            fillOpacity: 0.12,
             radius: radius
           }).addTo(map);
 

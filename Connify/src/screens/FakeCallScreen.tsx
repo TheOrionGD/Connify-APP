@@ -4,9 +4,12 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
 import { normalize } from '../theme/typography';
 
+export type PhoneModelPreset = 'google_pixel' | 'samsung_oneui' | 'o_dialer' | 'ios';
+
 export default function FakeCallScreen() {
   const navigation = useNavigation();
   const [callerName, setCallerName] = useState('Mom');
+  const [phoneModel, setPhoneModel] = useState<PhoneModelPreset>('google_pixel');
   const [callState, setCallState] = useState<'setup' | 'incoming' | 'active'>('setup');
   const [timer, setTimer] = useState(0);
   const [delaySeconds, setDelaySeconds] = useState(5);
@@ -58,10 +61,35 @@ export default function FakeCallScreen() {
             <Text style={{ color: '#FFFFFF', fontSize: 20, fontWeight: 'bold' }}>Fake Escort Call Generator</Text>
           </View>
           <Text style={{ color: '#A0A0A0', fontSize: 13, lineHeight: 18 }}>
-            Simulate a realistic incoming phone call to deter potential stalkers or uncomfortable situations when walking alone.
+            Simulate a realistic incoming phone call customized to match your phone's native dialer (Pixel, Samsung, O-Dialer, or iOS) to deter stalkers when walking alone.
           </Text>
 
-          <Text style={{ color: '#FFFFFF', fontSize: 12, fontWeight: 'bold', marginTop: 10 }}>SELECT CALLER PROFILE</Text>
+          <Text style={{ color: '#FFFFFF', fontSize: 12, fontWeight: 'bold', marginTop: 6 }}>SELECT DIALER PHONE MODEL</Text>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+            {[
+              { id: 'google_pixel', label: 'Google Pixel' },
+              { id: 'samsung_oneui', label: 'Samsung One UI' },
+              { id: 'o_dialer', label: 'O-Dialer (Oppo/Realme)' },
+              { id: 'ios', label: 'iOS / Clean' },
+            ].map((m) => (
+              <TouchableOpacity
+                key={m.id}
+                onPress={() => setPhoneModel(m.id as PhoneModelPreset)}
+                style={{
+                  paddingHorizontal: 12,
+                  paddingVertical: 8,
+                  borderRadius: 8,
+                  backgroundColor: phoneModel === m.id ? '#3B82F6' : '#2A2A2A',
+                  borderWidth: 1,
+                  borderColor: phoneModel === m.id ? '#3B82F6' : '#444',
+                }}
+              >
+                <Text style={{ color: '#FFFFFF', fontSize: 12, fontWeight: '600' }}>{m.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          <Text style={{ color: '#FFFFFF', fontSize: 12, fontWeight: 'bold', marginTop: 6 }}>SELECT CALLER PROFILE</Text>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
             {['Mom', 'Dad', 'Safety Dispatch', 'Alex (Brother)', 'Office Guard'].map((c) => (
               <TouchableOpacity
@@ -81,7 +109,7 @@ export default function FakeCallScreen() {
             ))}
           </View>
 
-          <Text style={{ color: '#FFFFFF', fontSize: 12, fontWeight: 'bold', marginTop: 10 }}>TRIGGER DELAY</Text>
+          <Text style={{ color: '#FFFFFF', fontSize: 12, fontWeight: 'bold', marginTop: 6 }}>TRIGGER DELAY</Text>
           <View style={{ flexDirection: 'row', gap: 10 }}>
             {[0, 5, 15, 30].map((d) => (
               <TouchableOpacity
@@ -124,30 +152,91 @@ export default function FakeCallScreen() {
     );
   }
 
+  // Model-specific Background Color & Styling
+  const getContainerBg = () => {
+    switch (phoneModel) {
+      case 'samsung_oneui':
+        return '#0A0A0F';
+      case 'o_dialer':
+        return '#111827';
+      case 'ios':
+        return '#000000';
+      case 'google_pixel':
+      default:
+        return '#1E1E1E';
+    }
+  };
+
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: getContainerBg() }]}>
+      {/* Header Info */}
       <View style={styles.topSection}>
+        {phoneModel === 'samsung_oneui' && (
+          <View style={styles.avatarCircle}>
+            <Text style={styles.avatarChar}>{callerName.charAt(0)}</Text>
+          </View>
+        )}
         <Text style={styles.callerName}>{callerName}</Text>
         <Text style={styles.callStatus}>
-          {callState === 'incoming' ? 'Incoming call' : formatTime(timer)}
+          {callState === 'incoming'
+            ? phoneModel === 'o_dialer' ? 'O-Dialer Incoming...' : 'Incoming call'
+            : formatTime(timer)}
         </Text>
       </View>
 
+      {/* Action Buttons based on state and selected phone model preset */}
       <View style={styles.bottomSection}>
         {callState === 'incoming' ? (
           <View style={styles.actionRow}>
-            <View style={styles.actionButtonContainer}>
-              <TouchableOpacity style={[styles.circleButton, styles.declineButton]} onPress={handleDecline}>
-                <Icon name="call-end" size={normalize(32)} color="#FFFFFF" />
-              </TouchableOpacity>
-              <Text style={styles.actionText}>Decline</Text>
-            </View>
-            <View style={styles.actionButtonContainer}>
-              <TouchableOpacity style={[styles.circleButton, styles.answerButton]} onPress={handleAnswer}>
-                <Icon name="call" size={normalize(32)} color="#FFFFFF" />
-              </TouchableOpacity>
-              <Text style={styles.actionText}>Accept</Text>
-            </View>
+            {phoneModel === 'o_dialer' ? (
+              // O-Dialer (ColorOS/OxygenOS) Wave Buttons
+              <>
+                <View style={styles.actionButtonContainer}>
+                  <TouchableOpacity style={[styles.circleButton, styles.oDeclineButton]} onPress={handleDecline}>
+                    <Icon name="call-end" size={normalize(32)} color="#FFFFFF" />
+                  </TouchableOpacity>
+                  <Text style={styles.actionText}>Reject</Text>
+                </View>
+                <View style={styles.actionButtonContainer}>
+                  <TouchableOpacity style={[styles.circleButton, styles.oAnswerButton]} onPress={handleAnswer}>
+                    <Icon name="call" size={normalize(32)} color="#FFFFFF" />
+                  </TouchableOpacity>
+                  <Text style={styles.actionText}>Answer</Text>
+                </View>
+              </>
+            ) : phoneModel === 'samsung_oneui' ? (
+              // Samsung One UI Buttons
+              <>
+                <View style={styles.actionButtonContainer}>
+                  <TouchableOpacity style={[styles.circleButton, styles.samsungDecline]} onPress={handleDecline}>
+                    <Icon name="call-end" size={normalize(30)} color="#FFFFFF" />
+                  </TouchableOpacity>
+                  <Text style={styles.actionText}>Decline</Text>
+                </View>
+                <View style={styles.actionButtonContainer}>
+                  <TouchableOpacity style={[styles.circleButton, styles.samsungAnswer]} onPress={handleAnswer}>
+                    <Icon name="call" size={normalize(30)} color="#FFFFFF" />
+                  </TouchableOpacity>
+                  <Text style={styles.actionText}>Answer</Text>
+                </View>
+              </>
+            ) : (
+              // Default / Pixel / iOS Accept-Decline Buttons
+              <>
+                <View style={styles.actionButtonContainer}>
+                  <TouchableOpacity style={[styles.circleButton, styles.declineButton]} onPress={handleDecline}>
+                    <Icon name="call-end" size={normalize(32)} color="#FFFFFF" />
+                  </TouchableOpacity>
+                  <Text style={styles.actionText}>Decline</Text>
+                </View>
+                <View style={styles.actionButtonContainer}>
+                  <TouchableOpacity style={[styles.circleButton, styles.answerButton]} onPress={handleAnswer}>
+                    <Icon name="call" size={normalize(32)} color="#FFFFFF" />
+                  </TouchableOpacity>
+                  <Text style={styles.actionText}>Accept</Text>
+                </View>
+              </>
+            )}
           </View>
         ) : (
           <View style={styles.activeCallActions}>
@@ -172,7 +261,7 @@ export default function FakeCallScreen() {
               </View>
               <View style={styles.gridItem}>
                 <Icon name="videocam" size={normalize(28)} color="#7A7A7A" />
-                <Text style={styles.gridText}>FaceTime</Text>
+                <Text style={styles.gridText}>video</Text>
               </View>
               <View style={styles.gridItem}>
                 <Icon name="person" size={normalize(28)} color="#FFFFFF" />
@@ -192,21 +281,34 @@ export default function FakeCallScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1E1E1E',
     justifyContent: 'space-between',
   },
   topSection: {
     alignItems: 'center',
-    marginTop: normalize(80),
+    marginTop: normalize(70),
+  },
+  avatarCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#3B82F6',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  avatarChar: {
+    color: '#FFFFFF',
+    fontSize: 36,
+    fontWeight: 'bold',
   },
   callerName: {
-    fontSize: normalize(36),
+    fontSize: normalize(34),
     color: '#FFFFFF',
     fontWeight: '400',
     letterSpacing: 1,
   },
   callStatus: {
-    fontSize: normalize(18),
+    fontSize: normalize(16),
     color: '#D1D1D1',
     marginTop: normalize(8),
   },
@@ -236,6 +338,24 @@ const styles = StyleSheet.create({
   },
   answerButton: {
     backgroundColor: '#34C759',
+  },
+  samsungDecline: {
+    backgroundColor: '#E11D48',
+    borderRadius: 20,
+  },
+  samsungAnswer: {
+    backgroundColor: '#10B981',
+    borderRadius: 20,
+  },
+  oDeclineButton: {
+    backgroundColor: '#EF4444',
+    borderWidth: 2,
+    borderColor: '#F87171',
+  },
+  oAnswerButton: {
+    backgroundColor: '#059669',
+    borderWidth: 2,
+    borderColor: '#34D399',
   },
   actionText: {
     color: '#FFFFFF',

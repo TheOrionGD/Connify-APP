@@ -21,6 +21,8 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import { GradientView } from '../../components/common/GradientView';
 import PulseRipple from '../../components/animations/PulseRipple';
 import QuickSOSCard from '../../components/cards/QuickSOSCard';
+import InAppNotificationModal from '../../components/modals/InAppNotificationModal';
+import { NotificationService } from '../../services/NotificationService';
 
 
 export default function DashboardScreen({ navigation }: any) {
@@ -30,7 +32,16 @@ export default function DashboardScreen({ navigation }: any) {
   const [alertMessage, setAlertMessage] = useState('');
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [showNotifModal, setShowNotifModal] = useState(false);
+  const [unreadNotifCount, setUnreadNotifCount] = useState(0);
   const [onAckCallback, setOnAckCallback] = useState<(() => void) | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = NotificationService.subscribeInAppNotifications((items) => {
+      setUnreadNotifCount(items.filter((n) => !n.read).length);
+    });
+    return () => unsubscribe();
+  }, []);
 
   const { colors } = useTheme();
   const { hasCompletedProfile } = useAuthStore();
@@ -81,6 +92,36 @@ export default function DashboardScreen({ navigation }: any) {
     }
   };
 
+  const handleCreateEpisodeSuccess = (requestId: string) => {
+    navigation.navigate('Searching', { requestId });
+  };
+
+  const handleCategoryPress = (selectedCategory: string) => {
+    if (!hasCompletedProfile) {
+      setShowProfileModal(true);
+      return;
+    }
+
+    if (currentState === 'active') {
+      setAlertTitle('Episode In Progress');
+      setAlertMessage('You already have an active emergency episode running.');
+      setAlertVisible(true);
+      return;
+    }
+
+    navigation.navigate('CreateRequest', { preselectedCategory: selectedCategory });
+  };
+
+  const handleSimulateFinish = () => {
+    setAlertTitle('Incident Resolved');
+    setAlertMessage('Your emergency request has been successfully resolved. Please leave feedback.');
+    setOnAckCallback(() => {
+      completeEpisode();
+      setShowFeedbackModal(true);
+    });
+    setAlertVisible(true);
+  };
+
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
@@ -97,7 +138,33 @@ export default function DashboardScreen({ navigation }: any) {
           <Icon name="security" size={24} color={colors.primary} />
           <Text style={[styles.headerText, { color: colors.primary }]}>Connify Safety</Text>
         </View>
-        <Icon name="people-outline" size={24} color={colors.primary} />
+        <TouchableOpacity
+          onPress={() => setShowNotifModal(true)}
+          style={{ position: 'relative', padding: 4 }}
+          activeOpacity={0.7}
+        >
+          <Icon name="people-outline" size={24} color={colors.primary} />
+          {unreadNotifCount > 0 && (
+            <View
+              style={{
+                position: 'absolute',
+                top: 0,
+                right: 0,
+                backgroundColor: '#EF4444',
+                borderRadius: 7,
+                minWidth: 14,
+                height: 14,
+                justifyContent: 'center',
+                alignItems: 'center',
+                paddingHorizontal: 2,
+              }}
+            >
+              <Text style={{ color: '#FFFFFF', fontSize: 9, fontWeight: '700' }}>
+                {unreadNotifCount > 9 ? '9+' : unreadNotifCount}
+              </Text>
+            </View>
+          )}
+        </TouchableOpacity>
       </View>
 
       <ScrollView contentContainerStyle={[styles.scrollContainer, { paddingBottom: tabBarHeight + 16 }]} showsVerticalScrollIndicator={false}>
@@ -462,6 +529,11 @@ export default function DashboardScreen({ navigation }: any) {
           setAlertMessage('Your profile data has been securely saved to MongoDB Atlas.');
           setAlertVisible(true);
         }}
+      />
+
+      <InAppNotificationModal
+        visible={showNotifModal}
+        onClose={() => setShowNotifModal(false)}
       />
     </SafeAreaView>
   );

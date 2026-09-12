@@ -120,6 +120,7 @@ obj/
 **/android/build/
 **/android/app/build/
 **/android/local.properties
+**/android/gradle.properties
 **/android/*.iml
 **/android/.cxx/
 **/android/.kotlin/

@@ -19,8 +19,16 @@ import {
   FIREBASE_APP_ID,
   FIREBASE_DATABASE_URL
 } from '@env';
+import notifee, { EventType } from '@notifee/react-native';
 import App from './src/App';
 import { name as appName } from './app.json';
+
+// Register Notifee background notification event handler
+notifee.onBackgroundEvent(async ({ type, detail }) => {
+  if (type === EventType.PRESS) {
+    console.log('[BackgroundNotification] User tapped background notification:', detail.notification?.id);
+  }
+});
 
 AppRegistry.registerComponent(appName, () => App);
 

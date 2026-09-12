@@ -167,12 +167,16 @@ const decodeBase64Url = (str: string) => {
 
 const parseQrPayload = (token: string) => {
   try {
-    const parts = token.split('.');
+    let cleanToken = token.trim();
+    if (cleanToken.startsWith('CONNIFY_ENC:')) {
+      cleanToken = cleanToken.replace('CONNIFY_ENC:', '');
+    }
+    const parts = cleanToken.split('.');
     if (parts.length >= 2) {
       const payloadJson = decodeBase64Url(parts[1]);
       return JSON.parse(payloadJson);
     }
-    return JSON.parse(token);
+    return JSON.parse(cleanToken);
   } catch (e) {
     return null;
   }

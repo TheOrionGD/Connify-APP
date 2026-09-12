@@ -69,10 +69,13 @@ function AppContent() {
   );
 }
 
+import { NotificationService } from './services/NotificationService';
+
 function App() {
   useEffect(() => {
     widgetSyncService.init();
     useRewardStore.getState().loadRewards();
+    NotificationService.registerFCM().catch((err) => console.warn('[App] FCM registration notice:', err));
     return () => {
       widgetSyncService.destroy();
     };
