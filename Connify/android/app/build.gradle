@@ -83,8 +83,8 @@ android {
         applicationId "com.connify"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 20
-        versionName "3.7.7"
+        versionCode 21
+        versionName "3.7.8"
     }
     signingConfigs {
         debug {
