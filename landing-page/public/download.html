@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Downloading Connify for Android</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Space+Grotesk:wght@600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: radial-gradient(circle at 50% 20%, #ffe4e6 0%, #faf9f8 60%);
+      color: #0f172a;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justifyContent: center;
+      padding: 24px;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid #f1e4e4;
+      border-radius: 24px;
+      box-shadow: 0 20px 40px -10px rgba(225, 29, 72, 0.12);
+      max-width: 440px;
+      width: 100%;
+      padding: 36px 28px;
+      text-align: center;
+    }
+    .logo-badge {
+      width: 68px;
+      height: 68px;
+      border-radius: 20px;
+      background: #fff1f2;
+      border: 1px solid rgba(225, 29, 72, 0.2);
+      display: flex;
+      align-items: center;
+      justifyContent: center;
+      margin: 0 auto 20px auto;
+      box-shadow: 0 8px 20px rgba(225, 29, 72, 0.15);
+    }
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 8px;
+    }
+    p {
+      font-size: 0.92rem;
+      color: #64748b;
+      line-height: 1.5;
+      margin-bottom: 24px;
+    }
+    .btn-download {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      padding: 14px 20px;
+      background: linear-gradient(135deg, #e11d48 0%, #be123c 100%);
+      color: #ffffff;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 1rem;
+      border-radius: 16px;
+      box-shadow: 0 6px 20px rgba(225, 29, 72, 0.35);
+      transition: transform 0.2s;
+    }
+    .btn-download:active {
+      transform: scale(0.98);
+    }
+    .steps-box {
+      margin-top: 28px;
+      padding-top: 20px;
+      border-top: 1px solid #f1e4e4;
+      text-align: left;
+      font-size: 0.82rem;
+      color: #475569;
+    }
+    .steps-title {
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+    }
+    .step-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .step-num {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #e11d48;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justifyContent: center;
+      font-size: 0.7rem;
+      font-weight: 800;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .checksum-box {
+      margin-top: 16px;
+      background: #f8fafc;
+      padding: 10px;
+      border-radius: 10px;
+      font-family: 'Space Grotesk', monospace;
+      font-size: 0.68rem;
+      color: #64748b;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <div class="logo-badge">
+      <svg width="44" height="44" viewBox="0 0 120 120" fill="none">
+        <path d="M60 6C50 6 42 14 42 24C42 37 60 52 60 52C60 52 78 37 78 24C78 14 70 6 60 6ZM60 28.5C57.5 28.5 55.5 26.5 55.5 24C55.5 21.5 57.5 19.5 60 19.5C62.5 19.5 64.5 21.5 64.5 24C64.5 26.5 62.5 28.5 60 28.5Z" fill="#e11d48"/>
+        <circle cx="31" cy="37" r="10" fill="#e11d48"/>
+        <circle cx="89" cy="37" r="10" fill="#e11d48"/>
+        <path d="M24 50C16 57 16 66 23 75L38 88C43 93 51 93 56 88L62 82L49 71C46 68 46 63 50 60C53 56 58 57 61 60L74 71L70 56C69 51 64 48 59 48L32 48C29 48 26 49 24 50Z" fill="#e11d48"/>
+        <path d="M96 50C104 57 104 66 97 75L82 88C77 93 69 93 64 88L58 82L71 71C74 68 74 63 70 60C67 56 62 57 59 60L46 71L50 56C51 51 56 48 61 48L88 48C91 48 94 49 96 50Z" fill="#e11d48"/>
+      </svg>
+    </div>
+
+    <h1>Connify for Android</h1>
+    <p>Official release v3.7.8 (142.4 MB). Your download should begin automatically.</p>
+
+    <a id="downloadBtn" href="https://github.com/TheOrionGD/Connify-APP/releases/download/v3.7.8/app-release.apk" class="btn-download">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      <span>Tap to Download APK</span>
+    </a>
+
+    <div class="steps-box">
+      <div class="steps-title">Installation Steps:</div>
+      <div class="step-item">
+        <div class="step-num">1</div>
+        <div>Allow installation from unknown sources in browser settings if prompted.</div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">2</div>
+        <div>Open downloaded <strong>app-release.apk</strong> and tap <strong>Install</strong>.</div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">3</div>
+        <div>Launch Connify and enjoy decentralized peer-to-peer connection.</div>
+      </div>
+    </div>
+
+    <div class="checksum-box">
+      SHA256: ea988be0a5814d6c17ab78ecb45075759aa9446fe4ee69e667e29de2f4e9602d
+    </div>
+  </div>
+
+  <script>
+    // Automatically trigger APK download upon page load
+    const apkUrl = "https://github.com/TheOrionGD/Connify-APP/releases/download/v3.7.8/app-release.apk";
+    setTimeout(() => {
+      window.location.href = apkUrl;
+    }, 600);
+  </script>
+</body>
+</html>
