@@ -31,22 +31,28 @@ const currentVersion = pkg.version || '1.0.0';
 const parts = currentVersion.split('.').map((n) => parseInt(n, 10) || 0);
 let [major, minor, patch] = parts.length === 3 ? parts : [1, 0, 0];
 
-// Determine bump type from CLI arg: patch | minor | major
-const bumpType = (process.argv[2] || 'patch').toLowerCase();
+// Determine bump type or explicit version from CLI arg
+const inputArg = (process.argv[2] || 'patch').toLowerCase();
+let bumpType = inputArg;
+let newVersion;
 
-if (bumpType === 'major') {
+if (/^\d+\.\d+\.\d+.*$/.test(inputArg)) {
+  newVersion = inputArg;
+  bumpType = 'explicit';
+} else if (bumpType === 'major') {
   major += 1;
   minor = 0;
   patch = 0;
+  newVersion = `${major}.${minor}.${patch}`;
 } else if (bumpType === 'minor') {
   minor += 1;
   patch = 0;
+  newVersion = `${major}.${minor}.${patch}`;
 } else {
   // default patch
   patch += 1;
+  newVersion = `${major}.${minor}.${patch}`;
 }
-
-const newVersion = `${major}.${minor}.${patch}`;
 
 console.log(`\n====================================================`);
 console.log(`🚀 Bumping Connify App Version: ${currentVersion} ➔ ${newVersion} (${bumpType})`);

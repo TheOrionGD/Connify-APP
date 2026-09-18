@@ -1,7 +1,7 @@
 {
   "name": "connify-landing-page",
   "private": true,
-  "version": "3.7.8",
+  "version": "4.2.1",
   "type": "module",
   "scripts": {
     "dev": "vite",

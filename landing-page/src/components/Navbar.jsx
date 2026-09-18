@@ -248,7 +248,7 @@ export default function Navbar({ onOpenDeletionModal }) {
             onClick={() => setMobileMenuOpen(false)}
             style={{ fontWeight: 600, color: '#334155', padding: '8px 0' }}
           >
-            Download Client (v3.7.8)
+            Download Client (v4.2.1)
           </a>
           <a
             href="#protocol"

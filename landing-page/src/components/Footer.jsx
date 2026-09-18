@@ -149,7 +149,7 @@ export default function Footer({ onOpenPrivacy, onOpenChangelog }) {
             &copy; 2026 Connify Protocol. All rights reserved. Self-Sovereign Proximity Network.
           </div>
           <div style={{ display: 'flex', gap: '16px' }}>
-            <span>v3.7.8 Production</span>
+            <span>v4.2.1 Production</span>
             <span>Target SDK 36</span>
             <span>Zero Ads</span>
           </div>

@@ -95,7 +95,7 @@ export default function App() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', fontSize: '0.85rem' }}>
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-                  <span style={{ fontWeight: 800, color: '#e11d48' }}>v3.7.8 (Stable Production)</span>
+                  <span style={{ fontWeight: 800, color: '#e11d48' }}>v4.2.1 (Stable Production)</span>
                   <span style={{ color: '#64748b', fontSize: '0.78rem' }}>September 2026</span>
                 </div>
                 <ul style={{ paddingLeft: '18px', color: '#475569', lineHeight: 1.6 }}>

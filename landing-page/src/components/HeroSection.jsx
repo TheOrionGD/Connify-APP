@@ -30,12 +30,12 @@ export default function HeroSection({ onOpenChangelog }) {
 
   // Official production release constants & verified GitHub Pages connectivity
   const githubPagesBase = "https://theoriongd.github.io/Connify-APP";
-  const releaseTag = "v3.7.8";
-  const releaseUrl = "https://github.com/TheOrionGD/Connify-APP/releases/tag/v3.7.8";
-  const apkDownloadUrl = "https://github.com/TheOrionGD/Connify-APP/releases/download/v3.7.8/app-release.apk";
+  const releaseTag = "v4.2.1";
+  const releaseUrl = "https://github.com/TheOrionGD/Connify-APP/releases/tag/v4.2.1";
+  const apkDownloadUrl = "https://github.com/TheOrionGD/Connify-APP/releases/download/v4.2.1/app-release.apk";
   const downloadLandingPageUrl = `${githubPagesBase}/download.html`;
   const sha256Checksum = "ea988be0a5814d6c17ab78ecb45075759aa9446fe4ee69e667e29de2f4e9602d";
-  const apkSize = "142.4 MB";
+  const apkSize = "149.3 MB";
 
   // Dynamic QR Code target URL:
   const activeQrTargetUrl = selectedTab === 'android'
@@ -62,7 +62,7 @@ export default function HeroSection({ onOpenChangelog }) {
           </div>
           <div className="badge-pill stable" style={{ margin: 0 }}>
             <span className="badge-dot" />
-            <span>v3.7.8 Stable</span>
+            <span>v4.2.1 Stable</span>
           </div>
         </div>
 
@@ -126,7 +126,7 @@ export default function HeroSection({ onOpenChangelog }) {
               <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap', marginBottom: '20px' }}>
                 <a
                   href={apkDownloadUrl}
-                  download="Connify-v3.7.8-release.apk"
+                  download="Connify-v4.2.1-release.apk"
                   className="btn btn-primary"
                   style={{
                     padding: '12px 24px',
@@ -250,7 +250,7 @@ export default function HeroSection({ onOpenChangelog }) {
             <div style={{ marginTop: '8px', fontSize: '0.72rem', color: '#64748b' }}>
               <span>Scans to: </span>
               <span style={{ fontFamily: 'var(--font-mono)', color: '#e11d48', fontWeight: 600 }}>
-                {selectedTab === 'android' ? 'theoriongd.github.io/Connify-APP/download.html' : selectedTab === 'ios' ? 'theoriongd.github.io/Connify-APP/#download' : 'github.com/.../tag/v3.7.8'}
+                {selectedTab === 'android' ? 'theoriongd.github.io/Connify-APP/download.html' : selectedTab === 'ios' ? 'theoriongd.github.io/Connify-APP/#download' : 'github.com/.../tag/v4.2.1'}
               </span>
             </div>
 
@@ -333,7 +333,7 @@ export default function HeroSection({ onOpenChangelog }) {
                 }}
               >
                 <ExternalLink size={16} color="#64748b" />
-                <span>GitHub Releases (v3.7.8)</span>
+                <span>GitHub Releases (v4.2.1)</span>
               </a>
             </div>
 
@@ -494,7 +494,7 @@ export default function HeroSection({ onOpenChangelog }) {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.84rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '6px', borderBottom: '1px solid #f8fafc' }}>
                   <span style={{ color: '#64748b' }}>Version</span>
-                  <span style={{ fontWeight: 700, color: '#16a34a' }}>v3.7.8 Stable</span>
+                  <span style={{ fontWeight: 700, color: '#16a34a' }}>v4.2.1 Stable</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '6px', borderBottom: '1px solid #f8fafc' }}>
                   <span style={{ color: '#64748b' }}>Release Date</span>
