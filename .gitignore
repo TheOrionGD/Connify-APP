@@ -125,7 +125,8 @@ obj/
 **/android/.cxx/
 **/android/.kotlin/
 *.hprof
-
+*.apk
+*.aab
 # Ruby / CocoaPods (iOS dependency management)
 **/vendor/bundle/
 .bundle/

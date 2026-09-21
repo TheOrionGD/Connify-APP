@@ -1,45 +1,52 @@
-# 🚀 Connify v4.2.1 - Official Production Release
+# 🚀 Connify v4.3.1 - Official Production Release
 
-gh release create v4.2.1 Connify/android/app/build/outputs/apk/release/app-release.apk Connify/android/app/build/outputs/bundle/release/app-release.aab --title "Connify v4.2.1 Release" -F scratch/release_notes.md
-
-
-We are excited to announce **Connify v4.2.1** (`versionCode 23`), featuring major performance enhancements, full Android 15 (Target SDK 36+) compatibility, signed release binaries, and complete compliance with Google Play Developer Policies.
+We are excited to announce **Connify v4.3.1** (`versionCode 25`), introducing VoIP audio call service integration, enhanced real-time socket signaling for emergency coordination, redesigned onboarding experience, Leaflet map tracking improvements, and full Google Play policy compliance for target SDK 36 (Android 15+).
 
 ---
 
 ### 📦 Release Highlights & Key Updates
 
-#### 1. 📱 App Version & Build Alignment
-- **Version Name:** `4.2.1`
-- **Version Code:** `23`
-- Fully synchronized version across Mobile Client, Backend Services, and Landing Page portal.
+#### 1. 📞 Integrated VoIP & Emergency Audio Service
+- **VoIP Audio Call Engine:** Real-time audio streaming and emergency call handling during active safety episodes (`voipAudioService.ts`).
+- **Enhanced Emergency Call Modal:** Dynamic call controls, mute, speakerphone, and direct responder voice connection.
+- **Fake Call De-escalation Screen:** Updated UI and audio triggers for discreet emergency extraction.
 
-#### 2. 🛡️ Google Play Policy & Child Safety Compliance
-- Published official **Child Safety Standards & CSAM Prevention Policy** at `https://theoriongd.github.io/Connify-APP/child-safety-policy.html`.
-- Completed **Permissions Declaration Form** for offline SMS emergency dispatch.
-- Zero-tolerance policy for child sexual abuse material (CSAM) with 1-tap in-app reporting and NCMEC reporting workflow.
+#### 2. ⚡ Real-Time Socket Signaling & Episode Management
+- **Socket Service:** Low-latency WebSocket signaling for live emergency tracking, responder dispatch, and state synchronization (`socketService.ts`).
+- **Category Context Engine:** Intelligent assistance category presets and dynamic contextual prompt generation for requesters (`categoryContexts.ts`).
+- **Nearby Requests & Dispatch:** Real-time responder radius filtering and interactive request pickup workflow.
 
-#### 3. 🔐 Signed Production Artifacts
-- **Signed APK (`app-release.apk`):** Signed with official `connify-release-key` (2048-bit RSA PKCS12 key).
-- **Signed App Bundle (`app-release.aab`):** Optimized Android App Bundle ready for Google Play Store production distribution.
+#### 3. 🗺️ Map & Location Enhancements
+- **Leaflet Map View:** Improved live GPS marker rendering, smooth map pan animations, and emergency location sharing (`LeafletMapView.tsx`).
+- **Mutual Proximity Verification:** Cryptographic Ed25519 & QR code handshakes for secure requester-helper meetings.
 
-#### 4. ⚡ Core Safety & Protocol Performance
-- **Offline Emergency SOS Broadcast:** 1-tap SMS & cellular call fallback containing live satellite GPS location coordinates.
-- **Mutual Proximity Handshakes:** High-speed Ed25519 cryptographic key exchange & QR verification for helper-requester meetings.
-- **Android 15 (API 36+) Optimization:** Native UI rendering, edge-to-edge support, and Hermesc bytecode optimization.
+#### 4. 📱 App Version & Build Alignment
+- **Version Name:** `4.3.1`
+- **Version Code:** `25`
+- Fully synchronized across Mobile Client, Backend Services, and Web Landing Page.
+
+#### 5. 🛡️ Google Play Policy & Security Compliance
+- **Target SDK 36 (Android 15+):** Native Hermes engine optimization and edge-to-edge UI support.
+- **Child Safety Policy & CSAM Prevention:** Compliance with Google Play Developer Policy with dedicated in-app reporting mechanism.
+- **Permissions Declaration:** Fully aligned SMS and location permissions for offline SOS dispatch.
 
 ---
 
-### 📥 Downloads
+### 📥 Release Downloads
 
 | File Name | File Type | Size | Description |
 | :--- | :--- | :--- | :--- |
-| `app-release.apk` | Android Application Package | ~149.3 MB | Direct Android APK installation file |
-| `app-release.aab` | Android App Bundle | ~94.2 MB | Google Play Store publishing bundle |
+| `app-release.apk` | Android Application Package | 142.5 MB | Direct Android APK installation file |
+| `app-release.aab` | Android App Bundle | 89.9 MB | Google Play Store production publishing bundle |
 
 ---
 
-### 🔒 Verification & Security
-- **Keystore Alias:** `connify-key`
-- **SHA-1 Fingerprint:** `F4:61:7D:CE:02:FB:6F:29:D7:C5:2F:EF:1A:E5:8C:C6:74:CD:37:E9`
-- **SHA-256 Fingerprint:** `57:A0:CB:81:3A:D8:3C:30:89:54:92:01:F1:5C:6A:9F:02:BF:E6:D7:DD:58:A3:9C:D4:8D:2D:25:15:7A:E3:EC`
+### 🔒 Verification & Security Hashes
+
+#### SHA-256 Checksums
+- **`app-release.apk`:** `36A9C1FC32CE448F0D2E09497C2904CA2E875368F1B6578C516756097593E589`
+- **`app-release.aab`:** `6065D064C2B29E14E259787CAA2C6EF9A0D56EFD91976ACE326F2ACFE231BE39`
+
+#### Keystore Credentials
+- **Alias:** `connify-key`
+- **Signature Algorithm:** 2048-bit RSA PKCS12
