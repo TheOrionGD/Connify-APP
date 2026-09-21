@@ -582,4 +582,49 @@ export const socketService = {
       socket?.off('call_signal', handler);
     };
   },
+
+  /**
+   * Send 1-to-1 WebRTC SDP Offer to targeted receiver user ID
+   */
+  sendWebRTCOffer(receiverId: string, offer: any, callId?: string): void {
+    if (socket?.connected) {
+      socket.emit('webrtc_offer', { receiverId, offer, callId });
+    }
+  },
+
+  /**
+   * Send 1-to-1 WebRTC SDP Answer to targeted caller user ID
+   */
+  sendWebRTCAnswer(receiverId: string, answer: any, callId?: string): void {
+    if (socket?.connected) {
+      socket.emit('webrtc_answer', { receiverId, answer, callId });
+    }
+  },
+
+  /**
+   * Send 1-to-1 WebRTC ICE Candidate to targeted peer
+   */
+  sendIceCandidate(receiverId: string, candidate: any, callId?: string): void {
+    if (socket?.connected) {
+      socket.emit('ice_candidate', { receiverId, candidate, callId });
+    }
+  },
+
+  onWebRTCOffer(handler: (data: { callerId: string; offer: any; callId?: string }) => void): () => void {
+    if (!socket) return () => {};
+    socket.on('webrtc_offer', handler);
+    return () => { socket?.off('webrtc_offer', handler); };
+  },
+
+  onWebRTCAnswer(handler: (data: { responderId: string; answer: any; callId?: string }) => void): () => void {
+    if (!socket) return () => {};
+    socket.on('webrtc_answer', handler);
+    return () => { socket?.off('webrtc_answer', handler); };
+  },
+
+  onIceCandidate(handler: (data: { senderId: string; candidate: any; callId?: string }) => void): () => void {
+    if (!socket) return () => {};
+    socket.on('ice_candidate', handler);
+    return () => { socket?.off('ice_candidate', handler); };
+  },
 };

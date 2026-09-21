@@ -48,6 +48,29 @@ export default function CreateRequestScreen({ navigation }: any) {
   };
 
   const categories: { name: CategoryType; icon: string; description: string }[] = [
+    // --- Connection Between Strangers Categories ---
+    { name: 'Coffee & Social Chat', icon: 'coffee', description: 'Casual coffee meetups, friendly banter, & local friend making' },
+    { name: 'Study & Homework Buddy', icon: 'school', description: 'Co-studying, exam prep, library sessions, & academic support' },
+    { name: 'Sports & Workout Partner', icon: 'fitness-center', description: 'Gym spotter, jogging companion, tennis/badminton partner' },
+    { name: 'Travel & Sightseeing Companion', icon: 'explore', description: 'Exploring local spots, heritage walks, & road trips' },
+    { name: 'Language Exchange & Practice', icon: 'translate', description: 'Conversational practice, language swap, & native peer practice' },
+    { name: 'Skill Swap & Mentorship', icon: 'psychology', description: 'Mutual skill sharing, coding/design swap, & peer guidance' },
+    { name: 'Hobby & Gaming Pair', icon: 'sports-esports', description: 'Board games, video game co-op, anime, & tabletop gaming' },
+    { name: 'Co-Working & Professional Network', icon: 'work', description: 'Freelance co-working, cafe work sprints, & networking' },
+    { name: 'Event & Concert Buddy', icon: 'confirmation-number', description: 'Music gigs, theater, comedy shows, & festival buddies' },
+    { name: 'Neighborhood Advice & Local Guide', icon: 'map', description: 'Insider area tips, safe neighborhood orientation, & advice' },
+    { name: 'Pet Playdate & Walking', icon: 'pets', description: 'Dog park playdates, pet walks, & animal lover meetups' },
+    { name: 'Foodie & Culinary Meetup', icon: 'restaurant', description: 'Trying new food spots, night markets, & dining meetups' },
+    { name: 'Book & Film Discussion', icon: 'menu-book', description: 'Book clubs, cinema outings, literary chat, & screenings' },
+    { name: 'Music Jamming & Creative', icon: 'music-note', description: 'Acoustic jam sessions, band practice, & creative pairing' },
+    { name: 'Carpool & Commute Partner', icon: 'directions-car', description: 'Shared daily commute, ride sharing, & splitting gas' },
+    { name: 'Tech & Coding Collaboration', icon: 'code', description: 'Hackathons, open-source pair programming, & side projects' },
+    { name: 'Item Sharing & Borrowing', icon: 'swap-horiz', description: 'Borrowing tools, books, camping gear, & neighborhood items' },
+    { name: 'Volunteer & Community Action', icon: 'volunteer-activism', description: 'Park cleanups, food drives, & local civic action pairing' },
+    { name: 'Arts & Craft Partner', icon: 'palette', description: 'Painting, sketch walks, pottery, & art gallery visits' },
+    { name: 'City Exploration & Walking Group', icon: 'directions-walk', description: 'Scenic walks, evening strolls, & city wandering groups' },
+
+    // --- Community Assistance & Support Categories ---
     { name: 'Medical Emergency', icon: 'medical-services', description: 'Urgent medical aid, trauma, or cardiac emergency' },
     { name: 'Security & Assault', icon: 'security', description: 'Physical threat, active assault, or immediate danger' },
     { name: 'Fire & Explosion', icon: 'local-fire-department', description: 'Active fire outbreak, smoke, or explosion hazard' },
@@ -76,7 +99,7 @@ export default function CreateRequestScreen({ navigation }: any) {
 
   const handleBroadcast = async () => {
     if (!selectedCategory) {
-      Alert.alert('Category Required', 'Please select an emergency category before broadcasting.');
+      Alert.alert('Category Required', 'Please select a connection category before broadcasting.');
       return;
     }
 
@@ -85,7 +108,7 @@ export default function CreateRequestScreen({ navigation }: any) {
       return;
     }
 
-    // Biometric verification before broadcasting emergency episode
+    // Biometric verification before broadcasting help request
     const authenticated = await BiometricService.authenticateForEpisode('Broadcast Help Request');
     if (!authenticated) {
       return;
@@ -94,6 +117,26 @@ export default function CreateRequestScreen({ navigation }: any) {
     setLoading(true);
     try {
       const categoryMapping: Record<CategoryType, 'medical' | 'transport' | 'general' | 'emergency'> = {
+        'Coffee & Social Chat': 'general',
+        'Study & Homework Buddy': 'general',
+        'Sports & Workout Partner': 'general',
+        'Travel & Sightseeing Companion': 'general',
+        'Language Exchange & Practice': 'general',
+        'Skill Swap & Mentorship': 'general',
+        'Hobby & Gaming Pair': 'general',
+        'Co-Working & Professional Network': 'general',
+        'Event & Concert Buddy': 'general',
+        'Neighborhood Advice & Local Guide': 'general',
+        'Pet Playdate & Walking': 'general',
+        'Foodie & Culinary Meetup': 'general',
+        'Book & Film Discussion': 'general',
+        'Music Jamming & Creative': 'general',
+        'Carpool & Commute Partner': 'transport',
+        'Tech & Coding Collaboration': 'general',
+        'Item Sharing & Borrowing': 'general',
+        'Volunteer & Community Action': 'general',
+        'Arts & Craft Partner': 'general',
+        'City Exploration & Walking Group': 'general',
         'Medical': 'medical',
         'Security': 'emergency',
         'Fire & Hazard': 'emergency',

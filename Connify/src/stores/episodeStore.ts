@@ -40,7 +40,28 @@ export type CategoryType =
   | 'Theft & Burglary'
   | 'Food & Water Crisis'
   | 'Shelter & Homeless Relief'
-  | 'General Request';
+  | 'General Request'
+  // Stranger Connection Categories
+  | 'Coffee & Social Chat'
+  | 'Study & Homework Buddy'
+  | 'Sports & Workout Partner'
+  | 'Travel & Sightseeing Companion'
+  | 'Language Exchange & Practice'
+  | 'Skill Swap & Mentorship'
+  | 'Hobby & Gaming Pair'
+  | 'Co-Working & Professional Network'
+  | 'Event & Concert Buddy'
+  | 'Neighborhood Advice & Local Guide'
+  | 'Pet Playdate & Walking'
+  | 'Foodie & Culinary Meetup'
+  | 'Book & Film Discussion'
+  | 'Music Jamming & Creative'
+  | 'Carpool & Commute Partner'
+  | 'Tech & Coding Collaboration'
+  | 'Item Sharing & Borrowing'
+  | 'Volunteer & Community Action'
+  | 'Arts & Craft Partner'
+  | 'City Exploration & Walking Group';
 
 export type UserRole = 'requester' | 'responder' | null;
 

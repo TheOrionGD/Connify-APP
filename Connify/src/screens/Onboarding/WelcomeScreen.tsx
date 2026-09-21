@@ -33,31 +33,46 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CARD_WIDTH = SCREEN_WIDTH - 32;
 
 const ONBOARDING_CARDS = [
+  // --- Section 1: Core Platform & P2P Mesh Features (Cards 1 - 10) ---
   { id: 'welcome_network', key: '1', title: 'Welcome to Connify' },
-  { id: 'sos_protocol', key: '2', title: 'Decentralized Request Protocol' },
-  { id: 'biometric_auth', key: '3', title: 'Biometric Episode Authorization' },
-  { id: 'live_telemetry', key: '4', title: 'Live Radar & Telemetry ETA' },
+  { id: 'sos_protocol', key: '2', title: 'Decentralized Peer Dispatch' },
+  { id: 'biometric_auth', key: '3', title: 'Biometric Action Authorization' },
+  { id: 'live_telemetry', key: '4', title: 'Live Proximity Radar & Telemetry' },
   { id: 'safe_escort', key: '5', title: 'Ephemeral Safe Escort Mode' },
-  { id: 'secondary_swarm', key: '6', title: 'Secondary Responders Swarm Grid' },
-  { id: 'wellness_check', key: '7', title: 'Automated Post-Episode Wellness Check' },
-  { id: 'spatial_grid', key: '8', title: 'Blinded Geolocation & Grid' },
-  { id: 'community_mesh', key: '9', title: 'Community P2P Mesh' },
-  { id: 'qr_verification', key: '10', title: 'QR Code Mutual Verification' },
-  { id: 'offline_engine', key: '11', title: 'Offline Carrier SMS Engine' },
-  { id: 'emergency_helplines', key: '12', title: 'National Direct Helplines' },
+  { id: 'secondary_swarm', key: '6', title: 'Secondary Swarm Network' },
+  { id: 'wellness_check', key: '7', title: 'Automated Post-Episode Check-in' },
+  { id: 'spatial_grid', key: '8', title: 'Blinded Geolocation Spatial Grid' },
+  { id: 'community_mesh', key: '9', title: 'Community P2P Mesh Relaying' },
+  { id: 'qr_verification', key: '10', title: 'Cryptographic QR Handshake' },
+
+  // --- Section 2: Tactical Tools & Safety Guardians (Cards 11 - 20) ---
+  { id: 'offline_engine', key: '11', title: 'Offline Carrier SMS Failover' },
+  { id: 'emergency_helplines', key: '12', title: 'Direct National Helplines' },
   { id: 'women_safety', key: '13', title: 'Women Safety & Tactical Suite' },
   { id: 'fake_call', key: '14', title: 'Fake Call Simulator' },
   { id: 'siren_strobe', key: '15', title: 'High-Decibel Siren & Strobe' },
   { id: 'shake_panic', key: '16', title: 'Shake-to-Request & Silent Trigger' },
   { id: 'encrypted_blackbox', key: '17', title: 'Encrypted Incident Blackbox' },
-  { id: 'guardian_setup', key: '18', title: 'Primary Emergency Guardian' },
-  { id: 'medical_secondary', key: '19', title: 'Medical & Secondary Guardian' },
-  { id: 'perm_location', key: '20', title: 'Permission: Precise Location' },
-  { id: 'perm_notifications', key: '21', title: 'Permission: Critical Alerts' },
-  { id: 'perm_camera_sensors', key: '22', title: 'Permission: Camera & Sensors' },
-  { id: 'node_health', key: '23', title: 'Network Node & Cluster Health' },
-  { id: 'privacy_guarantee', key: '24', title: 'Zero-Knowledge Privacy' },
-  { id: 'auth_get_started', key: '25', title: 'Join the Connify Network' },
+  { id: 'guardian_setup', key: '18', title: 'Primary Contact & Guardian' },
+  { id: 'medical_secondary', key: '19', title: 'Medical & Secondary Contact' },
+  { id: 'privacy_guarantee', key: '20', title: 'Zero-Knowledge Privacy Policy' },
+
+  // --- Section 3: Stranger Connections & 20 Categories (Cards 21 - 30) ---
+  { id: 'stranger_intro', key: '21', title: 'Connecting Strangers Nearby' },
+  { id: 'social_coffee_cat', key: '22', title: 'Coffee & Casual Social Chat' },
+  { id: 'study_skills_cat', key: '23', title: 'Study Buddy & Skill Exchange' },
+  { id: 'sports_fitness_cat', key: '24', title: 'Sports & Workout Companions' },
+  { id: 'travel_culture_cat', key: '25', title: 'Travel & Language Practice' },
+  { id: 'gaming_hobbies_cat', key: '26', title: 'Gaming, Anime & Hobby Pairs' },
+  { id: 'coworking_tech_cat', key: '27', title: 'Co-Working & Tech Collaboration' },
+  { id: 'events_arts_cat', key: '28', title: 'Concerts, Music Jams & Arts' },
+  { id: 'neighborhood_pet_cat', key: '29', title: 'Local Advice & Pet Meetups' },
+  { id: 'foodie_carpool_cat', key: '30', title: 'Foodie Outings & Shared Commute' },
+
+  // --- Section 4: 5-Level Scale, Permissions & Onboarding Sign-In (Cards 31 - 33) ---
+  { id: 'five_level_protocol', key: '31', title: '5-Level Engagement Scale' },
+  { id: 'perm_suite', key: '32', title: 'Permissions & Device Sensors' },
+  { id: 'auth_get_started', key: '33', title: 'Join the Connify Network' },
 ];
 
 export default function WelcomeScreen({ navigation }: any) {
@@ -493,15 +508,15 @@ export default function WelcomeScreen({ navigation }: any) {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.skeuomorphicCard}>
+            {/* CARD 1: Welcome to Connify */}
             {item.id === 'welcome_network' && (
-              /* CARD 1: Welcome to Connify Network */
               <View style={styles.cardContent}>
                 <View style={styles.heroBadge}>
                   <Image source={LOGO_IMAGE} style={{ width: 44, height: 44, resizeMode: 'contain' }} />
                 </View>
                 <Text style={styles.cardTitle}>Welcome to Connify</Text>
                 <Text style={styles.cardSubtitle}>
-                  The next-generation peer-to-peer rapid emergency response platform. Designed for instant help, total privacy, and offline mesh resilience.
+                  The next-generation P2P platform for local stranger connections and peer assistance. Designed for authentic real-world interactions, total privacy, and offline mesh resilience.
                 </Text>
 
                 <View style={[styles.statusRowBox, { borderColor: backendStatus === 'online' ? '#10B981' : '#FAE4E4' }]}>
@@ -519,203 +534,98 @@ export default function WelcomeScreen({ navigation }: any) {
                     </Text>
                   </View>
                   <TouchableOpacity onPress={checkBackendHealth} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-                    <Icon name="refresh" size={18} color="#DC2626" />
+                    <Icon name="refresh" size={18} color="#2563EB" />
                   </TouchableOpacity>
                 </View>
 
                 <View style={styles.keyDisplayBox}>
-                  <Text style={styles.keyDisplayLabel}>YOUR HARDWARE NODE IDENTITY</Text>
+                  <Text style={styles.keyDisplayLabel}>YOUR PEER NODE IDENTITY</Text>
                   <Text style={styles.keyDisplayText} numberOfLines={1}>{nodeId}</Text>
                 </View>
               </View>
             )}
-
+            {/* CARD 2: Decentralized Peer Dispatch */}
             {item.id === 'sos_protocol' && (
-              /* CARD 2: Decentralized Request Protocol */
               <View style={styles.cardContent}>
-                <View style={[styles.heroBadge, { borderColor: '#DC2626' }]}>
-                  <Icon name="shield" size={40} color="#DC2626" />
+                <View style={[styles.heroBadge, { borderColor: '#2563EB' }]}>
+                  <Icon name="hub" size={40} color="#2563EB" />
                 </View>
-                <Text style={styles.cardTitle}>Decentralized Zero-Trust Request</Text>
+                <Text style={styles.cardTitle}>Decentralized Peer Dispatch</Text>
                 <Text style={styles.cardSubtitle}>
-                  When distress strikes, nearby verified nodes coordinate immediate assistance without central server tracking or data mining.
+                  Connect directly with nearby verified peers and helpers without central tracking or data mining.
                 </Text>
-
                 <View style={styles.pillList}>
                   <View style={styles.featurePill}>
-                    <Icon name="bolt" size={20} color="#DC2626" />
+                    <Icon name="bolt" size={20} color="#2563EB" />
                     <View style={{ flex: 1 }}>
-                      <Text style={styles.pillTitle}>Sub-Second Peer Dispatch</Text>
-                      <Text style={styles.pillSub}>Direct notification to nearby helper nodes in real time.</Text>
+                      <Text style={styles.pillTitle}>Sub-Second Match Dispatch</Text>
+                      <Text style={styles.pillSub}>Instant notification to nearby helper nodes in real time.</Text>
                     </View>
                   </View>
                   <View style={styles.featurePill}>
                     <Icon name="lock-clock" size={20} color="#10B981" />
                     <View style={{ flex: 1 }}>
                       <Text style={styles.pillTitle}>Ephemeral Session Tokens</Text>
-                      <Text style={styles.pillSub}>Location data auto-purged immediately upon episode resolution.</Text>
+                      <Text style={styles.pillSub}>Location tokens auto-purged upon request completion.</Text>
                     </View>
                   </View>
                 </View>
               </View>
             )}
 
-            {item.id === 'biometric_auth' && (
-              /* CARD: Biometric Episode Authorization */
+            {item.id === 'connection_levels' && (
+              /* CARD 3: 5-Level Engagement Scale */
               <View style={styles.cardContent}>
-                <View style={[styles.heroBadge, { borderColor: '#10B981' }]}>
-                  <Icon name="fingerprint" size={40} color="#10B981" />
+                <View style={[styles.heroBadge, { borderColor: '#8B5CF6' }]}>
+                  <Icon name="layers" size={40} color="#8B5CF6" />
                 </View>
-                <Text style={styles.cardTitle}>Biometric Episode Protection</Text>
+                <Text style={styles.cardTitle}>5-Level Engagement Scale</Text>
                 <Text style={styles.cardSubtitle}>
-                  Prevent accidental or unauthorized distress signals. Fingerprint or Face ID authentication is required before broadcasting or accepting requests.
+                  Choose your interaction intensity—from lightweight text Q&A (Level 1) to casual public coffee meetups (Level 3) and deep co-creation (Level 5).
                 </Text>
+
                 <View style={styles.pillList}>
                   <View style={styles.featurePill}>
-                    <Icon name="security" size={20} color="#10B981" />
+                    <Icon name="chat" size={20} color="#8B5CF6" />
                     <View style={{ flex: 1 }}>
-                      <Text style={styles.pillTitle}>Hardware Security Prompt</Text>
-                      <Text style={styles.pillSub}>Native biometric sensor authorization on both iOS & Android.</Text>
+                      <Text style={styles.pillTitle}>Level 1 - 2: Digital Exchange</Text>
+                      <Text style={styles.pillSub}>Quick Q&A, virtual study chat, pre-meetup alignment.</Text>
                     </View>
                   </View>
                   <View style={styles.featurePill}>
-                    <Icon name="verified-user" size={20} color="#2563EB" />
+                    <Icon name="storefront" size={20} color="#10B981" />
                     <View style={{ flex: 1 }}>
-                      <Text style={styles.pillTitle}>Zero False Triggers</Text>
-                      <Text style={styles.pillSub}>Ensures emergency broadcasts are verified by the genuine device owner.</Text>
+                      <Text style={styles.pillTitle}>Level 3 - 5: In-Person Collaboration</Text>
+                      <Text style={styles.pillSub}>Casual public cafe meetups, group activities & hosting.</Text>
                     </View>
                   </View>
                 </View>
               </View>
             )}
 
-            {item.id === 'live_telemetry' && (
-              /* CARD: Live Radar & Telemetry ETA */
+            {item.id === 'live_radar' && (
+              /* CARD 4: Real-Time Proximity Radar */
               <View style={styles.cardContent}>
                 <View style={[styles.heroBadge, { borderColor: '#EF4444' }]}>
                   <Icon name="radar" size={40} color="#EF4444" />
                 </View>
-                <Text style={styles.cardTitle}>Live Radar & Telemetry ETA</Text>
+                <Text style={styles.cardTitle}>Real-Time Proximity Radar</Text>
                 <Text style={styles.cardSubtitle}>
-                  Track approaching responders in real time. Dynamic GPS telemetry calculates relative distance, bearing angle, and ETA for walking or vehicle modes.
+                  Discover nearby peers and active connection requests within 1–5 km around your location. Dynamic compass telemetry calculates distance and relative direction.
                 </Text>
                 <View style={styles.pillList}>
                   <View style={styles.featurePill}>
                     <Icon name="speed" size={20} color="#EF4444" />
                     <View style={{ flex: 1 }}>
-                      <Text style={styles.pillTitle}>Dynamic ETA Matrix</Text>
-                      <Text style={styles.pillSub}>Calculates accurate arrival times based on speed and transport mode.</Text>
+                      <Text style={styles.pillTitle}>Proximity Distance Matrix</Text>
+                      <Text style={styles.pillSub}>Displays distance to nearby peers in real time.</Text>
                     </View>
                   </View>
                   <View style={styles.featurePill}>
                     <Icon name="explore" size={20} color="#10B981" />
                     <View style={{ flex: 1 }}>
-                      <Text style={styles.pillTitle}>Interactive Radar Ring</Text>
-                      <Text style={styles.pillSub}>Visual compass ring displaying counterparty orientation.</Text>
-                    </View>
-                  </View>
-                </View>
-              </View>
-            )}
-
-            {item.id === 'safe_escort' && (
-              /* CARD: Ephemeral Safe Escort Mode */
-              <View style={styles.cardContent}>
-                <View style={[styles.heroBadge, { borderColor: '#059669' }]}>
-                  <Icon name="directions-walk" size={40} color="#059669" />
-                </View>
-                <Text style={styles.cardTitle}>Ephemeral Safe Escort Mode</Text>
-                <Text style={styles.cardSubtitle}>
-                  Keep location tracking active post-handshake until you safely reach your destination (home, medical facility, or shelter).
-                </Text>
-                <View style={styles.pillList}>
-                  <View style={styles.featurePill}>
-                    <Icon name="shield-moon" size={20} color="#059669" />
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.pillTitle}>Post-Handshake Companion</Text>
-                      <Text style={styles.pillSub}>Helper & guardians monitor your path until safe arrival is confirmed.</Text>
-                    </View>
-                  </View>
-                </View>
-              </View>
-            )}
-
-            {item.id === 'secondary_swarm' && (
-              /* CARD: Secondary Responders Swarm Grid */
-              <View style={styles.cardContent}>
-                <View style={[styles.heroBadge, { borderColor: '#F59E0B' }]}>
-                  <Icon name="groups" size={40} color="#F59E0B" />
-                </View>
-                <Text style={styles.cardTitle}>Secondary Responders Swarm</Text>
-                <Text style={styles.cardSubtitle}>
-                  Primary responder node matched? Additional backup volunteers act as secondary perimeter safety guardians around your location.
-                </Text>
-              </View>
-            )}
-
-            {item.id === 'wellness_check' && (
-              /* CARD: Automated Wellness Check */
-              <View style={styles.cardContent}>
-                <View style={[styles.heroBadge, { borderColor: '#3B82F6' }]}>
-                  <Icon name="health-and-safety" size={40} color="#3B82F6" />
-                </View>
-                <Text style={styles.cardTitle}>Automated Wellness Check</Text>
-                <Text style={styles.cardSubtitle}>
-                  After resolving an emergency episode, Connify automatically schedules a wellness check-in prompt 5 minutes later to ensure you remain safe.
-                </Text>
-              </View>
-            )}
-
-            {item.id === 'spatial_grid' && (
-              /* CARD 8: Blinded Geolocation & Spatial Grid */
-              <View style={styles.cardContent}>
-                <View style={[styles.heroBadge, { borderColor: '#2563EB' }]}>
-                  <Icon name="grid-view" size={40} color="#2563EB" />
-                </View>
-                <Text style={styles.cardTitle}>Blinded Geolocation & Grid</Text>
-                <Text style={styles.cardSubtitle}>
-                  GPS coordinates are converted into regional grid tokens to keep exact user locations private until mutual response verification.
-                </Text>
-
-                <View style={styles.gridDemoBox}>
-                  <View style={styles.gridHeaderRow}>
-                    <Icon name="grid-view" size={16} color="#DC2626" />
-                    <Text style={styles.gridHeaderTitle}>BLINDED GRID-CELL GEOLOCATION</Text>
-                  </View>
-                  <View style={styles.gridRow}>
-                    <View style={styles.gridCell}><Text style={styles.gridText}>CELL 3A</Text></View>
-                    <View style={[styles.gridCell, styles.gridCellActive]}><Text style={styles.gridTextActive}>TARGET GRID</Text></View>
-                    <View style={styles.gridCell}><Text style={styles.gridText}>CELL 3C</Text></View>
-                  </View>
-                  <Text style={styles.gridSub}>Responders receive coarse grid cells until closer proximity handshake.</Text>
-                </View>
-              </View>
-            )}
-
-            {item.id === 'community_mesh' && (
-              /* CARD 9: Community P2P Mesh */
-              <View style={styles.cardContent}>
-                <View style={[styles.heroBadge, { borderColor: '#8B5CF6' }]}>
-                  <Icon name="hub" size={40} color="#8B5CF6" />
-                </View>
-                <Text style={styles.cardTitle}>Community P2P Mesh</Text>
-                <Text style={styles.cardSubtitle}>
-                  Connify creates a local peer-to-peer mesh using Bluetooth & Wi-Fi Direct to pass safety alerts across surrounding devices.
-                </Text>
-
-                <View style={styles.pillList}>
-                  <View style={styles.featurePill}>
-                    <Icon name="cell-tower" size={20} color="#8B5CF6" />
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.pillTitle}>Hop-by-Hop Relaying</Text>
-                      <Text style={styles.pillSub}>Alerts bounce across nearby phones even without cell towers.</Text>
-                    </View>
-                  </View>
-                  <View style={styles.featurePill}>
-                    <Icon name="people-alt" size={20} color="#10B981" />
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.pillTitle}>Community Guard Radius</Text>
-                      <Text style={styles.pillSub}>Verified neighborhood helpers receive high-priority alerts.</Text>
+                      <Text style={styles.pillTitle}>Interactive Compass Ring</Text>
+                      <Text style={styles.pillSub}>Visual compass ring for orienting local meetups.</Text>
                     </View>
                   </View>
                 </View>
@@ -723,14 +633,14 @@ export default function WelcomeScreen({ navigation }: any) {
             )}
 
             {item.id === 'qr_verification' && (
-              /* CARD 10: QR Code Mutual Verification */
+              /* CARD 5: Safe Mutual QR Verification */
               <View style={styles.cardContent}>
-                <View style={[styles.heroBadge, { borderColor: '#DC2626' }]}>
-                  <Icon name="qr-code-scanner" size={40} color="#DC2626" />
+                <View style={[styles.heroBadge, { borderColor: '#10B981' }]}>
+                  <Icon name="qr-code-scanner" size={40} color="#10B981" />
                 </View>
-                <Text style={styles.cardTitle}>QR Code Mutual Verification</Text>
+                <Text style={styles.cardTitle}>Safe Mutual QR Verification</Text>
                 <Text style={styles.cardSubtitle}>
-                  Impersonation is completely eliminated. When responders arrive, both parties scan a dynamic QR code challenge on screen.
+                  Zero-risk stranger meetups. When meeting in person, both parties scan a dynamic QR code challenge on screen to verify identities cryptographically.
                 </Text>
 
                 <View style={styles.pillList}>
@@ -738,213 +648,91 @@ export default function WelcomeScreen({ navigation }: any) {
                     <Icon name="verified-user" size={20} color="#10B981" />
                     <View style={{ flex: 1 }}>
                       <Text style={styles.pillTitle}>Dual Handshake Validation</Text>
-                      <Text style={styles.pillSub}>Confirms helper identity offline via cryptographic nonce.</Text>
+                      <Text style={styles.pillSub}>Confirms counterparty identity offline via secure cryptographic nonce.</Text>
                     </View>
                   </View>
                   <View style={styles.featurePill}>
-                    <Icon name="phonelink-lock" size={20} color="#DC2626" />
+                    <Icon name="phonelink-lock" size={20} color="#2563EB" />
                     <View style={{ flex: 1 }}>
                       <Text style={styles.pillTitle}>Zero Identity Leak</Text>
-                      <Text style={styles.pillSub}>Personal contact details remain undisclosed during verification.</Text>
+                      <Text style={styles.pillSub}>Phone numbers and private contact details remain protected.</Text>
                     </View>
                   </View>
                 </View>
               </View>
             )}
 
-            {item.id === 'offline_engine' && (
-              /* CARD 11: Offline Carrier SMS Engine */
+            {item.id === 'spatial_grid' && (
+              /* CARD 6: Blinded Geolocation Privacy */
               <View style={styles.cardContent}>
-                <View style={[styles.heroBadge, { borderColor: '#6366F1' }]}>
-                  <Icon name="wifi-off" size={40} color="#6366F1" />
+                <View style={[styles.heroBadge, { borderColor: '#2563EB' }]}>
+                  <Icon name="grid-view" size={40} color="#2563EB" />
                 </View>
-                <Text style={styles.cardTitle}>Offline Carrier SMS Engine</Text>
+                <Text style={styles.cardTitle}>Blinded Geolocation Privacy</Text>
                 <Text style={styles.cardSubtitle}>
-                  No internet connection? Connify automatically formats emergency SMS dispatches with your exact GPS link and broadcasts to trusted guardians.
+                  Your exact GPS position is converted into regional grid tokens to keep exact user locations private until mutual connection consent.
                 </Text>
 
-                <View style={styles.infoBanner}>
-                  <Text style={styles.infoBannerTitle}>AUTOMATIC CARRIER FAILOVER</Text>
-                  <Text style={styles.infoBannerText}>
-                    If mobile data fails, distress signals instantly route via carrier SMS with emergency coordinates.
-                  </Text>
+                <View style={styles.gridDemoBox}>
+                  <View style={styles.gridHeaderRow}>
+                    <Icon name="grid-view" size={16} color="#2563EB" />
+                    <Text style={styles.gridHeaderTitle}>BLINDED GRID-CELL DISCOVERY</Text>
+                  </View>
+                  <View style={styles.gridRow}>
+                    <View style={styles.gridCell}><Text style={styles.gridText}>CELL 3A</Text></View>
+                    <View style={[styles.gridCell, styles.gridCellActive]}><Text style={styles.gridTextActive}>TARGET GRID</Text></View>
+                    <View style={styles.gridCell}><Text style={styles.gridText}>CELL 3C</Text></View>
+                  </View>
+                  <Text style={styles.gridSub}>Peers receive coarse grid cells until closer proximity handshake.</Text>
                 </View>
               </View>
             )}
 
-            {item.id === 'emergency_helplines' && (
-              /* CARD 12: National Direct Helplines */
-              <View style={styles.cardContent}>
-                <View style={[styles.heroBadge, { borderColor: '#DC2626' }]}>
-                  <Icon name="phone-in-talk" size={40} color="#DC2626" />
-                </View>
-                <Text style={styles.cardTitle}>National Emergency Helplines</Text>
-                <Text style={styles.cardSubtitle}>
-                  Instant 1-tap emergency hotline access embedded directly into your Connify node for rapid police & ambulance dispatch.
-                </Text>
-
-                <View style={styles.emergencyNumGrid}>
-                  <View style={styles.emergencyNumCard}>
-                    <Text style={styles.emergencyNumValue}>112 / 100</Text>
-                    <Text style={styles.emergencyNumLabel}>POLICE DISPATCH</Text>
-                  </View>
-                  <View style={styles.emergencyNumCard}>
-                    <Text style={styles.emergencyNumValue}>108 / 911</Text>
-                    <Text style={styles.emergencyNumLabel}>AMBULANCE</Text>
-                  </View>
-                  <View style={styles.emergencyNumCard}>
-                    <Text style={styles.emergencyNumValue}>1091</Text>
-                    <Text style={styles.emergencyNumLabel}>WOMEN HELPLINE</Text>
-                  </View>
-                </View>
-              </View>
-            )}
-
-            {item.id === 'women_safety' && (
-              /* CARD 13: Women Safety & Tactical Suite */
-              <View style={styles.cardContent}>
-                <View style={[styles.heroBadge, { borderColor: '#EC4899' }]}>
-                  <Icon name="female" size={40} color="#EC4899" />
-                </View>
-                <Text style={styles.cardTitle}>Women Safety & Tactical Tools</Text>
-                <Text style={styles.cardSubtitle}>
-                  A specialized tactical safety toolkit designed to deter threats, exit unsafe scenarios, and alert guardians silently.
-                </Text>
-
-                <View style={styles.pillList}>
-                  <View style={styles.featurePill}>
-                    <Icon name="phone-callback" size={20} color="#EC4899" />
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.pillTitle}>Fake Call Simulator</Text>
-                      <Text style={styles.pillSub}>Simulate incoming calls to exit uncomfortable situations.</Text>
-                    </View>
-                  </View>
-                  <View style={styles.featurePill}>
-                    <Icon name="volume-up" size={20} color="#DC2626" />
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.pillTitle}>Audible Siren Alarm</Text>
-                      <Text style={styles.pillSub}>High-decibel alarm beacon to attract attention.</Text>
-                    </View>
-                  </View>
-                </View>
-              </View>
-            )}
-
-            {item.id === 'fake_call' && (
-              /* CARD 14: Fake Call Simulator */
-              <View style={styles.cardContent}>
-                <View style={[styles.heroBadge, { borderColor: '#EC4899' }]}>
-                  <Icon name="phone-callback" size={40} color="#EC4899" />
-                </View>
-                <Text style={styles.cardTitle}>Fake Call Simulator</Text>
-                <Text style={styles.cardSubtitle}>
-                  Need a discrete excuse to leave? Trigger realistic phone calls with customizable contact names and voice ringers.
-                </Text>
-
-                <View style={styles.pillList}>
-                  <View style={styles.featurePill}>
-                    <Icon name="timer" size={20} color="#EC4899" />
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.pillTitle}>Preset Timers (5s / 30s / 1m)</Text>
-                      <Text style={styles.pillSub}>Set delay timer for seamless hands-free incoming calls.</Text>
-                    </View>
-                  </View>
-                  <View style={styles.featurePill}>
-                    <Icon name="record-voice-over" size={20} color="#6366F1" />
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.pillTitle}>Realistic Caller UI</Text>
-                      <Text style={styles.pillSub}>Matches system call screen for complete authenticity.</Text>
-                    </View>
-                  </View>
-                </View>
-              </View>
-            )}
-
-            {item.id === 'siren_strobe' && (
-              /* CARD 15: High-Decibel Siren & Strobe */
-              <View style={styles.cardContent}>
-                <View style={[styles.heroBadge, { borderColor: '#DC2626' }]}>
-                  <Icon name="volume-up" size={40} color="#DC2626" />
-                </View>
-                <Text style={styles.cardTitle}>High-Decibel Siren & Strobe</Text>
-                <Text style={styles.cardSubtitle}>
-                  Instantly activate a piercing emergency siren along with high-frequency flashlight strobe pattern to scare off attackers.
-                </Text>
-
-                <View style={styles.infoBanner}>
-                  <Text style={styles.infoBannerTitle}>MAXIMUM AUDIBLE DETERRENCE</Text>
-                  <Text style={styles.infoBannerText}>
-                    Bypasses device silent mode to sound maximum volume alarm and flash Request strobe signals.
-                  </Text>
-                </View>
-              </View>
-            )}
-
-            {item.id === 'shake_panic' && (
-              /* CARD 16: Shake-to-Request & Silent Trigger */
+            {item.id === 'community_mesh' && (
+              /* CARD 7: Community P2P Social Mesh */
               <View style={styles.cardContent}>
                 <View style={[styles.heroBadge, { borderColor: '#8B5CF6' }]}>
-                  <Icon name="vibration" size={40} color="#8B5CF6" />
+                  <Icon name="hub" size={40} color="#8B5CF6" />
                 </View>
-                <Text style={styles.cardTitle}>Shake-to-Request & Silent Trigger</Text>
+                <Text style={styles.cardTitle}>Community P2P Social Mesh</Text>
                 <Text style={styles.cardSubtitle}>
-                  In extreme emergencies when you cannot look at the screen, vigorously shaking your phone sends a silent panic alert.
+                  Connify creates a local peer-to-peer mesh using Bluetooth & Wi-Fi Direct to pass local activity invites and stranger connection requests nearby.
                 </Text>
 
                 <View style={styles.pillList}>
                   <View style={styles.featurePill}>
-                    <Icon name="sensors" size={20} color="#8B5CF6" />
+                    <Icon name="cell-tower" size={20} color="#8B5CF6" />
                     <View style={{ flex: 1 }}>
-                      <Text style={styles.pillTitle}>Hardware Accelerometer</Text>
-                      <Text style={styles.pillSub}>Detects physical shake gestures with false-positive filtering.</Text>
+                      <Text style={styles.pillTitle}>Hop-by-Hop Relaying</Text>
+                      <Text style={styles.pillSub}>Broadcast activity invites across surrounding devices.</Text>
                     </View>
                   </View>
                   <View style={styles.featurePill}>
-                    <Icon name="volume-off" size={20} color="#10B981" />
+                    <Icon name="people-alt" size={20} color="#10B981" />
                     <View style={{ flex: 1 }}>
-                      <Text style={styles.pillTitle}>Silent Mode Broadcast</Text>
-                      <Text style={styles.pillSub}>Dispatches location without screen brightness or audio cues.</Text>
+                      <Text style={styles.pillTitle}>Hyperlocal Discovery Radius</Text>
+                      <Text style={styles.pillSub}>Connect with strangers within your immediate neighborhood.</Text>
                     </View>
                   </View>
                 </View>
               </View>
             )}
 
-            {item.id === 'encrypted_blackbox' && (
-              /* CARD 17: Encrypted Incident Blackbox */
+            {item.id === 'profile_interests' && (
+              /* CARD 8: Setup Connection Profile */
               <View style={styles.cardContent}>
-                <View style={[styles.heroBadge, { borderColor: '#0F172A' }]}>
-                  <Icon name="lock" size={40} color="#0F172A" />
+                <View style={[styles.heroBadge, { borderColor: guardianSaved ? '#10B981' : '#2563EB' }]}>
+                  <Icon name="account-circle" size={40} color={guardianSaved ? '#10B981' : '#2563EB'} />
                 </View>
-                <Text style={styles.cardTitle}>Encrypted Incident Blackbox</Text>
+                <Text style={styles.cardTitle}>Setup Connection Profile</Text>
                 <Text style={styles.cardSubtitle}>
-                  During active distress events, Connify records encrypted local audio and telemetry to serve as secure evidence.
-                </Text>
-
-                <View style={styles.infoBanner}>
-                  <Text style={styles.infoBannerTitle}>HARDWARE ENCRYPTED STORAGE</Text>
-                  <Text style={styles.infoBannerText}>
-                    All blackbox recordings are encrypted with your device's hardware key and accessible only by you.
-                  </Text>
-                </View>
-              </View>
-            )}
-
-            {item.id === 'guardian_setup' && (
-              /* CARD 18: Primary Emergency Guardian */
-              <View style={styles.cardContent}>
-                <View style={[styles.heroBadge, { borderColor: guardianSaved ? '#10B981' : '#DC2626' }]}>
-                  <Icon name="contact-phone" size={40} color={guardianSaved ? '#10B981' : '#DC2626'} />
-                </View>
-                <Text style={styles.cardTitle}>Primary Emergency Guardian</Text>
-                <Text style={styles.cardSubtitle}>
-                  Set up your main trusted contact. They will receive automated SMS alerts and priority call notifications during emergencies.
+                  Personalize your stranger connection profile. Set your display name, primary interest tags, and preferred contact handle.
                 </Text>
 
                 <View style={styles.inputContainer}>
                   <TextInput
                     style={styles.textInput}
-                    placeholder="Guardian Full Name"
+                    placeholder="Your Display Name"
                     placeholderTextColor="#64748B"
                     value={guardianName}
                     onChangeText={(val) => {
@@ -954,9 +742,8 @@ export default function WelcomeScreen({ navigation }: any) {
                   />
                   <TextInput
                     style={styles.textInput}
-                    placeholder="Guardian Phone (e.g. +91 9876543210)"
+                    placeholder="Primary Interest (e.g. Coffee, Coding, Jogging)"
                     placeholderTextColor="#64748B"
-                    keyboardType="phone-pad"
                     value={guardianPhone}
                     onChangeText={(val) => {
                       setGuardianPhone(val);
@@ -965,7 +752,7 @@ export default function WelcomeScreen({ navigation }: any) {
                   />
                   <TextInput
                     style={styles.textInput}
-                    placeholder="Relationship (e.g. Parent, Spouse)"
+                    placeholder="Bio / Handle (e.g. @alex_coffee)"
                     placeholderTextColor="#64748B"
                     value={guardianRelation}
                     onChangeText={(val) => {
@@ -973,63 +760,10 @@ export default function WelcomeScreen({ navigation }: any) {
                       setGuardianSaved(false);
                     }}
                   />
-                  <TouchableOpacity style={styles.saveGuardianBtn} onPress={() => handleSaveGuardian(false)} activeOpacity={0.85}>
+                  <TouchableOpacity style={[styles.saveGuardianBtn, { backgroundColor: '#2563EB' }]} onPress={() => handleSaveGuardian(false)} activeOpacity={0.85}>
                     <Icon name={guardianSaved ? 'check-circle' : 'save'} size={18} color="#FFFFFF" />
                     <Text style={styles.saveGuardianBtnText}>
-                      {guardianSaved ? 'GUARDIAN SAVED & SYNCED' : 'SAVE PRIMARY GUARDIAN'}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            )}
-
-            {item.id === 'medical_secondary' && (
-              /* CARD 19: Medical Profile & Backup Guardian */
-              <View style={styles.cardContent}>
-                <View style={[styles.heroBadge, { borderColor: medicalSaved ? '#10B981' : '#0284C7' }]}>
-                  <Icon name="medical-services" size={40} color={medicalSaved ? '#10B981' : '#0284C7'} />
-                </View>
-                <Text style={styles.cardTitle}>Medical & Secondary Guardian</Text>
-                <Text style={styles.cardSubtitle}>
-                  Provide critical medical information (Blood Group, Allergies) and a secondary backup contact for emergency responders.
-                </Text>
-
-                <View style={styles.inputContainer}>
-                  <TextInput
-                    style={styles.textInput}
-                    placeholder="Blood Group (e.g. O+, A-, AB+)"
-                    placeholderTextColor="#64748B"
-                    value={bloodType}
-                    onChangeText={(val) => {
-                      setBloodType(val);
-                      setMedicalSaved(false);
-                    }}
-                  />
-                  <TextInput
-                    style={styles.textInput}
-                    placeholder="Backup Guardian Phone"
-                    placeholderTextColor="#64748B"
-                    keyboardType="phone-pad"
-                    value={secondaryPhone}
-                    onChangeText={(val) => {
-                      setSecondaryPhone(val);
-                      setMedicalSaved(false);
-                    }}
-                  />
-                  <TextInput
-                    style={styles.textInput}
-                    placeholder="Medical Notes / Allergies"
-                    placeholderTextColor="#64748B"
-                    value={medicalNotesText}
-                    onChangeText={(val) => {
-                      setMedicalNotesText(val);
-                      setMedicalSaved(false);
-                    }}
-                  />
-                  <TouchableOpacity style={[styles.saveGuardianBtn, { backgroundColor: '#0284C7' }]} onPress={handleSaveMedical} activeOpacity={0.85}>
-                    <Icon name={medicalSaved ? 'check-circle' : 'save'} size={18} color="#FFFFFF" />
-                    <Text style={styles.saveGuardianBtnText}>
-                      {medicalSaved ? 'MEDICAL PROFILE STORED' : 'SAVE MEDICAL PROFILE'}
+                      {guardianSaved ? 'PROFILE SAVED & READY' : 'SAVE CONNECTION PROFILE'}
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -1037,25 +771,25 @@ export default function WelcomeScreen({ navigation }: any) {
             )}
 
             {item.id === 'perm_location' && (
-              /* CARD 20: Permission - Precise Location */
+              /* CARD 9: Permission - Precise Location */
               <View style={styles.cardContent}>
                 <View style={[styles.heroBadge, { borderColor: '#10B981' }]}>
                   <Icon name="my-location" size={40} color="#10B981" />
                 </View>
                 <Text style={styles.cardTitle}>Permission: Precise Location</Text>
                 <Text style={styles.cardSubtitle}>
-                  Required to calculate blinded grid cells and route nearby emergency responders accurately.
+                  Required to calculate blinded grid cells and display nearby strangers and activity broadcasts on your proximity radar.
                 </Text>
 
                 <View style={styles.permissionToggleCard}>
                   <View style={{ flex: 1, paddingRight: 8 }}>
                     <Text style={styles.toggleTitle}>Precise Location Access</Text>
-                    <Text style={styles.toggleSub}>{locationGranted ? 'ENABLED (Optimal Grid Active)' : 'Tap switch to grant access'}</Text>
+                    <Text style={styles.toggleSub}>{locationGranted ? 'ENABLED (Optimal Discovery Active)' : 'Tap switch to grant access'}</Text>
                   </View>
                   <Switch
                     value={locationGranted}
                     onValueChange={handleLocationToggle}
-                    trackColor={{ false: '#CBD5E1', true: '#DC2626' }}
+                    trackColor={{ false: '#CBD5E1', true: '#2563EB' }}
                     thumbColor="#FFFFFF"
                   />
                 </View>
@@ -1063,25 +797,25 @@ export default function WelcomeScreen({ navigation }: any) {
             )}
 
             {item.id === 'perm_notifications' && (
-              /* CARD 21: Permission - Critical Notifications */
+              /* CARD 10: Permission - Instant Alerts */
               <View style={styles.cardContent}>
                 <View style={[styles.heroBadge, { borderColor: '#F59E0B' }]}>
                   <Icon name="notifications-active" size={40} color="#F59E0B" />
                 </View>
-                <Text style={styles.cardTitle}>Permission: Critical Alerts</Text>
+                <Text style={styles.cardTitle}>Permission: Instant Alerts</Text>
                 <Text style={styles.cardSubtitle}>
-                  Allow Connify to deliver high-priority safety notifications even when your device is on Do Not Disturb mode.
+                  Allow Connify to notify you immediately when a nearby stranger accepts your invitation or sends a local activity request.
                 </Text>
 
                 <View style={styles.permissionToggleCard}>
                   <View style={{ flex: 1, paddingRight: 8 }}>
-                    <Text style={styles.toggleTitle}>Critical Life Safety Alerts</Text>
-                    <Text style={styles.toggleSub}>{notificationsGranted ? 'ENABLED (Bypass DND Active)' : 'Tap switch to grant access'}</Text>
+                    <Text style={styles.toggleTitle}>Instant Match Alerts</Text>
+                    <Text style={styles.toggleSub}>{notificationsGranted ? 'ENABLED (Instant Notifications Active)' : 'Tap switch to grant access'}</Text>
                   </View>
                   <Switch
                     value={notificationsGranted}
                     onValueChange={handleNotificationToggle}
-                    trackColor={{ false: '#CBD5E1', true: '#DC2626' }}
+                    trackColor={{ false: '#CBD5E1', true: '#2563EB' }}
                     thumbColor="#FFFFFF"
                   />
                 </View>
@@ -1089,14 +823,14 @@ export default function WelcomeScreen({ navigation }: any) {
             )}
 
             {item.id === 'perm_camera_sensors' && (
-              /* CARD 22: Permission - Camera & Sensors */
+              /* CARD 11: Permission - Camera Scanner */
               <View style={styles.cardContent}>
                 <View style={[styles.heroBadge, { borderColor: '#6366F1' }]}>
                   <Icon name="linked-camera" size={40} color="#6366F1" />
                 </View>
-                <Text style={styles.cardTitle}>Permission: Camera & Sensors</Text>
+                <Text style={styles.cardTitle}>Permission: Camera Scanner</Text>
                 <Text style={styles.cardSubtitle}>
-                  Enable camera access for scanning responder verification QR codes and sensor access for Shake-to-Request.
+                  Enable camera access for scanning mutual QR verification codes during physical face-to-face meetups.
                 </Text>
 
                 <View style={styles.permissionToggleCard}>
@@ -1107,7 +841,7 @@ export default function WelcomeScreen({ navigation }: any) {
                   <Switch
                     value={cameraGranted}
                     onValueChange={handleCameraToggle}
-                    trackColor={{ false: '#CBD5E1', true: '#DC2626' }}
+                    trackColor={{ false: '#CBD5E1', true: '#2563EB' }}
                     thumbColor="#FFFFFF"
                   />
                 </View>
@@ -1115,14 +849,14 @@ export default function WelcomeScreen({ navigation }: any) {
             )}
 
             {item.id === 'node_health' && (
-              /* CARD 23: Network Node & Cluster Health */
+              /* CARD 12: Network Node & Health */
               <View style={styles.cardContent}>
                 <View style={[styles.heroBadge, { borderColor: '#0284C7' }]}>
                   <Icon name="dns" size={40} color="#0284C7" />
                 </View>
                 <Text style={styles.cardTitle}>Network Node & Health</Text>
                 <Text style={styles.cardSubtitle}>
-                  Real-time status of your node connection, relay latencies, and active server cluster synchronization.
+                  Real-time status of your P2P connection node, relay latencies, and active server cluster synchronization.
                 </Text>
 
                 <View style={[styles.statusRowBox, { borderColor: backendStatus === 'online' ? '#10B981' : '#FAE4E4' }]}>
@@ -1133,21 +867,21 @@ export default function WelcomeScreen({ navigation }: any) {
                   />
                   <View style={{ flex: 1 }}>
                     <Text style={styles.statusBoxTitle}>
-                      RENDER BACKEND: {backendStatus === 'online' ? 'ONLINE & SYNCED' : backendStatus === 'checking' ? 'TESTING CONNECTIVITY...' : 'OFFLINE'}
+                      P2P CLUSTER: {backendStatus === 'online' ? 'ONLINE & SYNCED' : backendStatus === 'checking' ? 'TESTING CONNECTIVITY...' : 'OFFLINE'}
                     </Text>
                     <Text style={styles.statusBoxSub}>
                       {backendLatency ? `Roundtrip latency: ${backendLatency}ms` : 'Press refresh to test connection latency'}
                     </Text>
                   </View>
                   <TouchableOpacity onPress={checkBackendHealth} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-                    <Icon name="refresh" size={18} color="#DC2626" />
+                    <Icon name="refresh" size={18} color="#2563EB" />
                   </TouchableOpacity>
                 </View>
               </View>
             )}
 
             {item.id === 'privacy_guarantee' && (
-              /* CARD 24: Zero-Knowledge Privacy Policy */
+              /* CARD 20: Zero-Knowledge Privacy Policy */
               <View style={styles.cardContent}>
                 <View style={[styles.heroBadge, { borderColor: '#10B981' }]}>
                   <Icon name="verified" size={40} color="#10B981" />
@@ -1168,28 +902,268 @@ export default function WelcomeScreen({ navigation }: any) {
                   <View style={styles.featurePill}>
                     <Icon name="auto-delete" size={20} color="#DC2626" />
                     <View style={{ flex: 1 }}>
-                      <Text style={styles.pillTitle}>Automatic Log Deletion</Text>
-                      <Text style={styles.pillSub}>Incident data is purged upon resolution.</Text>
+                      <Text style={styles.pillTitle}>Automatic Ephemeral Deletion</Text>
+                      <Text style={styles.pillSub}>Connection data is purged upon breakup/completion.</Text>
                     </View>
                   </View>
                 </View>
               </View>
             )}
 
-            {item.id === 'auth_get_started' && (
-              /* CARD 25: Join the Connify Network (Firebase Sign-In & Google Auth) */
+            {/* CARD 21: Connecting Strangers Nearby */}
+            {item.id === 'stranger_intro' && (
               <View style={styles.cardContent}>
-                <View style={[styles.heroBadge, { borderColor: '#DC2626' }]}>
-                  <Icon name="account-circle" size={40} color="#DC2626" />
+                <View style={[styles.heroBadge, { borderColor: '#2563EB' }]}>
+                  <Icon name="groups" size={40} color="#2563EB" />
+                </View>
+                <Text style={styles.cardTitle}>Connecting Strangers Nearby</Text>
+                <Text style={styles.cardSubtitle}>
+                  Connify brings people together! Meet nearby strangers based on shared interests, local activities, skill swaps, and real-world conversations in a safe, privacy-first network.
+                </Text>
+                <View style={styles.pillList}>
+                  <View style={styles.featurePill}>
+                    <Icon name="people-alt" size={20} color="#2563EB" />
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.pillTitle}>Proximity Stranger Discovery</Text>
+                      <Text style={styles.pillSub}>Discover like-minded peers within 1–5 km around you.</Text>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            )}
+
+            {/* CARD 22: Coffee & Casual Social Chat */}
+            {item.id === 'social_coffee_cat' && (
+              <View style={styles.cardContent}>
+                <View style={[styles.heroBadge, { borderColor: '#2563EB' }]}>
+                  <Icon name="coffee" size={40} color="#2563EB" />
+                </View>
+                <Text style={styles.cardTitle}>Coffee & Casual Social Chat</Text>
+                <Text style={styles.cardSubtitle}>
+                  Meet up for casual coffee, morning tea, or friendly conversation at a nearby neighborhood cafe.
+                </Text>
+                <View style={styles.pillList}>
+                  <View style={styles.featurePill}>
+                    <Icon name="local-cafe" size={20} color="#2563EB" />
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.pillTitle}>30-Min Cafe Meetups</Text>
+                      <Text style={styles.pillSub}>Low-pressure, public spot coffee chats with local strangers.</Text>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            )}
+
+            {/* CARD 23: Study Buddy & Skill Exchange */}
+            {item.id === 'study_skills_cat' && (
+              <View style={styles.cardContent}>
+                <View style={[styles.heroBadge, { borderColor: '#10B981' }]}>
+                  <Icon name="school" size={40} color="#10B981" />
+                </View>
+                <Text style={styles.cardTitle}>Study Buddy & Skill Exchange</Text>
+                <Text style={styles.cardSubtitle}>
+                  Pair up with student peers for library co-studying, exam prep, language practice, or mutual skill mentoring.
+                </Text>
+                <View style={styles.pillList}>
+                  <View style={styles.featurePill}>
+                    <Icon name="psychology" size={20} color="#10B981" />
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.pillTitle}>Mutual Mentorship</Text>
+                      <Text style={styles.pillSub}>Exchange skills like coding, guitar, design, or languages.</Text>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            )}
+
+            {/* CARD 24: Sports & Workout Companions */}
+            {item.id === 'sports_fitness_cat' && (
+              <View style={styles.cardContent}>
+                <View style={[styles.heroBadge, { borderColor: '#F59E0B' }]}>
+                  <Icon name="fitness-center" size={40} color="#F59E0B" />
+                </View>
+                <Text style={styles.cardTitle}>Sports & Workout Companions</Text>
+                <Text style={styles.cardSubtitle}>
+                  Find gym spotters, jogging buddies, tennis/badminton partners, yoga pairs, or hiking companions in your area.
+                </Text>
+              </View>
+            )}
+
+            {/* CARD 25: Travel & Language Practice */}
+            {item.id === 'travel_culture_cat' && (
+              <View style={styles.cardContent}>
+                <View style={[styles.heroBadge, { borderColor: '#6366F1' }]}>
+                  <Icon name="explore" size={40} color="#6366F1" />
+                </View>
+                <Text style={styles.cardTitle}>Travel & Language Practice</Text>
+                <Text style={styles.cardSubtitle}>
+                  Explore city walking tours, heritage spots, road trips, and practice conversational languages with native speakers.
+                </Text>
+              </View>
+            )}
+
+            {/* CARD 26: Gaming, Anime & Hobby Pairs */}
+            {item.id === 'gaming_hobbies_cat' && (
+              <View style={styles.cardContent}>
+                <View style={[styles.heroBadge, { borderColor: '#EC4899' }]}>
+                  <Icon name="sports-esports" size={40} color="#EC4899" />
+                </View>
+                <Text style={styles.cardTitle}>Gaming, Anime & Hobby Pairs</Text>
+                <Text style={styles.cardSubtitle}>
+                  Connect for co-op video games, board game cafe meetups, anime watch parties, and tabletop RPG campaigns.
+                </Text>
+              </View>
+            )}
+
+            {/* CARD 27: Co-Working & Tech Collaboration */}
+            {item.id === 'coworking_tech_cat' && (
+              <View style={styles.cardContent}>
+                <View style={[styles.heroBadge, { borderColor: '#0284C7' }]}>
+                  <Icon name="work" size={40} color="#0284C7" />
+                </View>
+                <Text style={styles.cardTitle}>Co-Working & Tech Collaboration</Text>
+                <Text style={styles.cardSubtitle}>
+                  Freelance cafe co-working, pair programming side-projects, hackathons, and professional networking.
+                </Text>
+              </View>
+            )}
+
+            {/* CARD 28: Concerts, Music Jams & Arts */}
+            {item.id === 'events_arts_cat' && (
+              <View style={styles.cardContent}>
+                <View style={[styles.heroBadge, { borderColor: '#8B5CF6' }]}>
+                  <Icon name="music-note" size={40} color="#8B5CF6" />
+                </View>
+                <Text style={styles.cardTitle}>Concerts, Music Jams & Arts</Text>
+                <Text style={styles.cardSubtitle}>
+                  Find event buddies for music gigs, theater, acoustic jam sessions, pottery workshops, and art gallery walks.
+                </Text>
+              </View>
+            )}
+
+            {/* CARD 29: Local Advice & Pet Meetups */}
+            {item.id === 'neighborhood_pet_cat' && (
+              <View style={styles.cardContent}>
+                <View style={[styles.heroBadge, { borderColor: '#10B981' }]}>
+                  <Icon name="pets" size={40} color="#10B981" />
+                </View>
+                <Text style={styles.cardTitle}>Local Advice & Pet Meetups</Text>
+                <Text style={styles.cardSubtitle}>
+                  Dog park playdates, pet walking, borrowing household tools, and neighborhood newcomer orientation.
+                </Text>
+              </View>
+            )}
+
+            {/* CARD 30: Foodie Outings & Shared Commute */}
+            {item.id === 'foodie_carpool_cat' && (
+              <View style={styles.cardContent}>
+                <View style={[styles.heroBadge, { borderColor: '#F59E0B' }]}>
+                  <Icon name="restaurant" size={40} color="#F59E0B" />
+                </View>
+                <Text style={styles.cardTitle}>Foodie Outings & Shared Commute</Text>
+                <Text style={styles.cardSubtitle}>
+                  Group food crawls, trying new local restaurants, weekend potlucks, and daily workplace carpools.
+                </Text>
+              </View>
+            )}
+
+            {/* CARD 31: 5-Level Engagement Scale */}
+            {item.id === 'five_level_protocol' && (
+              <View style={styles.cardContent}>
+                <View style={[styles.heroBadge, { borderColor: '#8B5CF6' }]}>
+                  <Icon name="layers" size={40} color="#8B5CF6" />
+                </View>
+                <Text style={styles.cardTitle}>5-Level Engagement Scale</Text>
+                <Text style={styles.cardSubtitle}>
+                  Select your preferred interaction intensity across 5 distinct levels:
+                </Text>
+                <View style={styles.pillList}>
+                  <View style={styles.featurePill}>
+                    <Icon name="chat" size={18} color="#8B5CF6" />
+                    <Text style={styles.pillTitle}>Level 1: Quick Online Q&A / Advice</Text>
+                  </View>
+                  <View style={styles.featurePill}>
+                    <Icon name="voice-chat" size={18} color="#2563EB" />
+                    <Text style={styles.pillTitle}>Level 2: Virtual Pre-Meetup Alignment</Text>
+                  </View>
+                  <View style={styles.featurePill}>
+                    <Icon name="storefront" size={18} color="#10B981" />
+                    <Text style={styles.pillTitle}>Level 3: Casual 30-Min Public Meetup</Text>
+                  </View>
+                  <View style={styles.featurePill}>
+                    <Icon name="groups" size={18} color="#F59E0B" />
+                    <Text style={styles.pillTitle}>Level 4: Regular Group & Activity Duo</Text>
+                  </View>
+                  <View style={styles.featurePill}>
+                    <Icon name="star" size={18} color="#EF4444" />
+                    <Text style={styles.pillTitle}>Level 5: Deep Collaboration & Local Hosting</Text>
+                  </View>
+                </View>
+              </View>
+            )}
+
+            {/* CARD 32: Permissions & Device Sensors */}
+            {item.id === 'perm_suite' && (
+              <View style={styles.cardContent}>
+                <View style={[styles.heroBadge, { borderColor: '#2563EB' }]}>
+                  <Icon name="settings-remote" size={40} color="#2563EB" />
+                </View>
+                <Text style={styles.cardTitle}>Permissions & Sensors</Text>
+                <Text style={styles.cardSubtitle}>
+                  Enable precise location for proximity radar, instant notifications for match alerts, and camera for QR scanning.
+                </Text>
+                <View style={styles.permissionToggleCard}>
+                  <View style={{ flex: 1, paddingRight: 8 }}>
+                    <Text style={styles.toggleTitle}>Location & Radar Discovery</Text>
+                    <Text style={styles.toggleSub}>{locationGranted ? 'ENABLED' : 'Tap switch to grant access'}</Text>
+                  </View>
+                  <Switch
+                    value={locationGranted}
+                    onValueChange={handleLocationToggle}
+                    trackColor={{ false: '#CBD5E1', true: '#2563EB' }}
+                    thumbColor="#FFFFFF"
+                  />
+                </View>
+                <View style={styles.permissionToggleCard}>
+                  <View style={{ flex: 1, paddingRight: 8 }}>
+                    <Text style={styles.toggleTitle}>Instant Match Notifications</Text>
+                    <Text style={styles.toggleSub}>{notificationsGranted ? 'ENABLED' : 'Tap switch to grant access'}</Text>
+                  </View>
+                  <Switch
+                    value={notificationsGranted}
+                    onValueChange={handleNotificationToggle}
+                    trackColor={{ false: '#CBD5E1', true: '#2563EB' }}
+                    thumbColor="#FFFFFF"
+                  />
+                </View>
+                <View style={styles.permissionToggleCard}>
+                  <View style={{ flex: 1, paddingRight: 8 }}>
+                    <Text style={styles.toggleTitle}>Camera Scanner</Text>
+                    <Text style={styles.toggleSub}>{cameraGranted ? 'ENABLED' : 'Tap switch to grant access'}</Text>
+                  </View>
+                  <Switch
+                    value={cameraGranted}
+                    onValueChange={handleCameraToggle}
+                    trackColor={{ false: '#CBD5E1', true: '#2563EB' }}
+                    thumbColor="#FFFFFF"
+                  />
+                </View>
+              </View>
+            )}
+
+            {item.id === 'auth_get_started' && (
+              /* CARD 14: Join the Connify Network */
+              <View style={styles.cardContent}>
+                <View style={[styles.heroBadge, { borderColor: '#2563EB' }]}>
+                  <Icon name="account-circle" size={40} color="#2563EB" />
                 </View>
                 <Text style={styles.cardTitle}>Join the Connify Network</Text>
                 <Text style={styles.cardSubtitle}>
-                  Sign in with Google to synchronize your encrypted safety node across devices, or enter directly as a guest responder.
+                  Sign in with Google to synchronize your encrypted connection profile across devices, or enter directly as a guest to explore nearby strangers.
                 </Text>
 
-                {/* Google Sign-In Button */}
                 <TouchableOpacity
-                  style={styles.googleCtaButton}
+                  style={[styles.googleCtaButton, { backgroundColor: '#2563EB' }]}
                   onPress={handleGoogleSignIn}
                   disabled={authLoading}
                   activeOpacity={0.85}
@@ -1204,32 +1178,30 @@ export default function WelcomeScreen({ navigation }: any) {
                   )}
                 </TouchableOpacity>
 
-                {/* Direct Enter as Guest / Emergency Responder */}
                 <TouchableOpacity
                   style={styles.guestCtaButton}
                   onPress={handleGuestSignIn}
                   disabled={authLoading}
                   activeOpacity={0.8}
                 >
-                  <Icon name="shield" size={16} color="#DC2626" />
-                  <Text style={styles.guestCtaText}>EXPLORE DASHBOARD AS GUEST</Text>
+                  <Icon name="groups" size={16} color="#2563EB" />
+                  <Text style={[styles.guestCtaText, { color: '#2563EB' }]}>EXPLORE AS GUEST</Text>
                 </TouchableOpacity>
 
-                {/* Policy Footnote */}
                 <Text style={styles.policyFootnote}>
                   By connecting, you agree to Connify's{' '}
                   <Text
-                    style={styles.policyLink}
+                    style={[styles.policyLink, { color: '#2563EB' }]}
                     onPress={() =>
                       showCustomAlert(
-                        'Zero-Knowledge Safety Protocol',
-                        'Connify operates on strict zero-knowledge principles. Location tokens are ephemeral and purged upon episode resolution.',
+                        'Zero-Knowledge Connection Protocol',
+                        'Connify operates on strict zero-knowledge principles. Location tokens are ephemeral and purged upon activity completion.',
                         'shield',
-                        '#DC2626'
+                        '#2563EB'
                       )
                     }
                   >
-                    Safety Protocol
+                    Connection Protocol
                   </Text>{' '}
                   and{' '}
                   <Text

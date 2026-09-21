@@ -3,11 +3,13 @@ import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView } from 'react-na
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
 import { normalize } from '../theme/typography';
+import { useTheme } from '../theme';
 
 export type PhoneModelPreset = 'google_pixel' | 'samsung_oneui' | 'o_dialer' | 'ios';
 
 export default function FakeCallScreen() {
   const navigation = useNavigation();
+  const { colors } = useTheme();
   const [callerName, setCallerName] = useState('Mom');
   const [phoneModel, setPhoneModel] = useState<PhoneModelPreset>('google_pixel');
   const [callState, setCallState] = useState<'setup' | 'incoming' | 'active'>('setup');
@@ -54,17 +56,17 @@ export default function FakeCallScreen() {
 
   if (callState === 'setup') {
     return (
-      <SafeAreaView style={[styles.container, { padding: 20, justifyContent: 'center' }]}>
+      <SafeAreaView style={[styles.container, { padding: 20, justifyContent: 'center', backgroundColor: colors.background }]}>
         <View style={{ gap: 16 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
             <Icon name="phone-forwarded" size={28} color="#10B981" />
-            <Text style={{ color: '#FFFFFF', fontSize: 20, fontWeight: 'bold' }}>Fake Escort Call Generator</Text>
+            <Text style={{ color: colors.onBackground, fontSize: 20, fontWeight: 'bold' }}>Fake Escort Call Generator</Text>
           </View>
-          <Text style={{ color: '#A0A0A0', fontSize: 13, lineHeight: 18 }}>
+          <Text style={{ color: colors.onSurfaceVariant, fontSize: 13, lineHeight: 18 }}>
             Simulate a realistic incoming phone call customized to match your phone's native dialer (Pixel, Samsung, O-Dialer, or iOS) to deter stalkers when walking alone.
           </Text>
 
-          <Text style={{ color: '#FFFFFF', fontSize: 12, fontWeight: 'bold', marginTop: 6 }}>SELECT DIALER PHONE MODEL</Text>
+          <Text style={{ color: colors.onBackground, fontSize: 12, fontWeight: 'bold', marginTop: 6 }}>SELECT DIALER PHONE MODEL</Text>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
             {[
               { id: 'google_pixel', label: 'Google Pixel' },
@@ -79,17 +81,17 @@ export default function FakeCallScreen() {
                   paddingHorizontal: 12,
                   paddingVertical: 8,
                   borderRadius: 8,
-                  backgroundColor: phoneModel === m.id ? '#3B82F6' : '#2A2A2A',
+                  backgroundColor: phoneModel === m.id ? '#3B82F6' : colors.surfaceContainerHigh,
                   borderWidth: 1,
-                  borderColor: phoneModel === m.id ? '#3B82F6' : '#444',
+                  borderColor: phoneModel === m.id ? '#3B82F6' : colors.outline,
                 }}
               >
-                <Text style={{ color: '#FFFFFF', fontSize: 12, fontWeight: '600' }}>{m.label}</Text>
+                <Text style={{ color: phoneModel === m.id ? '#FFFFFF' : colors.onBackground, fontSize: 12, fontWeight: '600' }}>{m.label}</Text>
               </TouchableOpacity>
             ))}
           </View>
 
-          <Text style={{ color: '#FFFFFF', fontSize: 12, fontWeight: 'bold', marginTop: 6 }}>SELECT CALLER PROFILE</Text>
+          <Text style={{ color: colors.onBackground, fontSize: 12, fontWeight: 'bold', marginTop: 6 }}>SELECT CALLER PROFILE</Text>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
             {['Mom', 'Dad', 'Safety Dispatch', 'Alex (Brother)', 'Office Guard'].map((c) => (
               <TouchableOpacity
@@ -99,17 +101,17 @@ export default function FakeCallScreen() {
                   paddingHorizontal: 14,
                   paddingVertical: 8,
                   borderRadius: 8,
-                  backgroundColor: callerName === c ? '#10B981' : '#2A2A2A',
+                  backgroundColor: callerName === c ? '#10B981' : colors.surfaceContainerHigh,
                   borderWidth: 1,
-                  borderColor: callerName === c ? '#10B981' : '#444',
+                  borderColor: callerName === c ? '#10B981' : colors.outline,
                 }}
               >
-                <Text style={{ color: '#FFFFFF', fontSize: 12, fontWeight: '600' }}>{c}</Text>
+                <Text style={{ color: callerName === c ? '#FFFFFF' : colors.onBackground, fontSize: 12, fontWeight: '600' }}>{c}</Text>
               </TouchableOpacity>
             ))}
           </View>
 
-          <Text style={{ color: '#FFFFFF', fontSize: 12, fontWeight: 'bold', marginTop: 6 }}>TRIGGER DELAY</Text>
+          <Text style={{ color: colors.onBackground, fontSize: 12, fontWeight: 'bold', marginTop: 6 }}>TRIGGER DELAY</Text>
           <View style={{ flexDirection: 'row', gap: 10 }}>
             {[0, 5, 15, 30].map((d) => (
               <TouchableOpacity
@@ -120,12 +122,12 @@ export default function FakeCallScreen() {
                   paddingVertical: 10,
                   borderRadius: 8,
                   alignItems: 'center',
-                  backgroundColor: delaySeconds === d ? '#10B981' : '#2A2A2A',
+                  backgroundColor: delaySeconds === d ? '#10B981' : colors.surfaceContainerHigh,
                   borderWidth: 1,
-                  borderColor: delaySeconds === d ? '#10B981' : '#444',
+                  borderColor: delaySeconds === d ? '#10B981' : colors.outline,
                 }}
               >
-                <Text style={{ color: '#FFFFFF', fontSize: 12, fontWeight: 'bold' }}>{d === 0 ? 'INSTANT' : `${d}s`}</Text>
+                <Text style={{ color: delaySeconds === d ? '#FFFFFF' : colors.onBackground, fontSize: 12, fontWeight: 'bold' }}>{d === 0 ? 'INSTANT' : `${d}s`}</Text>
               </TouchableOpacity>
             ))}
           </View>

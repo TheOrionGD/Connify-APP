@@ -54,6 +54,9 @@ export async function initSockets(server: any): Promise<SocketIOServer> {
     const deviceId = socket.data.deviceId;
     console.log(`🔌 Socket connected: ${socket.id} (Device: ${deviceId})`);
 
+    // Join private user room for 1-to-1 VoIP call signaling
+    socket.join(`user:${deviceId}`);
+
     /**
      * Join an episode room.
      * Checks if the device is authorized (requester or matched helper)
@@ -295,6 +298,51 @@ export async function initSockets(server: any): Promise<SocketIOServer> {
           signalData,
         });
 
+        callback?.({ success: true });
+      } catch (err: any) {
+        callback?.({ success: false, error: err.message });
+      }
+    });
+
+    /**
+     * WebRTC SDP Offer / Answer / ICE Candidate 1-to-1 Targeted Relay
+     */
+    socket.on('webrtc_offer', async ({ receiverId, offer, callId }, callback) => {
+      try {
+        if (!receiverId || !offer) return callback?.({ success: false, error: 'receiverId and offer required' });
+        io?.to(`user:${receiverId}`).emit('webrtc_offer', {
+          callerId: deviceId,
+          offer,
+          callId,
+        });
+        callback?.({ success: true });
+      } catch (err: any) {
+        callback?.({ success: false, error: err.message });
+      }
+    });
+
+    socket.on('webrtc_answer', async ({ receiverId, answer, callId }, callback) => {
+      try {
+        if (!receiverId || !answer) return callback?.({ success: false, error: 'receiverId and answer required' });
+        io?.to(`user:${receiverId}`).emit('webrtc_answer', {
+          responderId: deviceId,
+          answer,
+          callId,
+        });
+        callback?.({ success: true });
+      } catch (err: any) {
+        callback?.({ success: false, error: err.message });
+      }
+    });
+
+    socket.on('ice_candidate', async ({ receiverId, candidate, callId }, callback) => {
+      try {
+        if (!receiverId || !candidate) return callback?.({ success: false, error: 'receiverId and candidate required' });
+        io?.to(`user:${receiverId}`).emit('ice_candidate', {
+          senderId: deviceId,
+          candidate,
+          callId,
+        });
         callback?.({ success: true });
       } catch (err: any) {
         callback?.({ success: false, error: err.message });

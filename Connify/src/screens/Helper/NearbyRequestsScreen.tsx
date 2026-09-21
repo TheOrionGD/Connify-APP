@@ -43,6 +43,26 @@ interface HelpRequest {
 
 const getCategoryIcon = (categoryStr: string): string => {
   const cat = (categoryStr || '').toLowerCase();
+  if (cat.includes('coffee')) return 'coffee';
+  if (cat.includes('study') || cat.includes('homework')) return 'school';
+  if (cat.includes('sport') || cat.includes('workout') || cat.includes('gym')) return 'fitness-center';
+  if (cat.includes('travel') || cat.includes('sightseeing')) return 'explore';
+  if (cat.includes('language') || cat.includes('translate')) return 'translate';
+  if (cat.includes('skill') || cat.includes('mentorship')) return 'psychology';
+  if (cat.includes('gaming') || cat.includes('hobby')) return 'sports-esports';
+  if (cat.includes('working') || cat.includes('professional')) return 'work';
+  if (cat.includes('event') || cat.includes('concert')) return 'confirmation-number';
+  if (cat.includes('neighborhood') || cat.includes('guide') || cat.includes('advice')) return 'map';
+  if (cat.includes('pet')) return 'pets';
+  if (cat.includes('foodie') || cat.includes('culinary') || cat.includes('dining')) return 'restaurant';
+  if (cat.includes('book') || cat.includes('film') || cat.includes('movie')) return 'menu-book';
+  if (cat.includes('music') || cat.includes('jamming')) return 'music-note';
+  if (cat.includes('carpool') || cat.includes('commute')) return 'directions-car';
+  if (cat.includes('tech') || cat.includes('coding') || cat.includes('hackathon')) return 'code';
+  if (cat.includes('item') || cat.includes('borrowing') || cat.includes('sharing')) return 'swap-horiz';
+  if (cat.includes('volunteer') || cat.includes('civic')) return 'volunteer-activism';
+  if (cat.includes('art') || cat.includes('craft') || cat.includes('palette')) return 'palette';
+  if (cat.includes('walking') || cat.includes('stroll') || cat.includes('exploration')) return 'directions-walk';
   if (cat.includes('medical') || cat.includes('health') || cat.includes('accident')) return 'medical-services';
   if (cat.includes('security') || cat.includes('police') || cat.includes('threat')) return 'security';
   if (cat.includes('fire') || cat.includes('hazard')) return 'local-fire-department';
@@ -50,10 +70,9 @@ const getCategoryIcon = (categoryStr: string): string => {
   if (cat.includes('disaster') || cat.includes('flood') || cat.includes('storm')) return 'thunderstorm';
   if (cat.includes('women')) return 'health-and-safety';
   if (cat.includes('child')) return 'child-care';
-  if (cat.includes('animal') || cat.includes('pet')) return 'pets';
   if (cat.includes('senior') || cat.includes('elderly')) return 'elderly';
   if (cat.includes('blackout') || cat.includes('power')) return 'power-off';
-  return 'warning';
+  return 'group';
 };
 
 export default function NearbyRequestsScreen({ navigation }: any) {

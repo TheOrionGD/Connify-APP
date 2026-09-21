@@ -56,8 +56,10 @@ export default function LeafletMapView({
             margin: 0;
             padding: 0;
             background-color: ${bgColor};
+            box-sizing: border-box;
           }
           .custom-user-marker {
+            box-sizing: border-box;
             width: 22px;
             height: 22px;
             background: #2563EB;
@@ -72,6 +74,7 @@ export default function LeafletMapView({
             100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
           }
           .custom-request-marker {
+            box-sizing: border-box;
             width: 24px;
             height: 24px;
             background: #DC2626;
@@ -112,14 +115,14 @@ export default function LeafletMapView({
       <body>
         <div id="map"></div>
         <script>
-          const userLat = (${userLatitude} && ${userLatitude} !== 0) ? ${userLatitude} : 10.7905;
-          const userLng = (${userLongitude} && ${userLongitude} !== 0) ? ${userLongitude} : 78.7047;
+          const userLat = Number(${userLatitude});
+          const userLng = Number(${userLongitude});
           const radius = ${radiusMeters};
           const requests = ${markersJson};
 
           const map = L.map('map', {
             center: [userLat, userLng],
-            zoom: 14,
+            zoom: 15,
             zoomControl: false
           });
 
@@ -128,17 +131,7 @@ export default function LeafletMapView({
             attribution: '&copy; OpenStreetMap'
           }).addTo(map);
 
-          // Force map container size recalculation after WebView/DOM render
-          setTimeout(() => {
-            map.invalidateSize();
-            map.setView([userLat, userLng], 14);
-          }, 300);
-
-          window.addEventListener('resize', () => {
-            map.invalidateSize();
-          });
-
-          // User Pinpoint Location Marker (Centered at userLat, userLng)
+          // User Pinpoint Location Marker (Centered at live userLat, userLng)
           const userIcon = L.divIcon({
             className: 'custom-user-marker',
             iconSize: [22, 22],
@@ -148,14 +141,30 @@ export default function LeafletMapView({
             .bindPopup('<b>Your Live GPS Location</b><br/>Lat: ' + userLat.toFixed(4) + ', Lng: ' + userLng.toFixed(4));
 
           // Guard Radius Circle
-          L.circle([userLat, userLng], {
+          const userCircle = L.circle([userLat, userLng], {
             color: '#2563EB',
             fillColor: '#3B82F6',
             fillOpacity: 0.12,
             radius: radius
           }).addTo(map);
 
+          // Active live location tracker inside map view
+          if (navigator.geolocation) {
+            navigator.geolocation.watchPosition(
+              (pos) => {
+                const liveLat = pos.coords.latitude;
+                const liveLng = pos.coords.longitude;
+                userMarker.setLatLng([liveLat, liveLng]);
+                userCircle.setLatLng([liveLat, liveLng]);
+                userMarker.getPopup().setContent('<b>Your Live GPS Location</b><br/>Lat: ' + liveLat.toFixed(4) + ', Lng: ' + liveLng.toFixed(4));
+              },
+              () => {},
+              { enableHighAccuracy: true, timeout: 10000, maximumAge: 2000 }
+            );
+          }
+
           // Render Request Markers
+          const allMarkers = [userMarker];
           requests.forEach(req => {
             if (req.latitude && req.longitude) {
               const reqIcon = L.divIcon({
@@ -164,17 +173,42 @@ export default function LeafletMapView({
                 iconAnchor: [12, 12]
               });
               const marker = L.marker([req.latitude, req.longitude], { icon: reqIcon }).addTo(map);
+              allMarkers.push(marker);
               
-              const popupContent = \`
-                <div style="text-align: center; padding: 4px;">
-                  <b style="color: #DC2626;">\${req.category || 'Emergency Alert'}</b><br/>
-                  <span style="font-size: 11px; opacity: 0.8;">Urgency Level \${req.urgency || 3}</span><br/>
-                  <button class="popup-btn" onclick="sendSelect('\${req.id}')">Offer Support</button>
-                </div>
-              \`;
+              const popupContent =
+                '<div style="text-align: center; padding: 4px;">' +
+                '<b style="color: #DC2626;">' + (req.category || 'Emergency Alert') + '</b><br/>' +
+                '<span style="font-size: 11px; opacity: 0.8;">Urgency Level ' + (req.urgency || 3) + '</span><br/>' +
+                '<button class="popup-btn" onclick="sendSelect(\'' + req.id + '\')">Offer Support</button>' +
+                '</div>';
               marker.bindPopup(popupContent);
             }
           });
+
+          const recenterMap = () => {
+            map.invalidateSize();
+            if (allMarkers.length > 1) {
+              const group = L.featureGroup(allMarkers);
+              map.fitBounds(group.getBounds().pad(0.2));
+            } else {
+              map.setView([userLat, userLng], 14);
+            }
+          };
+
+          // Recalculate container dimensions & position immediately on render/resize
+          recenterMap();
+          setTimeout(recenterMap, 100);
+          setTimeout(recenterMap, 300);
+          setTimeout(recenterMap, 600);
+
+          if (window.ResizeObserver) {
+            const ro = new ResizeObserver(() => {
+              recenterMap();
+            });
+            ro.observe(document.getElementById('map'));
+          }
+
+          window.addEventListener('resize', recenterMap);
 
           function sendSelect(id) {
             if (window.ReactNativeWebView) {

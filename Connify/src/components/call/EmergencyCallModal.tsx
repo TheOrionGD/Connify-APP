@@ -24,6 +24,7 @@ import { theme, useTheme } from '../../theme';
 import { useCallStore } from '../../stores/callStore';
 import { socketService } from '../../services/socketService';
 import { NotificationService } from '../../services/NotificationService';
+import { voipAudioService } from '../../services/voipAudioService';
 
 interface EmergencyCallModalProps {
   visible: boolean;
@@ -157,16 +158,50 @@ export function EmergencyCallModal({
 
   const [callEndedNotice, setCallEndedNotice] = useState<string | null>(null);
 
-  // Call timer interval
+  // Call timer interval & VoIP WebRTC audio streaming
   useEffect(() => {
     let timer: any = null;
     if (callStatus === 'connected') {
       timer = setInterval(() => {
         tickDuration();
       }, 1000);
+
+      // Start WebRTC VoIP Audio Connection
+      const isInitiator = role === 'requester';
+      voipAudioService.startAudioCall(episodeId, isInitiator).catch((err) => {
+        console.warn('[CallModal] Failed to start VoIP audio stream:', err);
+      });
+    } else if (callStatus === 'ended' || callStatus === 'idle') {
+      voipAudioService.endAudioCall();
     }
-    return () => clearInterval(timer);
-  }, [callStatus, tickDuration]);
+
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [callStatus, episodeId, role, tickDuration]);
+
+  // Sync mute & speaker state with VoIP audio stream
+  useEffect(() => {
+    if (callStatus === 'connected') {
+      voipAudioService.setMute(isMuted);
+    }
+  }, [isMuted, callStatus]);
+
+  useEffect(() => {
+    if (callStatus === 'connected') {
+      voipAudioService.setSpeaker(isSpeakerOn);
+    }
+  }, [isSpeakerOn, callStatus]);
+
+  // Initiate outgoing call on modal open
+  useEffect(() => {
+    if (visible && callStatus === 'idle' && episodeId) {
+      startOutgoingCall(episodeId, counterpartyName, role);
+      socketService.initiateCall(episodeId, counterpartyName || 'SafeNet Peer', role, (err) => {
+        if (err) console.warn('[CallModal] Outgoing call initiation error:', err);
+      });
+    }
+  }, [visible, callStatus, episodeId, counterpartyName, role, startOutgoingCall]);
 
   // Socket event listeners for calling
   useEffect(() => {
