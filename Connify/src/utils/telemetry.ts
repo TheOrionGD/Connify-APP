@@ -1,7 +1,7 @@
 /**
  * Connify Live Telemetry & ETA Utilities
  * Handles Haversine distance, bearing angle calculation for circular radar maps,
- * and Zomato/Uber style transport ETA estimation (Walking vs. Vehicle).
+ * and Live Responder transport ETA estimation (Walking vs. Vehicle).
  */
 
 export type TransportMode = 'walking' | 'vehicle';

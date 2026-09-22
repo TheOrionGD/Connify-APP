@@ -73,6 +73,7 @@ interface EpisodeState {
     latitude?: number;
     longitude?: number;
     distanceStr?: string;
+    isEnRoute?: boolean;
   } | null;
   episodeId: string | null;
   category: CategoryType | null;
@@ -124,7 +125,7 @@ interface EpisodeState {
     secretKeyBytes: Uint8Array
   ) => Promise<{ success: boolean; capsuleId?: string }>;
   setUserRole: (role: UserRole) => void;
-  setResponderInfo: (info: { helperDeviceId: string; latitude?: number; longitude?: number; distanceStr?: string } | null) => void;
+  setResponderInfo: (info: { helperDeviceId: string; latitude?: number; longitude?: number; distanceStr?: string; isEnRoute?: boolean } | null) => void;
   cancelRequest: () => void;
   activateEpisode: (socketChannelId: string, durationMinutes: number, role?: UserRole) => void;
   extendTime: (minutes: number) => void;

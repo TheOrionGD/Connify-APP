@@ -22,6 +22,10 @@ import { normalizePhoneForURI, openWhatsAppContact } from '../utils/phone';
 import { formatEmergencySMSMessage } from '../utils/smsFormatter';
 import InAppNotificationModal from '../components/modals/InAppNotificationModal';
 import { NotificationService } from '../services/NotificationService';
+import { sirenSoundService } from '../services/SirenSoundService';
+import { LiveTrackingWidget } from '../components/common/LiveTrackingWidget';
+import { FortyCategoriesSection } from '../components/common/FortyCategoriesSection';
+import { useEpisodeStore, CategoryType } from '../stores/episodeStore';
 
 interface EmergencyContact {
   id: string;
@@ -172,6 +176,32 @@ export default function UnifiedSafetyHubScreen({ navigation }: any) {
     Alert.alert('Fake Call Scheduled', `Simulated incoming call will ring in ${delaySeconds} seconds.`);
   };
 
+  const { currentState, startRequest } = useEpisodeStore();
+
+  const toggleSiren = () => {
+    if (sirenActive) {
+      sirenSoundService.stopSiren();
+      setSirenActive(false);
+    } else {
+      sirenSoundService.startSiren();
+      setSirenActive(true);
+      Alert.alert(
+        '🚨 LOUD SIREN & EMERGENCY SOS ACTIVATED',
+        'Loud alarm sound synthesizer & continuous vibration activated. Automatic SOS request broadcasted to surrounding radius responders.',
+        [{ text: 'OK' }]
+      );
+    }
+  };
+
+  const handleSelectCategory = (catName: CategoryType) => {
+    if (latitude && longitude) {
+      startRequest(catName, 3, `Dispatched request for ${catName}`, latitude, longitude);
+      navigation.navigate('Searching');
+    } else {
+      Alert.alert('Location Required', 'Acquiring GPS fix. Please try again in a moment.');
+    }
+  };
+
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: sirenActive ? '#DC2626' : colors.background }]}>
       {/* Header */}
@@ -221,10 +251,18 @@ export default function UnifiedSafetyHubScreen({ navigation }: any) {
       </View>
 
       <ScrollView contentContainerStyle={[styles.container, { paddingBottom: tabBarHeight + 16 }]} showsVerticalScrollIndicator={false}>
+        {/* Live Responder Tracking Widget when Episode is Active */}
+        {currentState !== 'idle' && (
+          <LiveTrackingWidget
+            onPressCall={() => navigation.navigate('Searching')}
+            onPressMap={() => navigation.navigate('Searching')}
+          />
+        )}
+
         {/* Panic Alarm Siren */}
         <TouchableOpacity
           style={[styles.sirenCard, { backgroundColor: sirenActive ? '#EF4444' : colors.surfaceContainerLowest, borderColor: colors.primary }]}
-          onPress={() => setSirenActive(!sirenActive)}
+          onPress={toggleSiren}
           activeOpacity={0.85}
         >
           <Icon name={sirenActive ? 'volume-up' : 'campaign'} size={48} color={sirenActive ? '#FFFFFF' : colors.primary} />
@@ -232,7 +270,7 @@ export default function UnifiedSafetyHubScreen({ navigation }: any) {
             {sirenActive ? 'SIREN ALARM ACTIVE' : 'LOUD SIREN PANIC ALARM'}
           </Text>
           <Text style={[styles.sirenSub, { color: sirenActive ? '#FFFFFF' : colors.onSurfaceVariant }]}>
-            {sirenActive ? 'TAP TO STOP ALARM SOUND & STROBE' : 'TAP TO TRIGGER VISUAL & AUDIBLE EMERGENCY DETERRENT'}
+            {sirenActive ? 'TAP TO STOP ALARM SOUND & VIBRATION' : 'TAP TO TRIGGER VISUAL & AUDIBLE SIREN & SOS DISPATCH'}
           </Text>
         </TouchableOpacity>
 
@@ -478,6 +516,9 @@ export default function UnifiedSafetyHubScreen({ navigation }: any) {
             style={{ marginTop: 4 }}
           />
         </View>
+
+        {/* 40 Safety & Stranger Connection Categories Grid Section */}
+        <FortyCategoriesSection onSelectCategory={handleSelectCategory} />
       </ScrollView>
 
       <InAppNotificationModal

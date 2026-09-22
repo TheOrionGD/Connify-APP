@@ -18,6 +18,11 @@ import { normalizePhoneForURI, openWhatsAppContact } from '../utils/phone';
 import { formatEmergencySMSMessage } from '../utils/smsFormatter';
 import { useAuthStore } from '../stores/authStore';
 
+import { sirenSoundService } from '../services/SirenSoundService';
+import { LiveTrackingWidget } from '../components/common/LiveTrackingWidget';
+import { FortyCategoriesSection } from '../components/common/FortyCategoriesSection';
+import { useEpisodeStore, CategoryType } from '../stores/episodeStore';
+
 interface EmergencyContact {
   id: string;
   name: string;
@@ -29,6 +34,7 @@ export default function WomenSafetyScreen({ navigation }: any) {
   const { colors } = useTheme();
   const { latitude, longitude, startWatchingLocation, stopWatchingLocation } = useLocationStore();
   const { userProfile } = useAuthStore();
+  const { currentState, startRequest } = useEpisodeStore();
   const [sirenActive, setSirenActive] = useState(false);
   const [fakeCallActive, setFakeCallActive] = useState(false);
   const [contacts, setContacts] = useState<EmergencyContact[]>([]);
@@ -40,6 +46,7 @@ export default function WomenSafetyScreen({ navigation }: any) {
     
     return () => {
       stopWatchingLocation();
+      sirenSoundService.stopSiren();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -132,7 +139,27 @@ export default function WomenSafetyScreen({ navigation }: any) {
   };
 
   const toggleSiren = () => {
-    setSirenActive(!sirenActive);
+    if (sirenActive) {
+      sirenSoundService.stopSiren();
+      setSirenActive(false);
+    } else {
+      sirenSoundService.startSiren();
+      setSirenActive(true);
+      Alert.alert(
+        '🚨 LOUD SIREN & EMERGENCY SOS ACTIVATED',
+        'Loud alarm sound synthesizer & continuous vibration activated. Automatic SOS request broadcasted to surrounding radius responders.',
+        [{ text: 'OK' }]
+      );
+    }
+  };
+
+  const handleSelectCategory = (catName: CategoryType) => {
+    if (latitude && longitude) {
+      startRequest(catName, 3, `Dispatched request for ${catName}`, latitude, longitude);
+      navigation.navigate('Searching');
+    } else {
+      Alert.alert('Location Required', 'Acquiring GPS fix. Please try again in a moment.');
+    }
   };
 
   return (
@@ -148,6 +175,14 @@ export default function WomenSafetyScreen({ navigation }: any) {
       </View>
 
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+        {/* Live Responder Tracking Widget when Episode is Active */}
+        {currentState !== 'idle' && (
+          <LiveTrackingWidget
+            onPressCall={() => navigation.navigate('Searching')}
+            onPressMap={() => navigation.navigate('Searching')}
+          />
+        )}
+
         {/* Panic Siren Box */}
         <TouchableOpacity
           style={[styles.sirenCard, { backgroundColor: sirenActive ? '#EF4444' : colors.surfaceContainerLowest, borderColor: colors.primary }]}
@@ -159,7 +194,7 @@ export default function WomenSafetyScreen({ navigation }: any) {
             {sirenActive ? 'SIREN ALARM ACTIVE' : 'LOUD SIREN PANIC ALARM'}
           </Text>
           <Text style={[styles.sirenSub, { color: sirenActive ? '#FFFFFF' : colors.onSurfaceVariant }]}>
-            {sirenActive ? 'TAP TO STOP ALARM SOUND & FLASH' : 'TAP TO TRIGGER MAXIMUM VISUAL & AUDIBLE DETERRENT'}
+            {sirenActive ? 'TAP TO STOP ALARM SOUND & VIBRATION' : 'TAP TO TRIGGER MAXIMUM VISUAL & AUDIBLE SIREN & SOS DISPATCH'}
           </Text>
         </TouchableOpacity>
 
@@ -316,6 +351,9 @@ export default function WomenSafetyScreen({ navigation }: any) {
             </Text>
           )}
         </View>
+
+        {/* 40 Safety & Stranger Connection Categories Grid Section */}
+        <FortyCategoriesSection onSelectCategory={handleSelectCategory} />
       </ScrollView>
     </SafeAreaView>
   );

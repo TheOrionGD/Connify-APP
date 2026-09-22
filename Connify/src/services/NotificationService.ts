@@ -105,14 +105,16 @@ export class NotificationService {
   /** Initialize Android High-Importance Emergency Notification Channel */
   public static async init(): Promise<void> {
     try {
-      if (Platform.OS === 'web') return;
+      if (Platform.OS === 'web' || typeof notifee?.requestPermission !== 'function') return;
       await notifee.requestPermission();
-      this.channelId = await notifee.createChannel({
-        id: 'connify_emergency_alerts',
-        name: 'CONNIFY Emergency Alerts',
-        importance: AndroidImportance.HIGH,
-        sound: 'default',
-      });
+      if (typeof notifee?.createChannel === 'function') {
+        this.channelId = await notifee.createChannel({
+          id: 'connify_emergency_alerts',
+          name: 'CONNIFY Emergency Alerts',
+          importance: AndroidImportance.HIGH,
+          sound: 'default',
+        });
+      }
     } catch (err) {
       console.warn('Failed to initialize Notifee notification channel:', err);
     }
@@ -424,6 +426,42 @@ export class NotificationService {
         pressAction: { id: 'default' },
         importance: AndroidImportance.HIGH,
         sound: 'default',
+      },
+    });
+  }
+
+  /** 17. Live Responder Tracking Ongoing Push Notification with Progress Bar */
+  public static async updateLiveTrackingNotification(params: {
+    etaMinutes: number;
+    responderName?: string;
+    distanceMeters: number;
+    progressPct: number;
+    categoryText?: string;
+  }): Promise<string> {
+    await this.init();
+    if (typeof notifee?.displayNotification !== 'function') return '';
+
+    const { etaMinutes, responderName = 'Volunteer Responder', distanceMeters, progressPct, categoryText = 'Emergency SOS' } = params;
+
+    const title = etaMinutes <= 1 ? '📍 Responder Arriving On Scene' : `Arriving in ${etaMinutes} mins`;
+    const body = `${responderName} is on the way (${distanceMeters}m away) • ${categoryText}`;
+
+    return await notifee.displayNotification({
+      id: 'connify_live_responder_tracking',
+      title,
+      body,
+      data: { screen: 'Searching' },
+      android: {
+        channelId: this.channelId || 'connify_emergency_alerts',
+        smallIcon: 'ic_launcher',
+        ongoing: true,
+        onlyAlertOnce: true,
+        pressAction: { id: 'default' },
+        progress: {
+          max: 100,
+          current: Math.max(0, Math.min(100, Math.round(progressPct * 100))),
+          indeterminate: false,
+        },
       },
     });
   }

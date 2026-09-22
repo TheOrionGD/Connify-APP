@@ -29,6 +29,8 @@ import { EmergencyCallModal } from '../../components/call/EmergencyCallModal';
 import { useCallStore } from '../../stores/callStore';
 import { calculateDistanceMeters } from '../../utils/telemetry';
 
+import { LiveTrackingWidget } from '../../components/common/LiveTrackingWidget';
+
 export default function SearchingScreen({ navigation }: any) {
   const { colors } = useTheme();
   const { currentState, cancelRequest, category, urgency, episodeId, activateEpisode, description, timeLeft, tickCountdown } = useEpisodeStore();
@@ -120,6 +122,9 @@ export default function SearchingScreen({ navigation }: any) {
     const unsubHelperAccepted = socketService.onHelperAccepted((data) => {
       const respLat = data.latitude;
       const respLng = data.longitude;
+      const distMeters = (latitude && longitude && respLat && respLng) ? calculateDistanceMeters(latitude, longitude, respLat, respLng) : 800;
+      const etaMins = Math.max(1, Math.ceil(distMeters / 250));
+
       const respInfo = {
         helperDeviceId: data.helperDeviceId,
         distanceStr: getDistanceLabel(respLat, respLng),
@@ -130,9 +135,22 @@ export default function SearchingScreen({ navigation }: any) {
       useEpisodeStore.getState().setResponderInfo(respInfo);
       setResponderState(respInfo);
       NotificationService.notifyHelperAccepted(data.helperDeviceId).catch(() => null);
+      NotificationService.updateLiveTrackingNotification({
+        etaMinutes: etaMins,
+        responderName: data.helperDeviceId || 'Volunteer Node',
+        distanceMeters: distMeters,
+        progressPct: 0.50,
+        categoryText: category || 'Emergency SOS',
+      }).catch(() => null);
     });
 
     const unsubResponderLoc = socketService.onResponderLocationUpdated((data) => {
+      const respLat = data.latitude;
+      const respLng = data.longitude;
+      const distMeters = (latitude && longitude && respLat && respLng) ? calculateDistanceMeters(latitude, longitude, respLat, respLng) : 500;
+      const etaMins = Math.max(1, Math.ceil(distMeters / 250));
+      const pct = distMeters < 50 ? 0.95 : (distMeters < 300 ? 0.75 : 0.50);
+
       const respInfo = {
         helperDeviceId: data.helperDeviceId,
         distanceStr: getDistanceLabel(data.latitude, data.longitude),
@@ -142,6 +160,13 @@ export default function SearchingScreen({ navigation }: any) {
       };
       useEpisodeStore.getState().setResponderInfo(respInfo);
       setResponderState(respInfo);
+      NotificationService.updateLiveTrackingNotification({
+        etaMinutes: etaMins,
+        responderName: data.helperDeviceId || 'Volunteer Node',
+        distanceMeters: distMeters,
+        progressPct: pct,
+        categoryText: category || 'Emergency SOS',
+      }).catch(() => null);
     });
 
     const unsubIncomingCall = socketService.onIncomingCall((data) => {
@@ -267,6 +292,17 @@ export default function SearchingScreen({ navigation }: any) {
               : 'Transmitting anonymized location grid cell to nearby volunteer responders...'}
           </Text>
         </View>
+
+        {/* Live Responder Tracking Progress Bar Widget */}
+        <LiveTrackingWidget
+          onPressCall={() => {
+            const targetName = responderState?.helperDeviceId ? `Volunteer (${responderState.helperDeviceId.substring(0, 6)})` : 'Approaching Responder';
+            startOutgoingCall(episodeId || '', targetName, 'requester');
+            socketService.initiateCall(episodeId || '', 'Emergency Requester', 'requester');
+            setShowCallModal(true);
+          }}
+          onPressMap={() => setShowChatModal(true)}
+        />
 
         <View style={[styles.detailCard, { backgroundColor: colors.surfaceContainerLowest, borderColor: colors.outline }]}>
           <View style={styles.detailRow}>
