@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../theme';
 
 import SplashScreen from '../screens/Onboarding/SplashScreen';
@@ -66,25 +67,36 @@ const TabBarIcon = ({ focused, routeName, colors }: TabBarIconProps) => {
 
 function MainTabs() {
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
+
+  // Dynamically calculate bottom padding and total tab bar height based on Android navigation mode:
+  // - 3-button navigation (recent apps, home, back): insets.bottom is typically 32-48dp
+  // - Full screen gesture navigation (gesture pill): insets.bottom is typically 16-24dp
+  // - Gesture navigation with pill hidden: insets.bottom is 0dp
+  const bottomInset = insets.bottom;
+  const tabPaddingBottom = bottomInset > 0 ? bottomInset : 6;
+  const tabPaddingTop = 6;
+  const tabHeight = 56 + tabPaddingBottom;
 
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarShowLabel: false,
+        tabBarHideOnKeyboard: true,
         animation: 'fade',
         tabBarStyle: {
           backgroundColor: colors.surfaceContainerLowest,
           borderTopWidth: 1,
           borderTopColor: colors.outline,
-          height: 56,
+          height: tabHeight,
           elevation: 8,
           shadowColor: '#000',
           shadowOffset: { width: 0, height: -2 },
           shadowOpacity: 0.1,
           shadowRadius: 4,
-          paddingBottom: 4,
-          paddingTop: 4,
+          paddingBottom: tabPaddingBottom,
+          paddingTop: tabPaddingTop,
         },
         tabBarItemStyle: {
           justifyContent: 'center',
