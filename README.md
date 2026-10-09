@@ -2,11 +2,12 @@
 
 > **Production System, Cryptographic Protocol & Full-Stack Monorepo Architectural Specification**  
 > **Repository Target**: `TheOrionGD/Connify-APP`  
-> **Core Mission**: *Connify is not just an emergency app—at its foundation, Connify is a decentralized protocol for connecting strangers in physical proximity.*  
+> **Core Mission**: *Connify is a decentralized zero-knowledge social protocol for initializing communication between two or more unknown persons (strangers) in physical proximity.*  
+> **Core Algorithm**: *Custom-invented **SHARP Protocol** (Syndrome-Based Error-Correction Spatial Matching Engine via Galois Field $\text{GF}(2^4)$ $\text{BCH}(15,7)$ Codes & 1024-bit Bloom Filters) - Specification & Source Code available in protocol specifications.*  
 > **Monorepo Workspaces**:
 > - `backend`: Fastify 5 + TypeScript + MongoDB (Prisma & Mongoose) + Socket.IO + Ed25519 / TweetNaCl
 > - `Connify`: React Native 0.86.0 + React 19 + TypeScript + Expo Metro (Android / iOS / Web) + Zustand 5 + Notifee + VisionCamera + Hardware Keypair Keystore
-> - `patent`: SHARP Protocol (Galois Field $\text{GF}(2^4)$ $\text{BCH}(15,7)$ Spatial Matching Engine & Patent Specifications)
+> - `protocol`: SHARP Protocol (Galois Field $\text{GF}(2^4)$ $\text{BCH}(15,7)$ Spatial Matching Engine & Technical Specifications)
 
 ---
 
@@ -184,10 +185,10 @@ o:\PROJECTS\CONNIFY-APP\
 │   ├── package.json               # Mobile dependencies (v3.7.5, React Native 0.86.0)
 │   └── react-native.config.js     # Native asset and vector icon linkage
 │
-├── patent/                        # Patent Specification & Mathematical Foundations
-│   ├── sharp_protocol_patent.md   # Legal & technical patent specification
-│   ├── patent_analysis.md         # Deep claim breakdown & sequence charts
-│   ├── patent_specification.txt   # Formal patent text document
+├── protocol_specs/                # Protocol Specification & Mathematical Foundations
+│   ├── sharp_protocol_spec.md     # Technical specification & architecture
+│   ├── protocol_analysis.md       # Deep protocol breakdown & sequence charts
+│   ├── protocol_specification.txt # Formal protocol specification text document
 │   ├── custom_invented_algorithm_code.txt # Standalone reference implementation of SHARP
 │   ├── existing_algorithm_code.txt # Prior-art baseline comparison
 │   ├── cpm_algorithm_analysis.xlsx # Critical Path Method benchmark data

@@ -9,11 +9,11 @@ start "Android Emulator" cmd /c "emulator -avd Pixel_7_API_35"
 
 :: 2. Launch Backend API Server
 echo [2/3] Launching Backend Server...
-start "Connify Backend" cmd /k "cd /d %~dp0backend && npm run dev"
+start "Connify Backend" cmd /k "cd /d %~dp0..\backend && npm run dev"
 
 :: 3. Launch React Native Metro & Run Android App
 echo [3/3] Launching React Native App on Emulator...
-start "Connify Mobile App" cmd /k "cd /d %~dp0Connify && npm run android"
+start "Connify Mobile App" cmd /k "cd /d %~dp0..\Connify && npm run android"
 
 echo.
 echo ====================================================

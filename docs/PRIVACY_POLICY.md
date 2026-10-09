@@ -1,4 +1,161 @@
-<!DOCTYPE html>
+# Privacy Policy for Connify Safety Network
+
+**Effective Date:** September 3, 2026  
+**Last Updated:** September 3, 2026  
+**Application Name:** Connify ("Connify", "App", "We", "Us", or "Our")  
+**Contact Email:** privacy@connify.app / support@connify.app  
+
+---
+
+## 1. Overview & Commitment
+
+Welcome to **Connify**, a decentralized Peer-to-Peer (P2P) Emergency Response and Personal Safety Network. Connify is built on zero-knowledge cryptographic principles to empower individuals during safety episodes, medical emergencies, and distress scenarios while safeguarding user privacy.
+
+This Privacy Policy explains how we collect, use, store, process, and protect your personal information when you use the Connify mobile application and associated backend services. By accessing or using Connify, you consent to the practices described in this Privacy Policy.
+
+---
+
+## 2. Information We Collect
+
+We only collect information necessary to provide real-time emergency dispatch, guardian notifications, proximity verification, and safety telemetry.
+
+### A. Personal Identification Data
+- **Account Credentials**: When you sign in via Google OAuth or create an account, we collect your **Display Name**, **Email Address**, and **Google User ID (UID)**.
+- **User Profile Data**: User-provided full name, primary phone number, and optional avatar URL.
+
+### B. Emergency Guardian Data
+- **Primary & Secondary Guardian Contacts**: Full name, phone number, and relationship (e.g., Parent, Spouse, Friend) configured by you for automated SMS, phone calls, and WhatsApp distress routing.
+
+### C. Optional Medical Profile Data
+- **Emergency Medical Information**: User-entered Blood Group, Allergies, Chronic Conditions, and emergency medical notes. Medical profile data is stored on-device and shared only with verified emergency responders or guardians during an active distress episode.
+
+### D. Geolocation & Blinded Spatial Grid Data
+- **Precise Location Data**: GPS latitude and longitude used exclusively during active emergency triggers, nearby helper dispatch, and proximity spatial grids.
+- **Blinded Spatial Grid Tokens**: GPS coordinates are converted into regional grid tokens to obscure exact user coordinates from network nodes until mutual response verification. Location coordinates are **never** tracked, sold, or logged when no active distress episode is in progress.
+
+### E. Device, Hardware & Security Credentials
+- **Device Fingerprint & Ed25519 Cryptographic Keys**: Deterministic 64-hex device fingerprints and Ed25519 public key pairs used for signing server challenge nonces, authenticating QR proximity handshakes, and preventing malicious emergency broadcasts.
+- **Technical Telemetry**: Device model, OS version, network ping/latency, and app build identifiers.
+
+---
+
+## 3. How We Use Your Information
+
+We use the collected information strictly for safety, emergency coordination, and security verification purposes:
+
+1. **Emergency Distress Signal Dispatch**: Broadcasting distress signals to nearby verified helper nodes and primary/secondary emergency guardians.
+2. **Guardian Notification & Fallback**: Routing automated SMS messages, phone calls, and WhatsApp alerts to designated emergency guardians.
+3. **Mutual Proximity Handshakes**: Generating and verifying encrypted QR code tokens and ephemeral trust capsules during helper-requester meetings.
+4. **Offline Emergency Routing**: Enforcing carrier SMS fallback channels when cellular internet connectivity is offline or degraded.
+5. **Security & Abuse Prevention**: Verifying Ed25519 challenge signatures to prevent fraudulent alarm triggers and denial-of-service broadcasts.
+6. **Tactical Safety Features**: Triggering local audible siren beacons, camera flashlight strobes, and fake call simulations.
+
+We **do not** use your data for targeted advertising, cross-app tracking, or data brokerage.
+
+---
+
+## 4. Zero-Knowledge Architecture & Ephemeral Data Handling
+
+- **Location Data Expiry**: Location tracking tokens are active only during an emergency episode and are automatically purged from active session channels upon episode resolution.
+- **No Background Surveillance**: Connify does not track your movements or record location history in the background when the app is idle.
+- **Local Storage Encryption**: Sensitive guardian contacts and medical profiles are stored securely in device storage (`AsyncStorage` / Encrypted Keychain).
+
+---
+
+## 5. Information Sharing and Disclosure
+
+We do not sell, rent, or trade your personal information. Information is shared only under the following emergency circumstances:
+
+1. **Designated Emergency Guardians**: When a connection request or Silent Duress signal is triggered, your location grid link, request message, and contact details are sent to your configured guardians.
+2. **Nearby Verified Mesh Nodes**: Nearby active helpers receive blinded regional grid tokens and urgency levels to evaluate proximity before dispatching help.
+3. **Official Public Emergency Services**: Direct dialing shortcuts (112, 108, 911, 1091) connect you directly to official government emergency services.
+4. **Legal Compliance**: We may disclose information if required by applicable law, court order, or governmental subpoena, or to protect the physical safety of any person during life-threatening distress.
+
+---
+
+## 6. Device Permissions Requested & Rationale
+
+| Permission | Purpose |
+| :--- | :--- |
+| **ACCESS_FINE_LOCATION** & **ACCESS_COARSE_LOCATION** | Required to calculate blinded spatial grids and dispatch emergency helpers to your position. |
+| **POST_NOTIFICATIONS** | Required to deliver urgent incoming emergency broadcasts and responder updates. |
+| **CAMERA** | Required for scanning mutual QR codes during proximity verification handshakes. |
+| **CALL_PHONE** & **SEND_SMS** | Required for offline emergency dialing and direct SMS fallback routing to guardians. |
+| **VIBRATE** | Used for tactile haptic feedback during countdown alarms and Silent Duress triggers. |
+
+---
+
+## 7. Data Retention & Account Deletion
+
+### A. Data Retention Policy
+- Account identity data is retained while your account remains active.
+- Temporary incident telemetry logs are retained only as necessary for user safety history audits and are automatically archived or purged.
+
+### B. In-App Data Wipe ("Disconnect Account & Wipe Data")
+You can immediately wipe all local data from your device at any time inside the app:
+- Open **User Profile** (`SettingsScreen`).
+- Tap **DISCONNECT ACCOUNT & WIPE DATA**.
+- This revokes Google OAuth tokens, clears local guardian contacts, wipes cached encryption keys, and resets device identity.
+
+### C. Permanent Account Deletion via Google Form
+In compliance with Google Play Console & Apple App Store Policies, you have the right to request full and permanent deletion of your account and server records:
+- Open **User Profile** -> **ACCOUNT DELETION & DATA PRIVACY**.
+- Tap **PERMANENT ACCOUNT DELETION FORM** to submit your deletion request via our official Google Form.
+- Alternatively, submit your request directly via email to **privacy@connify.app**.
+- Upon verification, all user profile records, server logs, guardian links, and cryptographic device registrations will be permanently deleted within **48 hours**.
+
+---
+
+## 8. Data Security Measures
+
+We implement robust technical and organizational security measures:
+- **End-to-End Cryptography**: Ephemeral trust capsules and challenge nonces signed using TweetNaCl Ed25519 signatures.
+- **Secure Transport Layer**: All network API calls and real-time socket streams run over HTTPS and Secure WebSockets (WSS).
+- **Sanitized Logging**: Telemetry and error logs are stripped of sensitive personal identifiers.
+
+---
+
+## 9. Children’s Privacy
+
+Connify is intended for general audiences. We do not knowingly collect personal information from children under the age of 13 (or 16 in certain jurisdictions) without parental or guardian oversight. If you believe a minor has registered an account without parental consent, please contact us at **privacy@connify.app** to request immediate data deletion.
+
+---
+
+## 10. Changes to This Privacy Policy
+
+We may update this Privacy Policy periodically to reflect new features, security enhancements, or legal requirements. Material changes will be communicated via in-app notifications or email updates.
+
+---
+
+## 11. Contact & Privacy Inquiries
+
+For questions, feedback, or data privacy requests regarding this Privacy Policy, please contact our Data Protection Officer:
+
+- **Email**: `hello.theoriongd@gmail.com` / `privacy@connify.app`  
+- **Official Website**: `connify-green.vercel.app`  
+- **GitHub Repository**: `github.com/TheOrionGD/Connify-APP`  
+
+---
+
+## Google Apps Script Deployment Code (`Code.gs`)
+
+Copy and paste the following Google Apps Script code into your Google Apps Script editor (`script.google.com`) to deploy the styled Privacy Policy as a standalone Web App.
+
+```javascript
+/**
+ * Connify Safety Network - Google Apps Script Privacy Policy Web App
+ * @OnlyCurrentDoc
+ */
+
+function doGet(e) {
+  var htmlOutput = HtmlService.createHtmlOutput(getPolicyHtml());
+  htmlOutput.setTitle('Privacy Policy - Connify Safety Network');
+  htmlOutput.setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+  return htmlOutput;
+}
+
+function getPolicyHtml() {
+  return `<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -784,7 +941,7 @@
                 <p>We do not sell, rent, or trade your personal information. Information is shared only under the
                     following emergency circumstances:</p>
                 <ol>
-                    <li><strong>Designated Emergency Guardians:</strong> When an emergency SOS or Silent Duress signal
+                    <li><strong>Designated Emergency Guardians:</strong> When a connection request or Silent Duress signal
                         is triggered, your location grid link, emergency message, and contact details are sent to your
                         configured guardians.</li>
                     <li><strong>Nearby Verified Mesh Nodes:</strong> Nearby active helpers receive blinded regional grid
@@ -937,3 +1094,6 @@
 </body>
 
 </html>
+}
+```
+
