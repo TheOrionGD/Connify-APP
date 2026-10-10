@@ -20,11 +20,14 @@ class VoIPAudioService {
   private outputGainNode: any = null;
   private voiceStreamInterval: any = null;
 
+  private pendingIceCandidates: any[] = [];
+
   /**
    * Initialize VoIP audio voice connection for an active call episode
    */
   public async startAudioCall(episodeId: string, isInitiator: boolean): Promise<void> {
     this.episodeId = episodeId;
+    this.pendingIceCandidates = [];
 
     try {
       const g = globalThis as any;
@@ -34,6 +37,9 @@ class VoIPAudioService {
       // 1. Initialize WebAudio Context for voice streaming
       if (AudioContextClass) {
         this.audioCtx = new AudioContextClass();
+        if (this.audioCtx.state === 'suspended') {
+          await this.audioCtx.resume().catch(() => null);
+        }
         this.micGainNode = this.audioCtx.createGain();
         this.outputGainNode = this.audioCtx.createGain();
 
@@ -170,24 +176,45 @@ class VoIPAudioService {
             sdp: answer,
           });
         }
+        await this.flushPendingIceCandidates(IceCand);
       } else if (signalData.type === 'answer' && signalData.sdp) {
         const remoteDesc = SdpDesc ? new SdpDesc(signalData.sdp) : signalData.sdp;
         await this.peerConnection.setRemoteDescription(remoteDesc);
+        await this.flushPendingIceCandidates(IceCand);
       } else if (signalData.type === 'candidate' && signalData.candidate) {
         const candidateObj = IceCand ? new IceCand(signalData.candidate) : signalData.candidate;
-        await this.peerConnection.addIceCandidate(candidateObj);
+        if (this.peerConnection.remoteDescription) {
+          await this.peerConnection.addIceCandidate(candidateObj);
+        } else {
+          this.pendingIceCandidates.push(candidateObj);
+        }
       }
     } catch (err) {
       console.warn('[VoIPAudioService] Signal handling error:', err);
     }
   }
 
+  private async flushPendingIceCandidates(IceCand: any) {
+    if (!this.peerConnection || this.pendingIceCandidates.length === 0) return;
+    for (const candidate of this.pendingIceCandidates) {
+      try {
+        await this.peerConnection.addIceCandidate(candidate);
+      } catch (e) {
+        console.warn('[VoIPAudioService] Error adding queued candidate:', e);
+      }
+    }
+    this.pendingIceCandidates = [];
+  }
+
   /**
    * Decode and play incoming voice packet audio buffer
    */
   private playIncomingVoicePacket() {
-    if (!this.audioCtx || this.isMuted) return;
+    if (!this.audioCtx) return;
     try {
+      if (this.audioCtx.state === 'suspended') {
+        this.audioCtx.resume().catch(() => null);
+      }
       const buffer = this.audioCtx.createBuffer(1, 1024, 44100);
       const data = buffer.getChannelData(0);
       for (let i = 0; i < 1024; i++) {

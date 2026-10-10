@@ -146,6 +146,7 @@ export function EmergencyCallModal({
     duration,
     isMuted,
     isSpeakerOn,
+    isCaller,
     startOutgoingCall,
     receiveIncomingCall,
     setConnected,
@@ -167,7 +168,7 @@ export function EmergencyCallModal({
       }, 1000);
 
       // Start WebRTC VoIP Audio Connection
-      const isInitiator = role === 'requester';
+      const isInitiator = isCaller;
       voipAudioService.startAudioCall(episodeId, isInitiator).catch((err) => {
         console.warn('[CallModal] Failed to start VoIP audio stream:', err);
       });
@@ -178,7 +179,7 @@ export function EmergencyCallModal({
     return () => {
       if (timer) clearInterval(timer);
     };
-  }, [callStatus, episodeId, role, tickDuration]);
+  }, [callStatus, episodeId, isCaller, tickDuration]);
 
   // Sync mute & speaker state with VoIP audio stream
   useEffect(() => {
@@ -193,13 +194,25 @@ export function EmergencyCallModal({
     }
   }, [isSpeakerOn, callStatus]);
 
-  // Initiate outgoing call on modal open
+  // Initiate outgoing call on modal open & ensure socket channel joined
   useEffect(() => {
-    if (visible && callStatus === 'idle' && episodeId) {
-      startOutgoingCall(episodeId, counterpartyName, role);
-      socketService.initiateCall(episodeId, counterpartyName || 'SafeNet Peer', role, (err) => {
-        if (err) console.warn('[CallModal] Outgoing call initiation error:', err);
-      });
+    if (visible && episodeId) {
+      if (!socketService.isConnected()) {
+        socketService.connect();
+      }
+      socketService.joinEpisode(episodeId);
+
+      if (callStatus === 'idle') {
+        startOutgoingCall(episodeId, counterpartyName, role);
+        socketService.initiateCall(episodeId, counterpartyName || 'SafeNet Peer', role, (err) => {
+          if (err) {
+            console.warn('[CallModal] Outgoing call initiation error:', err);
+            setCallEndedNotice('This feature is under development');
+            Alert.alert('Notice', 'This feature is under development');
+            endCall();
+          }
+        });
+      }
     }
   }, [visible, callStatus, episodeId, counterpartyName, role, startOutgoingCall]);
 
@@ -222,7 +235,8 @@ export function EmergencyCallModal({
 
     const unsubRejected = socketService.onCallRejected((data) => {
       if (data.episodeId === episodeId) {
-        setCallEndedNotice('Call was declined or user is busy.');
+        setCallEndedNotice('This feature is under development');
+        Alert.alert('Notice', 'This feature is under development');
         endCall();
         setTimeout(() => {
           resetCall();
@@ -260,7 +274,12 @@ export function EmergencyCallModal({
 
   const handleAccept = () => {
     socketService.acceptCall(episodeId, (err) => {
-      if (err) console.warn('[Call] Failed to accept call:', err);
+      if (err) {
+        console.warn('[Call] Failed to accept call:', err);
+        setCallEndedNotice('This feature is under development');
+        Alert.alert('Notice', 'This feature is under development');
+        return;
+      }
     });
     setConnected();
   };
@@ -269,6 +288,7 @@ export function EmergencyCallModal({
     socketService.rejectCall(episodeId, 'declined', (err) => {
       if (err) console.warn('[Call] Failed to reject call:', err);
     });
+    setCallEndedNotice('This feature is under development');
     endCall();
     resetCall();
     onClose();
@@ -288,22 +308,8 @@ export function EmergencyCallModal({
     }, 1500);
   };
 
-  const handleCellularFallback = () => {
-    const targetPhone = counterpartyPhone || '';
-    if (targetPhone.trim()) {
-      Linking.openURL(`tel:${targetPhone.trim()}`).catch(() => {
-        Alert.alert('Dialer Error', 'Could not launch native phone dialer.');
-      });
-    } else {
-      Alert.alert(
-        'Direct Phone Call',
-        'Direct phone number is not shared in QR metadata. Would you like to dial National Emergency Services (112)?',
-        [
-          { text: 'Cancel', style: 'cancel' },
-          { text: 'Call 112', onPress: () => Linking.openURL('tel:112').catch(() => null) },
-        ]
-      );
-    }
+  const handleUnderDevelopmentNotice = () => {
+    Alert.alert('Notice', 'This feature is under development');
   };
 
   const isOutgoing = callStatus === 'outgoing';
@@ -449,9 +455,9 @@ export function EmergencyCallModal({
                 <Text style={styles.controlLabel}>LIVE CHAT</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.controlCircleBtn} onPress={handleCellularFallback}>
-                <Icon name="dialer-sip" size={24} color="#F59E0B" />
-                <Text style={styles.controlLabel}>CELLULAR</Text>
+              <TouchableOpacity style={styles.controlCircleBtn} onPress={handleUnderDevelopmentNotice}>
+                <Icon name="info-outline" size={24} color="#F59E0B" />
+                <Text style={styles.controlLabel}>INFO</Text>
               </TouchableOpacity>
             </View>
           )}

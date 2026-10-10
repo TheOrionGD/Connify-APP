@@ -25,6 +25,7 @@ const getSocketUrl = (): string => {
 
 let socket: Socket | null = null;
 let isSubscribedToFeed = false;
+let activeEpisodeRoom: string | null = null;
 const newEpisodeHandlers: Set<(data: any) => void> = new Set();
 
 export interface IncomingMessage {
@@ -92,13 +93,17 @@ export const socketService = {
       reconnection: true,
       reconnectionAttempts: 5,
       reconnectionDelay: 2000,
-    });
+    } as any);
 
     socket.on('connect', () => {
       console.log('[Socket] Connected:', socket?.id);
       if (isSubscribedToFeed) {
         socket?.emit('join_feed');
         console.log('[Socket] Auto-joined feed on connect.');
+      }
+      if (activeEpisodeRoom) {
+        socket?.emit('join_episode', { episodeId: activeEpisodeRoom });
+        console.log('[Socket] Auto-rejoined episode room on connect:', activeEpisodeRoom);
       }
       // Re-attach all registered new_episode handlers
       newEpisodeHandlers.forEach(handler => {
@@ -107,11 +112,11 @@ export const socketService = {
       });
     });
 
-    socket.on('disconnect', (reason) => {
+    socket.on('disconnect', (reason: string) => {
       console.log('[Socket] Disconnected:', reason);
     });
 
-    socket.on('connect_error', (err) => {
+    socket.on('connect_error', (err: Error) => {
       console.warn('[Socket] Connection error:', err.message);
     });
   },
@@ -124,6 +129,7 @@ export const socketService = {
     if (socket) {
       socket.disconnect();
       socket = null;
+      activeEpisodeRoom = null;
       console.log('[Socket] Disconnected and cleaned up.');
     }
   },
@@ -136,21 +142,21 @@ export const socketService = {
     episodeId: string,
     callback?: (error?: string, room?: string) => void
   ): void {
+    activeEpisodeRoom = episodeId;
     if (!socket?.connected) {
-      callback?.('Socket not connected. Call socketService.connect() first.');
-      return;
+      this.connect();
     }
 
-    socket.emit(
+    socket?.emit(
       'join_episode',
       { episodeId },
       (res: { success: boolean; error?: string; room?: string }) => {
-        if (res.success) {
+        if (res?.success) {
           console.log('[Socket] Joined room:', res.room);
           callback?.(undefined, res.room);
         } else {
-          console.warn('[Socket] Failed to join room:', res.error);
-          callback?.(res.error);
+          console.warn('[Socket] Failed to join room:', res?.error);
+          callback?.(res?.error);
         }
       }
     );
@@ -160,6 +166,9 @@ export const socketService = {
    * Leave the episode room.
    */
   leaveEpisode(episodeId: string, callback?: () => void): void {
+    if (activeEpisodeRoom === episodeId) {
+      activeEpisodeRoom = null;
+    }
     if (!socket?.connected) return;
 
     socket.emit('leave_episode', { episodeId }, () => {

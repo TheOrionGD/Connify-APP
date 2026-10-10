@@ -11,6 +11,7 @@ export interface CallState {
   isMuted: boolean;
   isSpeakerOn: boolean;
   isMinimized: boolean;
+  isCaller: boolean;
   
   // Actions
   startOutgoingCall: (episodeId: string, counterpartyName: string, counterpartyRole: 'requester' | 'responder') => void;
@@ -33,6 +34,7 @@ export const useCallStore = create<CallState>((set) => ({
   isMuted: false,
   isSpeakerOn: true,
   isMinimized: false,
+  isCaller: false,
 
   startOutgoingCall: (episodeId, counterpartyName, counterpartyRole) =>
     set({
@@ -44,6 +46,7 @@ export const useCallStore = create<CallState>((set) => ({
       isMuted: false,
       isSpeakerOn: true,
       isMinimized: false,
+      isCaller: true,
     }),
 
   receiveIncomingCall: (episodeId, callerName, callerRole) =>
@@ -56,6 +59,7 @@ export const useCallStore = create<CallState>((set) => ({
       isMuted: false,
       isSpeakerOn: true,
       isMinimized: false,
+      isCaller: false,
     }),
 
   setConnected: () =>
@@ -98,5 +102,6 @@ export const useCallStore = create<CallState>((set) => ({
       isMuted: false,
       isSpeakerOn: true,
       isMinimized: false,
+      isCaller: false,
     }),
 }));

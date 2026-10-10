@@ -54,6 +54,7 @@ export function EmergencyChatModal({
 }: EmergencyChatModalProps) {
   const { colors } = useTheme();
   const userId = useAuthStore((state) => state.user?.uid || state.userProfile?.id || 'user_local');
+  const deviceId = useAuthStore((state) => state.deviceId);
   const { callStatus, duration, startOutgoingCall } = useCallStore();
 
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -87,24 +88,36 @@ export function EmergencyChatModal({
 
   useEffect(() => {
     if (visible && episodeId) {
-      socketService.connect();
+      if (!socketService.isConnected()) {
+        socketService.connect();
+      }
       socketService.joinEpisode(episodeId);
 
       const handleIncomingMessage = (msg: IncomingMessage) => {
-        if (msg.senderId !== userId) {
+        const isSelf = msg.senderId === deviceId || msg.senderId === userId;
+        if (!isSelf) {
           NotificationService.notifyChatMessageReceived(counterpartyName || 'Responder', msg.message).catch(() => null);
         }
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: `msg_${Date.now()}_${Math.random()}`,
-            senderId: msg.senderId,
-            senderName: msg.senderId === userId ? 'You' : counterpartyName,
-            message: msg.message,
-            timestamp: msg.timestamp || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            isSelf: msg.senderId === userId,
-          },
-        ]);
+
+        setMessages((prev) => {
+          // Avoid duplicate messages if already enqueued or added
+          const alreadyExists = prev.some(
+            (m) => m.message === msg.message && Math.abs(new Date(m.timestamp).getTime() - new Date(msg.timestamp).getTime()) < 2000
+          );
+          if (alreadyExists && isSelf) return prev;
+
+          return [
+            ...prev,
+            {
+              id: `msg_${Date.now()}_${Math.random()}`,
+              senderId: msg.senderId,
+              senderName: isSelf ? 'You' : counterpartyName,
+              message: msg.message,
+              timestamp: msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+              isSelf,
+            },
+          ];
+        });
       };
 
       socketService.onMessage(handleIncomingMessage);
@@ -113,7 +126,7 @@ export function EmergencyChatModal({
         socketService.offMessage(handleIncomingMessage);
       };
     }
-  }, [visible, episodeId, counterpartyName, userId]);
+  }, [visible, episodeId, counterpartyName, userId, deviceId]);
 
   const handleSend = (textToSend?: string) => {
     const text = (textToSend || inputText).trim();
@@ -126,7 +139,7 @@ export function EmergencyChatModal({
       ...prev,
       {
         id: `msg_${Date.now()}_${Math.random()}`,
-        senderId: userId,
+        senderId: deviceId || userId,
         senderName: 'You',
         message: text,
         timestamp: timeStr,

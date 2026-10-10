@@ -1,272 +1,4 @@
 ================================================================================
-                                PROJECT REPORT
-                                      ON
-                   CONNIFY: ZERO-KNOWLEDGE SPATIAL SOCIAL
-                & COMMUNICATION INITIALIZATION PLATFORM
-================================================================================
-
-A Project Report Submitted in Partial Fulfillment of the Requirements 
-for the Award of the Degree of
-
-BACHELOR OF TECHNOLOGY / BACHELOR OF ENGINEERING
-IN
-COMPUTER SCIENCE AND ENGINEERING / MOBILE APPLICATION DEVELOPMENT
-
-Submitted by:
-  [STUDENT NAME 1]  (Register No: [REGISTRATION NUMBER 1])
-  [STUDENT NAME 2]  (Register No: [REGISTRATION NUMBER 2])
-
-Under the Guidance of:
-  [GUIDE NAME]
-  [DESIGNATION / DEPARTMENT]
-
-DEPARTMENT OF COMPUTER SCIENCE AND ENGINEERING
-[INSTITUTION NAME]
-[AFFILIATED UNIVERSITY / BOARD]
-[CAMPUS LOCATION, CITY, PIN CODE]
-
-ACADEMIC YEAR: 2025 - 2026
-
-
-================================================================================
-                            BONAFIDE CERTIFICATE
-================================================================================
-
-This is to certify that this project report entitled "CONNIFY: ZERO-KNOWLEDGE
-SPATIAL SOCIAL & COMMUNICATION INITIALIZATION PLATFORM" is the bonafide work 
-of [STUDENT NAME 1] (Register No: [REGISTRATION NUMBER 1]) and [STUDENT NAME 2] 
-(Register No: [REGISTRATION NUMBER 2]) who carried out the project work under 
-my supervision during the academic year 2025 - 2026.
-
-
-----------------------------------      ----------------------------------
-SUPERVISOR / INTERNAL GUIDE             HEAD OF THE DEPARTMENT
-[GUIDE NAME]                            [HOD NAME]
-[DESIGNATION]                           [DESIGNATION]
-Department of Computer Science          Department of Computer Science
-[INSTITUTION NAME]                      [INSTITUTION NAME]
-
-
-Submitted for the Project Viva-Voce Examination held on: [EXAMINATION DATE]
-
-
-----------------------------------      ----------------------------------
-INTERNAL EXAMINER                       EXTERNAL EXAMINER
-
-
-================================================================================
-                                DECLARATION
-================================================================================
-
-We hereby declare that the project entitled "CONNIFY: ZERO-KNOWLEDGE SPATIAL 
-SOCIAL & COMMUNICATION INITIALIZATION PLATFORM" submitted to [INSTITUTION NAME], 
-in partial fulfillment of the requirements for the award of the Degree of 
-Bachelor of Technology / Bachelor of Engineering in Computer Science and 
-Engineering, is an authentic record of our own work carried out under the 
-supervision of [GUIDE NAME].
-
-We further declare that the matter embodied in this report has not been 
-submitted by us for the award of any other degree, diploma, title, or 
-recognition to any other university or institute.
-
-
-Place: [CITY]
-Date: [DATE]
-
-                                        ----------------------------------
-                                        [STUDENT NAME 1]
-                                        (Register No: [REGISTRATION NUMBER 1])
-
-                                        ----------------------------------
-                                        [STUDENT NAME 2]
-                                        (Register No: [REGISTRATION NUMBER 2])
-
-
-================================================================================
-                              ACKNOWLEDGEMENT
-================================================================================
-
-First and foremost, we express our profound gratitude to Almighty for giving us 
-the strength, wisdom, and perseverance to successfully complete this project.
-
-We express our sincere thanks and deep gratitude to our Management and Principal, 
-[PRINCIPAL NAME], for providing all the necessary infrastructure, hardware, 
-and software facilities required for our project execution.
-
-We extend our deep sense of gratitude to [HOD NAME], Head of the Department of 
-Computer Science and Engineering, for their continuous encouragement and 
-unwavering support throughout the course of our study.
-
-We express our heartiest gratitude to our Internal Guide, [GUIDE NAME], 
-[DESIGNATION], Department of Computer Science and Engineering, for their 
-valuable suggestions, constant guidance, constructive criticism, and timely 
-assistance during every phase of this project.
-
-We also express our sincere appreciation to all the faculty and technical staff 
-of the Department of Computer Science and Engineering for their direct and 
-indirect support.
-
-Finally, we express our deep debt of gratitude to our parents, family members, 
-and fellow students for their unceasing moral support, patience, and 
-encouragement during the preparation of this report.
-
-
-                                        [STUDENT NAME 1]
-                                        [STUDENT NAME 2]
-
-
-================================================================================
-                                  ABSTRACT
-================================================================================
-
-Traditional spatial social discovery, networking, and location-aware mobile 
-applications require users to continuously transmit unencrypted, high-precision 
-Global Positioning System (GPS) coordinates (latitude and longitude) to centralized 
-cloud infrastructure or expose public profiles to everyone in a geographic area. 
-This conventional model exposes users to severe physical safety risks, location 
-profiling, unwanted tracking, and harassment. Furthermore, standard cryptographic 
-hashing algorithms (such as SHA-256) fail when applied to raw GPS coordinates 
-due to physical sensor noise and satellite drift—a shift of merely 5 meters 
-yields entirely disparate cryptographic hashes, breaking proximity discovery.
-
-This project presents "Connify" (Version 4.8.6), a production-grade, privacy-preserving 
-zero-knowledge spatial social platform designed specifically for initializing 
-real-time communication between unknown persons (strangers) in physical proximity. 
-Connify is officially released and publicly available on the Google Play Store 
-(Package ID: `com.connify`, URL: https://play.google.com/store/apps/details?id=com.connify). 
-Connify introduces a novel cryptographic algorithm entitled the SHARP Protocol 
-(Syndrome-Based Error-Correction Spatial Matching Engine), which enables co-located 
-physical devices to discover proximity, match shared interest categories (such as 
-Social Connection, Event Meetups, Co-presence, Activity Partners, and Escort/Walking 
-Companions), and execute mutual communication handshakes without ever transmitting, 
-exposing, or storing raw geographic coordinates on centralized servers.
-
-The SHARP Protocol quantizes continuous GPS sensor coordinates into standardized 
-spatial grid cells, vectorizes the surrounding 9-cell spatial neighborhood into 
-a 1024-bit Bloom filter using FNV-1a hashing, partitions the vector into 146 
-distinct 7-bit message blocks, and applies Bose-Chaudhuri-Hocquenghem (BCH(15,7)) 
-error-correction coding over Galois Field arithmetic GF(2^4). Mobile devices 
-transmit only 8-bit parity syndromes and SHA-256 blinded grid hashes to the 
-server. Receiving devices leverage their local GPS observation and the received 
-syndromes to perform asymmetric BCH decoding, correcting up to 2 bit-errors 
-per block caused by GPS sensor jitter to reconstruct the exact spatial Bloom 
-filter of the requester.
-
-Connify is implemented as a cross-platform mobile application utilizing React 
-Native 0.86.0, Expo 57.0.13, and TypeScript 5.8.3, supported by a high-throughput 
-Fastify 5.10.0 / Node.js 22.11.0 backend with Prisma 6.4.1 ORM and MongoDB. 
-The system features passwordless hardware-backed cryptographic identity using 
-TweetNaCl Ed25519 signatures and Curve25519 key exchanges stored in Android 
-KeyStore / iOS Keychain, real-time bi-directional Socket.io communication, 
-mesh WebRTC VoIP audio streams, an offline dual-mode fallback architecture 
-(mDNS / TCP / BLE / encrypted SMS), and a comprehensive suite of auxiliary trust 
-and physical safety tools (dead-man check-in timers, 115dB acoustic sirens, fake 
-call simulators, and community hazard maps) to protect users during real-world 
-stranger interactions.
-
-Empirical verification executed on the codebase confirmed 100% test passage across 
-39 backend integration test suites (including live endpoint lifecycle, audit chain 
-integrity, and corruption recovery) and 7 mobile unit test suites. The results 
-demonstrate that Connify successfully achieves zero-knowledge spatial matching with 
-sub-second latency while completely eliminating cloud location tracking risks in a 
-live, production Google Play Store deployed application.
-
-
-================================================================================
-                             TABLE OF CONTENTS
-================================================================================
-
-PRELIMINARY PAGES                                                       PAGE
-  Title Page ...........................................................    i
-  Bonafide Certificate .................................................   ii
-  Declaration ..........................................................  iii
-  Acknowledgement ......................................................   iv
-  Abstract .................................================............    v
-  Table of Contents ....................................................   vi
-  List of Figures ......................................................   ix
-  List of Tables .......................................................    x
-  List of Abbreviations and Symbols ....................................   xi
-
-CHAPTER 1: INTRODUCTION ................................................    1
-  1.1 Background of the Project ........................................    1
-  1.2 Problem Statement ................................................    3
-  1.3 Existing System ..................................................    4
-  1.4 Limitations of the Existing System ...............................    5
-  1.5 Proposed System ..................................................    6
-  1.6 Objectives of the Project ........................................    8
-  1.7 Scope of the Project .............................................    9
-  1.8 Advantages of the Proposed System ...............................   10
-  1.9 Organization of the Report .......................................   11
-
-CHAPTER 2: LITERATURE SURVEY ............................................   13
-  2.1 Introduction to the Literature Survey ............................   13
-  2.2 Review of Existing Research and Related Projects ..................   14
-  2.3 Review of Existing Technologies and Methods ......................   16
-  2.4 Comparative Analysis of Existing Solutions .......................   18
-  2.5 Research Gap / Identified Limitations ............................   20
-  2.6 Proposed Approach Based on the Literature Survey .................   21
-  2.7 Summary ..........................................................   22
-
-CHAPTER 3: SYSTEM ANALYSIS AND DESIGN ..................................   24
-  3.1 Introduction .....................................................   24
-  3.2 Requirement Analysis .............................................   25
-  3.3 Functional Requirements ..........................................   26
-  3.4 Non-Functional Requirements ......................................   28
-  3.5 Hardware Requirements ............................................   30
-  3.6 Software Requirements ............................................   31
-  3.7 System Architecture ..............................................   33
-  3.8 System Design ....................................................   36
-  3.9 Use Case Diagram .................................................   38
-  3.10 Data Flow Diagram (DFD) .........................................   41
-  3.11 UML Diagrams ....................................................   45
-  3.12 Database Design / ER Diagram ....................................   50
-  3.13 Module Description ..............................................   54
-  3.14 Workflow / Process Flow .........................................   58
-
-CHAPTER 4: SYSTEM IMPLEMENTATION ......................................   62
-  4.1 Introduction .....................................................   62
-  4.2 Technology Stack .................................................   63
-  4.3 Development Environment ..........................................   65
-  4.4 System Configuration .............................................   67
-  4.5 Module-Wise Implementation .......................................   69
-  4.6 Frontend Implementation ..........................................   75
-  4.7 Backend Implementation ...........................................   82
-  4.8 Database Implementation ..........................................   88
-  4.9 API Design and Integration .......................................   92
-  4.10 Authentication and Security Implementation .....................   97
-  4.11 Third-Party Services / AI Integration ..........................  102
-  4.12 Deployment and Hosting (Google Play Store Release) ..............  105
-
-CHAPTER 5: TESTING AND RESULTS ........................................  108
-  5.1 Introduction .....................................................  108
-  5.2 Testing Methodology ..............................................  109
-  5.3 Unit Testing .....................................................  110
-  5.4 Integration Testing ..............................................  112
-  5.5 System Testing ...................................................  115
-  5.6 Functional Testing ...............................................  117
-  5.7 Performance Testing ..............................................  119
-  5.8 Security Testing .................................................  121
-  5.9 Test Cases and Test Results ......................................  123
-  5.10 Screenshots of the Application ..................................  128
-  5.11 Result Analysis .................................................  131
-  5.12 Discussion ......................................................  133
-
-CHAPTER 6: CONCLUSION AND FUTURE SCOPE .................................  135
-  6.1 Conclusion .......................................................  135
-  6.2 Objectives Achieved ..............................................  136
-  6.3 Key Contributions / Outcomes .....................................  138
-  6.4 Limitations of the Project .......................................  140
-  6.5 Future Enhancements ..............................................  142
-
-REFERENCES .............................................................  145
-APPENDICES .............................................................  148
-  Appendix A: Sample Code Excerpts .....................................  148
-  Appendix B: API Documentation & Socket Payload Contracts .............  155
-  Appendix C: Application Screenshots Checklist ........................  160
-  Appendix D: Comprehensive User & Deployment Manual ..................  163
-
-
-================================================================================
                                LIST OF FIGURES
 ================================================================================
 
@@ -311,7 +43,6 @@ AI        : Artificial Intelligence
 API       : Application Programming Interface
 APK       : Android Application Package
 BCH       : Bose-Chaudhuri-Hocquenghem Error-Correcting Code
-BLE       : Bluetooth Low Energy
 BOF       : Bloom Filter
 CRUD      : Create, Read, Update, Delete
 DAO       : Data Access Object
@@ -325,7 +56,6 @@ GF        : Galois Field (Finite Field Arithmetic)
 GPS       : Global Positioning System
 HTTP      : Hypertext Transfer Protocol
 HTTPS     : Hypertext Transfer Protocol Secure
-ICE       : In Case of Emergency / Interactive Connectivity Establishment
 IP        : Internet Protocol
 JIT       : Just-In-Time Credentials
 JWT       : JSON Web Token
@@ -343,15 +73,13 @@ SOS       : Universal Alert Signal
 SSL       : Secure Sockets Layer
 TCP       : Transmission Control Protocol
 TLS       : Transport Layer Security
-UI        : User Interface
-UML       : Unified Modeling Language
 URI       : Uniform Resource Identifier
 URL       : Uniform Resource Locator
 UUID      : Universally Unique Identifier
 VoIP      : Voice over Internet Protocol
 WebRTC    : Web Real-Time Communication
 WSS       : WebSocket Secure
-ZK        : Zero-Knowledge
+
 
 
 ================================================================================
