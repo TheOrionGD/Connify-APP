@@ -7,7 +7,7 @@ import { buildApp } from '../src/app';
 import { connectDB } from '../src/utils/db';
 import { initKeys, signToken } from '../src/services/KeyService';
 import { initSockets } from '../src/sockets';
-import { Device, Episode } from '../src/models';
+import { Device, Episode, Capsule } from '../src/models';
 
 function generateTestKeyPair() {
   const pair = nacl.sign.keyPair();
@@ -20,10 +20,14 @@ describe('VoIP Call Signaling Socket Events', () => {
   let serverPort: number;
   let callerSocket: ClientSocket;
   let calleeSocket: ClientSocket;
+  let callerToken: string;
+  let calleeToken: string;
   let testEpisodeId: string;
   let reqDeviceDoc: any;
   let respDeviceDoc: any;
   let episodeDoc: any;
+  let capsuleDoc: any;
+  let currentCallId: string;
 
   before(async () => {
     process.env.MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/connify-call-test';
@@ -66,8 +70,16 @@ describe('VoIP Call Signaling Socket Events', () => {
 
     testEpisodeId = episodeDoc._id.toString();
 
-    const callerToken = await signToken({ sub: reqDeviceDoc._id.toString() });
-    const calleeToken = await signToken({ sub: respDeviceDoc._id.toString() });
+    capsuleDoc = await Capsule.create({
+      episodeId: episodeDoc._id,
+      helperDeviceId: respDeviceDoc._id,
+      signedTokenHash: 'call-test-capsule-hash',
+      status: 'issued',
+      expiresAt: new Date(Date.now() + 600000),
+    });
+
+    callerToken = await signToken({ sub: reqDeviceDoc._id.toString() });
+    calleeToken = await signToken({ sub: respDeviceDoc._id.toString() });
 
     const socketUrl = `http://127.0.0.1:${serverPort}`;
 
@@ -106,6 +118,7 @@ describe('VoIP Call Signaling Socket Events', () => {
   after(async () => {
     callerSocket?.disconnect();
     calleeSocket?.disconnect();
+    if (capsuleDoc) await Capsule.findByIdAndDelete(capsuleDoc._id);
     if (episodeDoc) await Episode.findByIdAndDelete(episodeDoc._id);
     if (reqDeviceDoc) await Device.findByIdAndDelete(reqDeviceDoc._id);
     if (respDeviceDoc) await Device.findByIdAndDelete(respDeviceDoc._id);
@@ -113,7 +126,26 @@ describe('VoIP Call Signaling Socket Events', () => {
     await mongoose.disconnect();
   });
 
-  it('1. Caller initiates call -> Callee receives incoming_call payload', async () => {
+  it('1. Vends STUN/TURN ICE servers via socket and REST', async () => {
+    const socketRes = await new Promise<any>((resolve) => {
+      callerSocket.emit('get_ice_servers', (res: any) => resolve(res));
+    });
+    assert.strictEqual(socketRes.success, true);
+    assert.ok(Array.isArray(socketRes.iceServers));
+    assert.ok(socketRes.iceServers.length > 0);
+
+    const restRes = await app.inject({
+      method: 'GET',
+      url: '/api/webrtc/ice-servers',
+      headers: { authorization: `Bearer ${callerToken}` },
+    });
+    assert.strictEqual(restRes.statusCode, 200);
+    const body = JSON.parse(restRes.payload);
+    assert.strictEqual(body.success, true);
+    assert.ok(Array.isArray(body.iceServers));
+  });
+
+  it('2. Caller initiates call -> Callee receives incoming_call with unique callId', async () => {
     const incomingPromise = new Promise<any>((resolve) => {
       calleeSocket.once('incoming_call', (data) => {
         resolve(data);
@@ -129,13 +161,17 @@ describe('VoIP Call Signaling Socket Events', () => {
     });
 
     assert.strictEqual(ack.success, true);
+    assert.ok(ack.callId);
+    currentCallId = ack.callId;
+
     const incomingData = await incomingPromise;
     assert.strictEqual(incomingData.episodeId, testEpisodeId);
+    assert.strictEqual(incomingData.callId, currentCallId);
     assert.strictEqual(incomingData.callerName, 'Alex Requester');
     assert.strictEqual(incomingData.role, 'requester');
   });
 
-  it('2. Callee accepts call -> Caller receives call_accepted payload', async () => {
+  it('3. Callee accepts call -> Caller receives call_accepted payload', async () => {
     const acceptedPromise = new Promise<any>((resolve) => {
       callerSocket.once('call_accepted', (data) => {
         resolve(data);
@@ -145,15 +181,17 @@ describe('VoIP Call Signaling Socket Events', () => {
     const ack = await new Promise<any>((resolve) => {
       calleeSocket.emit('call_accept', {
         episodeId: testEpisodeId,
+        callId: currentCallId,
       }, (res: any) => resolve(res));
     });
 
     assert.strictEqual(ack.success, true);
     const acceptedData = await acceptedPromise;
     assert.strictEqual(acceptedData.episodeId, testEpisodeId);
+    assert.strictEqual(acceptedData.callId, currentCallId);
   });
 
-  it('3. Audio signaling payload passes between peers', async () => {
+  it('4. Audio signaling payload passes between peers', async () => {
     const signalPromise = new Promise<any>((resolve) => {
       callerSocket.once('call_signal', (data) => {
         resolve(data);
@@ -163,6 +201,7 @@ describe('VoIP Call Signaling Socket Events', () => {
     const ack = await new Promise<any>((resolve) => {
       calleeSocket.emit('call_signal', {
         episodeId: testEpisodeId,
+        callId: currentCallId,
         signalData: { type: 'candidate', sdp: 'dummy-sdp-audio' },
       }, (res: any) => resolve(res));
     });
@@ -173,7 +212,44 @@ describe('VoIP Call Signaling Socket Events', () => {
     assert.deepStrictEqual(signalData.signalData, { type: 'candidate', sdp: 'dummy-sdp-audio' });
   });
 
-  it('4. Ending call broadcasts call_ended with duration', async () => {
+  it('5. 1-to-1 WebRTC SDP offer, answer, and ICE candidates relay directly', async () => {
+    const offerPromise = new Promise<any>((resolve) => {
+      calleeSocket.once('webrtc_offer', (data) => resolve(data));
+    });
+    callerSocket.emit('webrtc_offer', {
+      receiverId: respDeviceDoc._id.toString(),
+      offer: { type: 'offer', sdp: 'mock-offer-sdp' },
+      callId: currentCallId,
+    });
+    const offerData = await offerPromise;
+    assert.strictEqual(offerData.callerId, reqDeviceDoc._id.toString());
+    assert.strictEqual(offerData.offer.sdp, 'mock-offer-sdp');
+
+    const answerPromise = new Promise<any>((resolve) => {
+      callerSocket.once('webrtc_answer', (data) => resolve(data));
+    });
+    calleeSocket.emit('webrtc_answer', {
+      receiverId: reqDeviceDoc._id.toString(),
+      answer: { type: 'answer', sdp: 'mock-answer-sdp' },
+      callId: currentCallId,
+    });
+    const answerData = await answerPromise;
+    assert.strictEqual(answerData.responderId, respDeviceDoc._id.toString());
+    assert.strictEqual(answerData.answer.sdp, 'mock-answer-sdp');
+
+    const candidatePromise = new Promise<any>((resolve) => {
+      calleeSocket.once('ice_candidate', (data) => resolve(data));
+    });
+    callerSocket.emit('ice_candidate', {
+      receiverId: respDeviceDoc._id.toString(),
+      candidate: { candidate: 'candidate:1 1 UDP 2130706431 127.0.0.1 5000 typ host' },
+      callId: currentCallId,
+    });
+    const candidateData = await candidatePromise;
+    assert.strictEqual(candidateData.senderId, reqDeviceDoc._id.toString());
+  });
+
+  it('6. Ending call broadcasts call_ended with duration', async () => {
     const endPromise = new Promise<any>((resolve) => {
       calleeSocket.once('call_ended', (data) => {
         resolve(data);
@@ -183,6 +259,7 @@ describe('VoIP Call Signaling Socket Events', () => {
     const ack = await new Promise<any>((resolve) => {
       callerSocket.emit('call_end', {
         episodeId: testEpisodeId,
+        callId: currentCallId,
         duration: 45,
       }, (res: any) => resolve(res));
     });
@@ -190,6 +267,7 @@ describe('VoIP Call Signaling Socket Events', () => {
     assert.strictEqual(ack.success, true);
     const endData = await endPromise;
     assert.strictEqual(endData.episodeId, testEpisodeId);
+    assert.strictEqual(endData.callId, currentCallId);
     assert.strictEqual(endData.duration, 45);
   });
 });

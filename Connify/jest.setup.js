@@ -23,9 +23,14 @@ jest.mock('react-native-reanimated', () => {
     withTiming: (val) => val,
     withSpring: (val) => val,
     withDelay: (delay, val) => val,
+    withSequence: (...vals) => vals[0],
+    withRepeat: (val) => val,
+    interpolate: (val, input, output) => (output && output.length > 0 ? output[0] : 0),
+    runOnJS: (fn) => fn,
     Easing: {
       inOut: () => {},
       ease: () => {},
+      out: () => {},
     },
     View: View,
   };
@@ -143,6 +148,100 @@ jest.mock('react-native-webview', () => {
   const { View } = require('react-native');
   return {
     WebView: (props) => React.createElement(View, props),
+  };
+});
+
+// Mock react-native-incall-manager
+jest.mock('react-native-incall-manager', () => ({
+  default: {
+    start: jest.fn(),
+    stop: jest.fn(),
+    setSpeakerphoneOn: jest.fn(),
+    setForceSpeakerphoneOn: jest.fn(),
+    setMicrophoneMute: jest.fn(),
+    setKeepScreenOn: jest.fn(),
+    startProximitySensor: jest.fn(),
+    stopProximitySensor: jest.fn(),
+  },
+  start: jest.fn(),
+  stop: jest.fn(),
+  setSpeakerphoneOn: jest.fn(),
+  setForceSpeakerphoneOn: jest.fn(),
+  setMicrophoneMute: jest.fn(),
+  setKeepScreenOn: jest.fn(),
+  startProximitySensor: jest.fn(),
+  stopProximitySensor: jest.fn(),
+}));
+
+// Mock react-native-webrtc
+jest.mock('react-native-webrtc', () => {
+  class MockRTCPeerConnection {
+    onicecandidate = null;
+    ontrack = null;
+    onconnectionstatechange = null;
+    oniceconnectionstatechange = null;
+    localDescription = null;
+    remoteDescription = null;
+
+    addTrack = jest.fn();
+    createOffer = jest.fn().mockResolvedValue({
+      type: 'offer',
+      sdp: 'v=0\r\no=- 1 2 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\nm=audio 9 UDP/TLS/RTP/SAVPF 111\r\n',
+    });
+    createAnswer = jest.fn().mockResolvedValue({
+      type: 'answer',
+      sdp: 'v=0\r\no=- 2 2 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\nm=audio 9 UDP/TLS/RTP/SAVPF 111\r\n',
+    });
+    setLocalDescription = jest.fn().mockImplementation((desc) => {
+      this.localDescription = desc;
+      return Promise.resolve();
+    });
+    setRemoteDescription = jest.fn().mockImplementation((desc) => {
+      this.remoteDescription = desc;
+      return Promise.resolve();
+    });
+    addIceCandidate = jest.fn().mockResolvedValue(undefined);
+    close = jest.fn();
+  }
+
+  class MockRTCSessionDescription {
+    constructor(init) {
+      this.type = init?.type;
+      this.sdp = init?.sdp;
+    }
+  }
+
+  class MockRTCIceCandidate {
+    constructor(init) {
+      this.candidate = init?.candidate;
+      this.sdpMid = init?.sdpMid;
+      this.sdpMLineIndex = init?.sdpMLineIndex;
+    }
+  }
+
+  const audioTrack = {
+    id: 'connify-audio-track-0',
+    kind: 'audio',
+    enabled: true,
+    stop: jest.fn(),
+    _setVolume: jest.fn(),
+  };
+
+  const audioStream = {
+    id: 'connify-stream-0',
+    getTracks: () => [audioTrack],
+    getAudioTracks: () => [audioTrack],
+    getVideoTracks: () => [],
+  };
+
+  return {
+    RTCPeerConnection: MockRTCPeerConnection,
+    RTCSessionDescription: MockRTCSessionDescription,
+    RTCIceCandidate: MockRTCIceCandidate,
+    MediaStream: jest.fn().mockImplementation(() => audioStream),
+    mediaDevices: {
+      getUserMedia: jest.fn().mockResolvedValue(audioStream),
+    },
   };
 });
 

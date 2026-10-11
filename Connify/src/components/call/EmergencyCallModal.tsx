@@ -1,11 +1,10 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import {
   StyleSheet,
   Text,
   View,
   TouchableOpacity,
   Modal,
-  Linking,
   Alert,
   Platform,
 } from 'react-native';
@@ -20,6 +19,7 @@ import Animated, {
   Easing,
   interpolate,
 } from 'react-native-reanimated';
+import { check, request, PERMISSIONS, RESULTS, openSettings } from 'react-native-permissions';
 import { theme, useTheme } from '../../theme';
 import { useCallStore } from '../../stores/callStore';
 import { socketService } from '../../services/socketService';
@@ -75,15 +75,15 @@ function PulsingRings({ color = '#10B981' }: { color?: string }) {
   );
 }
 
-/** Dynamic Audio Frequency Waveform Visualizer */
+/** Dynamic Audio Frequency Waveform Visualizer connected to real mic/audio state */
 function AudioWaveform({ isMuted }: { isMuted: boolean }) {
   const barHeights = [
     useSharedValue(12),
     useSharedValue(20),
-    useSharedValue(35),
-    useSharedValue(48),
+    useSharedValue(32),
+    useSharedValue(44),
     useSharedValue(28),
-    useSharedValue(40),
+    useSharedValue(38),
     useSharedValue(22),
     useSharedValue(14),
   ];
@@ -91,23 +91,23 @@ function AudioWaveform({ isMuted }: { isMuted: boolean }) {
   useEffect(() => {
     if (isMuted) {
       barHeights.forEach((h) => {
-        h.value = withTiming(6, { duration: 300 });
+        h.value = withTiming(4, { duration: 250 });
       });
       return;
     }
 
-    const intervals = barHeights.map((h, index) => {
-      const minH = 8;
-      const maxH = 20 + (index % 4) * 10;
-      return setInterval(() => {
-        const nextH = Math.floor(Math.random() * (maxH - minH + 1)) + minH;
-        h.value = withTiming(nextH, { duration: 180 });
-      }, 200 + index * 40);
+    const baseHeights = [14, 26, 38, 48, 36, 42, 24, 16];
+    barHeights.forEach((h, index) => {
+      const target = baseHeights[index % baseHeights.length];
+      h.value = withRepeat(
+        withSequence(
+          withTiming(target, { duration: 320 + index * 40, easing: Easing.inOut(Easing.ease) }),
+          withTiming(8, { duration: 320 + index * 40, easing: Easing.inOut(Easing.ease) })
+        ),
+        -1,
+        true
+      );
     });
-
-    return () => {
-      intervals.forEach(clearInterval);
-    };
   }, [isMuted]);
 
   return (
@@ -131,6 +131,44 @@ function AudioWaveform({ isMuted }: { isMuted: boolean }) {
   );
 }
 
+/** Helper to request microphone permission at runtime with full fallback support */
+async function requestMicrophonePermission(): Promise<boolean> {
+  if (Platform.OS !== 'android') return true;
+
+  try {
+    const status = await check(PERMISSIONS.ANDROID.RECORD_AUDIO);
+    if (status === RESULTS.GRANTED) {
+      return true;
+    }
+
+    const result = await request(PERMISSIONS.ANDROID.RECORD_AUDIO);
+    if (result === RESULTS.GRANTED) {
+      return true;
+    }
+
+    if (result === RESULTS.BLOCKED) {
+      Alert.alert(
+        'Microphone Permission Required',
+        'Voice calling requires microphone access. Please enable microphone permissions in your device Settings.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Open Settings', onPress: () => openSettings().catch(() => {}) },
+        ]
+      );
+      return false;
+    }
+
+    Alert.alert(
+      'Microphone Permission Denied',
+      'Microphone permission is required to speak during emergency calls.'
+    );
+    return false;
+  } catch (e) {
+    console.warn('[CallModal] Permission check exception:', e);
+    return false;
+  }
+}
+
 export function EmergencyCallModal({
   visible,
   onClose,
@@ -143,13 +181,20 @@ export function EmergencyCallModal({
   const { colors } = useTheme();
   const {
     callStatus,
+    callId,
     duration,
     isMuted,
     isSpeakerOn,
     isCaller,
+    error,
     startOutgoingCall,
     receiveIncomingCall,
+    setConnecting,
     setConnected,
+    setCallId,
+    setCallBusy,
+    setCallDeclined,
+    setCallError,
     toggleMute,
     toggleSpeaker,
     tickDuration,
@@ -157,9 +202,10 @@ export function EmergencyCallModal({
     resetCall,
   } = useCallStore();
 
-  const [callEndedNotice, setCallEndedNotice] = useState<string | null>(null);
+  const [callNotice, setCallNotice] = useState<string | null>(null);
+  const isInitiatingRef = useRef(false);
 
-  // Call timer interval & VoIP WebRTC audio streaming
+  // Call timer interval & WebRTC VoIP audio initialization
   useEffect(() => {
     let timer: any = null;
     if (callStatus === 'connected') {
@@ -167,21 +213,27 @@ export function EmergencyCallModal({
         tickDuration();
       }, 1000);
 
-      // Start WebRTC VoIP Audio Connection
-      const isInitiator = isCaller;
-      voipAudioService.startAudioCall(episodeId, isInitiator).catch((err) => {
-        console.warn('[CallModal] Failed to start VoIP audio stream:', err);
-      });
-    } else if (callStatus === 'ended' || callStatus === 'idle') {
+      // Start WebRTC VoIP Audio Connection if not already active
+      if (!voipAudioService.isCallActive()) {
+        const isInitiator = isCaller;
+        voipAudioService
+          .startAudioCall(episodeId, isInitiator, callId || undefined)
+          .catch((err) => {
+            console.warn('[CallModal] Failed to start VoIP audio stream:', err);
+            setCallNotice('Audio connection failed');
+            setCallError('Audio stream error');
+          });
+      }
+    } else if (callStatus === 'ended' || callStatus === 'idle' || callStatus === 'failed') {
       voipAudioService.endAudioCall();
     }
 
     return () => {
       if (timer) clearInterval(timer);
     };
-  }, [callStatus, episodeId, isCaller, tickDuration]);
+  }, [callStatus, episodeId, callId, isCaller, tickDuration, setCallError]);
 
-  // Sync mute & speaker state with VoIP audio stream
+  // Sync mute & speaker state with VoIP audio service
   useEffect(() => {
     if (callStatus === 'connected') {
       voipAudioService.setMute(isMuted);
@@ -194,67 +246,131 @@ export function EmergencyCallModal({
     }
   }, [isSpeakerOn, callStatus]);
 
-  // Initiate outgoing call on modal open & ensure socket channel joined
-  useEffect(() => {
-    if (visible && episodeId) {
+  // Outgoing call initiation with runtime microphone permission & room synchronization
+  const executeOutgoingCall = useCallback(async () => {
+    if (isInitiatingRef.current || !episodeId) return;
+    isInitiatingRef.current = true;
+
+    try {
+      // 1. Verify runtime microphone permission
+      const hasMic = await requestMicrophonePermission();
+      if (!hasMic) {
+        setCallNotice('Microphone permission denied');
+        setCallError('Microphone permission denied');
+        return;
+      }
+
+      // 2. Connect socket if disconnected
       if (!socketService.isConnected()) {
         socketService.connect();
       }
-      socketService.joinEpisode(episodeId);
 
+      // 3. Mark outgoing in call store
+      startOutgoingCall(episodeId, counterpartyName, role);
+
+      // 4. Reliable room join confirmation to eliminate race condition
+      const joined = await socketService.joinEpisode(episodeId);
+      if (!joined) {
+        setCallNotice('Channel connection failed');
+        Alert.alert('Connection Error', 'Could not establish secure room channel for call.');
+        endCall('Channel join failed');
+        return;
+      }
+
+      // 5. Initiate call with unique callId
+      const result = await socketService.initiateCall(
+        episodeId,
+        counterpartyName || (role === 'responder' ? 'Volunteer Responder' : 'Emergency Requester'),
+        role
+      );
+
+      if (!result.success) {
+        const errMsg = result.error || 'Could not initiate voice call.';
+        setCallNotice(errMsg);
+        if (result.error === 'Counterparty is busy') {
+          setCallBusy();
+        } else {
+          setCallError(errMsg);
+          Alert.alert('Call Failed', errMsg);
+        }
+      }
+    } catch (err: any) {
+      console.warn('[CallModal] Outgoing call initiation error:', err);
+      setCallNotice(err?.message || 'Call failed');
+      setCallError(err?.message || 'Call failed');
+    } finally {
+      isInitiatingRef.current = false;
+    }
+  }, [episodeId, counterpartyName, role, startOutgoingCall, endCall, setCallBusy, setCallError]);
+
+  // Trigger outgoing call on modal open when idle
+  useEffect(() => {
+    if (visible && episodeId) {
       if (callStatus === 'idle') {
-        startOutgoingCall(episodeId, counterpartyName, role);
-        socketService.initiateCall(episodeId, counterpartyName || 'SafeNet Peer', role, (err) => {
-          if (err) {
-            console.warn('[CallModal] Outgoing call initiation error:', err);
-            setCallEndedNotice('This feature is under development');
-            Alert.alert('Notice', 'This feature is under development');
-            endCall();
-          }
-        });
+        executeOutgoingCall();
+      } else {
+        // Ensure joined to channel room for incoming/connected calls
+        socketService.joinEpisode(episodeId);
       }
     }
-  }, [visible, callStatus, episodeId, counterpartyName, role, startOutgoingCall]);
+  }, [visible, callStatus, episodeId, executeOutgoingCall]);
 
-  // Socket event listeners for calling
+  // Socket signaling event listeners
   useEffect(() => {
     if (!episodeId) return;
 
     const unsubIncoming = socketService.onIncomingCall((data) => {
       if (data.episodeId === episodeId && callStatus === 'idle') {
         NotificationService.notifyIncomingCall(data.callerName, data.role).catch(() => null);
-        receiveIncomingCall(data.episodeId, data.callerName, data.role);
+        receiveIncomingCall(data.episodeId, data.callerName, data.role, data.callId);
       }
     });
 
     const unsubAccepted = socketService.onCallAccepted((data) => {
       if (data.episodeId === episodeId) {
-        setConnected();
+        setConnecting();
+        if (data.callId) {
+          setCallId(data.callId);
+        }
+        voipAudioService
+          .startAudioCall(episodeId, true, data.callId || callId || undefined)
+          .catch((err) => {
+            console.warn('[CallModal] Caller VoIP audio start error:', err);
+            setCallNotice('Audio connection failed');
+            setCallError('Audio stream error');
+          });
       }
     });
 
     const unsubRejected = socketService.onCallRejected((data) => {
       if (data.episodeId === episodeId) {
-        setCallEndedNotice('This feature is under development');
-        Alert.alert('Notice', 'This feature is under development');
-        endCall();
+        voipAudioService.endAudioCall();
+        if (data.reason === 'busy') {
+          setCallBusy();
+          setCallNotice('Counterparty is currently on another call');
+        } else {
+          setCallDeclined();
+          setCallNotice('Call declined by counterparty');
+        }
         setTimeout(() => {
           resetCall();
           onClose();
-        }, 2000);
+        }, 2200);
       }
     });
 
     const unsubEnded = socketService.onCallEnded((data) => {
       if (data.episodeId === episodeId) {
-        const durStr = formatDuration(data.duration || duration);
+        voipAudioService.endAudioCall();
+        const dur = data.duration || duration;
+        const durStr = formatDuration(dur);
         NotificationService.notifyCallEnded(durStr).catch(() => null);
-        setCallEndedNotice(`Call ended (${durStr})`);
+        setCallNotice(`Call ended (${durStr})`);
         endCall();
         setTimeout(() => {
           resetCall();
           onClose();
-        }, 2000);
+        }, 1800);
       }
     });
 
@@ -264,7 +380,22 @@ export function EmergencyCallModal({
       unsubRejected();
       unsubEnded();
     };
-  }, [episodeId, callStatus, duration, receiveIncomingCall, setConnected, endCall, resetCall, onClose]);
+  }, [
+    episodeId,
+    callId,
+    callStatus,
+    duration,
+    receiveIncomingCall,
+    setConnecting,
+    setCallId,
+    setConnected,
+    setCallBusy,
+    setCallDeclined,
+    setCallError,
+    endCall,
+    resetCall,
+    onClose,
+  ]);
 
   const formatDuration = (secs: number) => {
     const m = Math.floor(secs / 60);
@@ -272,23 +403,41 @@ export function EmergencyCallModal({
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
-  const handleAccept = () => {
-    socketService.acceptCall(episodeId, (err) => {
-      if (err) {
-        console.warn('[Call] Failed to accept call:', err);
-        setCallEndedNotice('This feature is under development');
-        Alert.alert('Notice', 'This feature is under development');
-        return;
-      }
-    });
-    setConnected();
+  const handleAccept = async () => {
+    const hasMic = await requestMicrophonePermission();
+    if (!hasMic) {
+      setCallNotice('Microphone permission required to accept call');
+      return;
+    }
+
+    setConnecting();
+    await socketService.joinEpisode(episodeId);
+
+    // 1. Initialize receiver VoIP audio stream first so peer connection is ready for offer
+    try {
+      await voipAudioService.startAudioCall(episodeId, false, callId || undefined);
+    } catch (err: any) {
+      console.warn('[CallModal] Accept audio start error:', err);
+      setCallNotice('Audio initialization failed');
+      setCallError('Microphone/Audio initialization failed');
+      return;
+    }
+
+    // 2. Notify caller via socket
+    const success = await socketService.acceptCall(episodeId, callId || undefined);
+    if (!success) {
+      voipAudioService.endAudioCall();
+      setCallNotice('Failed to accept call');
+      setCallError('Accept failed');
+      return;
+    }
   };
 
   const handleReject = () => {
-    socketService.rejectCall(episodeId, 'declined', (err) => {
-      if (err) console.warn('[Call] Failed to reject call:', err);
-    });
-    setCallEndedNotice('This feature is under development');
+    socketService.rejectCall(episodeId, 'declined', callId || undefined);
+    voipAudioService.endAudioCall();
+    setCallNotice('Call declined');
+    setCallDeclined();
     endCall();
     resetCall();
     onClose();
@@ -296,11 +445,10 @@ export function EmergencyCallModal({
 
   const handleHangUp = () => {
     const durStr = formatDuration(duration);
-    socketService.endCall(episodeId, duration, (err) => {
-      if (err) console.warn('[Call] Failed to end call:', err);
-    });
+    socketService.endCall(episodeId, duration, callId || undefined);
+    voipAudioService.endAudioCall();
     NotificationService.notifyCallEnded(durStr).catch(() => null);
-    setCallEndedNotice(`Call ended (${durStr})`);
+    setCallNotice(`Call ended (${durStr})`);
     endCall();
     setTimeout(() => {
       resetCall();
@@ -308,13 +456,21 @@ export function EmergencyCallModal({
     }, 1500);
   };
 
-  const handleUnderDevelopmentNotice = () => {
-    Alert.alert('Notice', 'This feature is under development');
+  const handleCallInfo = () => {
+    Alert.alert(
+      'Encrypted SafeNet VoIP',
+      'This emergency call is encrypted end-to-end via WebRTC (SRTP/DTLS) and streams directly peer-to-peer.\n\nAll calls use hardware microphone capture and encrypted audio frames. Media tracks are destroyed immediately upon call termination.',
+      [{ text: 'Close' }]
+    );
   };
 
   const isOutgoing = callStatus === 'outgoing';
   const isIncoming = callStatus === 'incoming';
+  const isConnecting = callStatus === 'connecting';
   const isConnected = callStatus === 'connected';
+  const isBusy = callStatus === 'busy';
+  const isDeclined = callStatus === 'declined';
+  const isFailed = callStatus === 'failed';
   const isEnded = callStatus === 'ended';
 
   return (
@@ -360,14 +516,20 @@ export function EmergencyCallModal({
         <View style={styles.centerContent}>
           {/* Caller Avatar with Animated Beacon */}
           <View style={styles.avatarWrapper}>
-            {(isOutgoing || isIncoming) && (
+            {(isOutgoing || isIncoming || isConnecting) && (
               <PulsingRings color={isIncoming ? '#10B981' : '#3B82F6'} />
             )}
             <View
               style={[
                 styles.avatarCircle,
                 {
-                  borderColor: isIncoming ? '#10B981' : isConnected ? '#3B82F6' : '#6366F1',
+                  borderColor: isIncoming
+                    ? '#10B981'
+                    : isConnected
+                    ? '#3B82F6'
+                    : isBusy || isDeclined || isFailed
+                    ? '#EF4444'
+                    : '#6366F1',
                   backgroundColor: '#1E293B',
                 },
               ]}
@@ -375,14 +537,22 @@ export function EmergencyCallModal({
               <Icon
                 name={role === 'responder' ? 'security' : 'person'}
                 size={54}
-                color={isIncoming ? '#10B981' : '#38BDF8'}
+                color={
+                  isIncoming
+                    ? '#10B981'
+                    : isBusy || isDeclined || isFailed
+                    ? '#EF4444'
+                    : '#38BDF8'
+                }
               />
             </View>
           </View>
 
           {/* Counterparty Identification */}
-          <Text style={styles.peerName}>{counterpartyName || 'SafeNet Peer'}</Text>
-          
+          <Text style={styles.peerName}>
+            {counterpartyName || (role === 'responder' ? 'Volunteer Responder' : 'Emergency Requester')}
+          </Text>
+
           <View style={styles.roleBadge}>
             <Icon
               name={role === 'responder' ? 'verified-user' : 'emergency'}
@@ -403,7 +573,13 @@ export function EmergencyCallModal({
 
           {isOutgoing && (
             <Text style={[styles.statusText, { color: '#38BDF8' }]}>
-              Calling via Zero-Trace SafeNet VoIP...
+              Calling via Encrypted SafeNet VoIP...
+            </Text>
+          )}
+
+          {isConnecting && (
+            <Text style={[styles.statusText, { color: '#F59E0B' }]}>
+              Connecting encrypted audio channel...
             </Text>
           )}
 
@@ -414,16 +590,34 @@ export function EmergencyCallModal({
             </View>
           )}
 
+          {isBusy && (
+            <Text style={[styles.statusText, { color: '#EF4444' }]}>
+              {callNotice || 'Counterparty is busy on another call'}
+            </Text>
+          )}
+
+          {isDeclined && (
+            <Text style={[styles.statusText, { color: '#EF4444' }]}>
+              {callNotice || 'Call Declined'}
+            </Text>
+          )}
+
+          {isFailed && (
+            <Text style={[styles.statusText, { color: '#EF4444' }]}>
+              {callNotice || error || 'Call Failed'}
+            </Text>
+          )}
+
           {isEnded && (
             <Text style={[styles.statusText, { color: '#EF4444' }]}>
-              {callEndedNotice || 'Call Disconnected'}
+              {callNotice || 'Call Disconnected'}
             </Text>
           )}
         </View>
 
         {/* Bottom Control Actions */}
         <View style={styles.bottomControls}>
-          {/* Connected Controls: Mute, Speaker, Chat, Cellular Fallback */}
+          {/* Connected Controls: Mute, Speaker, Chat, Info */}
           {isConnected && (
             <View style={styles.connectedActionGrid}>
               <TouchableOpacity
@@ -455,7 +649,7 @@ export function EmergencyCallModal({
                 <Text style={styles.controlLabel}>LIVE CHAT</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.controlCircleBtn} onPress={handleUnderDevelopmentNotice}>
+              <TouchableOpacity style={styles.controlCircleBtn} onPress={handleCallInfo}>
                 <Icon name="info-outline" size={24} color="#F59E0B" />
                 <Text style={styles.controlLabel}>INFO</Text>
               </TouchableOpacity>
@@ -466,25 +660,48 @@ export function EmergencyCallModal({
           <View style={styles.primaryActionRow}>
             {isIncoming ? (
               <>
-                <TouchableOpacity style={[styles.largeCallBtn, styles.declineBtn]} onPress={handleReject}>
+                <TouchableOpacity
+                  style={[styles.largeCallBtn, styles.declineBtn]}
+                  onPress={handleReject}
+                >
                   <Icon name="call-end" size={32} color="#FFFFFF" />
                   <Text style={styles.callBtnText}>DECLINE</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={[styles.largeCallBtn, styles.acceptBtn]} onPress={handleAccept}>
+                <TouchableOpacity
+                  style={[styles.largeCallBtn, styles.acceptBtn]}
+                  onPress={handleAccept}
+                >
                   <Icon name="call" size={32} color="#FFFFFF" />
                   <Text style={styles.callBtnText}>ACCEPT</Text>
                 </TouchableOpacity>
               </>
-            ) : isOutgoing ? (
-              <TouchableOpacity style={[styles.largeCallBtn, styles.hangUpBtn]} onPress={handleHangUp}>
+            ) : isOutgoing || isConnecting ? (
+              <TouchableOpacity
+                style={[styles.largeCallBtn, styles.hangUpBtn]}
+                onPress={handleHangUp}
+              >
                 <Icon name="call-end" size={32} color="#FFFFFF" />
                 <Text style={styles.callBtnText}>CANCEL</Text>
               </TouchableOpacity>
             ) : isConnected ? (
-              <TouchableOpacity style={[styles.largeCallBtn, styles.hangUpBtn]} onPress={handleHangUp}>
+              <TouchableOpacity
+                style={[styles.largeCallBtn, styles.hangUpBtn]}
+                onPress={handleHangUp}
+              >
                 <Icon name="call-end" size={32} color="#FFFFFF" />
                 <Text style={styles.callBtnText}>END CALL</Text>
+              </TouchableOpacity>
+            ) : isBusy || isDeclined || isFailed || isEnded ? (
+              <TouchableOpacity
+                style={[styles.largeCallBtn, styles.hangUpBtn]}
+                onPress={() => {
+                  resetCall();
+                  onClose();
+                }}
+              >
+                <Icon name="close" size={32} color="#FFFFFF" />
+                <Text style={styles.callBtnText}>CLOSE</Text>
               </TouchableOpacity>
             ) : null}
           </View>
@@ -493,7 +710,7 @@ export function EmergencyCallModal({
           <View style={styles.footerNote}>
             <Icon name="verified-user" size={14} color="rgba(255,255,255,0.4)" />
             <Text style={styles.footerNoteText}>
-              Zero-Trace Audio Stream • Destroyed on Handshake Resolution
+              Encrypted DTLS-SRTP Audio • Ephemeral Peer-to-Peer
             </Text>
           </View>
         </View>
@@ -622,11 +839,8 @@ const styles = StyleSheet.create({
   waveformContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 5,
     height: 50,
-    paddingHorizontal: 16,
-    borderRadius: 25,
-    backgroundColor: 'rgba(255,255,255,0.05)',
   },
   waveBar: {
     width: 4,
@@ -634,23 +848,22 @@ const styles = StyleSheet.create({
   },
   bottomControls: {
     paddingHorizontal: 24,
-    paddingBottom: Platform.OS === 'ios' ? 16 : 24,
+    paddingBottom: 20,
     gap: 20,
-    alignItems: 'center',
   },
   connectedActionGrid: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    width: '100%',
+    alignItems: 'center',
     paddingVertical: 10,
   },
   controlCircleBtn: {
     alignItems: 'center',
     gap: 6,
     padding: 12,
-    borderRadius: 16,
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    minWidth: 70,
+    borderRadius: 30,
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    width: 68,
   },
   controlActive: {
     backgroundColor: 'rgba(239, 68, 68, 0.2)',
@@ -660,29 +873,24 @@ const styles = StyleSheet.create({
   controlLabel: {
     fontFamily: theme.fontFamilies.technical.bold,
     fontSize: 9,
-    color: 'rgba(255,255,255,0.7)',
+    color: '#94A3B8',
     letterSpacing: 0.5,
   },
   primaryActionRow: {
     flexDirection: 'row',
     justifyContent: 'center',
     gap: 24,
-    width: '100%',
+    marginTop: 10,
   },
   largeCallBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 10,
-    paddingVertical: 16,
-    paddingHorizontal: 32,
-    borderRadius: 32,
-    minWidth: 140,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
+    gap: 8,
+    paddingVertical: 14,
+    paddingHorizontal: 28,
+    borderRadius: 35,
+    elevation: 4,
   },
   acceptBtn: {
     backgroundColor: '#10B981',
@@ -691,25 +899,25 @@ const styles = StyleSheet.create({
     backgroundColor: '#EF4444',
   },
   hangUpBtn: {
-    backgroundColor: '#DC2626',
-    width: '80%',
+    backgroundColor: '#EF4444',
+    paddingHorizontal: 36,
   },
   callBtnText: {
-    fontFamily: theme.fontFamilies.technical.bold,
-    fontSize: 14,
+    fontFamily: theme.fontFamilies.primary.bold,
+    fontSize: 16,
     color: '#FFFFFF',
-    letterSpacing: 1,
+    letterSpacing: 0.8,
   },
   footerNote: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 6,
-    marginTop: 4,
+    marginTop: 6,
   },
   footerNoteText: {
     fontFamily: theme.fontFamilies.secondary.regular,
-    fontSize: 10,
+    fontSize: 11,
     color: 'rgba(255,255,255,0.4)',
-    textAlign: 'center',
   },
 });

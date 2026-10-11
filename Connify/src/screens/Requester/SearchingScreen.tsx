@@ -171,7 +171,7 @@ export default function SearchingScreen({ navigation }: any) {
 
     const unsubIncomingCall = socketService.onIncomingCall((data) => {
       if (data.episodeId === episodeId) {
-        receiveIncomingCall(data.episodeId, data.callerName, data.role);
+        receiveIncomingCall(data.episodeId, data.callerName, data.role, data.callId);
         setShowCallModal(true);
       }
     });

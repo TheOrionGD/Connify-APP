@@ -287,7 +287,7 @@ export default function HandshakeScreen({ route, navigation }: any) {
     const unsubIncomingCall = socketService.onIncomingCall((data) => {
       if (data.episodeId === activeEp) {
         NotificationService.notifyIncomingCall(data.callerName, data.role).catch(() => null);
-        receiveIncomingCall(data.episodeId, data.callerName, data.role);
+        receiveIncomingCall(data.episodeId, data.callerName, data.role, data.callId);
         setShowCallModal(true);
       }
     });

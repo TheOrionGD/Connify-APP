@@ -40,6 +40,7 @@ export interface EpisodeExpiredPayload {
 }
 
 export interface IncomingCallPayload {
+  callId?: string;
   episodeId: string;
   callerDeviceId: string;
   callerName: string;
@@ -48,12 +49,14 @@ export interface IncomingCallPayload {
 }
 
 export interface CallAcceptedPayload {
+  callId?: string;
   episodeId: string;
   acceptedBy: string;
   timestamp: string;
 }
 
 export interface CallRejectedPayload {
+  callId?: string;
   episodeId: string;
   rejectedBy: string;
   reason?: string;
@@ -61,6 +64,7 @@ export interface CallRejectedPayload {
 }
 
 export interface CallEndedPayload {
+  callId?: string;
   episodeId: string;
   endedBy: string;
   duration?: number;
@@ -68,6 +72,7 @@ export interface CallEndedPayload {
 }
 
 export interface CallSignalPayload {
+  callId?: string;
   episodeId: string;
   senderDeviceId: string;
   signalData: any;
@@ -141,25 +146,29 @@ export const socketService = {
   joinEpisode(
     episodeId: string,
     callback?: (error?: string, room?: string) => void
-  ): void {
+  ): Promise<boolean> {
     activeEpisodeRoom = episodeId;
     if (!socket?.connected) {
       this.connect();
     }
 
-    socket?.emit(
-      'join_episode',
-      { episodeId },
-      (res: { success: boolean; error?: string; room?: string }) => {
-        if (res?.success) {
-          console.log('[Socket] Joined room:', res.room);
-          callback?.(undefined, res.room);
-        } else {
-          console.warn('[Socket] Failed to join room:', res?.error);
-          callback?.(res?.error);
+    return new Promise((resolve) => {
+      socket?.emit(
+        'join_episode',
+        { episodeId },
+        (res: { success: boolean; error?: string; room?: string }) => {
+          if (res?.success) {
+            console.log('[Socket] Joined room:', res.room);
+            callback?.(undefined, res.room);
+            resolve(true);
+          } else {
+            console.warn('[Socket] Failed to join room:', res?.error);
+            callback?.(res?.error);
+            resolve(false);
+          }
         }
-      }
-    );
+      );
+    });
   },
 
   /**
@@ -423,31 +432,66 @@ export const socketService = {
   },
 
   /**
+   * Fetch STUN and ephemeral TURN credentials from backend.
+   */
+  getIceServers(): Promise<any[]> {
+    return new Promise((resolve) => {
+      const defaultServers = [
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:stun1.l.google.com:19302' },
+        { urls: 'stun:stun2.l.google.com:19302' },
+        { urls: 'stun:stun.cloudflare.com:3478' },
+      ];
+
+      if (!socket?.connected) {
+        return resolve(defaultServers);
+      }
+
+      const timer = setTimeout(() => {
+        resolve(defaultServers);
+      }, 2500);
+
+      socket.emit('get_ice_servers', (res: { success: boolean; iceServers?: any[] }) => {
+        clearTimeout(timer);
+        if (res?.success && Array.isArray(res.iceServers) && res.iceServers.length > 0) {
+          resolve(res.iceServers);
+        } else {
+          resolve(defaultServers);
+        }
+      });
+    });
+  },
+
+  /**
    * Initiate a real-time VoIP audio call to counterparties in the active episode room.
    */
   initiateCall(
     episodeId: string,
     callerName?: string,
     role?: 'requester' | 'responder',
-    callback?: (error?: string) => void
-  ): void {
-    if (!socket?.connected) {
-      callback?.('Socket not connected. Cannot initiate call.');
-      return;
-    }
-
-    socket.emit(
-      'call_initiate',
-      { episodeId, callerName, role },
-      (res: { success: boolean; error?: string }) => {
-        if (res.success) {
-          callback?.();
-        } else {
-          console.warn('[Socket] Failed to initiate call:', res.error);
-          callback?.(res.error);
-        }
+    callback?: (error?: string, callId?: string) => void
+  ): Promise<{ success: boolean; callId?: string; error?: string }> {
+    return new Promise((resolve) => {
+      if (!socket?.connected) {
+        callback?.('Socket not connected. Cannot initiate call.');
+        return resolve({ success: false, error: 'Socket not connected' });
       }
-    );
+
+      socket.emit(
+        'call_initiate',
+        { episodeId, callerName, role },
+        (res: { success: boolean; callId?: string; error?: string }) => {
+          if (res?.success) {
+            callback?.(undefined, res.callId);
+            resolve({ success: true, callId: res.callId });
+          } else {
+            console.warn('[Socket] Failed to initiate call:', res?.error);
+            callback?.(res?.error || 'Call failed');
+            resolve({ success: false, error: res?.error || 'Call failed' });
+          }
+        }
+      );
+    });
   },
 
   /**
@@ -455,19 +499,24 @@ export const socketService = {
    */
   acceptCall(
     episodeId: string,
+    callId?: string,
     callback?: (error?: string) => void
-  ): void {
-    if (!socket?.connected) {
-      callback?.('Socket not connected.');
-      return;
-    }
-
-    socket.emit('call_accept', { episodeId }, (res: { success: boolean; error?: string }) => {
-      if (res.success) {
-        callback?.();
-      } else {
-        callback?.(res.error);
+  ): Promise<boolean> {
+    return new Promise((resolve) => {
+      if (!socket?.connected) {
+        callback?.('Socket not connected.');
+        return resolve(false);
       }
+
+      socket.emit('call_accept', { episodeId, callId }, (res: { success: boolean; error?: string }) => {
+        if (res?.success) {
+          callback?.();
+          resolve(true);
+        } else {
+          callback?.(res?.error);
+          resolve(false);
+        }
+      });
     });
   },
 
@@ -477,6 +526,7 @@ export const socketService = {
   rejectCall(
     episodeId: string,
     reason?: string,
+    callId?: string,
     callback?: (error?: string) => void
   ): void {
     if (!socket?.connected) {
@@ -484,11 +534,11 @@ export const socketService = {
       return;
     }
 
-    socket.emit('call_reject', { episodeId, reason }, (res: { success: boolean; error?: string }) => {
-      if (res.success) {
+    socket.emit('call_reject', { episodeId, callId, reason }, (res: { success: boolean; error?: string }) => {
+      if (res?.success) {
         callback?.();
       } else {
-        callback?.(res.error);
+        callback?.(res?.error);
       }
     });
   },
@@ -499,6 +549,7 @@ export const socketService = {
   endCall(
     episodeId: string,
     duration?: number,
+    callId?: string,
     callback?: (error?: string) => void
   ): void {
     if (!socket?.connected) {
@@ -506,11 +557,11 @@ export const socketService = {
       return;
     }
 
-    socket.emit('call_end', { episodeId, duration }, (res: { success: boolean; error?: string }) => {
-      if (res.success) {
+    socket.emit('call_end', { episodeId, callId, duration }, (res: { success: boolean; error?: string }) => {
+      if (res?.success) {
         callback?.();
       } else {
-        callback?.(res.error);
+        callback?.(res?.error);
       }
     });
   },
@@ -521,6 +572,7 @@ export const socketService = {
   sendCallSignal(
     episodeId: string,
     signalData: any,
+    callId?: string,
     callback?: (error?: string) => void
   ): void {
     if (!socket?.connected) {
@@ -528,11 +580,11 @@ export const socketService = {
       return;
     }
 
-    socket.emit('call_signal', { episodeId, signalData }, (res: { success: boolean; error?: string }) => {
-      if (res.success) {
+    socket.emit('call_signal', { episodeId, callId, signalData }, (res: { success: boolean; error?: string }) => {
+      if (res?.success) {
         callback?.();
       } else {
-        callback?.(res.error);
+        callback?.(res?.error);
       }
     });
   },

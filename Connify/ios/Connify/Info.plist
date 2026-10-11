@@ -35,6 +35,8 @@
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string></string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Connify requires microphone access for zero-trace encrypted peer-to-peer VoIP emergency calls.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Connify needs camera access to scan proximity verification QR codes during an active response.</string>
 	<key>NSFaceIDUsageDescription</key>
