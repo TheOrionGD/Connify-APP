@@ -30,12 +30,14 @@ export default function HeroSection({ onOpenChangelog }) {
 
   // Official production release constants & verified GitHub Pages connectivity
   const githubPagesBase = "https://theoriongd.github.io/Connify-APP";
-  const releaseTag = "v4.2.1";
-  const releaseUrl = "https://github.com/TheOrionGD/Connify-APP/releases/tag/v4.2.1";
-  const apkDownloadUrl = "https://github.com/TheOrionGD/Connify-APP/releases/download/v4.2.1/app-release.apk";
+  const releaseTag = "v4.8.6";
+  const releaseUrl = "https://github.com/TheOrionGD/Connify-APP/releases/tag/v4.8.6";
+  const apkDownloadUrl = "https://github.com/TheOrionGD/Connify-APP/releases/download/v4.8.6/app-release.apk";
+  const aabDownloadUrl = "https://github.com/TheOrionGD/Connify-APP/releases/download/v4.8.6/app-release.aab";
   const downloadLandingPageUrl = `${githubPagesBase}/download.html`;
-  const sha256Checksum = "ea988be0a5814d6c17ab78ecb45075759aa9446fe4ee69e667e29de2f4e9602d";
-  const apkSize = "149.3 MB";
+  const sha256Checksum = "36A9C1FC32CE448F0D2E09497C2904CA2E875368F1B6578C516756097593E589";
+  const apkSize = "142.5 MB";
+  const aabSize = "89.9 MB";
 
   // Dynamic QR Code target URL:
   const activeQrTargetUrl = selectedTab === 'android'
@@ -62,7 +64,7 @@ export default function HeroSection({ onOpenChangelog }) {
           </div>
           <div className="badge-pill stable" style={{ margin: 0 }}>
             <span className="badge-dot" />
-            <span>v4.2.1 Stable</span>
+            <span>v4.8.6 Stable</span>
           </div>
         </div>
 
@@ -123,17 +125,17 @@ export default function HeroSection({ onOpenChangelog }) {
               </p>
 
               {/* Download Buttons Row */}
-              <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap', marginBottom: '20px' }}>
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '20px' }}>
                 <a
                   href={apkDownloadUrl}
-                  download="Connify-v4.2.1-release.apk"
+                  download="Connify-v4.8.6-release.apk"
                   className="btn btn-primary"
                   style={{
-                    padding: '12px 24px',
+                    padding: '12px 20px',
                     borderRadius: '16px',
-                    fontSize: '0.96rem',
+                    fontSize: '0.94rem',
                     flex: '1 1 auto',
-                    minWidth: '220px',
+                    minWidth: '180px',
                     display: 'flex',
                     justifyContent: 'center',
                     textDecoration: 'none'
@@ -142,8 +144,35 @@ export default function HeroSection({ onOpenChangelog }) {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <Download size={20} />
                     <div style={{ textAlign: 'left' }}>
-                      <div style={{ fontWeight: 800, fontSize: '0.98rem' }}>Download APK</div>
-                      <div style={{ fontSize: '0.74rem', opacity: 0.9, fontWeight: 500 }}>Android ({apkSize})</div>
+                      <div style={{ fontWeight: 800, fontSize: '0.94rem' }}>Download APK</div>
+                      <div style={{ fontSize: '0.72rem', opacity: 0.9, fontWeight: 500 }}>Android ({apkSize})</div>
+                    </div>
+                  </div>
+                </a>
+
+                {/* AAB Bundle Download */}
+                <a
+                  href={aabDownloadUrl}
+                  download="Connify-v4.8.6-release.aab"
+                  className="btn btn-secondary"
+                  style={{
+                    padding: '12px 20px',
+                    borderRadius: '16px',
+                    fontSize: '0.94rem',
+                    flex: '1 1 auto',
+                    minWidth: '180px',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    background: '#ffffff',
+                    border: '1px solid #e2e8f0',
+                    textDecoration: 'none'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <Download size={20} color="#e11d48" />
+                    <div style={{ textAlign: 'left' }}>
+                      <div style={{ fontWeight: 800, fontSize: '0.94rem', color: '#0f172a' }}>Play Bundle</div>
+                      <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 500 }}>AAB ({aabSize})</div>
                     </div>
                   </div>
                 </a>
@@ -250,7 +279,7 @@ export default function HeroSection({ onOpenChangelog }) {
             <div style={{ marginTop: '8px', fontSize: '0.72rem', color: '#64748b' }}>
               <span>Scans to: </span>
               <span style={{ fontFamily: 'var(--font-mono)', color: '#e11d48', fontWeight: 600 }}>
-                {selectedTab === 'android' ? 'theoriongd.github.io/Connify-APP/download.html' : selectedTab === 'ios' ? 'theoriongd.github.io/Connify-APP/#download' : 'github.com/.../tag/v4.2.1'}
+                {selectedTab === 'android' ? 'theoriongd.github.io/Connify-APP/download.html' : selectedTab === 'ios' ? 'theoriongd.github.io/Connify-APP/#download' : 'github.com/.../tag/v4.8.6'}
               </span>
             </div>
 
@@ -333,7 +362,7 @@ export default function HeroSection({ onOpenChangelog }) {
                 }}
               >
                 <ExternalLink size={16} color="#64748b" />
-                <span>GitHub Releases (v4.2.1)</span>
+                <span>GitHub Releases (v4.8.6)</span>
               </a>
             </div>
 
@@ -375,7 +404,7 @@ export default function HeroSection({ onOpenChangelog }) {
                   <div style={{ fontSize: '0.72rem', color: '#94a3b8', marginTop: '2px' }}>Architectures: arm64-v8a, armeabi-v7a, x86_64</div>
                   <div style={{ marginTop: '6px' }}>
                     <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#15803d', background: '#dcfce7', padding: '2px 8px', borderRadius: '6px' }}>
-                      APK Size: {apkSize}
+                      APK: {apkSize} • AAB: {aabSize}
                     </span>
                   </div>
                 </div>
@@ -910,21 +939,44 @@ export default function HeroSection({ onOpenChangelog }) {
               {downloadLandingPageUrl}
             </div>
 
-            <a
-              href={apkDownloadUrl}
-              download="app-release.apk"
-              className="btn btn-primary"
-              style={{
-                width: '100%',
-                padding: '12px',
-                borderRadius: '14px',
-                fontSize: '0.92rem',
-                textDecoration: 'none'
-              }}
-            >
-              <Download size={18} />
-              <span>Download APK Directly ({apkSize})</span>
-            </a>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%' }}>
+              <a
+                href={apkDownloadUrl}
+                download="Connify-v4.8.6-release.apk"
+                className="btn btn-primary"
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  borderRadius: '14px',
+                  fontSize: '0.92rem',
+                  textDecoration: 'none',
+                  justifyContent: 'center'
+                }}
+              >
+                <Download size={18} />
+                <span>Download APK Directly ({apkSize})</span>
+              </a>
+
+              <a
+                href={aabDownloadUrl}
+                download="Connify-v4.8.6-release.aab"
+                className="btn btn-secondary"
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  borderRadius: '14px',
+                  fontSize: '0.92rem',
+                  background: '#ffffff',
+                  border: '1px solid #e2e8f0',
+                  color: '#0f172a',
+                  textDecoration: 'none',
+                  justifyContent: 'center'
+                }}
+              >
+                <Download size={18} color="#e11d48" />
+                <span>Download Play Bundle AAB ({aabSize})</span>
+              </a>
+            </div>
           </div>
         </div>
       )}

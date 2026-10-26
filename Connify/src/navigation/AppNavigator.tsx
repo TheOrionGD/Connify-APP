@@ -27,6 +27,7 @@ import FakeCallScreen from '../screens/FakeCallScreen';
 import FrequentLocationsScreen from '../screens/Settings/FrequentLocationsScreen';
 import HazardMapScreen from '../screens/Hazard/HazardMapScreen';
 import TimedSafetyGuardScreen from '../screens/SafetyGuard/TimedSafetyGuardScreen';
+import ConnectionsHubScreen from '../screens/Connections/ConnectionsHubScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -160,6 +161,7 @@ function AppNavigator() {
       <Stack.Screen name="FrequentLocations" component={FrequentLocationsScreen} options={{ animation: 'slide_from_right' }} />
       <Stack.Screen name="HazardMap" component={HazardMapScreen} options={{ animation: 'slide_from_right' }} />
       <Stack.Screen name="TimedSafetyGuard" component={TimedSafetyGuardScreen} options={{ animation: 'slide_from_bottom' }} />
+      <Stack.Screen name="Connections" component={ConnectionsHubScreen} options={{ animation: 'slide_from_right' }} />
       <Stack.Screen 
         name="FakeCall" 
         component={FakeCallScreen} 

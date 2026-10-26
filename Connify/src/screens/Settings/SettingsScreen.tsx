@@ -234,6 +234,32 @@ export default function SettingsScreen({ navigation }: any) {
           </TouchableOpacity>
         </View>
 
+        {/* Connections Hub Section */}
+        <View style={[styles.sectionCard, { backgroundColor: colors.surfaceContainerLowest, borderColor: colors.outline }]}>
+          <View style={styles.sectionHeaderRow}>
+            <Icon name="hub" size={20} color={colors.primary} />
+            <Text style={[styles.sectionTitle, { color: colors.onBackground }]}>CONNECTIONS & DISCOVERY</Text>
+          </View>
+          <Text style={[styles.actionRowSub, { color: colors.onSurfaceVariant, marginBottom: 12 }]}>
+            Connect with people within your perimeter limit, manage radius thresholds, and rate interactions.
+          </Text>
+
+          <TouchableOpacity
+            style={[styles.actionRowBtn, { backgroundColor: colors.surfaceContainerHigh, borderColor: colors.outline }]}
+            onPress={() => navigation.navigate('Connections')}
+            activeOpacity={0.8}
+          >
+            <Icon name="radar" size={24} color={colors.primary} />
+            <View style={{ flex: 1, marginLeft: 12 }}>
+              <Text style={[styles.actionRowTitle, { color: colors.onBackground }]}>MANAGE CONNECTIONS</Text>
+              <Text style={[styles.actionRowSub, { color: colors.onSurfaceVariant }]}>
+                Configure 1 km / custom radius, radial limits, and discover active strangers in perimeter.
+              </Text>
+            </View>
+            <Icon name="chevron-right" size={22} color={colors.primary} />
+          </TouchableOpacity>
+        </View>
+
         {/* Google Account Information Section */}
         <View style={[styles.sectionCard, { backgroundColor: colors.surfaceContainerLowest, borderColor: colors.outline }]}>
           <View style={styles.sectionHeaderRow}>

@@ -1,0 +1,10 @@
+--- EXISTING ALGORITHM: HAVERSINE GPS PROXIMITY ---
+Tuple Details / Attributes:
+1. Algorithm_Type: Plaintext Geographic Distance
+2. Executions: 10000
+3. Total_Time_ms: 2.145
+4. Avg_Time_per_Execution_ms: 0.00021
+5. Memory_Complexity: O(1) - Constant Space
+6. Network_Payload_Size_Bytes: 16 bytes (8 bytes per double coordinate)
+7. Privacy_Level: ZERO (Raw coordinates exposed to server and network)
+8. Error_Tolerance: Distance Threshold (IF server knows coordinates, it calculates radius)

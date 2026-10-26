@@ -4,6 +4,7 @@ import { FileText, Shield, Heart, ExternalLink } from 'lucide-react';
 
 export default function Footer({ onOpenPrivacy, onOpenChangelog }) {
   const googleFormUrl = "https://docs.google.com/forms/d/e/1FAIpQLSfpvdZDBVlvi1_kyUPvEkOzU1XRKyc2pq8gPkxC_4IDjllhDg/viewform";
+  const googleSitesPrivacyUrl = "https://sites.google.com/view/connifyprivacypolicy/home";
 
   return (
     <footer style={{ background: '#09090b', color: '#94a3b8', paddingTop: '60px', paddingBottom: '40px', borderTop: '1px solid #18181b' }}>
@@ -73,6 +74,19 @@ export default function Footer({ onOpenPrivacy, onOpenChangelog }) {
                   onMouseLeave={(e) => e.target.style.color = '#cbd5e1'}
                 >
                   Google Play Questionnaire Audit
+                </a>
+              </li>
+              <li>
+                <a
+                  href={googleSitesPrivacyUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ color: '#cbd5e1', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                  onMouseEnter={(e) => e.target.style.color = '#e11d48'}
+                  onMouseLeave={(e) => e.target.style.color = '#cbd5e1'}
+                >
+                  <span>Hosted Privacy Policy (Google Sites)</span>
+                  <ExternalLink size={12} />
                 </a>
               </li>
               <li>

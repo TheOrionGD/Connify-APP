@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -11,7 +12,7 @@ export function useSafeBottomTabBarHeight(fallbackBase = 56): number {
   try {
     return useBottomTabBarHeight();
   } catch {
-    const bottomPadding = insets.bottom > 0 ? insets.bottom : 6;
+    const bottomPadding = insets.bottom > 0 ? insets.bottom : (Platform.OS === 'android' ? 8 : 6);
     return fallbackBase + bottomPadding;
   }
 }

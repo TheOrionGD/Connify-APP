@@ -1,0 +1,1524 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>Privacy Policy & Security Charter | Connify Safety Network</title>
+    <meta name="description"
+        content="Official Privacy Policy, Data Safety Charter, and Cryptographic Security Specification for Connify Safety Network v4.8.6+ (Target SDK 36, Android 15+).">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <style>
+        /* ==========================================================================
+           1. CSS VARIABLES & THEME TOKENS
+           ========================================================================== */
+        :root {
+            /* Palette - Light Theme */
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --primary-light: #eff6ff;
+            --primary-border: #bfdbfe;
+            --primary-gradient: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+
+            --hero-bg: radial-gradient(circle at 50% 20%, #1e1b4b 0%, #0f172a 70%, #030712 100%);
+            --hero-text: #ffffff;
+            --hero-muted: #94a3b8;
+
+            --accent-green: #10b981;
+            --accent-green-bg: #ecfdf5;
+            --accent-green-border: #a7f3d0;
+
+            --accent-purple: #8b5cf6;
+            --accent-purple-bg: #f5f3ff;
+            --accent-purple-border: #ddd6fe;
+
+            --accent-amber: #f59e0b;
+            --accent-amber-bg: #fffbeb;
+            --accent-amber-border: #fde68a;
+
+            --accent-rose: #f43f5e;
+            --accent-rose-bg: #fff1f2;
+            --accent-rose-border: #fecdd3;
+
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --card-subtle: #f8fafc;
+            --text-main: #0f172a;
+            --text-body: #334155;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --code-bg: #f1f5f9;
+
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
+            --shadow-lg: 0 12px 24px -4px rgba(15, 23, 42, 0.1), 0 4px 6px -2px rgba(15, 23, 42, 0.05);
+
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --radius-pill: 9999px;
+
+            --font-main: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        /* Dark Theme */
+        body.dark-mode {
+            --bg-color: #0b0f19;
+            --card-bg: #111827;
+            --card-subtle: #1a2234;
+            --text-main: #f8fafc;
+            --text-body: #cbd5e1;
+            --text-muted: #94a3b8;
+            --border-color: #1f293d;
+            --code-bg: #1e293b;
+
+            --primary-light: #172554;
+            --primary-border: #1e3a8a;
+
+            --accent-green-bg: #064e3b;
+            --accent-green-border: #047857;
+
+            --accent-purple-bg: #3b0764;
+            --accent-purple-border: #6b21a8;
+
+            --accent-amber-bg: #451a03;
+            --accent-amber-border: #78350f;
+
+            --accent-rose-bg: #4c0519;
+            --accent-rose-border: #881337;
+
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+            --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.5);
+            --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.6);
+        }
+
+        /* ==========================================================================
+           2. BASE STYLING & RESET
+           ========================================================================== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-color);
+            color: var(--text-body);
+            line-height: 1.68;
+            -webkit-font-smoothing: antialiased;
+            transition: background-color 0.25s ease, color 0.25s ease;
+        }
+
+        /* Typography */
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            color: var(--text-main);
+            letter-spacing: -0.015em;
+        }
+
+        code,
+        pre {
+            font-family: var(--font-mono);
+        }
+
+        code {
+            background-color: var(--code-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            color: var(--primary);
+            border: 1px solid var(--border-color);
+        }
+
+        a {
+            color: var(--primary);
+            text-decoration: none;
+            transition: color 0.15s ease;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Top Navigation Bar */
+        .top-navbar {
+            position: sticky;
+            top: 0;
+            z-index: 900;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            padding: 12px 20px;
+        }
+
+        .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 1rem;
+            color: #ffffff;
+            text-decoration: none;
+        }
+
+        .nav-logo-shield {
+            width: 22px;
+            height: 22px;
+            fill: #3b82f6;
+        }
+
+        .nav-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-action {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            padding: 6px 14px;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-action:hover {
+            background: rgba(255, 255, 255, 0.2);
+            text-decoration: none;
+        }
+
+        /* ==========================================================================
+           3. HERO BANNER
+           ========================================================================== */
+        .hero-banner {
+            background: var(--hero-bg);
+            color: var(--hero-text);
+            padding: 48px 20px 42px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .hero-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.12) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .brand-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(37, 99, 235, 0.15);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            padding: 6px 14px;
+            border-radius: var(--radius-pill);
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: #93c5fd;
+            margin-bottom: 16px;
+        }
+
+        .brand-badge svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+        }
+
+        .hero-banner h1 {
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 12px;
+            font-size: clamp(1.9rem, 5vw, 2.85rem);
+            line-height: 1.2;
+        }
+
+        .hero-banner p {
+            font-size: 1rem;
+            color: var(--hero-muted);
+            max-width: 720px;
+            margin: 0 auto 24px auto;
+            line-height: 1.6;
+        }
+
+        .meta-pills {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            font-size: 0.78rem;
+        }
+
+        .meta-pill {
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            padding: 6px 12px;
+            border-radius: var(--radius-md);
+            color: #cbd5e1;
+            white-space: nowrap;
+        }
+
+        .meta-pill strong {
+            color: #ffffff;
+        }
+
+        .meta-pill.pill-green {
+            background: rgba(16, 185, 129, 0.12);
+            border-color: rgba(16, 185, 129, 0.35);
+            color: #a7f3d0;
+        }
+
+        .meta-pill.pill-blue {
+            background: rgba(59, 130, 246, 0.15);
+            border-color: rgba(59, 130, 246, 0.35);
+            color: #bfdbfe;
+        }
+
+        /* Search Filter Container */
+        .search-container {
+            max-width: 680px;
+            margin: 24px auto 0 auto;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-md);
+            padding: 12px 18px 12px 44px;
+            color: #ffffff;
+            font-size: 0.9rem;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .search-input:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            pointer-events: none;
+            width: 18px;
+            height: 18px;
+        }
+
+        /* ==========================================================================
+           4. HIGHLIGHTS GRID
+           ========================================================================== */
+        .highlights-container {
+            max-width: 1200px;
+            margin: -32px auto 32px auto;
+            padding: 0 16px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .highlights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 14px;
+        }
+
+        .highlight-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-md);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+
+        .highlight-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-border);
+        }
+
+        .highlight-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+            font-size: 1.25rem;
+        }
+
+        .icon-blue {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .icon-green {
+            background: var(--accent-green-bg);
+            color: var(--accent-green);
+        }
+
+        .icon-purple {
+            background: var(--accent-purple-bg);
+            color: var(--accent-purple);
+        }
+
+        .icon-amber {
+            background: var(--accent-amber-bg);
+            color: var(--accent-amber);
+        }
+
+        .highlight-card h4 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .highlight-card p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.45;
+            margin-bottom: 0;
+        }
+
+        /* ==========================================================================
+           5. MAIN CONTENT LAYOUT
+           ========================================================================== */
+        .page-wrapper {
+            max-width: 1200px;
+            margin: 0 auto 48px auto;
+            padding: 0 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            display: none;
+        }
+
+        @media (min-width: 900px) {
+            .page-wrapper {
+                flex-direction: row;
+                gap: 40px;
+            }
+
+            .sidebar {
+                display: block;
+                position: sticky;
+                top: 72px;
+                height: calc(100vh - 90px);
+                overflow-y: auto;
+                background: var(--card-bg);
+                padding: 24px 18px;
+                border-radius: var(--radius-lg);
+                border: 1px solid var(--border-color);
+                box-shadow: var(--shadow-sm);
+                flex: 0 0 280px;
+                max-width: 290px;
+            }
+
+            .sidebar::-webkit-scrollbar {
+                width: 4px;
+            }
+
+            .sidebar::-webkit-scrollbar-thumb {
+                background: var(--border-color);
+                border-radius: 4px;
+            }
+
+            .sidebar h3 {
+                font-size: 0.75rem;
+                font-weight: 800;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                color: var(--text-muted);
+                margin-bottom: 14px;
+                padding-bottom: 8px;
+                border-bottom: 1px solid var(--border-color);
+            }
+
+            .sidebar-nav {
+                list-style: none;
+                display: flex;
+                flex-direction: column;
+                gap: 3px;
+            }
+
+            .sidebar-nav a {
+                display: block;
+                padding: 7px 12px;
+                font-size: 0.82rem;
+                font-weight: 500;
+                color: var(--text-body);
+                border-radius: var(--radius-sm);
+                transition: all 0.15s ease;
+                border-left: 3px solid transparent;
+            }
+
+            .sidebar-nav a:hover,
+            .sidebar-nav a.active {
+                background: var(--primary-light);
+                color: var(--primary);
+                border-left-color: var(--primary);
+                text-decoration: none;
+                font-weight: 600;
+            }
+        }
+
+        /* Main Content Panel */
+        .main-content {
+            flex: 1;
+            min-width: 0;
+            background: var(--card-bg);
+            padding: 36px 28px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-md);
+        }
+
+        @media (min-width: 768px) {
+            .main-content {
+                padding: 44px 40px;
+            }
+        }
+
+        /* Sections */
+        .policy-section {
+            margin-bottom: 44px;
+            scroll-margin-top: 80px;
+        }
+
+        .policy-section:last-child {
+            margin-bottom: 0;
+        }
+
+        h2 {
+            font-size: 1.45rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        h2 .section-tag {
+            background: var(--primary-light);
+            color: var(--primary);
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: var(--radius-sm);
+            text-transform: uppercase;
+            border: 1px solid var(--primary-border);
+        }
+
+        h3 {
+            font-size: 1.12rem;
+            font-weight: 700;
+            margin: 24px 0 10px 0;
+            color: var(--text-main);
+        }
+
+        p {
+            margin-bottom: 14px;
+            font-size: 0.94rem;
+        }
+
+        ul,
+        ol {
+            padding-left: 22px;
+            margin-bottom: 16px;
+            font-size: 0.94rem;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        li strong {
+            color: var(--text-main);
+        }
+
+        /* ==========================================================================
+           6. CALLOUT BOXES & CARDS
+           ========================================================================== */
+        .callout {
+            padding: 16px 20px;
+            border-radius: var(--radius-md);
+            margin: 20px 0;
+            font-size: 0.9rem;
+            border-left: 4px solid;
+            background: var(--card-subtle);
+            line-height: 1.6;
+        }
+
+        .callout-info {
+            background: var(--primary-light);
+            border-color: var(--primary);
+            color: var(--text-body);
+        }
+
+        .callout-success {
+            background: var(--accent-green-bg);
+            border-color: var(--accent-green);
+            color: var(--text-body);
+        }
+
+        .callout-warning {
+            background: var(--accent-amber-bg);
+            border-color: var(--accent-amber);
+            color: var(--text-body);
+        }
+
+        .callout-danger {
+            background: var(--accent-rose-bg);
+            border-color: var(--accent-rose);
+            color: var(--text-body);
+        }
+
+        .callout-title {
+            font-weight: 700;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-main);
+        }
+
+        /* Algorithm Spec Box */
+        .algo-box {
+            background: var(--code-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 18px 20px;
+            margin: 20px 0;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: var(--text-main);
+            overflow-x: auto;
+        }
+
+        .algo-box-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        /* ==========================================================================
+           7. TABLES
+           ========================================================================== */
+        .table-responsive {
+            overflow-x: auto;
+            margin: 20px 0;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            -webkit-overflow-scrolling: touch;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            text-align: left;
+            min-width: 580px;
+        }
+
+        th {
+            background: var(--card-subtle);
+            color: var(--text-main);
+            font-weight: 700;
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: top;
+            color: var(--text-body);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:nth-child(even) td {
+            background-color: rgba(0, 0, 0, 0.015);
+        }
+
+        body.dark-mode tr:nth-child(even) td {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        .permission-badge {
+            display: inline-block;
+            font-family: var(--font-mono);
+            font-weight: 700;
+            font-size: 0.72rem;
+            background: var(--code-bg);
+            color: var(--primary);
+            padding: 3px 8px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 4px;
+        }
+
+        .badge-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: var(--radius-pill);
+        }
+
+        .status-verified {
+            background: var(--accent-green-bg);
+            color: var(--accent-green);
+            border: 1px solid var(--accent-green-border);
+        }
+
+        .status-ephemeral {
+            background: var(--accent-purple-bg);
+            color: var(--accent-purple);
+            border: 1px solid var(--accent-purple-border);
+        }
+
+        .status-zero-perm {
+            background: var(--accent-amber-bg);
+            color: var(--accent-amber);
+            border: 1px solid var(--accent-amber-border);
+        }
+
+        /* ==========================================================================
+           8. CONTACT CARDS & ACTIONS
+           ========================================================================== */
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 16px;
+            margin-top: 18px;
+        }
+
+        .contact-card {
+            background: var(--card-subtle);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: var(--radius-md);
+            transition: all 0.2s ease;
+        }
+
+        .contact-card:hover {
+            border-color: var(--primary-border);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .contact-card h4 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .contact-card p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .contact-link {
+            font-weight: 600;
+            font-size: 0.88rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            word-break: break-all;
+        }
+
+        /* Floating Back to Top Button */
+        .back-to-top {
+            position: fixed;
+            bottom: 24px;
+            right: 20px;
+            background: var(--primary);
+            color: #ffffff;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-lg);
+            text-decoration: none;
+            font-size: 1.25rem;
+            transition: transform 0.2s ease, background 0.2s ease, opacity 0.2s ease;
+            z-index: 800;
+            opacity: 0.85;
+        }
+
+        .back-to-top:hover {
+            transform: scale(1.1);
+            background: var(--primary-hover);
+            opacity: 1;
+            text-decoration: none;
+            color: #ffffff;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 36px 20px;
+            border-top: 1px solid var(--border-color);
+            background: var(--card-bg);
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        footer p {
+            margin-bottom: 6px;
+        }
+
+        /* ==========================================================================
+           9. PRINT STYLES (for compliance & store audit PDF export)
+           ========================================================================== */
+        @media print {
+            .top-navbar,
+            .sidebar,
+            .search-container,
+            .back-to-top,
+            .btn-action {
+                display: none !important;
+            }
+
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+                font-size: 11pt;
+            }
+
+            .main-content {
+                box-shadow: none !important;
+                border: none !important;
+                padding: 0 !important;
+            }
+
+            .hero-banner {
+                background: #ffffff !important;
+                color: #000000 !important;
+                border-bottom: 2px solid #000000;
+                padding: 20px 0;
+            }
+
+            .hero-banner h1,
+            .hero-banner p {
+                color: #000000 !important;
+            }
+
+            .policy-section {
+                page-break-inside: avoid;
+            }
+
+            a {
+                color: #000000 !important;
+                text-decoration: underline;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Top Navigation Bar -->
+    <header class="top-navbar">
+        <div class="nav-inner">
+            <a href="#" class="nav-logo">
+                <svg class="nav-logo-shield" viewBox="0 0 24 24">
+                    <path
+                        d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-5.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z" />
+                </svg>
+                <span>CONNIFY SAFETY NETWORK</span>
+            </a>
+            <div class="nav-controls">
+                <button class="btn-action" id="themeToggleBtn" title="Toggle Light / Dark Mode">
+                    <span id="themeIcon">🌙</span> <span id="themeLabel">Dark Mode</span>
+                </button>
+                <button class="btn-action" onclick="window.print()" title="Print or save as PDF">
+                    <span>🖨️</span> Print PDF
+                </button>
+                <a href="https://connify-five.vercel.app/" target="_blank" class="btn-action" title="Visit Portal Website">
+                    <span>🌐</span> Portal
+                </a>
+                <a href="https://sites.google.com/view/connifyprivacypolicy/home" target="_blank" class="btn-action" title="View Hosted Privacy Policy on Google Sites">
+                    <span>📄</span> Google Sites
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Header Banner -->
+    <section class="hero-banner">
+        <div class="brand-badge">
+            <svg viewBox="0 0 24 24">
+                <path
+                    d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-5.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z" />
+            </svg>
+            ZERO-KNOWLEDGE EMERGENCY INFRASTRUCTURE
+        </div>
+        <h1>Privacy Policy & Security Charter</h1>
+        <p>Comprehensive Data Safety Charter, SHARP Galois Field Cryptographic Protocol Specification, and Play Store
+            Compliance Declarations for <strong>Connify v4.8.6+</strong>.</p>
+
+        <div class="meta-pills">
+            <div class="meta-pill pill-green"><strong>Production Release:</strong> v4.8.6 (Build 35)</div>
+            <div class="meta-pill pill-blue"><strong>Target SDK:</strong> 36 (Android 15+ Aligned)</div>
+            <div class="meta-pill"><strong>Effective Date:</strong> October 26, 2026</div>
+            <div class="meta-pill"><strong>Protocol:</strong> SHARP GF(2^4) BCH(15,7)</div>
+            <div class="meta-pill"><strong>VoIP Audio:</strong> Ephemeral WebRTC</div>
+        </div>
+
+        <!-- Quick Filter / Search Bar -->
+        <div class="search-container">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="policySearchInput" class="search-input"
+                placeholder="Search privacy topics: VoIP, Location, SHARP, Camera, Permissions, Deletion..." />
+        </div>
+    </section>
+
+    <!-- Quick Highlights Grid -->
+    <div class="highlights-container">
+        <div class="highlights-grid">
+            <div class="highlight-card">
+                <div class="highlight-icon icon-blue">🛡️</div>
+                <h4>SHARP ZK-Location</h4>
+                <p>Coordinates blinded into 1024-bit Bloom filters and 146 parity bytes over Galois Field GF(2^4).</p>
+            </div>
+            <div class="highlight-card">
+                <div class="highlight-icon icon-green">📞</div>
+                <h4>Ephemeral VoIP Audio</h4>
+                <p>Real-time peer voice routing during episodes via WebRTC. Zero recording, storage, or wiretaps.</p>
+            </div>
+            <div class="highlight-card">
+                <div class="highlight-icon icon-purple">🔐</div>
+                <h4>Ed25519 Hardware Keys</h4>
+                <p>Hardware-anchored asymmetric key pairs and optical QR JSON Web Signatures (JWS).</p>
+            </div>
+            <div class="highlight-card">
+                <div class="highlight-icon icon-amber">⚡</div>
+                <h4>48-Hour Purge Guarantee</h4>
+                <p>1-tap local data wipe in Settings plus official Google Form deletion portal within 48 hours.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Layout Wrapper -->
+    <div class="page-wrapper">
+
+        <!-- Sticky Sidebar Navigation -->
+        <aside class="sidebar">
+            <h3>Policy Navigation</h3>
+            <ul class="sidebar-nav" id="sidebarNav">
+                <li><a href="#section-1" class="active">1. Overview & Core Mission</a></li>
+                <li><a href="#section-2">2. Information We Collect</a></li>
+                <li><a href="#section-3">3. How Information Is Used</a></li>
+                <li><a href="#section-4">4. SHARP Protocol & ZK Boundary</a></li>
+                <li><a href="#section-5">5. VoIP Calling & Audio Privacy</a></li>
+                <li><a href="#section-6">6. Information Sharing & Handshakes</a></li>
+                <li><a href="#section-7">7. Device Permissions Audit</a></li>
+                <li><a href="#section-8">8. Retention & Account Deletion</a></li>
+                <li><a href="#section-9">9. Cryptography & Ledger Security</a></li>
+                <li><a href="#section-10">10. Child Safety & CSAM Policy</a></li>
+                <li><a href="#section-11">11. Contact & Verification Links</a></li>
+            </ul>
+        </aside>
+
+        <!-- Main Body Articles -->
+        <main class="main-content" id="mainContent">
+
+            <!-- Section 1 -->
+            <section id="section-1" class="policy-section">
+                <h2>
+                    <span>1. Overview & Core Mission</span>
+                    <span class="section-tag">Philosophy</span>
+                </h2>
+                <p><strong>Connify Safety Network</strong> ("Connify", "we", "our", or "us") is an advanced decentralized
+                    Peer-to-Peer (P2P) emergency response, proximity assistance, and social safety network. Connify is
+                    engineered to solve the fundamental <em>Privacy-Accuracy Paradox</em>: empowering individuals to
+                    request immediate real-world assistance from nearby verified helpers and emergency guardians without
+                    exposing continuous raw physical coordinates or unblinded geolocation history to central servers or
+                    surveillance brokers.</p>
+                <p>This Privacy Policy and Security Charter provides exhaustive transparency regarding how personal
+                    data, telemetry, cryptographic credentials, and device permissions are handled across the
+                    <strong>Connify Mobile Application</strong> (Android Target SDK 36, iOS Client), backend
+                    microservices, and the official web portal (<strong>connify-five.vercel.app</strong>).
+                </p>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">
+                        <span>💡</span> Zero-Monetization Privacy Commitment
+                    </div>
+                    Connify does <strong>not</strong> sell, rent, monetize, or broker personal data, location traces, or
+                    telemetry under any circumstance. Our application integrates zero commercial advertising SDKs
+                    (no Google AdMob, no Meta Audience Network, no AppsFlyer).
+                </div>
+            </section>
+
+            <!-- Section 2 -->
+            <section id="section-2" class="policy-section">
+                <h2>
+                    <span>2. Information We Collect</span>
+                    <span class="section-tag">Taxonomy</span>
+                </h2>
+                <p>Data collection in Connify is strictly restricted to functional primitives required for real-time
+                    peer discovery, mutual proximity verification, guardian distress routing, and biometric device
+                    protection.</p>
+
+                <h3>A. Account & Identification Data</h3>
+                <ul>
+                    <li><strong>Google OAuth Identity:</strong> Display Name, verified Email Address, and Google User ID
+                        (UID) retrieved via official Google Sign-In SDK (`@react-native-google-signin/google-signin`)
+                        and Firebase Auth.</li>
+                    <li><strong>Cryptographic Device Identity:</strong> A deterministic 64-character SHA-256 device
+                        fingerprint hash and TweetNaCl Ed25519 public key (`publicKey`). No hardware IMEI, MAC address,
+                        or carrier hardware IDs are collected.</li>
+                </ul>
+
+                <h3>B. Emergency Guardian & Family Contacts</h3>
+                <ul>
+                    <li><strong>Designated Guardian Records:</strong> Full name, verified mobile phone number, and
+                        relationship tag (e.g., Parent, Spouse, Emergency Contact). This data is stored locally in device
+                        encrypted storage and is transmitted solely when dispatching distress triggers via secure
+                        WebSocket (`socketService.ts`) or system carrier fallback intents.</li>
+                </ul>
+
+                <h3>C. Optional On-Device Medical Emergency Profile</h3>
+                <ul>
+                    <li><strong>User Medical Card:</strong> Blood Group, critical Allergies, Chronic Medical Conditions,
+                        and special emergency intervention instructions. Medical profile details remain encrypted
+                        on-device in `AsyncStorage` / Keychain and are decrypted exclusively during an active distress
+                        episode for first-responder rendezvous.</li>
+                </ul>
+
+                <h3>D. Geolocation & Spatial Neighborhood Quantization</h3>
+                <ul>
+                    <li><strong>Blinded Spatial Coordinates:</strong> During an emergency episode, raw GPS coordinates
+                        $(lat, lng)$ are truncated to 3 decimal places to create a 3x3 contiguous grid neighborhood (9
+                        cells) and mapped into 1024-bit Bloom filter bit arrays. Parity syndromes are computed using
+                        $\text{BCH}(15,7)$ error-correcting codes over Galois Field $GF(2^4)$.</li>
+                    <li><strong>No Persistent Geolocation History:</strong> Unblinded GPS coordinate streams are never
+                        written to MongoDB Atlas or database disk storage; they exist ephemerally in active memory only
+                        for live peer dispatch.</li>
+                </ul>
+
+                <h3>E. Ephemeral VoIP Audio Telemetry</h3>
+                <ul>
+                    <li><strong>Live Voice Streaming:</strong> Live audio input collected during peer VoIP voice calls
+                        using `react-native-webrtc` and `react-native-incall-manager`. Audio is transmitted strictly
+                        peer-to-peer over encrypted WebSockets / WebRTC channels and is <strong>never recorded, stored on
+                            servers, analyzed, or transcribed</strong>.</li>
+                </ul>
+            </section>
+
+            <!-- Section 3 -->
+            <section id="section-3" class="policy-section">
+                <h2>
+                    <span>3. How We Use Your Information</span>
+                    <span class="section-tag">Processing</span>
+                </h2>
+                <p>Every data point collected is tied directly to a life-safety function or cryptographic authorization
+                    primitive:</p>
+                <ol>
+                    <li><strong>Real-Time Emergency Dispatch:</strong> Broadcasting blinded grid cells and urgency
+                        levels to verified nearby responder nodes within an adaptive radius (500m–2000m).</li>
+                    <li><strong>Guardian Distress Relay:</strong> Dispatching automated notifications, WhatsApp deep
+                        links, and system SMS alerts with emergency location tokens to pre-configured guardians.</li>
+                    <li><strong>Mutual Optical Handshake Verification:</strong> Generating and scanning single-use QR
+                        codes containing Ed25519-signed JSON Web Signatures (JWS) to mathematically verify responder
+                        co-location.</li>
+                    <li><strong>Peer VoIP Voice Communication:</strong> Enabling real-time, zero-latency duplex audio
+                        between requesters and matched helpers during an ongoing safety episode.</li>
+                    <li><strong>Fraud & Alarm Spoofing Prevention:</strong> Validating cryptographic challenge nonces
+                        against stored public keys before broadcasting any distress beacon across the network.</li>
+                    <li><strong>Tactical De-escalation:</strong> Triggering local high-decibel audible beacons, strobe
+                        flashlight modulation, and simulated fake emergency calls (`FakeCallModal.tsx`).</li>
+                </ol>
+            </section>
+
+            <!-- Section 4 -->
+            <section id="section-4" class="policy-section">
+                <h2>
+                    <span>4. The SHARP Protocol & Mathematical Privacy Boundary</span>
+                    <span class="section-tag">Patented Architecture</span>
+                </h2>
+                <p>Connify implements the custom-invented <strong>SHARP Protocol</strong> (*Selective Hashing & Blinded
+                    Proximity Protocol*), establishing a zero-knowledge boundary between raw mobile sensors and central
+                    persistence stores.</p>
+
+                <div class="algo-box">
+                    <div class="algo-box-header">
+                        <span>SHARP CRYPTOGRAPHIC EXECUTION PIPELINE</span>
+                        <span>GF(2^4) BCH(15,7)</span>
+                    </div>
+                    1. SPATIAL QUANTIZATION: Round GPS (lat, lng) to 3 decimal places -> Expand into 3x3 contiguous grid
+                    cells (9 cells).
+                    2. BLOOM VECTORIZATION : Hash each cell 4x using FNV-1a salt multipliers -> Generate 1024-bit vector
+                    V.
+                    3. GALOIS FIELD SPLIT  : Segment 1024-bit vector into 146 discrete 7-bit spatial message blocks
+                    m_7.
+                    4. BCH ENCODING        : Encode m_7 using generator polynomial G(x) = 0x1D1 over GF(2^4) where p(x)
+                    = x^4 + x + 1.
+                    5. ZERO-KNOWLEDGE WIRE : Discard raw blocks m_7; transmit only 146 8-bit parity syndromes S_j +
+                    HMAC blinded cell hashes.
+                    6. PEER RECONSTRUCTION : Berlekamp-Massey & Chien search corrects GPS sensor jitter (up to 2
+                    bit-errors per block).
+                </div>
+
+                <div class="callout callout-success">
+                    <div class="callout-title">
+                        <span>🔒</span> Absolute Geometric Confidentiality
+                    </div>
+                    Because the central server only routes 146 parity bytes and salted HMAC grid hashes, it is
+                    mathematically impossible for server administrators, database eavesdroppers, or compromised cloud
+                    nodes to reverse the parity syndromes into raw geographical coordinates.
+                </div>
+            </section>
+
+            <!-- Section 5 -->
+            <section id="section-5" class="policy-section">
+                <h2>
+                    <span>5. VoIP Audio Calling & Peer WebRTC Privacy</span>
+                    <span class="section-tag">New in v4.8.6</span>
+                </h2>
+                <p>Connify v4.8.6 introduces an integrated <strong>VoIP Audio Call Engine</strong> (`voipAudioService.ts`)
+                    for instant voice communication between distressed requesters and verified responders.</p>
+
+                <ul>
+                    <li><strong>Peer-to-Peer Encrypted Streaming:</strong> Audio streams are transmitted using WebRTC
+                        and Secure WebSockets (WSS). Direct audio packets flow between peer devices with end-to-end
+                        encryption.</li>
+                    <li><strong>Zero Server Audio Storage:</strong> Voice packets are never persisted, recorded,
+                        monitored, or passed through speech-to-text machine learning models. Once a call disconnects,
+                        audio buffers are immediately cleared from device RAM.</li>
+                    <li><strong>Explicit Call Session Scope:</strong> VoIP calling is only accessible during an active,
+                        confirmed emergency episode. Random or unsolicited stranger calls are architecturally blocked.</li>
+                </ul>
+            </section>
+
+            <!-- Section 6 -->
+            <section id="section-6" class="policy-section">
+                <h2>
+                    <span>6. Information Sharing, Disclosure & Handshakes</span>
+                    <span class="section-tag">Disclosure</span>
+                </h2>
+                <p>Connify adheres to strict least-privilege information routing principles:</p>
+                <ol>
+                    <li><strong>Designated Guardians:</strong> When an emergency broadcast or Silent Duress beacon is
+                        activated, your emergency contact numbers receive an immediate notification, SMS alert, and
+                        direct WhatsApp tracking link.</li>
+                    <li><strong>Verified Nearby Helpers:</strong> Active helpers within the proximity radius receive the
+                        emergency category, urgency level, and distance estimate. Exact responder meetup rendezvous is
+                        only finalized upon mutual QR code scanning.</li>
+                    <li><strong>Official Emergency Dispatch Dialing:</strong> The application incorporates one-touch
+                        speed dialers for official emergency hotlines (112, 911, 108, 1091). These calls are routed
+                        through your native Android system dialer.</li>
+                    <li><strong>Legal & Emergency Safety Disclosures:</strong> We may disclose account records only when
+                        compelled by a legally binding subpoena, court order, or when necessary to prevent imminent death
+                        or grave physical injury.</li>
+                </ol>
+            </section>
+
+            <!-- Section 7 -->
+            <section id="section-7" class="policy-section">
+                <h2>
+                    <span>7. Device Permissions Audit & Functional Rationale</span>
+                    <span class="section-tag">Play Console Compliance</span>
+                </h2>
+                <p>Below is the complete declaration of runtime permissions requested in `AndroidManifest.xml` (Target
+                    SDK 36, Android 15+), matching our Google Play Console Data Safety submission:</p>
+
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Permission Identifier</th>
+                                <th>Category</th>
+                                <th>Functional Rationale & Implementation</th>
+                                <th>Google Play Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <span class="permission-badge">ACCESS_FINE_LOCATION</span><br>
+                                    <span class="permission-badge">ACCESS_COARSE_LOCATION</span>
+                                </td>
+                                <td>Location</td>
+                                <td>Calculates regional 3x3 spatial grids and computes SHARP Galois Field Bloom vectors
+                                    during active emergency episodes.</td>
+                                <td><span class="badge-status status-ephemeral">Processed Ephemerally</span></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <span class="permission-badge">RECORD_AUDIO</span>
+                                </td>
+                                <td>Microphone / VoIP</td>
+                                <td>Enables real-time peer voice streaming during active rescue episodes via WebRTC VoIP
+                                    service. Zero audio recording or storage.</td>
+                                <td><span class="badge-status status-verified">Active Session Only</span></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <span class="permission-badge">MODIFY_AUDIO_SETTINGS</span>
+                                </td>
+                                <td>Audio Routing</td>
+                                <td>Allows switching between earpiece and loudspeaker during emergency calls via InCallManager.</td>
+                                <td><span class="badge-status status-verified">Audio Control</span></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <span class="permission-badge">BLUETOOTH_CONNECT</span>
+                                </td>
+                                <td>Peripherals</td>
+                                <td>Permits connecting to handsfree Bluetooth headsets and audio accessories during emergency calls.</td>
+                                <td><span class="badge-status status-verified">Hardware Pairing</span></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <span class="permission-badge">CAMERA</span>
+                                </td>
+                                <td>Vision / QR</td>
+                                <td>Scans mutual Ed25519 optical QR codes for responder co-location verification via Google ML Kit.</td>
+                                <td><span class="badge-status status-verified">Zero Photo Storage</span></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <span class="permission-badge">POST_NOTIFICATIONS</span>
+                                </td>
+                                <td>Alerts</td>
+                                <td>Delivers high-priority distress alerts, responder tracking updates, and guardian check-ins.</td>
+                                <td><span class="badge-status status-verified">Notifee Engine</span></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <span class="permission-badge">VIBRATE</span>
+                                </td>
+                                <td>Haptics</td>
+                                <td>Provides tactile alarm countdown pulses and discrete silent duress confirmations.</td>
+                                <td><span class="badge-status status-verified">System Haptics</span></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <span class="permission-badge">USE_BIOMETRIC</span><br>
+                                    <span class="permission-badge">USE_FINGERPRINT</span>
+                                </td>
+                                <td>Security</td>
+                                <td>Local biometric prompt to protect user settings, guardian numbers, and prevent unauthorized deactivation.</td>
+                                <td><span class="badge-status status-verified">Hardware Enclave</span></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <span class="permission-badge">INTERNET</span><br>
+                                    <span class="permission-badge">ACCESS_NETWORK_STATE</span>
+                                </td>
+                                <td>Networking</td>
+                                <td>Establishes encrypted TLS 1.3 HTTPS communication and low-latency WSS socket connections.</td>
+                                <td><span class="badge-status status-verified">Standard Network</span></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <span class="permission-badge">Zero Carrier Permissions</span><br>
+                                    <em>(tel: & sms: intents)</em>
+                                </td>
+                                <td>Telephony Fallback</td>
+                                <td>Offline distress SMS and telephone dialing invoke the standard native Android
+                                    messaging app and dialer via `Linking.openURL`. Sensitive `SEND_SMS` and `CALL_PHONE`
+                                    carrier permissions are <strong>not</strong> requested.</td>
+                                <td><span class="badge-status status-zero-perm">Zero Permission Intent</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Section 8 -->
+            <section id="section-8" class="policy-section">
+                <h2>
+                    <span>8. Data Retention, Local Wipe & Account Deletion</span>
+                    <span class="section-tag">User Rights</span>
+                </h2>
+                <p>Connify provides full user autonomy over data lifecycle and immediate purging mechanisms:</p>
+
+                <h3>A. Ephemeral Session Expiry</h3>
+                <p>All emergency episode tokens, temporary peer matchmaking states, and blinded spatial grid entries
+                    expire automatically within <strong>30 minutes</strong> of episode conclusion and are purged from
+                    MongoDB Atlas.</p>
+
+                <h3>B. Instant In-App Data Wipe ("Disconnect Account & Wipe Data")</h3>
+                <p>Users can instantly erase all application footprint directly from the device:</p>
+                <ul>
+                    <li>Navigate to <strong>User Profile</strong> (`SettingsScreen.tsx`).</li>
+                    <li>Tap the red action button: <strong>"DISCONNECT ACCOUNT & WIPE DATA"</strong>.</li>
+                    <li>This action immediately revokes active Firebase/Google OAuth credentials, deletes device
+                        cryptographic keypairs from Keychain, wipes all guardian contacts, and resets local state.</li>
+                </ul>
+
+                <h3>C. Permanent Account Deletion Portal (48-Hour SLA)</h3>
+                <p>In full compliance with Google Play Developer Policy and global data protection laws (GDPR, CCPA,
+                    DPDP), you can request complete server account deletion at any time:</p>
+
+                <div class="callout callout-warning">
+                    <div class="callout-title">
+                        <span>🗑️</span> Account Deletion Request Portal
+                    </div>
+                    Submit your deletion request via our official <a
+                        href="https://docs.google.com/forms/d/e/1FAIpQLSfpvdZDBVlvi1_kyUPvEkOzU1XRKyc2pq8gPkxC_4IDjllhDg/viewform"
+                        target="_blank" rel="noopener noreferrer"><strong>Google Account Deletion Form</strong></a> or
+                    email <a href="mailto:hello.theoriongd@gmail.com"><strong>hello.theoriongd@gmail.com</strong></a> with
+                    your registered email. Upon verification, your profile, device fingerprints, guardian links, and
+                    audit references will be <strong>permanently purged within 48 hours</strong>.
+                </div>
+            </section>
+
+            <!-- Section 9 -->
+            <section id="section-9" class="policy-section">
+                <h2>
+                    <span>9. Cryptographic Security & Ledger Auditing</span>
+                    <span class="section-tag">Security Architecture</span>
+                </h2>
+                <p>Connify enforces enterprise-grade security protocols across mobile clients and backend nodes:</p>
+                <ul>
+                    <li><strong>Hardware Asymmetric Cryptography:</strong> Ephemeral trust capsules and authorization
+                        tokens are authenticated using TweetNaCl Ed25519 detached signatures.</li>
+                    <li><strong>SHA-256 Digest Token Storage:</strong> Our MongoDB backend stores only SHA-256 digests
+                        of bearer authorization tokens (`signedTokenHash`). Raw tokens are never stored in databases.</li>
+                    <li><strong>Tamper-Evident SHA-256 Hash Chained Audit Ledger:</strong> Safety events are recorded in
+                        an immutable sequential ledger where each record is cryptographically linked:
+                        <code>H_n = SHA-256(H_{n-1} || EventType || EpisodeID || Timestamp)</code>.
+                    </li>
+                    <li><strong>Stale-Aware Offline Queue Engine:</strong> Offline actions queued during connectivity
+                        loss (`OfflineQueueService.ts`) are evaluated against configurable maximum age thresholds
+                        (`maxAge`) to discard expired emergency states upon reconnecting.</li>
+                </ul>
+            </section>
+
+            <!-- Section 10 -->
+            <section id="section-10" class="policy-section">
+                <h2>
+                    <span>10. Child Safety & CSAM Prevention Policy</span>
+                    <span class="section-tag">Compliance</span>
+                </h2>
+                <p>Connify is designed for users aged 13 and older (or the applicable age of digital consent in your
+                    jurisdiction). We maintain a strict zero-tolerance policy regarding Child Sexual Abuse Material
+                    (CSAM) and child exploitation:</p>
+                <ul>
+                    <li><strong>Zero Tolerance & Immediate Referral:</strong> Any attempt to transmit, share, or broker
+                        CSAM or groom minors results in immediate, permanent account termination and referral to the
+                        <strong>National Center for Missing & Exploited Children (NCMEC)</strong> and relevant law
+                        enforcement authorities.
+                    </li>
+                    <li><strong>No Minor Targeted Advertising:</strong> Connify does not display advertisements or
+                        profile children for commercial engagement.</li>
+                    <li><strong>Parental Requests:</strong> If a parent or guardian discovers that a child under 13 has
+                        registered an account without parental consent, please contact <a
+                            href="mailto:hello.theoriongd@gmail.com"><strong>hello.theoriongd@gmail.com</strong></a> for
+                        immediate data eradication.</li>
+                </ul>
+            </section>
+
+            <!-- Section 11 -->
+            <section id="section-11" class="policy-section">
+                <h2>
+                    <span>11. Official Contact & Verification Channels</span>
+                    <span class="section-tag">Contact</span>
+                </h2>
+                <p>For questions, formal privacy inquiries, or regulatory compliance requests regarding this Privacy
+                    Policy, please reach out to our Data Protection & Security Team:</p>
+
+                <div class="contact-grid">
+                    <div class="contact-card">
+                        <h4><span>📧</span> Email Inquiries</h4>
+                        <p>Direct communication with our Data Protection Officer.</p>
+                        <a href="mailto:hello.theoriongd@gmail.com"
+                            class="contact-link">hello.theoriongd@gmail.com</a><br>
+                        <a href="mailto:privacy@connify.app" class="contact-link"
+                            style="margin-top:4px;">privacy@connify.app</a>
+                    </div>
+                    <div class="contact-card">
+                        <h4><span>🌐</span> Official Portal</h4>
+                        <p>Live production web app and documentation portal.</p>
+                        <a href="https://connify-five.vercel.app/" target="_blank"
+                            class="contact-link">connify-five.vercel.app</a>
+                    </div>
+                    <div class="contact-card">
+                        <h4><span>💻</span> Open Source Repository</h4>
+                        <p>Public code, issue tracker, and security audit logs.</p>
+                        <a href="https://github.com/TheOrionGD/Connify-APP" target="_blank"
+                            class="contact-link">github.com/TheOrionGD/Connify-APP</a>
+                    </div>
+                    <div class="contact-card">
+                        <h4><span>📄</span> Google Sites Hosted Policy</h4>
+                        <p>Official Google Play Store published privacy policy.</p>
+                        <a href="https://sites.google.com/view/connifyprivacypolicy/home" target="_blank"
+                            class="contact-link">sites.google.com/.../connifyprivacypolicy</a>
+                    </div>
+                    <div class="contact-card">
+                        <h4><span>📝</span> Account Deletion Form</h4>
+                        <p>Dedicated Google Form for permanent profile purge.</p>
+                        <a href="https://docs.google.com/forms/d/e/1FAIpQLSfpvdZDBVlvi1_kyUPvEkOzU1XRKyc2pq8gPkxC_4IDjllhDg/viewform"
+                            target="_blank" class="contact-link">Submit Deletion Request (48h SLA)</a>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Floating Back to Top Button -->
+    <a href="#" class="back-to-top" title="Back to Top">↑</a>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 Connify Safety Network. All rights reserved.</p>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
+            Decentralized P2P Emergency Response & Verified Proximity Safety Infrastructure • Target SDK 36 Compliant
+        </p>
+    </footer>
+
+    <!-- Interactive Scripts: Theme, Search Filter, and ScrollSpy -->
+    <script>
+        // 1. Light / Dark Theme Switcher with localStorage persistence
+        const themeToggleBtn = document.getElementById('themeToggleBtn');
+        const themeIcon = document.getElementById('themeIcon');
+        const themeLabel = document.getElementById('themeLabel');
+
+        function setTheme(isDark) {
+            if (isDark) {
+                document.body.classList.add('dark-mode');
+                themeIcon.textContent = '☀️';
+                themeLabel.textContent = 'Light Mode';
+                localStorage.setItem('connify_theme', 'dark');
+            } else {
+                document.body.classList.remove('dark-mode');
+                themeIcon.textContent = '🌙';
+                themeLabel.textContent = 'Dark Mode';
+                localStorage.setItem('connify_theme', 'light');
+            }
+        }
+
+        // Initialize Theme from saved preference or OS preference
+        const savedTheme = localStorage.getItem('connify_theme');
+        if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            setTheme(true);
+        }
+
+        themeToggleBtn.addEventListener('click', () => {
+            const isDark = document.body.classList.contains('dark-mode');
+            setTheme(!isDark);
+        });
+
+        // 2. Interactive Search & Filter
+        const searchInput = document.getElementById('policySearchInput');
+        const sections = document.querySelectorAll('.policy-section');
+
+        searchInput.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase().trim();
+            if (!term) {
+                sections.forEach(sec => sec.style.display = 'block');
+                return;
+            }
+
+            sections.forEach(sec => {
+                const text = sec.innerText.toLowerCase();
+                if (text.includes(term)) {
+                    sec.style.display = 'block';
+                } else {
+                    sec.style.display = 'none';
+                }
+            });
+        });
+
+        // 3. ScrollSpy for Sticky Sidebar Active Navigation Links
+        const navLinks = document.querySelectorAll('.sidebar-nav a');
+        window.addEventListener('scroll', () => {
+            let currentSection = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop - 120;
+                if (window.pageYOffset >= sectionTop) {
+                    currentSection = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${currentSection}`) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+
+</body>
+
+</html>

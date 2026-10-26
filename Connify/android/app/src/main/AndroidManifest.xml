@@ -20,9 +20,7 @@
   
   <!-- Cryptography -->
   
-  <!-- Offline Emergency Fallbacks -->
-  <uses-permission android:name="android.permission.CALL_PHONE" />
-  <uses-permission android:name="android.permission.SEND_SMS" />
+  <!-- Offline Emergency Fallbacks (uses standard zero-permission tel: & sms: intents) -->
 
   <application
     android:name=".MainApplication"

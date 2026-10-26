@@ -6,7 +6,7 @@ import MutualAidSection from './components/MutualAidSection';
 import SecuritySection from './components/SecuritySection';
 import ComplianceSection from './components/ComplianceSection';
 import Footer from './components/Footer';
-import { X, CheckCircle2, FileText, Shield } from 'lucide-react';
+import { X, CheckCircle2, FileText, Shield, ExternalLink } from 'lucide-react';
 
 export default function App() {
   const [showChangelog, setShowChangelog] = useState(false);
@@ -189,6 +189,53 @@ export default function App() {
               <p>
                 <strong>4. Account Deletion:</strong> You can wipe your account profile and contacts anytime in-app or via our official Google Form within 48 hours.
               </p>
+
+              {/* Action Links */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px', paddingTop: '14px', borderTop: '1px solid #e2e8f0' }}>
+                <a
+                  href="https://sites.google.com/view/connifyprivacypolicy/home"
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '10px 14px',
+                    borderRadius: '10px',
+                    background: '#f8fafc',
+                    border: '1px solid #e2e8f0',
+                    color: '#0f172a',
+                    fontWeight: 600,
+                    fontSize: '0.82rem',
+                    textDecoration: 'none'
+                  }}
+                >
+                  <span>Official Policy on Google Sites</span>
+                  <ExternalLink size={14} color="#e11d48" />
+                </a>
+
+                <a
+                  href="https://docs.google.com/forms/d/e/1FAIpQLSfpvdZDBVlvi1_kyUPvEkOzU1XRKyc2pq8gPkxC_4IDjllhDg/viewform"
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '10px 14px',
+                    borderRadius: '10px',
+                    background: '#fff1f2',
+                    border: '1px solid rgba(225, 29, 72, 0.25)',
+                    color: '#e11d48',
+                    fontWeight: 600,
+                    fontSize: '0.82rem',
+                    textDecoration: 'none'
+                  }}
+                >
+                  <span>Submit Account Deletion Request (Google Form)</span>
+                  <ExternalLink size={14} color="#e11d48" />
+                </a>
+              </div>
             </div>
           </div>
         </div>

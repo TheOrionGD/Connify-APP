@@ -17,6 +17,7 @@ export default function ComplianceSection({ onOpenDeletionModal }) {
   const [deletionSimulated, setDeletionSimulated] = useState(false);
 
   const googleFormUrl = "https://docs.google.com/forms/d/e/1FAIpQLSfpvdZDBVlvi1_kyUPvEkOzU1XRKyc2pq8gPkxC_4IDjllhDg/viewform";
+  const googleSitesPrivacyUrl = "https://sites.google.com/view/connifyprivacypolicy/home";
 
   const handleSimulatePurge = (e) => {
     e.preventDefault();
@@ -191,6 +192,30 @@ export default function ComplianceSection({ onOpenDeletionModal }) {
               >
                 <span>Open Official Account Deletion Google Form</span>
                 <ExternalLink size={16} />
+              </a>
+
+              <a
+                href={googleSitesPrivacyUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="btn btn-secondary"
+                style={{
+                  width: '100%',
+                  padding: '11px',
+                  borderRadius: '12px',
+                  fontSize: '0.88rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  background: '#ffffff',
+                  border: '1px solid #e2e8f0',
+                  color: '#0f172a',
+                  textDecoration: 'none'
+                }}
+              >
+                <span>View Google Sites Privacy Policy</span>
+                <ExternalLink size={15} color="#e11d48" />
               </a>
 
               <div style={{ textAlign: 'center', fontSize: '0.74rem', color: '#94a3b8' }}>

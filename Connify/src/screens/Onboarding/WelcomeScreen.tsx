@@ -16,7 +16,7 @@ import {
   NativeSyntheticEvent,
   NativeScrollEvent,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuthStore } from '../../stores/authStore';
@@ -33,49 +33,37 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CARD_WIDTH = SCREEN_WIDTH - 32;
 
 const ONBOARDING_CARDS = [
-  // --- Section 1: Core Platform & P2P Mesh Features (Cards 1 - 10) ---
+  // --- Section 1: Core Platform & P2P Mesh Features ---
   { id: 'welcome_network', key: '1', title: 'Welcome to Connify' },
   { id: 'sos_protocol', key: '2', title: 'Decentralized Peer Dispatch' },
-  { id: 'biometric_auth', key: '3', title: 'Biometric Action Authorization' },
-  { id: 'live_telemetry', key: '4', title: 'Live Proximity Radar & Telemetry' },
-  { id: 'safe_escort', key: '5', title: 'Ephemeral Safe Escort Mode' },
-  { id: 'secondary_swarm', key: '6', title: 'Secondary Swarm Network' },
-  { id: 'wellness_check', key: '7', title: 'Automated Post-Episode Check-in' },
-  { id: 'spatial_grid', key: '8', title: 'Blinded Geolocation Spatial Grid' },
-  { id: 'community_mesh', key: '9', title: 'Community P2P Mesh Relaying' },
-  { id: 'qr_verification', key: '10', title: 'Cryptographic QR Handshake' },
+  { id: 'connection_levels', key: '3', title: '5-Level Engagement Scale' },
+  { id: 'live_radar', key: '4', title: 'Real-Time Proximity Radar' },
+  { id: 'qr_verification', key: '5', title: 'Cryptographic QR Handshake' },
+  { id: 'spatial_grid', key: '6', title: 'Blinded Geolocation Spatial Grid' },
+  { id: 'community_mesh', key: '7', title: 'Community P2P Mesh Relaying' },
+  { id: 'node_health', key: '8', title: 'Network Node & Health' },
+  { id: 'privacy_guarantee', key: '9', title: 'Zero-Knowledge Privacy Policy' },
 
-  // --- Section 2: Tactical Tools & Safety Guardians (Cards 11 - 20) ---
-  { id: 'offline_engine', key: '11', title: 'Offline Carrier SMS Failover' },
-  { id: 'emergency_helplines', key: '12', title: 'Direct National Helplines' },
-  { id: 'women_safety', key: '13', title: 'Women Safety & Tactical Suite' },
-  { id: 'fake_call', key: '14', title: 'Fake Call Simulator' },
-  { id: 'siren_strobe', key: '15', title: 'High-Decibel Siren & Strobe' },
-  { id: 'shake_panic', key: '16', title: 'Shake-to-Request & Silent Trigger' },
-  { id: 'encrypted_blackbox', key: '17', title: 'Encrypted Incident Blackbox' },
-  { id: 'guardian_setup', key: '18', title: 'Primary Contact & Guardian' },
-  { id: 'medical_secondary', key: '19', title: 'Medical & Secondary Contact' },
-  { id: 'privacy_guarantee', key: '20', title: 'Zero-Knowledge Privacy Policy' },
+  // --- Section 2: Stranger Discovery Categories ---
+  { id: 'stranger_intro', key: '10', title: 'Connecting Strangers Nearby' },
+  { id: 'social_coffee_cat', key: '11', title: 'Coffee & Casual Social Chat' },
+  { id: 'study_skills_cat', key: '12', title: 'Study Buddy & Skill Exchange' },
+  { id: 'sports_fitness_cat', key: '13', title: 'Sports & Workout Companions' },
+  { id: 'travel_culture_cat', key: '14', title: 'Travel & Language Practice' },
+  { id: 'gaming_hobbies_cat', key: '15', title: 'Gaming, Anime & Hobby Pairs' },
+  { id: 'coworking_tech_cat', key: '16', title: 'Co-Working & Tech Collaboration' },
+  { id: 'events_arts_cat', key: '17', title: 'Concerts, Music Jams & Arts' },
+  { id: 'neighborhood_pet_cat', key: '18', title: 'Local Advice & Pet Meetups' },
+  { id: 'foodie_carpool_cat', key: '19', title: 'Foodie Outings & Shared Commute' },
 
-  // --- Section 3: Stranger Connections & 20 Categories (Cards 21 - 30) ---
-  { id: 'stranger_intro', key: '21', title: 'Connecting Strangers Nearby' },
-  { id: 'social_coffee_cat', key: '22', title: 'Coffee & Casual Social Chat' },
-  { id: 'study_skills_cat', key: '23', title: 'Study Buddy & Skill Exchange' },
-  { id: 'sports_fitness_cat', key: '24', title: 'Sports & Workout Companions' },
-  { id: 'travel_culture_cat', key: '25', title: 'Travel & Language Practice' },
-  { id: 'gaming_hobbies_cat', key: '26', title: 'Gaming, Anime & Hobby Pairs' },
-  { id: 'coworking_tech_cat', key: '27', title: 'Co-Working & Tech Collaboration' },
-  { id: 'events_arts_cat', key: '28', title: 'Concerts, Music Jams & Arts' },
-  { id: 'neighborhood_pet_cat', key: '29', title: 'Local Advice & Pet Meetups' },
-  { id: 'foodie_carpool_cat', key: '30', title: 'Foodie Outings & Shared Commute' },
-
-  // --- Section 4: 5-Level Scale, Permissions & Onboarding Sign-In (Cards 31 - 33) ---
-  { id: 'five_level_protocol', key: '31', title: '5-Level Engagement Scale' },
-  { id: 'perm_suite', key: '32', title: 'Permissions & Device Sensors' },
-  { id: 'auth_get_started', key: '33', title: 'Join the Connify Network' },
+  // --- Section 3: Profile Setup, Permissions & Get Started ---
+  { id: 'profile_interests', key: '20', title: 'Setup Connection Profile' },
+  { id: 'perm_suite', key: '21', title: 'Permissions & Device Sensors' },
+  { id: 'auth_get_started', key: '22', title: 'Join the Connify Network' },
 ];
 
 export default function WelcomeScreen({ navigation }: any) {
+  const insets = useSafeAreaInsets();
   const [activeIndex, setActiveIndex] = useState(0);
   const flatListRef = useRef<FlatList>(null);
 
@@ -226,15 +214,15 @@ export default function WelcomeScreen({ navigation }: any) {
     };
   }, [isAuthenticated, navigation, checkBackendHealth, ensureDeviceId]);
 
-  // Save Primary Guardian Handler
+  // Save Connection Profile Handler
   const handleSaveGuardian = async (suppressAlert = false): Promise<boolean> => {
-    if (!guardianName.trim() || !guardianPhone.trim()) {
+    if (!guardianName.trim()) {
       if (!suppressAlert) {
         showCustomAlert(
-          'Incomplete Details',
-          'Please enter both a Guardian Name and a valid Phone Number for automated offline SMS and call alerts.',
-          'contact-phone',
-          '#DC2626'
+          'Display Name Required',
+          'Please enter your Display Name to personalize your connection profile.',
+          'account-circle',
+          '#2563EB'
         );
       }
       return false;
@@ -243,7 +231,7 @@ export default function WelcomeScreen({ navigation }: any) {
     const guardianPayload = {
       name: guardianName.trim(),
       phone: guardianPhone.trim(),
-      relationship: guardianRelation.trim() || 'Guardian',
+      relationship: guardianRelation.trim() || 'Member',
     };
 
     try {
@@ -259,7 +247,7 @@ export default function WelcomeScreen({ navigation }: any) {
           // ignore
         }
         await profileApi.upsertProfile({
-          firstName: userProfile.firstName || 'Safety',
+          firstName: guardianName.trim() || userProfile.firstName || 'Safety',
           lastName: userProfile.lastName || 'User',
           phone: userProfile.phone || '',
           medicalNotes: JSON.stringify({ ...existingNotes, guardian: guardianPayload }),
@@ -268,8 +256,8 @@ export default function WelcomeScreen({ navigation }: any) {
 
       if (!suppressAlert) {
         showCustomAlert(
-          'Guardian Saved & Synced',
-          `Primary Guardian (${guardianPayload.name} - ${guardianPayload.phone}) saved for one-touch offline SMS triggers and emergency dispatch.`,
+          'Profile Saved & Ready',
+          `Your connection profile (${guardianPayload.name}) has been saved and will be shared with peers you connect with.`,
           'verified-user',
           '#10B981'
         );
@@ -430,7 +418,7 @@ export default function WelcomeScreen({ navigation }: any) {
   const handleGoogleSignIn = async () => {
     setAuthLoading(true);
     try {
-      if (guardianName.trim() && guardianPhone.trim()) {
+      if (guardianName.trim()) {
         await handleSaveGuardian(true);
       }
       if (bloodType.trim() || secondaryPhone.trim() || medicalNotesText.trim()) {
@@ -456,7 +444,7 @@ export default function WelcomeScreen({ navigation }: any) {
   const handleGuestSignIn = async () => {
     setAuthLoading(true);
     try {
-      if (guardianName.trim() && guardianPhone.trim()) {
+      if (guardianName.trim()) {
         await handleSaveGuardian(true);
       }
       if (bloodType.trim() || secondaryPhone.trim() || medicalNotesText.trim()) {
@@ -472,14 +460,14 @@ export default function WelcomeScreen({ navigation }: any) {
   };
 
   const scrollToIndex = async (index: number) => {
-    // 1. Enforce Guardian Details Gate on Guardian Card (guardian_setup)
-    const guardianCardIndex = ONBOARDING_CARDS.findIndex((c) => c.id === 'guardian_setup');
-    if (guardianCardIndex !== -1 && activeIndex === guardianCardIndex && index > guardianCardIndex && (!guardianName.trim() || !guardianPhone.trim())) {
+    // 1. Enforce Profile Details Gate on Profile Setup Card (profile_interests)
+    const profileCardIndex = ONBOARDING_CARDS.findIndex((c) => c.id === 'profile_interests');
+    if (profileCardIndex !== -1 && activeIndex === profileCardIndex && index > profileCardIndex && !guardianName.trim()) {
       showCustomAlert(
-        'Guardian Required',
-        'You must enter and save your primary Guardian Name and Phone Number before proceeding.',
-        'contact-phone',
-        '#DC2626'
+        'Display Name Required',
+        'Please enter your display name to set up your connection profile before proceeding.',
+        'account-circle',
+        '#2563EB'
       );
       return;
     }
@@ -581,22 +569,43 @@ export default function WelcomeScreen({ navigation }: any) {
                 </View>
                 <Text style={styles.cardTitle}>5-Level Engagement Scale</Text>
                 <Text style={styles.cardSubtitle}>
-                  Choose your interaction intensity—from lightweight text Q&A (Level 1) to casual public coffee meetups (Level 3) and deep co-creation (Level 5).
+                  Choose your interaction comfort zone—from lightweight text Q&A to public meetups and deep local collaboration.
                 </Text>
 
                 <View style={styles.pillList}>
                   <View style={styles.featurePill}>
-                    <Icon name="chat" size={20} color="#8B5CF6" />
+                    <Icon name="chat" size={18} color="#8B5CF6" />
                     <View style={{ flex: 1 }}>
-                      <Text style={styles.pillTitle}>Level 1 - 2: Digital Exchange</Text>
-                      <Text style={styles.pillSub}>Quick Q&A, virtual study chat, pre-meetup alignment.</Text>
+                      <Text style={styles.pillTitle}>Level 1: Quick Q&A / Advice</Text>
+                      <Text style={styles.pillSub}>Asynchronous text-based local queries & tips.</Text>
                     </View>
                   </View>
                   <View style={styles.featurePill}>
-                    <Icon name="storefront" size={20} color="#10B981" />
+                    <Icon name="forum" size={18} color="#2563EB" />
                     <View style={{ flex: 1 }}>
-                      <Text style={styles.pillTitle}>Level 3 - 5: In-Person Collaboration</Text>
-                      <Text style={styles.pillSub}>Casual public cafe meetups, group activities & hosting.</Text>
+                      <Text style={styles.pillTitle}>Level 2: Virtual Pre-Meetup Alignment</Text>
+                      <Text style={styles.pillSub}>Direct in-app messaging to align plans and goals.</Text>
+                    </View>
+                  </View>
+                  <View style={styles.featurePill}>
+                    <Icon name="local-cafe" size={18} color="#10B981" />
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.pillTitle}>Level 3: Casual 30-Min Public Meetup</Text>
+                      <Text style={styles.pillSub}>Low-stakes coffee or public park conversation.</Text>
+                    </View>
+                  </View>
+                  <View style={styles.featurePill}>
+                    <Icon name="groups" size={18} color="#F59E0B" />
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.pillTitle}>Level 4: Regular Activity Duo / Pod</Text>
+                      <Text style={styles.pillSub}>Recurring gym spotters, study partners, or run groups.</Text>
+                    </View>
+                  </View>
+                  <View style={styles.featurePill}>
+                    <Icon name="handshake" size={18} color="#EC4899" />
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.pillTitle}>Level 5: Deep Collaboration & Projects</Text>
+                      <Text style={styles.pillSub}>Hackathons, co-working ventures, and skill workshops.</Text>
                     </View>
                   </View>
                 </View>
@@ -714,136 +723,6 @@ export default function WelcomeScreen({ navigation }: any) {
                       <Text style={styles.pillSub}>Connect with strangers within your immediate neighborhood.</Text>
                     </View>
                   </View>
-                </View>
-              </View>
-            )}
-
-            {item.id === 'profile_interests' && (
-              /* CARD 8: Setup Connection Profile */
-              <View style={styles.cardContent}>
-                <View style={[styles.heroBadge, { borderColor: guardianSaved ? '#10B981' : '#2563EB' }]}>
-                  <Icon name="account-circle" size={40} color={guardianSaved ? '#10B981' : '#2563EB'} />
-                </View>
-                <Text style={styles.cardTitle}>Setup Connection Profile</Text>
-                <Text style={styles.cardSubtitle}>
-                  Personalize your stranger connection profile. Set your display name, primary interest tags, and preferred contact handle.
-                </Text>
-
-                <View style={styles.inputContainer}>
-                  <TextInput
-                    style={styles.textInput}
-                    placeholder="Your Display Name"
-                    placeholderTextColor="#64748B"
-                    value={guardianName}
-                    onChangeText={(val) => {
-                      setGuardianName(val);
-                      setGuardianSaved(false);
-                    }}
-                  />
-                  <TextInput
-                    style={styles.textInput}
-                    placeholder="Primary Interest (e.g. Coffee, Coding, Jogging)"
-                    placeholderTextColor="#64748B"
-                    value={guardianPhone}
-                    onChangeText={(val) => {
-                      setGuardianPhone(val);
-                      setGuardianSaved(false);
-                    }}
-                  />
-                  <TextInput
-                    style={styles.textInput}
-                    placeholder="Bio / Handle (e.g. @alex_coffee)"
-                    placeholderTextColor="#64748B"
-                    value={guardianRelation}
-                    onChangeText={(val) => {
-                      setGuardianRelation(val);
-                      setGuardianSaved(false);
-                    }}
-                  />
-                  <TouchableOpacity style={[styles.saveGuardianBtn, { backgroundColor: '#2563EB' }]} onPress={() => handleSaveGuardian(false)} activeOpacity={0.85}>
-                    <Icon name={guardianSaved ? 'check-circle' : 'save'} size={18} color="#FFFFFF" />
-                    <Text style={styles.saveGuardianBtnText}>
-                      {guardianSaved ? 'PROFILE SAVED & READY' : 'SAVE CONNECTION PROFILE'}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            )}
-
-            {item.id === 'perm_location' && (
-              /* CARD 9: Permission - Precise Location */
-              <View style={styles.cardContent}>
-                <View style={[styles.heroBadge, { borderColor: '#10B981' }]}>
-                  <Icon name="my-location" size={40} color="#10B981" />
-                </View>
-                <Text style={styles.cardTitle}>Permission: Precise Location</Text>
-                <Text style={styles.cardSubtitle}>
-                  Required to calculate blinded grid cells and display nearby strangers and activity broadcasts on your proximity radar.
-                </Text>
-
-                <View style={styles.permissionToggleCard}>
-                  <View style={{ flex: 1, paddingRight: 8 }}>
-                    <Text style={styles.toggleTitle}>Precise Location Access</Text>
-                    <Text style={styles.toggleSub}>{locationGranted ? 'ENABLED (Optimal Discovery Active)' : 'Tap switch to grant access'}</Text>
-                  </View>
-                  <Switch
-                    value={locationGranted}
-                    onValueChange={handleLocationToggle}
-                    trackColor={{ false: '#CBD5E1', true: '#2563EB' }}
-                    thumbColor="#FFFFFF"
-                  />
-                </View>
-              </View>
-            )}
-
-            {item.id === 'perm_notifications' && (
-              /* CARD 10: Permission - Instant Alerts */
-              <View style={styles.cardContent}>
-                <View style={[styles.heroBadge, { borderColor: '#F59E0B' }]}>
-                  <Icon name="notifications-active" size={40} color="#F59E0B" />
-                </View>
-                <Text style={styles.cardTitle}>Permission: Instant Alerts</Text>
-                <Text style={styles.cardSubtitle}>
-                  Allow Connify to notify you immediately when a nearby stranger accepts your invitation or sends a local activity request.
-                </Text>
-
-                <View style={styles.permissionToggleCard}>
-                  <View style={{ flex: 1, paddingRight: 8 }}>
-                    <Text style={styles.toggleTitle}>Instant Match Alerts</Text>
-                    <Text style={styles.toggleSub}>{notificationsGranted ? 'ENABLED (Instant Notifications Active)' : 'Tap switch to grant access'}</Text>
-                  </View>
-                  <Switch
-                    value={notificationsGranted}
-                    onValueChange={handleNotificationToggle}
-                    trackColor={{ false: '#CBD5E1', true: '#2563EB' }}
-                    thumbColor="#FFFFFF"
-                  />
-                </View>
-              </View>
-            )}
-
-            {item.id === 'perm_camera_sensors' && (
-              /* CARD 11: Permission - Camera Scanner */
-              <View style={styles.cardContent}>
-                <View style={[styles.heroBadge, { borderColor: '#6366F1' }]}>
-                  <Icon name="linked-camera" size={40} color="#6366F1" />
-                </View>
-                <Text style={styles.cardTitle}>Permission: Camera Scanner</Text>
-                <Text style={styles.cardSubtitle}>
-                  Enable camera access for scanning mutual QR verification codes during physical face-to-face meetups.
-                </Text>
-
-                <View style={styles.permissionToggleCard}>
-                  <View style={{ flex: 1, paddingRight: 8 }}>
-                    <Text style={styles.toggleTitle}>Camera Scanner Access</Text>
-                    <Text style={styles.toggleSub}>{cameraGranted ? 'ENABLED (Ready for QR Scan)' : 'Tap switch to grant access'}</Text>
-                  </View>
-                  <Switch
-                    value={cameraGranted}
-                    onValueChange={handleCameraToggle}
-                    trackColor={{ false: '#CBD5E1', true: '#2563EB' }}
-                    thumbColor="#FFFFFF"
-                  />
                 </View>
               </View>
             )}
@@ -976,7 +855,7 @@ export default function WelcomeScreen({ navigation }: any) {
               </View>
             )}
 
-            {/* CARD 24: Sports & Workout Companions */}
+            {/* CARD 13: Sports & Workout Companions */}
             {item.id === 'sports_fitness_cat' && (
               <View style={styles.cardContent}>
                 <View style={[styles.heroBadge, { borderColor: '#F59E0B' }]}>
@@ -986,10 +865,26 @@ export default function WelcomeScreen({ navigation }: any) {
                 <Text style={styles.cardSubtitle}>
                   Find gym spotters, jogging buddies, tennis/badminton partners, yoga pairs, or hiking companions in your area.
                 </Text>
+                <View style={styles.pillList}>
+                  <View style={styles.featurePill}>
+                    <Icon name="directions-run" size={20} color="#F59E0B" />
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.pillTitle}>Gym Spotters & Running Duos</Text>
+                      <Text style={styles.pillSub}>Stay accountable with nearby fitness enthusiasts.</Text>
+                    </View>
+                  </View>
+                  <View style={styles.featurePill}>
+                    <Icon name="sports-tennis" size={20} color="#10B981" />
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.pillTitle}>Local Court Matches & Hiking</Text>
+                      <Text style={styles.pillSub}>Pickleball, badminton, outdoor trails, and yoga.</Text>
+                    </View>
+                  </View>
+                </View>
               </View>
             )}
 
-            {/* CARD 25: Travel & Language Practice */}
+            {/* CARD 14: Travel & Language Practice */}
             {item.id === 'travel_culture_cat' && (
               <View style={styles.cardContent}>
                 <View style={[styles.heroBadge, { borderColor: '#6366F1' }]}>
@@ -999,10 +894,26 @@ export default function WelcomeScreen({ navigation }: any) {
                 <Text style={styles.cardSubtitle}>
                   Explore city walking tours, heritage spots, road trips, and practice conversational languages with native speakers.
                 </Text>
+                <View style={styles.pillList}>
+                  <View style={styles.featurePill}>
+                    <Icon name="translate" size={20} color="#6366F1" />
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.pillTitle}>Conversational Language Exchange</Text>
+                      <Text style={styles.pillSub}>Native speakers practicing casually over tea or coffee.</Text>
+                    </View>
+                  </View>
+                  <View style={styles.featurePill}>
+                    <Icon name="map" size={20} color="#2563EB" />
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.pillTitle}>City Photowalks & Heritage Trips</Text>
+                      <Text style={styles.pillSub}>Discover hidden neighborhood gems with local guides.</Text>
+                    </View>
+                  </View>
+                </View>
               </View>
             )}
 
-            {/* CARD 26: Gaming, Anime & Hobby Pairs */}
+            {/* CARD 15: Gaming, Anime & Hobby Pairs */}
             {item.id === 'gaming_hobbies_cat' && (
               <View style={styles.cardContent}>
                 <View style={[styles.heroBadge, { borderColor: '#EC4899' }]}>
@@ -1012,10 +923,26 @@ export default function WelcomeScreen({ navigation }: any) {
                 <Text style={styles.cardSubtitle}>
                   Connect for co-op video games, board game cafe meetups, anime watch parties, and tabletop RPG campaigns.
                 </Text>
+                <View style={styles.pillList}>
+                  <View style={styles.featurePill}>
+                    <Icon name="videogame-asset" size={20} color="#EC4899" />
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.pillTitle}>Multiplayer Co-Op & Tournaments</Text>
+                      <Text style={styles.pillSub}>Squad up for PC, console, or mobile gaming sessions.</Text>
+                    </View>
+                  </View>
+                  <View style={styles.featurePill}>
+                    <Icon name="casino" size={20} color="#8B5CF6" />
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.pillTitle}>Board Game Cafes & Anime Watch</Text>
+                      <Text style={styles.pillSub}>Strategy tabletop games, D&D campaigns, and fandom.</Text>
+                    </View>
+                  </View>
+                </View>
               </View>
             )}
 
-            {/* CARD 27: Co-Working & Tech Collaboration */}
+            {/* CARD 16: Co-Working & Tech Collaboration */}
             {item.id === 'coworking_tech_cat' && (
               <View style={styles.cardContent}>
                 <View style={[styles.heroBadge, { borderColor: '#0284C7' }]}>
@@ -1025,10 +952,26 @@ export default function WelcomeScreen({ navigation }: any) {
                 <Text style={styles.cardSubtitle}>
                   Freelance cafe co-working, pair programming side-projects, hackathons, and professional networking.
                 </Text>
+                <View style={styles.pillList}>
+                  <View style={styles.featurePill}>
+                    <Icon name="laptop-mac" size={20} color="#0284C7" />
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.pillTitle}>Cafe Co-Working Sprints</Text>
+                      <Text style={styles.pillSub}>Focus alongside remote builders, writers, and devs.</Text>
+                    </View>
+                  </View>
+                  <View style={styles.featurePill}>
+                    <Icon name="code" size={20} color="#10B981" />
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.pillTitle}>Side-Project Brainstorms & Hackathons</Text>
+                      <Text style={styles.pillSub}>Find co-founders, designers, and engineering peers.</Text>
+                    </View>
+                  </View>
+                </View>
               </View>
             )}
 
-            {/* CARD 28: Concerts, Music Jams & Arts */}
+            {/* CARD 17: Concerts, Music Jams & Arts */}
             {item.id === 'events_arts_cat' && (
               <View style={styles.cardContent}>
                 <View style={[styles.heroBadge, { borderColor: '#8B5CF6' }]}>
@@ -1038,10 +981,26 @@ export default function WelcomeScreen({ navigation }: any) {
                 <Text style={styles.cardSubtitle}>
                   Find event buddies for music gigs, theater, acoustic jam sessions, pottery workshops, and art gallery walks.
                 </Text>
+                <View style={styles.pillList}>
+                  <View style={styles.featurePill}>
+                    <Icon name="album" size={20} color="#8B5CF6" />
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.pillTitle}>Live Gigs & Festival Companions</Text>
+                      <Text style={styles.pillSub}>Never miss a concert or indie show just because you're solo.</Text>
+                    </View>
+                  </View>
+                  <View style={styles.featurePill}>
+                    <Icon name="palette" size={20} color="#F59E0B" />
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.pillTitle}>Art Galleries & Creative Jams</Text>
+                      <Text style={styles.pillSub}>Weekend museum visits, sketch walks, and acoustic sessions.</Text>
+                    </View>
+                  </View>
+                </View>
               </View>
             )}
 
-            {/* CARD 29: Local Advice & Pet Meetups */}
+            {/* CARD 18: Local Advice & Pet Meetups */}
             {item.id === 'neighborhood_pet_cat' && (
               <View style={styles.cardContent}>
                 <View style={[styles.heroBadge, { borderColor: '#10B981' }]}>
@@ -1051,10 +1010,26 @@ export default function WelcomeScreen({ navigation }: any) {
                 <Text style={styles.cardSubtitle}>
                   Dog park playdates, pet walking, borrowing household tools, and neighborhood newcomer orientation.
                 </Text>
+                <View style={styles.pillList}>
+                  <View style={styles.featurePill}>
+                    <Icon name="pets" size={20} color="#10B981" />
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.pillTitle}>Dog Park Playdates & Walking</Text>
+                      <Text style={styles.pillSub}>Socialize your pets with nearby furry friends safely.</Text>
+                    </View>
+                  </View>
+                  <View style={styles.featurePill}>
+                    <Icon name="home-work" size={20} color="#2563EB" />
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.pillTitle}>Hyperlocal Tips & Mutual Aid</Text>
+                      <Text style={styles.pillSub}>Recommendations for doctors, services, and neighborhood advice.</Text>
+                    </View>
+                  </View>
+                </View>
               </View>
             )}
 
-            {/* CARD 30: Foodie Outings & Shared Commute */}
+            {/* CARD 19: Foodie Outings & Shared Commute */}
             {item.id === 'foodie_carpool_cat' && (
               <View style={styles.cardContent}>
                 <View style={[styles.heroBadge, { borderColor: '#F59E0B' }]}>
@@ -1064,45 +1039,78 @@ export default function WelcomeScreen({ navigation }: any) {
                 <Text style={styles.cardSubtitle}>
                   Group food crawls, trying new local restaurants, weekend potlucks, and daily workplace carpools.
                 </Text>
-              </View>
-            )}
-
-            {/* CARD 31: 5-Level Engagement Scale */}
-            {item.id === 'five_level_protocol' && (
-              <View style={styles.cardContent}>
-                <View style={[styles.heroBadge, { borderColor: '#8B5CF6' }]}>
-                  <Icon name="layers" size={40} color="#8B5CF6" />
-                </View>
-                <Text style={styles.cardTitle}>5-Level Engagement Scale</Text>
-                <Text style={styles.cardSubtitle}>
-                  Select your preferred interaction intensity across 5 distinct levels:
-                </Text>
                 <View style={styles.pillList}>
                   <View style={styles.featurePill}>
-                    <Icon name="chat" size={18} color="#8B5CF6" />
-                    <Text style={styles.pillTitle}>Level 1: Quick Online Q&A / Advice</Text>
+                    <Icon name="dinner-dining" size={20} color="#F59E0B" />
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.pillTitle}>Street Food Crawls & Dining Pods</Text>
+                      <Text style={styles.pillSub}>Explore local eateries and sample menus family-style.</Text>
+                    </View>
                   </View>
                   <View style={styles.featurePill}>
-                    <Icon name="voice-chat" size={18} color="#2563EB" />
-                    <Text style={styles.pillTitle}>Level 2: Virtual Pre-Meetup Alignment</Text>
-                  </View>
-                  <View style={styles.featurePill}>
-                    <Icon name="storefront" size={18} color="#10B981" />
-                    <Text style={styles.pillTitle}>Level 3: Casual 30-Min Public Meetup</Text>
-                  </View>
-                  <View style={styles.featurePill}>
-                    <Icon name="groups" size={18} color="#F59E0B" />
-                    <Text style={styles.pillTitle}>Level 4: Regular Group & Activity Duo</Text>
-                  </View>
-                  <View style={styles.featurePill}>
-                    <Icon name="star" size={18} color="#EF4444" />
-                    <Text style={styles.pillTitle}>Level 5: Deep Collaboration & Local Hosting</Text>
+                    <Icon name="directions-car" size={20} color="#10B981" />
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.pillTitle}>Community Carpool & Rides</Text>
+                      <Text style={styles.pillSub}>Split commute costs and reduce emissions with trusted peers.</Text>
+                    </View>
                   </View>
                 </View>
               </View>
             )}
 
-            {/* CARD 32: Permissions & Device Sensors */}
+            {/* CARD 20: Setup Connection Profile */}
+            {item.id === 'profile_interests' && (
+              <View style={styles.cardContent}>
+                <View style={[styles.heroBadge, { borderColor: guardianSaved ? '#10B981' : '#2563EB' }]}>
+                  <Icon name="account-circle" size={40} color={guardianSaved ? '#10B981' : '#2563EB'} />
+                </View>
+                <Text style={styles.cardTitle}>Setup Connection Profile</Text>
+                <Text style={styles.cardSubtitle}>
+                  Personalize your stranger connection profile. Set your display name, primary interest tags, and preferred bio or handle.
+                </Text>
+
+                <View style={styles.inputContainer}>
+                  <TextInput
+                    style={styles.textInput}
+                    placeholder="Your Display Name"
+                    placeholderTextColor="#64748B"
+                    value={guardianName}
+                    onChangeText={(val) => {
+                      setGuardianName(val);
+                      setGuardianSaved(false);
+                    }}
+                  />
+                  <TextInput
+                    style={styles.textInput}
+                    placeholder="Primary Interest (e.g. Coffee, Coding, Jogging)"
+                    placeholderTextColor="#64748B"
+                    value={guardianPhone}
+                    onChangeText={(val) => {
+                      setGuardianPhone(val);
+                      setGuardianSaved(false);
+                    }}
+                  />
+                  <TextInput
+                    style={styles.textInput}
+                    placeholder="Bio / Handle (e.g. @alex_coffee)"
+                    placeholderTextColor="#64748B"
+                    value={guardianRelation}
+                    onChangeText={(val) => {
+                      setGuardianRelation(val);
+                      setGuardianSaved(false);
+                    }}
+                  />
+                  <TouchableOpacity style={[styles.saveGuardianBtn, { backgroundColor: '#2563EB' }]} onPress={() => handleSaveGuardian(false)} activeOpacity={0.85}>
+                    <Icon name={guardianSaved ? 'check-circle' : 'save'} size={18} color="#FFFFFF" />
+                    <Text style={styles.saveGuardianBtnText}>
+                      {guardianSaved ? 'PROFILE SAVED & READY' : 'SAVE CONNECTION PROFILE'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
+
+            {/* CARD 21: Permissions & Device Sensors */}
             {item.id === 'perm_suite' && (
               <View style={styles.cardContent}>
                 <View style={[styles.heroBadge, { borderColor: '#2563EB' }]}>
@@ -1278,9 +1286,25 @@ export default function WelcomeScreen({ navigation }: any) {
         style={styles.flatList}
       />
 
-      {/* Sleek Bottom Pagination Dots Strip */}
-      <View style={styles.bottomBar}>
-        <Text style={styles.swipeHintText}>‹ Swipe cards ›</Text>
+      {/* Sleek Bottom Pagination & Navigation Strip */}
+      <View
+        style={[
+          styles.bottomBar,
+          {
+            paddingBottom: insets.bottom > 0 ? insets.bottom + 6 : 10,
+            paddingTop: 8,
+          },
+        ]}
+      >
+        <TouchableOpacity
+          style={[styles.navArrowBtn, activeIndex === 0 && styles.navArrowBtnDisabled]}
+          onPress={() => scrollToIndex(activeIndex - 1)}
+          disabled={activeIndex === 0}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
+          <Icon name="chevron-left" size={24} color={activeIndex === 0 ? '#CBD5E1' : '#2563EB'} />
+        </TouchableOpacity>
+
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.dotsStripContainer}>
           <View style={styles.dotsStrip}>
             {ONBOARDING_CARDS.map((_, index) => (
@@ -1300,6 +1324,15 @@ export default function WelcomeScreen({ navigation }: any) {
             ))}
           </View>
         </ScrollView>
+
+        <TouchableOpacity
+          style={[styles.navArrowBtn, activeIndex === ONBOARDING_CARDS.length - 1 && styles.navArrowBtnDisabled]}
+          onPress={() => scrollToIndex(activeIndex + 1)}
+          disabled={activeIndex === ONBOARDING_CARDS.length - 1}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
+          <Icon name="chevron-right" size={24} color={activeIndex === ONBOARDING_CARDS.length - 1 ? '#CBD5E1' : '#2563EB'} />
+        </TouchableOpacity>
       </View>
 
       {/* Custom Alert / Dialog Modal */}
@@ -1320,81 +1353,77 @@ export default function WelcomeScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFF1F2',
+    backgroundColor: '#F8FAFC',
   },
   header: {
-    height: 52,
-    paddingHorizontal: 16,
+    height: 56,
+    paddingHorizontal: 20,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
   },
   branding: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 10,
   },
   brandIconWrapper: {
-    width: 30,
-    height: 30,
-    borderRadius: 8,
-    backgroundColor: 'rgba(220, 38, 38, 0.10)',
+    width: 34,
+    height: 34,
+    borderRadius: 10,
+    backgroundColor: 'rgba(37, 99, 235, 0.08)',
     borderWidth: 1,
-    borderColor: 'rgba(220, 38, 38, 0.25)',
+    borderColor: 'rgba(37, 99, 235, 0.20)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   brandName: {
     fontFamily: 'SpaceGrotesk-Bold',
-    fontSize: 18,
+    fontSize: 19,
     fontWeight: '800',
     color: '#0F172A',
-    letterSpacing: -0.5,
+    letterSpacing: -0.6,
   },
   headerRight: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 10,
   },
   stepBadge: {
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: 'rgba(220, 38, 38, 0.22)',
+    backgroundColor: '#F1F5F9',
     paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-    shadowColor: '#DC2626',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
+    paddingVertical: 5,
+    borderRadius: 14,
   },
   stepBadgeText: {
     fontFamily: 'SpaceGrotesk-Bold',
-    fontSize: 10,
-    color: '#DC2626',
+    fontSize: 11,
+    color: '#475569',
     letterSpacing: 0.8,
     fontWeight: '700',
   },
   skipBtn: {
     paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingVertical: 5,
   },
   skipBtnText: {
     fontFamily: 'SpaceGrotesk-Bold',
-    fontSize: 11,
-    color: '#DC2626',
+    fontSize: 11.5,
+    color: '#2563EB',
     fontWeight: '700',
     letterSpacing: 0.5,
   },
   progressBarTrack: {
-    height: 3.5,
-    backgroundColor: 'rgba(220, 38, 38, 0.12)',
+    height: 3,
+    backgroundColor: '#E2E8F0',
     width: '100%',
   },
   progressBarFill: {
     height: '100%',
-    backgroundColor: '#DC2626',
+    backgroundColor: '#2563EB',
     borderRadius: 2,
   },
   flatList: {
@@ -1404,7 +1433,7 @@ const styles = StyleSheet.create({
     width: SCREEN_WIDTH,
     flex: 1,
     paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingVertical: 12,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1415,42 +1444,41 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 8,
+    paddingVertical: 10,
   },
   skeuomorphicCard: {
     width: '100%',
     maxWidth: CARD_WIDTH,
     backgroundColor: '#FFFFFF',
-    borderWidth: 1.5,
-    borderColor: '#FAE4E4',
-    borderTopColor: '#FFFFFF',
-    borderRadius: 22,
-    padding: 20,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderRadius: 24,
+    padding: 22,
     shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 5,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.07,
+    shadowRadius: 20,
+    elevation: 4,
   },
   cardContent: {
     alignItems: 'center',
     gap: 12,
   },
   heroBadge: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: '#FCF1F1',
+    width: 68,
+    height: 68,
+    borderRadius: 34,
+    backgroundColor: '#F8FAFC',
     borderWidth: 1.5,
-    borderColor: '#DC2626',
+    borderColor: '#2563EB',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#DC2626',
+    shadowColor: '#0F172A',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.18,
-    shadowRadius: 10,
-    elevation: 4,
-    marginBottom: 2,
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
+    marginBottom: 4,
   },
   cardTitle: {
     fontFamily: 'WorkSans-Bold',
@@ -1458,11 +1486,11 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: '#0F172A',
     textAlign: 'center',
-    letterSpacing: -0.3,
+    letterSpacing: -0.4,
   },
   cardSubtitle: {
     fontFamily: 'WorkSans-Regular',
-    fontSize: 13,
+    fontSize: 13.5,
     lineHeight: 20,
     color: '#475569',
     textAlign: 'center',
@@ -1470,18 +1498,18 @@ const styles = StyleSheet.create({
   pillList: {
     width: '100%',
     gap: 8,
-    marginTop: 2,
+    marginTop: 4,
   },
   featurePill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: '#FCF1F1',
+    backgroundColor: '#F8FAFC',
     borderWidth: 1,
-    borderColor: '#FAE4E4',
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderRadius: 12,
+    borderColor: '#E2E8F0',
+    paddingVertical: 11,
+    paddingHorizontal: 14,
+    borderRadius: 14,
   },
   pillTitle: {
     fontFamily: 'SpaceGrotesk-Bold',
@@ -1497,17 +1525,17 @@ const styles = StyleSheet.create({
   },
   infoBanner: {
     width: '100%',
-    backgroundColor: 'rgba(220, 38, 38, 0.05)',
+    backgroundColor: '#F8FAFC',
     borderWidth: 1,
-    borderColor: 'rgba(220, 38, 38, 0.18)',
-    borderRadius: 12,
+    borderColor: '#E2E8F0',
+    borderRadius: 14,
     padding: 12,
     gap: 4,
   },
   infoBannerTitle: {
     fontFamily: 'SpaceGrotesk-Bold',
     fontSize: 11,
-    color: '#DC2626',
+    color: '#2563EB',
     letterSpacing: 0.8,
   },
   infoBannerText: {
@@ -1518,10 +1546,10 @@ const styles = StyleSheet.create({
   },
   gridDemoBox: {
     width: '100%',
-    backgroundColor: '#FCF1F1',
+    backgroundColor: '#F8FAFC',
     borderWidth: 1,
-    borderColor: '#FAE4E4',
-    borderRadius: 12,
+    borderColor: '#E2E8F0',
+    borderRadius: 14,
     padding: 12,
     alignItems: 'center',
     gap: 6,
@@ -1534,7 +1562,7 @@ const styles = StyleSheet.create({
   gridHeaderTitle: {
     fontFamily: 'SpaceGrotesk-Bold',
     fontSize: 10.5,
-    color: '#DC2626',
+    color: '#2563EB',
     letterSpacing: 0.6,
   },
   gridRow: {
@@ -1547,12 +1575,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#FAE4E4',
+    borderColor: '#E2E8F0',
     borderRadius: 8,
   },
   gridCellActive: {
-    backgroundColor: 'rgba(220, 38, 38, 0.10)',
-    borderColor: '#DC2626',
+    backgroundColor: 'rgba(37, 99, 235, 0.08)',
+    borderColor: '#2563EB',
   },
   gridText: {
     fontFamily: 'SpaceGrotesk-Medium',
@@ -1562,7 +1590,7 @@ const styles = StyleSheet.create({
   gridTextActive: {
     fontFamily: 'SpaceGrotesk-Bold',
     fontSize: 9.5,
-    color: '#DC2626',
+    color: '#2563EB',
   },
   gridSub: {
     fontFamily: 'WorkSans-Regular',
@@ -1575,12 +1603,12 @@ const styles = StyleSheet.create({
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
-    backgroundColor: '#FCF1F1',
+    gap: 12,
+    backgroundColor: '#F8FAFC',
     borderWidth: 1,
-    borderColor: '#FAE4E4',
+    borderColor: '#E2E8F0',
     padding: 12,
-    borderRadius: 12,
+    borderRadius: 14,
   },
   statusBoxTitle: {
     fontFamily: 'SpaceGrotesk-Bold',
@@ -1596,17 +1624,17 @@ const styles = StyleSheet.create({
   },
   keyDisplayBox: {
     width: '100%',
-    backgroundColor: '#FCF1F1',
+    backgroundColor: '#F8FAFC',
     borderWidth: 1,
-    borderColor: '#FAE4E4',
-    borderRadius: 10,
+    borderColor: '#E2E8F0',
+    borderRadius: 12,
     padding: 10,
     gap: 2,
   },
   keyDisplayLabel: {
     fontFamily: 'SpaceGrotesk-Bold',
     fontSize: 9.5,
-    color: '#DC2626',
+    color: '#2563EB',
     letterSpacing: 0.6,
   },
   keyDisplayText: {
@@ -1616,16 +1644,16 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     width: '100%',
-    gap: 8,
-    marginTop: 2,
+    gap: 10,
+    marginTop: 4,
   },
   textInput: {
-    backgroundColor: '#FCF1F1',
+    backgroundColor: '#F8FAFC',
     borderWidth: 1,
-    borderColor: '#FAE4E4',
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 9,
+    borderColor: '#E2E8F0',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 11,
     color: '#0F172A',
     fontFamily: 'WorkSans-Regular',
     fontSize: 13.5,
@@ -1636,9 +1664,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 8,
     backgroundColor: '#10B981',
-    borderRadius: 10,
-    paddingVertical: 11,
-    marginTop: 2,
+    borderRadius: 12,
+    paddingVertical: 12,
+    marginTop: 4,
     shadowColor: '#10B981',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.2,
@@ -1647,7 +1675,7 @@ const styles = StyleSheet.create({
   },
   saveGuardianBtnText: {
     fontFamily: 'SpaceGrotesk-Bold',
-    fontSize: 11.5,
+    fontSize: 12,
     color: '#FFFFFF',
     letterSpacing: 0.5,
   },
@@ -1659,9 +1687,9 @@ const styles = StyleSheet.create({
   },
   emergencyNumCard: {
     flex: 1,
-    backgroundColor: '#FCF1F1',
+    backgroundColor: '#F8FAFC',
     borderWidth: 1,
-    borderColor: '#FAE4E4',
+    borderColor: '#E2E8F0',
     borderRadius: 10,
     padding: 8,
     alignItems: 'center',
@@ -1682,11 +1710,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#FCF1F1',
+    backgroundColor: '#F8FAFC',
     borderWidth: 1,
-    borderColor: '#FAE4E4',
-    padding: 12,
-    borderRadius: 12,
+    borderColor: '#E2E8F0',
+    padding: 14,
+    borderRadius: 14,
   },
   toggleTitle: {
     fontFamily: 'WorkSans-Bold',
@@ -1705,21 +1733,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: '#DC2626',
-    borderWidth: 1.5,
-    borderColor: '#EF4444',
-    borderRadius: 12,
+    backgroundColor: '#2563EB',
+    borderRadius: 14,
     paddingVertical: 13,
-    shadowColor: '#DC2626',
+    shadowColor: '#2563EB',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.25,
     shadowRadius: 8,
     elevation: 4,
-    marginTop: 4,
+    marginTop: 6,
   },
   googleCtaText: {
     fontFamily: 'SpaceGrotesk-Bold',
-    fontSize: 12.5,
+    fontSize: 13,
     color: '#FFFFFF',
     letterSpacing: 0.8,
   },
@@ -1729,45 +1755,47 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
-    backgroundColor: '#FCF1F1',
+    backgroundColor: '#F8FAFC',
     borderWidth: 1,
-    borderColor: '#FAE4E4',
-    borderRadius: 10,
-    paddingVertical: 10,
+    borderColor: '#E2E8F0',
+    borderRadius: 12,
+    paddingVertical: 11,
   },
   guestCtaText: {
     fontFamily: 'SpaceGrotesk-Bold',
-    fontSize: 11,
-    color: '#DC2626',
+    fontSize: 11.5,
+    color: '#2563EB',
     letterSpacing: 0.6,
   },
   policyFootnote: {
     fontFamily: 'WorkSans-Regular',
-    fontSize: 11,
-    lineHeight: 17,
+    fontSize: 11.5,
+    lineHeight: 18,
     color: '#64748B',
     textAlign: 'center',
-    marginTop: 2,
+    marginTop: 4,
   },
   policyLink: {
     fontFamily: 'WorkSans-Bold',
-    color: '#DC2626',
+    color: '#2563EB',
     textDecorationLine: 'underline',
   },
   bottomBar: {
-    height: 48,
-    paddingHorizontal: 16,
+    minHeight: 50,
+    paddingHorizontal: 20,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#FFF1F2',
+    backgroundColor: '#FFFFFF',
+    borderTopWidth: 1,
+    borderTopColor: '#F1F5F9',
   },
   swipeHintText: {
     fontFamily: 'SpaceGrotesk-Medium',
-    fontSize: 10.5,
+    fontSize: 11,
     color: '#94A3B8',
-    letterSpacing: 0.3,
-    marginRight: 8,
+    letterSpacing: 0.4,
+    marginRight: 10,
   },
   dotsStripContainer: {
     alignItems: 'center',
@@ -1776,21 +1804,31 @@ const styles = StyleSheet.create({
   dotsStrip: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 5,
   },
   paginationDot: {
-    width: 5,
-    height: 5,
-    borderRadius: 2.5,
-    backgroundColor: '#F4D0D0',
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#CBD5E1',
   },
   paginationDotActive: {
-    width: 14,
-    backgroundColor: '#DC2626',
+    width: 18,
+    backgroundColor: '#2563EB',
+    borderRadius: 4,
   },
   paginationDotDone: {
-    backgroundColor: '#FCF1F1',
-    borderColor: '#DC2626',
-    borderWidth: 1,
+    backgroundColor: '#93C5FD',
+  },
+  navArrowBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: 'rgba(37, 99, 235, 0.08)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  navArrowBtnDisabled: {
+    backgroundColor: '#F1F5F9',
   },
 });

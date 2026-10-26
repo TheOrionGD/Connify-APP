@@ -29,7 +29,11 @@ ui-ux-pro-max-skill
 !.yarn/versions
 .pnp.*
 App_UI
-patent
+# ------------------------------------------------------------------------------
+# Confidential Patent Specifications & Proprietary Trade Secrets
+# ------------------------------------------------------------------------------
+docs/Unique/*patent*
+docs/Unique/custom_invented_algorithm_code.txt
 # ------------------------------------------------------------------------------
 # 2. Environment Variables & Secret Files
 # ------------------------------------------------------------------------------

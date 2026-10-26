@@ -8,7 +8,7 @@ import {
   TextInput,
   Alert,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { theme, useTheme } from '../../theme';
 import { StandardButton } from '../../components/buttons/StandardButton';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -29,6 +29,7 @@ import { getCategoryUrgencyContext } from '../../utils/categoryContexts';
 import { BiometricService } from '../../services/biometricService';
 
 export default function CreateRequestScreen({ navigation }: any) {
+  const insets = useSafeAreaInsets();
   const { colors } = useTheme();
   const startRequest = useEpisodeStore((state) => state.startRequest);
   const { latitude, longitude } = useLocationStore();
@@ -422,7 +423,16 @@ export default function CreateRequestScreen({ navigation }: any) {
         </View>
       </ScrollView>
 
-      <View style={[styles.bottomBar, { backgroundColor: colors.background, borderTopColor: colors.outline }]}>
+      <View
+        style={[
+          styles.bottomBar,
+          {
+            backgroundColor: colors.background,
+            borderTopColor: colors.outline,
+            paddingBottom: insets.bottom > 0 ? insets.bottom + 10 : 16,
+          },
+        ]}
+      >
         <StandardButton
           title={loading ? 'BROADCASTING...' : 'BROADCAST REQUEST'}
           onPress={handleBroadcast}

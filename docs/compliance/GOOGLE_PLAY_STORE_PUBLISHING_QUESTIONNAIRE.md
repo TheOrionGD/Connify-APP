@@ -22,8 +22,8 @@ Our static code audit of the Connify application repository (`o:\PROJECTS\CONNIF
   - `CAMERA` (Live QR code handshake scanning via Vision Camera / Barcode Scanning for mutual verification)
   - `POST_NOTIFICATIONS` (Alerts and incoming connection request notifications via Notifee / Firebase Messaging)
   - `CALL_PHONE` (Direct offline dialing to primary contacts/guardians)
-  - `SEND_SMS` (Direct SMS fallback when data networks are offline)
   - `VIBRATE`, `USE_BIOMETRIC`, `USE_FINGERPRINT`
+  - *(Note: `SEND_SMS` removed; offline emergency SMS dispatch uses zero-permission Android `sms:` URI intents)*
 - **Monetization & Ads**: **No Ads** (No AdMob / Google Mobile Ads SDK integrated).
 - **Data Protection**: Zero-Knowledge P2P grid design, TLS 1.3 in-transit encryption, local encrypted storage (`react-native-keychain` / `AsyncStorage`), on-device biometrics (`react-native-biometrics`).
 - **Account Deletion**: In-app "Disconnect Account & Wipe Data" action + Public Web Form portal (`ACCOUNT_DELETION_GOOGLE_FORM_SETUP.md`).
@@ -34,7 +34,7 @@ Our static code audit of the Connify application repository (`o:\PROJECTS\CONNIF
 
 | Question | Play Console Field | Recommended Answer / Value | Codebase Rationale |
 | :--- | :--- | :--- | :--- |
-| **Privacy Policy URL** | Privacy policy link | `https://connify.app/privacy` *(or hosted URL pointing to `PRIVACY_POLICY.md`)* | Verified: `PRIVACY_POLICY.md` exists in repo root, detailing zero-knowledge spatial grids, data retention, and permission usage. |
+| **Privacy Policy URL** | Privacy policy link | `https://sites.google.com/view/connifyprivacypolicy/home` | Verified: Official Google Sites hosted privacy policy matching `PRIVACY_POLICY.md` & `ds.html` in repo root. |
 
 ---
 
@@ -333,7 +333,6 @@ Google Play Console requires explicit justifications for runtime permissions dec
 <uses-permission android:name="android.permission.CAMERA" />
 <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 <uses-permission android:name="android.permission.CALL_PHONE" />
-<uses-permission android:name="android.permission.SEND_SMS" />
 <uses-permission android:name="android.permission.VIBRATE" />
 <uses-permission android:name="android.permission.USE_BIOMETRIC" />
 ```
@@ -346,8 +345,8 @@ Google Play Console requires explicit justifications for runtime permissions dec
 2. **Direct Calling (`CALL_PHONE`)**:
    - **Core Purpose:** Direct phone connection shortcuts to primary contacts when data networks are offline.
 
-3. **Direct SMS Sending (`SEND_SMS`)**:
-   - **Core Purpose:** Offline connection request fallback routing. Dispatches SMS connection requests directly when cellular data or Wi-Fi is unavailable.
+3. **SMS Dispatch (Compliant Implementation - No Permission Required)**:
+   - **Status:** `SEND_SMS` has been completely removed from `AndroidManifest.xml` in compliance with Google Play Policy. Offline emergency distress SMS alerts are dispatched via standard Android `sms:` URI intents (`Linking.openURL`), invoking the user's native messaging application with pre-filled coordinates. Zero sensitive SMS permissions requested.
 
 4. **Camera Access (`CAMERA`)**:
    - **Core Purpose:** Used strictly for live QR code scanning during mutual proximity handshakes between connecting peers.
@@ -370,7 +369,7 @@ Google Play Console requires explicit justifications for runtime permissions dec
 | **Tags / Keywords** | `Social Network`, `P2P Connection`, `Verified Strangers`, `Proximity Chat`, `Peer Discovery` |
 | **Developer / Organization** | TheOrionGD |
 | **Support Email** | `support@connify.app` |
-| **Privacy Policy Link** | `https://connify.app/privacy` |
+| **Privacy Policy Link** | `https://sites.google.com/view/connifyprivacypolicy/home` |
 | **Account Deletion Link** | `https://connify.app/delete-account` |
 
 ---

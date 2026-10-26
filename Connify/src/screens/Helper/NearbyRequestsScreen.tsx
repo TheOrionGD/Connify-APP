@@ -27,6 +27,7 @@ import LeafletMapView from '../../components/map/LeafletMapView';
 import { NotificationService } from '../../services/NotificationService';
 import { useRewardStore } from '../../stores/rewardStore';
 import { BiometricService } from '../../services/biometricService';
+import { useSafeBottomTabBarHeight } from '../../utils/useSafeBottomTabBarHeight';
 
 
 interface HelpRequest {
@@ -78,6 +79,7 @@ const getCategoryIcon = (categoryStr: string): string => {
 export default function NearbyRequestsScreen({ navigation }: any) {
   const { latitude, longitude, loading: locationLoading, startWatchingLocation } = useLocationStore();
   const { colors } = useTheme();
+  const tabBarHeight = useSafeBottomTabBarHeight();
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<HelpRequest | null>(null);
   const [requests, setRequests] = useState<HelpRequest[]>([]);
@@ -377,7 +379,7 @@ export default function NearbyRequestsScreen({ navigation }: any) {
 
 
       <ScrollView 
-        contentContainerStyle={styles.scrollContainer} 
+        contentContainerStyle={[styles.scrollContainer, { paddingBottom: tabBarHeight + 16 }]} 
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl

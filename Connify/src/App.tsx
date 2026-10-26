@@ -51,7 +51,8 @@ function AppContent() {
     <SafeAreaProvider>
       <StatusBar
         barStyle={isDark ? 'light-content' : 'dark-content'}
-        backgroundColor={colors.background}
+        backgroundColor="transparent"
+        translucent={true}
       />
       <NavigationContainer
         theme={navigationTheme}
